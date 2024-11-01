@@ -22,4 +22,6 @@ target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui
         libs/imgui/backends include)
 
+set_property(TARGET LRI_control_panel glfw PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LRIRCI")
