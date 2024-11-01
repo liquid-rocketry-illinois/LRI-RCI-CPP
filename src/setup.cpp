@@ -1,9 +1,13 @@
+#include <Windows.h>
+
 #include "setup.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 
-namespace LRI {
+#include "WindowsResource.h"
+
+namespace LRI::RCI {
     ImFont* font_regular;
     ImFont* font_bold;
     float scaling_factor;
@@ -29,9 +33,11 @@ namespace LRI {
         io.Fonts->Clear();
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
-        font_regular = io.Fonts->AddFontFromFileTTF("font-regular.ttf", 16 * scaling_factor, &fontConfig);
-        font_bold = io.Fonts->AddFontFromFileTTF("font-bold.ttf", 16 * scaling_factor, &fontConfig);
 
+        WindowsResource fonts("font-regular.ttf", "TTFFONT");
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
+        fonts = WindowsResource("font-bold.ttf", "TTFFONT");
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
     }
 
     void imgui_prerender(GLFWwindow* window) {

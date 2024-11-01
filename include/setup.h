@@ -4,7 +4,7 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
-namespace LRI {
+namespace LRI::RCI {
     static constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
 
     extern ImFont* font_regular;

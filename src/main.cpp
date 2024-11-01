@@ -1,14 +1,11 @@
+#include <Windows.h>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 #include "setup.h"
 #include "devices/COMPort.h"
-#include <Windows.h>
 #include <setupapi.h>
 #include <devguid.h>
 #include <vector>
-
-#include <windowsx.h>
-#include <cfgmgr32.h>
 
 std::vector<std::string>* enumSerial();
 
@@ -33,14 +30,14 @@ int main() {
 
     std::vector<std::string>* devlist = nullptr;
 
-    LRI::imgui_init(window);
+    LRI::RCI::imgui_init(window);
 
     while(!glfwWindowShouldClose(window)) {
-        LRI::imgui_prerender(window);
+        LRI::RCI::imgui_prerender(window);
 
-        ImGui::SetNextWindowPos(ImVec2(50 * LRI::scaling_factor, 50 * LRI::scaling_factor), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(350 * LRI::scaling_factor, 200 * LRI::scaling_factor), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Window Diagnostic", nullptr, LRI::window_flags)) {
+        ImGui::SetNextWindowPos(ImVec2(50 * LRI::RCI::scaling_factor, 50 * LRI::RCI::scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(350 * LRI::RCI::scaling_factor, 200 * LRI::RCI::scaling_factor), ImGuiCond_FirstUseEver);
+        if(ImGui::Begin("Window Diagnostic", nullptr, LRI::RCI::window_flags)) {
             ImGui::Text("LRI Rocket Control Panel");
             int h, w;
             glfwGetFramebufferSize(window, &w, &h);
@@ -57,9 +54,9 @@ int main() {
 
         ImGui::End();
 
-        ImGui::SetNextWindowPos(ImVec2(700 * LRI::scaling_factor, 50 * LRI::scaling_factor), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(400 * LRI::scaling_factor, 400 * LRI::scaling_factor), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Rocket Control", nullptr, LRI::window_flags)) {
+        ImGui::SetNextWindowPos(ImVec2(700 * LRI::RCI::scaling_factor, 50 * LRI::RCI::scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(400 * LRI::RCI::scaling_factor, 400 * LRI::RCI::scaling_factor), ImGuiCond_FirstUseEver);
+        if(ImGui::Begin("Rocket Control", nullptr, LRI::RCI::window_flags)) {
             ImGui::Text("COM Port name: ");
             ImGui::SameLine();
             ImGui::InputText("##comportinput", portname, 256);
@@ -96,7 +93,7 @@ int main() {
 
         ImGui::End();
 
-        if(ImGui::Begin("COM Port Enumerator", nullptr, LRI::window_flags)) {
+        if(ImGui::Begin("COM Port Enumerator", nullptr, LRI::RCI::window_flags)) {
             if(ImGui::Button("Enumerate")) {
                 devlist = enumSerial();
             }
@@ -112,10 +109,10 @@ int main() {
 
         ImGui::End();
 
-        LRI::imgui_postrender(window);
+        LRI::RCI::imgui_postrender(window);
     }
 
-    LRI::imgui_shutdown(window);
+    LRI::RCI::imgui_shutdown(window);
 
     return 0;
 }
