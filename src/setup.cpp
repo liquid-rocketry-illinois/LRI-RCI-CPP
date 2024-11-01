@@ -4,9 +4,13 @@
 #include "imgui_impl_glfw.h"
 
 namespace LRI {
+    ImFont* font_regular;
+    ImFont* font_bold;
+    float scaling_factor;
+
     void imgui_init(GLFWwindow* window) {
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(1);
+        glfwSwapInterval(0);
         glfwSetWindowTitle(window, "LRI Rocket Control Panel");
 
         IMGUI_CHECKVERSION();
@@ -20,9 +24,17 @@ namespace LRI {
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
+
+        glfwGetWindowContentScale(window, &scaling_factor, nullptr);
+        io.Fonts->Clear();
+        ImFontConfig fontConfig;
+        fontConfig.FontDataOwnedByAtlas = false;
+        font_regular = io.Fonts->AddFontFromFileTTF("font-regular.ttf", 16 * scaling_factor, &fontConfig);
+        font_bold = io.Fonts->AddFontFromFileTTF("font-bold.ttf", 16 * scaling_factor, &fontConfig);
+
     }
 
-    void imgui_prerender() {
+    void imgui_prerender(GLFWwindow* window) {
         glfwPollEvents();
 
         ImGui_ImplOpenGL3_NewFrame();
