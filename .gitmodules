@@ -4,3 +4,6 @@
 [submodule "libs/glfw"]
 	path = libs/glfw
 	url = https://github.com/glfw/glfw
+[submodule "libs/RCP-Host"]
+	path = libs/RCP-Host
+	url = https://github.com/liquid-rocketry-illinois/RCP-Host.git
