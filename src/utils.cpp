@@ -8,6 +8,7 @@
 #include "WindowsResource.h"
 
 #include "UI/COMPortChooser.h"
+#include "UI/EStop.h"
 
 namespace LRI::RCI {
     ImFont* font_regular;
@@ -42,6 +43,7 @@ namespace LRI::RCI {
         font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
 
         COMPortChooser::getInstance();
+        EStop::getInstance();
     }
 
     void imgui_prerender(GLFWwindow* window) {

@@ -19,8 +19,8 @@ namespace LRI::RCI {
 
     public:
         void render() override;
-        static COMPortChooser* getInstance();
-        const COMPort* getComPort();
+        static const COMPortChooser* getInstance();
+        const COMPort* getComPort() const;
     };
 }
 

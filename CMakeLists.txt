@@ -21,6 +21,7 @@ add_executable(LRI_control_panel
         libs/imgui/backends/imgui_impl_opengl3.cpp
         src/UI/BaseUI.cpp
         src/UI/COMPortChooser.cpp
+        src/UI/EStop.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host)

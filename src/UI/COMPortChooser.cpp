@@ -16,7 +16,7 @@ namespace LRI::RCI {
     COMPortChooser::COMPortChooser() : BaseUI(), portlist(), selectedPort(0), port(nullptr) {
     }
 
-    COMPortChooser* COMPortChooser::getInstance() {
+    const COMPortChooser* COMPortChooser::getInstance() {
         if(instance == nullptr) instance = new COMPortChooser();
         return instance;
     }
@@ -24,7 +24,7 @@ namespace LRI::RCI {
     void COMPortChooser::render() {
         ImGui::SetNextWindowPos(ImVec2(50 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(400 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Choose COM Port", nullptr, window_flags)) {
+        if(ImGui::Begin("Choose COM Port", nullptr, ImGuiWindowFlags_NoResize)) {
             ImGui::Text("Current Port Status: ");
             ImGui::SameLine();
             if(port && port->isOpen()) {
@@ -107,7 +107,7 @@ namespace LRI::RCI {
         return true;
     }
 
-    const COMPort* COMPortChooser::getComPort() {
+    const COMPort* COMPortChooser::getComPort() const {
         return port;
     }
 
