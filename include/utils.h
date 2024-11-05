@@ -1,5 +1,5 @@
-#ifndef SETUP_H
-#define SETUP_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <Windows.h>
 #include "GLFW/glfw3.h"
@@ -22,4 +22,4 @@ namespace LRI::RCI {
     void renderEStop();
 }
 
-#endif //SETUP_H
+#endif //UTILS_H

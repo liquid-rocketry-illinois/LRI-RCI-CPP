@@ -2,20 +2,22 @@
 #define COMPORT_H
 
 #include <Windows.h>
-#include <iostream>
+#include "RCP_Interface.h"
 
-namespace LRI {
-    class COMPort {
+namespace LRI::RCI {
+    class COMPort : public RCP_Interface {
         HANDLE port;
         bool open = false;
+        DWORD lastErrorVal;
 
     public:
-        COMPort(const char* portname);
+        explicit COMPort(const char* portname, DWORD baudrate);
         ~COMPort();
-        DWORD write(uint8_t* bytes, int towrite);
-        DWORD read(uint8_t* bytes, int toread);
         bool close();
-        bool isOpen();
+        bool isOpen() const;
+        DWORD lastError() const;
+        size_t sendData(const void* bytes, size_t length) const override;
+        size_t readData(void* bytes, size_t buffersize) const override;
     };
 }
 #endif //COMPORT_H

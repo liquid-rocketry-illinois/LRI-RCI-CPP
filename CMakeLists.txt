@@ -18,7 +18,10 @@ add_executable(LRI_control_panel
         libs/imgui/imgui_tables.cpp
         libs/imgui/imgui_widgets.cpp
         libs/imgui/backends/imgui_impl_glfw.cpp
-        libs/imgui/backends/imgui_impl_opengl3.cpp)
+        libs/imgui/backends/imgui_impl_opengl3.cpp
+        src/UI/BaseUI.cpp
+        src/UI/COMPortChooser.cpp
+)
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host)
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui

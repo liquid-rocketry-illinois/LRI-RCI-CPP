@@ -1,55 +1,73 @@
 #include "RCP_Host/RCP_Host.h"
+#include "RCP_Host_Impl.h"
 
-namespace LRI::RCP {
+#include "UI/COMPortChooser.h"
+
+namespace LRI::RCI {
+    RCP_LibInitData callbacks = {
+        .sendData = sendData,
+        .readData = readData,
+        .processTestUpdate = processTestUpdate,
+        .processSolenoidData = processSolenoidData,
+        .processStepperData = processStepperData,
+        .processTransducerData = processTransducerData,
+        .processGPSData = processGPSData,
+        .processMagnetometerData = processMagnetometerData,
+        .processAMPressureData = processAMPressureData,
+        .processAMTemperatureData = processAMTemperatureData,
+        .processAccelerationData = processAccelerationData,
+        .processGyroData = processGyroData,
+        .processSerialData = processSerialData
+    };
     size_t sendData(const void* data, size_t length) {
+        return COMPortChooser::getInstance()->getComPort()->sendData(data, length);
+    }
+
+    size_t readData(void* data, size_t bufferSize) {
+        return COMPortChooser::getInstance()->getComPort()->readData(data, bufferSize);
+    }
+
+    int processTestUpdate(const RCP_TestData data) {
         return 0;
     }
 
-    size_t readData(const void* data, size_t bufferSize) {
+    int processSolenoidData(const RCP_SolenoidData data) {
         return 0;
     }
 
-    int processTestUpdate(const struct TestData data) {
+    int processStepperData(const RCP_StepperData data) {
         return 0;
     }
 
-    int processSolenoidData(const struct SolenoidData data) {
+    int processTransducerData(const RCP_TransducerData data) {
         return 0;
     }
 
-    int processStepperData(const struct StepperData data) {
+    int processGPSData(const RCP_GPSData data) {
         return 0;
     }
 
-    int processTransducerData(const struct TransducerData data) {
+    int processMagnetometerData(const RCP_AxisData data) {
         return 0;
     }
 
-    int processGPSData(const struct GPSData data) {
+    int processAMPressureData(const RCP_AMPressureData data) {
         return 0;
     }
 
-    int processMagnetometerData(const struct AxisData data) {
+    int processAMTemperatureData(const RCP_AMTemperatureData data) {
         return 0;
     }
 
-    int processAMPressureData(const struct AMPressureData data) {
+    int processAccelerationData(const RCP_AxisData data) {
         return 0;
     }
 
-    int processAMTemperatureData(const struct AMTemperatureData data) {
+    int processGyroData(const RCP_AxisData data) {
         return 0;
     }
 
-    int processAccelerationData(const struct AxisData data) {
-        return 0;
-    }
-
-    int processGyroData(const struct AxisData data) {
-        return 0;
-    }
-
-    int processSerialData(const struct SerialData data) {
+    int processSerialData(const RCP_SerialData data) {
         return 0;
     }
 }

@@ -1,18 +1,12 @@
 #include "devices/COMPort.h"
+#include <iostream>
 
-namespace LRI {
-    COMPort::COMPort(const char* portname) {
+namespace LRI::RCI {
+    COMPort::COMPort(const char* portname, DWORD baudrate) {
         port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
         if(port == INVALID_HANDLE_VALUE) {
-            if(GetLastError() == ERROR_FILE_NOT_FOUND) {
-                std::cout << "COM Port not open" << std::endl;
-            }
-
-            else {
-                std::cout << "Some other error occured: " << GetLastError() << std::endl;
-            }
-
+            lastErrorVal = GetLastError();
             return;
         }
 
@@ -20,47 +14,51 @@ namespace LRI {
         params.DCBlength = sizeof(DCB);
 
         if(!GetCommState(port, &params)) {
-            std::cout << "Error getting COM state: " << GetLastError() << std::endl;
+            lastErrorVal = GetLastError();
             return;
         }
 
-        params.BaudRate = CBR_115200;
+        params.BaudRate = baudrate;
         params.ByteSize = 8;
         params.StopBits = ONESTOPBIT;
         params.Parity = NOPARITY;
 
         if(!SetCommState(port, &params)) {
-            std::cout << "Error setting COM state: " << GetLastError() << std::endl;
+            lastErrorVal = GetLastError();
             return;
         }
 
         open = true;
-    }
-
-    bool COMPort::isOpen() {
-        return open;
-    }
-
-    DWORD COMPort::write(uint8_t* bytes, int towrite) {
-        DWORD bytes_written = 0;
-
-        if(!WriteFile(port, bytes, towrite, &bytes_written, nullptr)) return -1;
-        return bytes_written;
-    }
-
-    DWORD COMPort::read(uint8_t* bytes, int toread) {
-        DWORD bytes_read = 0;
-
-        if(!ReadFile(port, bytes, toread, &bytes_read, nullptr)) return -1;
-        return bytes_read;
-    }
-
-    bool COMPort::close() {
-        return !CloseHandle(port);
+        lastErrorVal = 0;
     }
 
     COMPort::~COMPort() {
         close();
     }
 
+    bool COMPort::close() {
+        return !CloseHandle(port);
+    }
+
+    bool COMPort::isOpen() const {
+        return open;
+    }
+
+    DWORD COMPort::lastError() const {
+        return lastErrorVal;
+    }
+
+    size_t COMPort::sendData(const void* bytes, size_t length) const {
+        DWORD bytes_written = 0;
+
+        if(!WriteFile(port, bytes, length, &bytes_written, nullptr)) return -1;
+        return bytes_written;
+    }
+
+    size_t COMPort::readData(void* bytes, size_t bufferlength) const {
+        DWORD bytes_read = 0;
+
+        if(!ReadFile(port, bytes, bufferlength, &bytes_read, nullptr)) return -1;
+        return bytes_read;
+    }
 }
