@@ -1,0 +1,16 @@
+{
+  "devices": [
+    {
+      "devclass": 1,
+      "total": 7
+    },
+    {
+      "devclass": 2,
+      "total": 2
+    },
+    {
+      "devclass": 67,
+      "total": 8
+    }
+  ]
+}

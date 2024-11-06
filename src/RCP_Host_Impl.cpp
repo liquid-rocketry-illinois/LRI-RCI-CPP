@@ -1,7 +1,7 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include "UI/COMPortChooser.h"
+#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
     RCP_LibInitData callbacks = {
@@ -20,11 +20,11 @@ namespace LRI::RCI {
         .processSerialData = processSerialData
     };
     size_t sendData(const void* data, size_t length) {
-        return COMPortChooser::getInstance()->getComPort()->sendData(data, length);
+        return TargetChooser::getInstance()->getInterface()->sendData(data, length);
     }
 
     size_t readData(void* data, size_t bufferSize) {
-        return COMPortChooser::getInstance()->getComPort()->readData(data, bufferSize);
+        return TargetChooser::getInstance()->getInterface()->readData(data, bufferSize);
     }
 
     int processTestUpdate(const RCP_TestData data) {

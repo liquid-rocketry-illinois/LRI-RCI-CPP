@@ -7,7 +7,7 @@
 
 #include "WindowsResource.h"
 
-#include "UI/COMPortChooser.h"
+#include "UI/TargetChooser.h"
 #include "UI/EStop.h"
 
 namespace LRI::RCI {
@@ -42,7 +42,7 @@ namespace LRI::RCI {
         fonts = WindowsResource("font-bold.ttf", "TTFFONT");
         font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
 
-        COMPortChooser::getInstance();
+        TargetChooser::getInstance();
         EStop::getInstance();
     }
 

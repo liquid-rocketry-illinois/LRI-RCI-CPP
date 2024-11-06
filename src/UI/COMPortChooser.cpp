@@ -1,4 +1,4 @@
-#include "UI/COMPortChooser.h"
+#include "UI/TargetChooser.h"
 
 #include <Windows.h>
 #include <SetupAPI.h>
@@ -9,19 +9,20 @@
 
 #include "utils.h"
 #include "RCP_Host_Impl.h"
+#include "devices/COMPort.h"
 
 namespace LRI::RCI {
-    COMPortChooser* COMPortChooser::instance = nullptr;
+    TargetChooser* TargetChooser::instance = nullptr;
 
-    COMPortChooser::COMPortChooser() : BaseUI(), portlist(), selectedPort(0), port(nullptr) {
+    TargetChooser::TargetChooser() : BaseUI(), portlist(), selectedPort(0), port(nullptr) {
     }
 
-    const COMPortChooser* COMPortChooser::getInstance() {
-        if(instance == nullptr) instance = new COMPortChooser();
+    const TargetChooser* TargetChooser::getInstance() {
+        if(instance == nullptr) instance = new TargetChooser();
         return instance;
     }
 
-    void COMPortChooser::render() {
+    void TargetChooser::render() {
         ImGui::SetNextWindowPos(ImVec2(50 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(400 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Choose COM Port", nullptr, ImGuiWindowFlags_NoResize)) {
@@ -77,7 +78,7 @@ namespace LRI::RCI {
     }
 
 
-    bool COMPortChooser::enumDevs() {
+    bool TargetChooser::enumDevs() {
         portlist.clear();
         HANDLE devs = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_PORTS, 0, 0, DIGCF_PRESENT);
         if(devs == INVALID_HANDLE_VALUE) return false;
@@ -107,7 +108,7 @@ namespace LRI::RCI {
         return true;
     }
 
-    const COMPort* COMPortChooser::getComPort() const {
+    const RCP_Interface* TargetChooser::getInterface() const {
         return port;
     }
 

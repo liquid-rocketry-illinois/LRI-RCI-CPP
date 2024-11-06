@@ -14,7 +14,7 @@ namespace LRI::RCI {
         explicit COMPort(const char* portname, DWORD baudrate);
         ~COMPort();
         bool close();
-        bool isOpen() const;
+        bool isOpen() const override;
         DWORD lastError() const;
         size_t sendData(const void* bytes, size_t length) const override;
         size_t readData(void* bytes, size_t buffersize) const override;

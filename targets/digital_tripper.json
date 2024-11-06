@@ -1,0 +1,22 @@
+{
+  "devices": [
+    {
+      "devclass": 128
+    },
+    {
+      "devclass": 129
+    },
+    {
+      "devclass": 130
+    },
+    {
+      "devclass": 131
+    },
+    {
+      "devclass": 132
+    },
+    {
+      "devclass": 133
+    }
+  ]
+}
