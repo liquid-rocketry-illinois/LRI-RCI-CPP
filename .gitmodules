@@ -7,3 +7,6 @@
 [submodule "libs/RCP-Host"]
 	path = libs/RCP-Host
 	url = https://github.com/liquid-rocketry-illinois/RCP-Host.git
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/nlohmann/json

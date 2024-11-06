@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/RCP-Host)
+add_subdirectory(libs/json)
 
 add_executable(LRI_control_panel
         src/main.cpp
@@ -24,9 +25,9 @@ add_executable(LRI_control_panel
         src/UI/EStop.cpp
 )
 
-target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host)
+target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host nlohmann_json)
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui
-        libs/imgui/backends include)
+        libs/imgui/backends libs/json/include include)
 
 set_property(TARGET LRI_control_panel glfw PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
