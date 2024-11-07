@@ -21,7 +21,7 @@ add_executable(LRI_control_panel
         libs/imgui/backends/imgui_impl_glfw.cpp
         libs/imgui/backends/imgui_impl_opengl3.cpp
         src/UI/BaseUI.cpp
-        src/UI/COMPortChooser.cpp
+        src/UI/TargetChooser.cpp
         src/UI/EStop.cpp
 )
 
