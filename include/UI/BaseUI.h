@@ -7,6 +7,7 @@ namespace LRI::RCI {
         explicit BaseUI();
 
     public:
+        virtual ~BaseUI() = default;
         virtual void render() = 0;
         virtual void destroy();
     };

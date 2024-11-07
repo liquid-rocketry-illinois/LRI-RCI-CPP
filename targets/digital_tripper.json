@@ -1,4 +1,6 @@
 {
+  "name": "Digital Tripper",
+  "heartbeat": false,
   "devices": [
     {
       "devclass": 128

@@ -12,7 +12,6 @@ namespace LRI::RCI {
         windows.erase(this);
     }
 
-
     void renderWindows() {
         for(const auto& window : windows) {
             window->render();

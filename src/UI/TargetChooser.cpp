@@ -9,12 +9,22 @@
 
 #include "utils.h"
 #include "RCP_Host_Impl.h"
-#include "devices/COMPort.h"
+#include "interfaces/COMPort.h"
 
 namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
 
-    TargetChooser::TargetChooser() : BaseUI(), portlist(), selectedPort(0), port(nullptr) {
+    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), targetpaths(), targetconfig(),
+                                     chosenConfig(0), interfaceoptions(), chosenInterface(0) {
+        if(std::filesystem::exists("targets/")) {
+            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
+                if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
+                targetpaths.push_back(file.path().string());
+            }
+        }
+
+        interfaceoptions.emplace_back("Serial Port");
+        chooser = new COMPortChooser(this);
     }
 
     const TargetChooser* TargetChooser::getInstance() {
@@ -24,18 +34,21 @@ namespace LRI::RCI {
 
     void TargetChooser::render() {
         ImGui::SetNextWindowPos(ImVec2(50 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(400 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Choose COM Port", nullptr, ImGuiWindowFlags_NoResize)) {
-            ImGui::Text("Current Port Status: ");
+        ImGui::SetNextWindowSize(ImVec2(550 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
+        if(ImGui::Begin("Choose Target", nullptr, ImGuiWindowFlags_NoResize)) {
+            ImGui::Text("Target Connection Status: ");
             ImGui::SameLine();
-            if(port && port->isOpen()) {
+            if(interf && interf->isOpen()) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
                 ImGui::Text("Open");
                 ImGui::PopStyleColor();
 
-                if(ImGui::Button("Close Port")) {
-                    delete port;
-                    port = nullptr;
+                ImGui::Text("Current Target Config: %s", targetconfig["name"].get<std::string>().c_str());
+                ImGui::Text("Current Interface: %s", interf->interfaceType().c_str());
+
+                if(ImGui::Button("Close Interface")) {
+                    delete interf;
+                    interf = nullptr;
                     RCP_shutdown();
                 }
             }
@@ -44,41 +57,80 @@ namespace LRI::RCI {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
                 ImGui::Text("Closed");
                 ImGui::PopStyleColor();
-                ImGui::Text("Choose Serial Port: ");
+
+                ImGui::Text("Choose Target Config: ");
                 ImGui::SameLine();
-                if(portlist.empty()) ImGui::Text("No Ports Detected");
-                else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].c_str())) {
-                    for(size_t i = 0; i < portlist.size(); i++) {
-                        bool selected = i == selectedPort;
-                        if(ImGui::Selectable((portlist[selectedPort] + "##portselectcombo").c_str(), &selected))
-                            selectedPort = i;
+                if(targetpaths.empty()) ImGui::Text("No Target configs available");
+                else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].c_str())) {
+                    for(size_t i = 0; i < targetpaths.size(); i++) {
+                        bool selected = i == chosenConfig;
+                        if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected))
+                            chosenConfig = i;
                         if(selected) ImGui::SetItemDefaultFocus();
                     }
+                    ImGui::EndCombo();
                 }
 
-                if(ImGui::Button("Refresh List")) {
-                    selectedPort = 0;
-                    enumDevs();
+                ImGui::Text("Interface Type: ");
+                ImGui::SameLine();
+                if(interfaceoptions.empty()) ImGui::Text("No available interfaces");
+                else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].c_str())) {
+                    for(size_t i = 0; i < interfaceoptions.size(); i++) {
+                        bool selected = i == chosenInterface;
+                        if(ImGui::Selectable((interfaceoptions[i] + "##interfacechooser").c_str(), &selected)) {
+                            if(chosenInterface != i) {
+                                delete chooser;
+                                switch(i) {
+                                    case 0:
+                                        chooser = new COMPortChooser(this);
+                                        break;
+
+                                default:
+                                    chooser = nullptr;
+                                }
+                            }
+                            chosenInterface = i;
+                        }
+
+                        if(selected) ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
                 }
 
-                if(portlist.empty()) ImGui::BeginDisabled();
-                if(ImGui::Button("Connect")) {
-                    port = new COMPort(
-                        portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(),
-                        CBR_115200);
+                ImGui::NewLine();
+                ImGui::Separator();
 
-                    RCP_init(callbacks);
+                if(chooser != nullptr) {
+                    RCP_Interface* _interf = chooser->render();
+                    if(_interf != nullptr) {
+                        interf = _interf;
+                        RCP_init(callbacks);
+                    }
                 }
-
-                if(portlist.empty()) ImGui::EndDisabled();
             }
         }
 
         ImGui::End();
     }
 
+    const RCP_Interface* TargetChooser::getInterface() const {
+        return interf;
+    }
 
-    bool TargetChooser::enumDevs() {
+    void TargetChooser::destroy() {
+    }
+
+    TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
+        portlist(), selectedPort(0), error(false) {
+        enumSerialDevs();
+    }
+
+    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {
+    }
+
+
+    bool TargetChooser::COMPortChooser::enumSerialDevs() {
         portlist.clear();
         HANDLE devs = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_PORTS, 0, 0, DIGCF_PRESENT);
         if(devs == INVALID_HANDLE_VALUE) return false;
@@ -108,11 +160,46 @@ namespace LRI::RCI {
         return true;
     }
 
-    const RCP_Interface* TargetChooser::getInterface() const {
+    RCP_Interface* TargetChooser::COMPortChooser::render() {
+        ImGui::Text("Choose Serial Port: ");
+        ImGui::SameLine();
+        if(portlist.empty()) ImGui::Text("No Ports Detected");
+        else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].c_str())) {
+            for(size_t i = 0; i < portlist.size(); i++) {
+                bool selected = i == selectedPort;
+                if(ImGui::Selectable((portlist[i] + "##portselectcombo").c_str(), &selected))
+                    selectedPort = i;
+                if(selected) ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+        }
+
+        if(ImGui::Button("Refresh List")) {
+            selectedPort = 0;
+            enumSerialDevs();
+        }
+
+        COMPort* port = nullptr;
+
+        if(portlist.empty()) ImGui::BeginDisabled();
+        bool connectattempt = ImGui::Button("Connect");
+        if(connectattempt) {
+            port = new COMPort(
+                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(),
+                CBR_115200);
+        }
+        if(portlist.empty()) ImGui::EndDisabled();
+
+        if(connectattempt && (port == nullptr || !port->isOpen())) error = true;
+        if(error) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+            ImGui::Text("Error Connecting to Serial Port");
+            ImGui::PopStyleColor();
+            delete port;
+            port = nullptr;
+        }
+
         return port;
     }
-
-    void TargetChooser::destroy() {}
-
-
 }

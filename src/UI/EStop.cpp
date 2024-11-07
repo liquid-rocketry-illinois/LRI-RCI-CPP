@@ -17,7 +17,7 @@ namespace LRI::RCI {
     }
 
     void EStop::render() {
-        ImGui::SetNextWindowPos(ImVec2(500 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(650 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(100 * scaling_factor, 100 * scaling_factor), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("ESTOP", nullptr, winFlags)) {

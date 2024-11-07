@@ -4,18 +4,48 @@
 #include <string>
 #include <vector>
 
+#include "nlohmann/json.hpp"
+
 #include "BaseUI.h"
-#include "devices/RCP_Interface.h"
+#include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
-    class TargetChooser : public BaseUI {
+    class TargetChooser final : public BaseUI {
+        class InterfaceChooser;
         static TargetChooser* instance;
-        std::vector<std::string> portlist;
-        size_t selectedPort;
-        RCP_Interface* port;
 
-        bool enumDevs();
+        RCP_Interface* interf;
+        InterfaceChooser* chooser;
+        std::vector<std::string> targetpaths;
+        size_t chosenConfig;
+
+        std::vector<std::string> interfaceoptions;
+        size_t chosenInterface;
+
+        nlohmann::json targetconfig;
+
         TargetChooser();
+
+        class InterfaceChooser {
+        protected:
+            TargetChooser* targetchooser;
+
+        public:
+            explicit InterfaceChooser(TargetChooser* targetchooser);
+            virtual RCP_Interface* render() = 0;
+            virtual ~InterfaceChooser() = default;
+        };
+
+        class COMPortChooser final : public InterfaceChooser {
+            bool enumSerialDevs();
+            std::vector<std::string> portlist;
+            size_t selectedPort;
+            bool error;
+
+        public:
+            explicit COMPortChooser(TargetChooser* targetchooser);
+            RCP_Interface* render() override;
+        };
 
     public:
         void render() override;
@@ -23,6 +53,8 @@ namespace LRI::RCI {
         const RCP_Interface* getInterface() const;
 
         void destroy() override;
+
+        ~TargetChooser() override = default;
     };
 }
 

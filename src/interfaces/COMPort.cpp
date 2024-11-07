@@ -1,8 +1,8 @@
-#include "devices/COMPort.h"
+#include "interfaces/COMPort.h"
 #include <iostream>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const char* portname, DWORD baudrate) {
+    COMPort::COMPort(const char* _portname, DWORD baudrate) : portname(_portname) {
         port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
         if(port == INVALID_HANDLE_VALUE) {
@@ -61,4 +61,9 @@ namespace LRI::RCI {
         if(!ReadFile(port, bytes, bufferlength, &bytes_read, nullptr)) return -1;
         return bytes_read;
     }
+
+    std::string COMPort::interfaceType() const {
+        return std::string("Serial Port (") + portname + ")";
+    }
+
 }

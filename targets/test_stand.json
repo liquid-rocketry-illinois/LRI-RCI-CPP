@@ -1,4 +1,6 @@
 {
+  "name": "Test Stand",
+  "heartbeat": true,
   "devices": [
     {
       "devclass": 1,
