@@ -8,6 +8,7 @@ namespace LRI::RCI {
 
     public:
         virtual void render() = 0;
+        virtual void destroy();
     };
 
     void renderWindows();

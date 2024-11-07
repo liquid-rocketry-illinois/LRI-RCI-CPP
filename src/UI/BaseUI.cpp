@@ -1,17 +1,21 @@
 #include "UI/BaseUI.h"
-#include <vector>
+#include <set>
 
 namespace LRI::RCI {
-    std::vector<BaseUI*> windows;
+    std::set<BaseUI*> windows;
 
     BaseUI::BaseUI() {
-        windows.push_back(this);
+        windows.insert(this);
     }
+
+    void BaseUI::destroy() {
+        windows.erase(this);
+    }
+
 
     void renderWindows() {
         for(const auto& window : windows) {
             window->render();
-
         }
     }
 }

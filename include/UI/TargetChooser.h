@@ -21,6 +21,8 @@ namespace LRI::RCI {
         void render() override;
         static const TargetChooser* getInstance();
         const RCP_Interface* getInterface() const;
+
+        void destroy() override;
     };
 }
 

@@ -11,6 +11,7 @@ namespace LRI::RCI {
     public:
         void render() override;
         static const EStop* getInstance();
+        void destroy() override;
     };
 }
 

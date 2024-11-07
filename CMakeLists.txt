@@ -31,4 +31,6 @@ target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui
 
 set_property(TARGET LRI_control_panel glfw PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "LRIRCI")
+set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
+
+file(COPY targets/ DESTINATION ${CMAKE_BINARY_DIR}/targets)

@@ -35,4 +35,7 @@ namespace LRI::RCI {
 
         ImGui::End();
     }
+
+    void EStop::destroy() {}
+
 }

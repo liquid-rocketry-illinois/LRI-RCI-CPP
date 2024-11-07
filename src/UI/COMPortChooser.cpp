@@ -112,4 +112,7 @@ namespace LRI::RCI {
         return port;
     }
 
+    void TargetChooser::destroy() {}
+
+
 }
