@@ -8,6 +8,7 @@ namespace LRI::RCI {
         virtual size_t readData(void* data, size_t bufferSize) const = 0;
         virtual bool isOpen() const = 0;
         virtual std::string interfaceType() const = 0;
+        virtual ~RCP_Interface() = default;
     };
 }
 

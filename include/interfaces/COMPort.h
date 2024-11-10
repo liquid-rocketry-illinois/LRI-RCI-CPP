@@ -7,7 +7,7 @@
 
 namespace LRI::RCI {
     class COMPort : public RCP_Interface {
-        const char* portname;
+        char* portname;
         HANDLE port;
         bool open = false;
         DWORD lastErrorVal;

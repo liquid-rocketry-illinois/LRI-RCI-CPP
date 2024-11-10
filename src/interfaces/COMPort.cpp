@@ -2,7 +2,9 @@
 #include <iostream>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const char* _portname, DWORD baudrate) : portname(_portname) {
+    COMPort::COMPort(const char* _portname, DWORD baudrate) {
+        portname = new char[strlen(_portname)];
+        strcpy(portname, _portname);
         port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
         if(port == INVALID_HANDLE_VALUE) {
@@ -37,6 +39,7 @@ namespace LRI::RCI {
     }
 
     bool COMPort::close() {
+        open = false;
         return !CloseHandle(port);
     }
 

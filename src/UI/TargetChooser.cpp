@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <SetupAPI.h>
 #include <devguid.h>
+#include <fstream>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -47,9 +48,9 @@ namespace LRI::RCI {
                 ImGui::Text("Current Interface: %s", interf->interfaceType().c_str());
 
                 if(ImGui::Button("Close Interface")) {
+                    RCP_shutdown();
                     delete interf;
                     interf = nullptr;
-                    RCP_shutdown();
                 }
             }
 
@@ -106,6 +107,8 @@ namespace LRI::RCI {
                     if(_interf != nullptr) {
                         interf = _interf;
                         RCP_init(callbacks);
+                        std::ifstream config(targetpaths[chosenConfig]);
+                        targetconfig = nlohmann::json::parse(config);
                     }
                 }
             }
@@ -154,7 +157,7 @@ namespace LRI::RCI {
 
             SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE)s, sizeof(s), nullptr);
 
-            portlist.push_back(std::string(comname) + ":" + std::string(s));
+            portlist.push_back(std::string(comname) + ": " + std::string(s));
         }
         SetupDiDestroyDeviceInfoList(devs);
         return true;
