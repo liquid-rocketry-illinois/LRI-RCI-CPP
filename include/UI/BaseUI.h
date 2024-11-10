@@ -9,7 +9,8 @@ namespace LRI::RCI {
     public:
         virtual ~BaseUI() = default;
         virtual void render() = 0;
-        virtual void destroy();
+        virtual void hideWindow();
+        virtual void showWindow();
     };
 
     void renderWindows();

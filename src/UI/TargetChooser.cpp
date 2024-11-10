@@ -17,6 +17,7 @@ namespace LRI::RCI {
 
     TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), targetpaths(), targetconfig(),
                                      chosenConfig(0), interfaceoptions(), chosenInterface(0) {
+        BaseUI::showWindow();
         if(std::filesystem::exists("targets/")) {
             for(const auto& file : std::filesystem::directory_iterator("targets/")) {
                 if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
@@ -28,7 +29,7 @@ namespace LRI::RCI {
         chooser = new COMPortChooser(this);
     }
 
-    const TargetChooser* TargetChooser::getInstance() {
+    TargetChooser* const TargetChooser::getInstance() {
         if(instance == nullptr) instance = new TargetChooser();
         return instance;
     }
@@ -121,8 +122,9 @@ namespace LRI::RCI {
         return interf;
     }
 
-    void TargetChooser::destroy() {
-    }
+    void TargetChooser::hideWindow() {}
+    void TargetChooser::showWindow() {}
+
 
     TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
         portlist(), selectedPort(0), error(false) {

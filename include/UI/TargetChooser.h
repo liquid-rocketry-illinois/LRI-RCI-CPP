@@ -49,10 +49,11 @@ namespace LRI::RCI {
 
     public:
         void render() override;
-        static const TargetChooser* getInstance();
+        static TargetChooser* const getInstance();
         const RCP_Interface* getInterface() const;
 
-        void destroy() override;
+        void hideWindow() override;
+        void showWindow() override;
 
         ~TargetChooser() override = default;
     };
