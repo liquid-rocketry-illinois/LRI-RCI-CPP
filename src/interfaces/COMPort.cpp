@@ -47,7 +47,7 @@ namespace LRI::RCI {
 
         buffer = new RingBuffer(bufferSize);
         read = true;
-        thread = new std::thread(this->threadRead);
+        thread = new std::thread(&COMPort::threadRead, this);
     }
 
     COMPort::~COMPort() {
@@ -107,7 +107,7 @@ namespace LRI::RCI {
     }
 
     void COMPort::threadRead() {
-        while(readData) {
+        while(read) {
             dataAccess.lock();
             if(buffer->size() < bufferSize) continue;
             uint8_t byte;
