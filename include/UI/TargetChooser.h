@@ -15,6 +15,7 @@ namespace LRI::RCI {
         static TargetChooser* instance;
 
         RCP_Interface* interf;
+        int pollingRate;
         InterfaceChooser* chooser;
         std::vector<std::string> targetpaths;
         size_t chosenConfig;

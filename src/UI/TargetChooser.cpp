@@ -15,8 +15,8 @@
 namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
 
-    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), targetpaths(), targetconfig(),
-                                     chosenConfig(0), interfaceoptions(), chosenInterface(0) {
+    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), pollingRate(5), targetpaths(),
+                                     targetconfig(), chosenConfig(0), interfaceoptions(), chosenInterface(0) {
         BaseUI::showWindow();
         if(std::filesystem::exists("targets/")) {
             for(const auto& file : std::filesystem::directory_iterator("targets/")) {
@@ -37,7 +37,7 @@ namespace LRI::RCI {
     void TargetChooser::render() {
         ImGui::SetNextWindowPos(ImVec2(50 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(ImVec2(550 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Choose Target", nullptr, ImGuiWindowFlags_NoResize)) {
+        if(ImGui::Begin("Target Settings", nullptr, ImGuiWindowFlags_NoResize)) {
             ImGui::Text("Target Connection Status: ");
             ImGui::SameLine();
             if(interf && interf->isOpen()) {
@@ -47,6 +47,20 @@ namespace LRI::RCI {
 
                 ImGui::Text("Current Target Config: %s", targetconfig["name"].get<std::string>().c_str());
                 ImGui::Text("Current Interface: %s", interf->interfaceType().c_str());
+
+                ImGui::NewLine();
+                ImGui::Text("Polling Rate (polls/second): ");
+                ImGui::SameLine();
+                ImGui::InputInt("#pollinginput", &pollingRate, 1, 5);
+
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
+                ImGui::PopStyleColor();
+                ImGui::Text("Latest Frame Time (ms): %f", ImGui::GetIO().DeltaTime);
+
+                for(int i = 0; i < pollingRate; i++) {
+
+                }
 
                 if(ImGui::Button("Close Interface")) {
                     RCP_shutdown();
@@ -83,9 +97,9 @@ namespace LRI::RCI {
                             if(chosenInterface != i) {
                                 delete chooser;
                                 switch(i) {
-                                    case 0:
-                                        chooser = new COMPortChooser(this);
-                                        break;
+                                case 0:
+                                    chooser = new COMPortChooser(this);
+                                    break;
 
                                 default:
                                     chooser = nullptr;
@@ -122,8 +136,11 @@ namespace LRI::RCI {
         return interf;
     }
 
-    void TargetChooser::hideWindow() {}
-    void TargetChooser::showWindow() {}
+    void TargetChooser::hideWindow() {
+    }
+
+    void TargetChooser::showWindow() {
+    }
 
 
     TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),

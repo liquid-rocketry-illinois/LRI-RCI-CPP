@@ -17,6 +17,7 @@ namespace LRI::RCI {
         ~COMPort();
         bool close();
         bool isOpen() const override;
+        bool hasData() const override;
         DWORD lastError() const;
         size_t sendData(const void* bytes, size_t length) const override;
         size_t readData(void* bytes, size_t buffersize) const override;

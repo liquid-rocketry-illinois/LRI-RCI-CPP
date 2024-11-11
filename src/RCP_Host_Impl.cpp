@@ -1,6 +1,8 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
+#include <UI/Solenoids.h>
+
 #include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
@@ -32,6 +34,7 @@ namespace LRI::RCI {
     }
 
     int processSolenoidData(const RCP_SolenoidData data) {
+        Solenoids::getInstance()->receiveRCPUpdate(data.ID, data.state);
         return 0;
     }
 
