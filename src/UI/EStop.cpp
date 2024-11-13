@@ -24,7 +24,7 @@ namespace LRI::RCI {
         if(ImGui::Begin("ESTOP", nullptr, winFlags)) {
             if(!RCP_isOpen()) ImGui::BeginDisabled();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.9, 0, 0, 1));
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
             if(ImGui::Button("EMERGENCY\n  STOP", ImVec2(90 * scaling_factor, 70 * scaling_factor))) {
                 RCP_sendEStop();

@@ -25,7 +25,6 @@ namespace LRI::RCI {
 
         void threadRead();
 
-
         class RingBuffer {
             int buffersize;
             int datastart;

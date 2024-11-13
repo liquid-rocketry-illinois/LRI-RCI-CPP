@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const char* _portname, DWORD baudrate) : dataAccess() {
+    COMPort::COMPort(const char* _portname, DWORD baudrate) {
         portname = new char[strlen(_portname)];
         strcpy(portname, _portname);
         port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
@@ -109,12 +109,16 @@ namespace LRI::RCI {
     void COMPort::threadRead() {
         while(read) {
             dataAccess.lock();
-            if(buffer->size() < bufferSize) continue;
+            if(buffer->size() < bufferSize) {
+                dataAccess.unlock();
+                continue;
+            }
             uint8_t byte;
             DWORD read;
 
             if(!ReadFile(port, &byte, 1, &read, nullptr) || read != 1) {
                 lastErrorVal = GetLastError();
+                dataAccess.unlock();
                 continue;
             }
 
@@ -126,7 +130,7 @@ namespace LRI::RCI {
     COMPort::RingBuffer::RingBuffer(int _buffersize) :
         buffersize(_buffersize), datastart(0), dataend(0), data(nullptr) {
         data = new uint8_t[buffersize];
-        memcpy(data, 0, buffersize);
+        memset(data, 0, buffersize);
     }
 
     COMPort::RingBuffer::~RingBuffer() {

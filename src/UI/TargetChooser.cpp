@@ -55,7 +55,7 @@ namespace LRI::RCI {
                 ImGui::Text("Polling Rate (polls/second): ");
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(75 * scaling_factor);
-                ImGui::InputInt("#pollinginput", &pollingRate, 1, 5);
+                ImGui::InputInt("##pollinginput", &pollingRate, 1, 5);
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
                 ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
