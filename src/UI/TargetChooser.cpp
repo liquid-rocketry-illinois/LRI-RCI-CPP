@@ -4,6 +4,8 @@
 #include <SetupAPI.h>
 #include <devguid.h>
 #include <fstream>
+#include <set>
+#include <interfaces/VirtualPort.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -26,6 +28,7 @@ namespace LRI::RCI {
         }
 
         interfaceoptions.emplace_back("Serial Port");
+        interfaceoptions.emplace_back("Virtual Port");
         chooser = new COMPortChooser(this);
     }
 
@@ -51,6 +54,7 @@ namespace LRI::RCI {
                 ImGui::NewLine();
                 ImGui::Text("Polling Rate (polls/second): ");
                 ImGui::SameLine();
+                ImGui::SetNextItemWidth(75 * scaling_factor);
                 ImGui::InputInt("#pollinginput", &pollingRate, 1, 5);
 
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
@@ -58,8 +62,8 @@ namespace LRI::RCI {
                 ImGui::PopStyleColor();
                 ImGui::Text("Latest Frame Time (ms): %f", ImGui::GetIO().DeltaTime);
 
-                for(int i = 0; i < pollingRate; i++) {
-
+                for(int i = 0; i < pollingRate && interf->hasData(); i++) {
+                    RCP_poll();
                 }
 
                 if(ImGui::Button("Close Interface")) {
@@ -99,6 +103,10 @@ namespace LRI::RCI {
                                 switch(i) {
                                 case 0:
                                     chooser = new COMPortChooser(this);
+                                    break;
+
+                                case 1:
+                                    chooser = new VirtualPortChooser();
                                     break;
 
                                 default:
@@ -224,4 +232,12 @@ namespace LRI::RCI {
 
         return port;
     }
+
+    TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {}
+
+    RCP_Interface* TargetChooser::VirtualPortChooser::render() {
+        if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
+        return nullptr;
+    }
+
 }

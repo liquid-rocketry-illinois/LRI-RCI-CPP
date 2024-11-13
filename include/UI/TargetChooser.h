@@ -48,6 +48,12 @@ namespace LRI::RCI {
             RCP_Interface* render() override;
         };
 
+        class VirtualPortChooser final : public InterfaceChooser {
+        public:
+            VirtualPortChooser();
+            RCP_Interface* render() override;
+        };
+
     public:
         void render() override;
         static TargetChooser* const getInstance();
