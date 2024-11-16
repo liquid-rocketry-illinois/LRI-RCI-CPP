@@ -4,14 +4,14 @@
   "devices": [
     {
       "devclass": 1,
-      "total": 7
+      "total": 8
     },
     {
       "devclass": 2,
       "total": 2
     },
     {
-      "devclass": 67,
+      "devclass": 120,
       "total": 8
     }
   ]
