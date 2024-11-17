@@ -1,5 +1,4 @@
 #include "interfaces/COMPort.h"
-#include <iostream>
 
 namespace LRI::RCI {
     COMPort::COMPort(const char* _portname, DWORD baudrate) {
@@ -24,6 +23,7 @@ namespace LRI::RCI {
         params.ByteSize = 8;
         params.StopBits = ONESTOPBIT;
         params.Parity = NOPARITY;
+        params.fDtrControl = DTR_CONTROL_ENABLE;
 
         if(!SetCommState(port, &params)) {
             lastErrorVal = GetLastError();
@@ -109,19 +109,20 @@ namespace LRI::RCI {
     void COMPort::threadRead() {
         while(read) {
             dataAccess.lock();
-            if(buffer->size() < bufferSize) {
+            if(buffer->size() >= bufferSize) {
                 dataAccess.unlock();
                 continue;
             }
+            dataAccess.unlock();
             uint8_t byte;
             DWORD read;
 
             if(!ReadFile(port, &byte, 1, &read, nullptr) || read != 1) {
                 lastErrorVal = GetLastError();
-                dataAccess.unlock();
                 continue;
             }
 
+            dataAccess.lock();
             buffer->push(byte);
             dataAccess.unlock();
         }

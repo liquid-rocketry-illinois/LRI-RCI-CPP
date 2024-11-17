@@ -26,6 +26,7 @@ namespace LRI::RCI {
         nlohmann::json targetconfig;
 
         TargetChooser();
+        void initWindows();
 
         class InterfaceChooser {
         protected:

@@ -6,6 +6,7 @@
 #include <fstream>
 #include <set>
 #include <interfaces/VirtualPort.h>
+#include <UI/Solenoids.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -130,8 +131,10 @@ namespace LRI::RCI {
                     if(_interf != nullptr) {
                         interf = _interf;
                         RCP_init(callbacks);
+                        RCP_setChannel(CH_ZERO);
                         std::ifstream config(targetpaths[chosenConfig]);
                         targetconfig = nlohmann::json::parse(config);
+                        initWindows();
                     }
                 }
             }
@@ -150,6 +153,21 @@ namespace LRI::RCI {
     void TargetChooser::showWindow() {
     }
 
+    void TargetChooser::initWindows() {
+        for(int i = 0; i < targetconfig["devices"].size(); i++) {
+            switch(targetconfig["devices"][i]["devclass"].get<int>()) {
+            case 0x01: {
+                auto set = targetconfig["devices"][i]["ids"].get<std::set<uint8_t>>();
+                Solenoids::getInstance()->setHardwareConfig(set);
+                Solenoids::getInstance()->showWindow();
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+    }
 
     TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
         portlist(), selectedPort(0), error(false) {
@@ -158,7 +176,6 @@ namespace LRI::RCI {
 
     TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {
     }
-
 
     bool TargetChooser::COMPortChooser::enumSerialDevs() {
         portlist.clear();
@@ -233,11 +250,11 @@ namespace LRI::RCI {
         return port;
     }
 
-    TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {}
+    TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {
+    }
 
     RCP_Interface* TargetChooser::VirtualPortChooser::render() {
         if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
         return nullptr;
     }
-
 }

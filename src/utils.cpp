@@ -74,4 +74,9 @@ namespace LRI::RCI {
         glfwDestroyWindow(window);
         glfwTerminate();
     }
+
+    ImVec2 scale(ImVec2 vec, float scale) {
+        return ImVec2(vec.x * scale, vec.y * scale);
+    }
+
 }
