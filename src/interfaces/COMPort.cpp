@@ -1,4 +1,7 @@
 #include "interfaces/COMPort.h"
+#include <iostream>
+#include <sstream>
+#include <RCP_Host/RCP_Host.h>
 
 namespace LRI::RCI {
     COMPort::COMPort(const char* _portname, DWORD baudrate) {
@@ -99,9 +102,14 @@ namespace LRI::RCI {
         return std::string("Serial Port (") + portname + ")";
     }
 
-    bool COMPort::hasData() const {
+    bool COMPort::pktAvailable() const {
         dataAccess.lock();
-        bool hasData = buffer->size() > 0;
+        bool hasData;
+        if(buffer->size() == 0) hasData = false;
+        else {
+            hasData = buffer->size() > buffer->peek() & (~CHANNEL_MASK);
+        }
+
         dataAccess.unlock();
         return hasData;
     }
@@ -125,6 +133,9 @@ namespace LRI::RCI {
             dataAccess.lock();
             buffer->push(byte);
             dataAccess.unlock();
+
+            int bytei = byte;
+            std::cout << "Read: " << std::format("{:x}", bytei) << " byte" << std::endl;
         }
     }
 
@@ -148,6 +159,11 @@ namespace LRI::RCI {
         datastart++;
         return retval;
     }
+
+    uint8_t COMPort::RingBuffer::peek() {
+        return data[datastart % buffersize];
+    }
+
 
     void COMPort::RingBuffer::push(uint8_t value) {
         data[dataend] = value;

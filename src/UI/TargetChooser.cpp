@@ -63,7 +63,7 @@ namespace LRI::RCI {
                 ImGui::PopStyleColor();
                 ImGui::Text("Latest Frame Time (ms): %f", ImGui::GetIO().DeltaTime);
 
-                for(int i = 0; i < pollingRate && interf->hasData(); i++) {
+                for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
                     RCP_poll();
                 }
 

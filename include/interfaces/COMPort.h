@@ -37,6 +37,7 @@ namespace LRI::RCI {
 
             int size();
             uint8_t pop();
+            uint8_t peek();
             void push(uint8_t);
         };
 
@@ -45,7 +46,7 @@ namespace LRI::RCI {
         ~COMPort() override;
         bool close();
         bool isOpen() const override;
-        bool hasData() const override;
+        bool pktAvailable() const override;
         DWORD lastError() const;
         size_t sendData(const void* bytes, size_t length) const override;
         size_t readData(void* bytes, size_t buffersize) const override;

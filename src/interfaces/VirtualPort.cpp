@@ -5,7 +5,7 @@ namespace LRI::RCI {
         return true;
     }
 
-    bool VirtualPort::hasData() const {
+    bool VirtualPort::pktAvailable() const {
         return false;
     }
 
