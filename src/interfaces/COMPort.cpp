@@ -133,9 +133,6 @@ namespace LRI::RCI {
             dataAccess.lock();
             buffer->push(byte);
             dataAccess.unlock();
-
-            int bytei = byte;
-            std::cout << "Read: " << std::format("{:x}", bytei) << " byte" << std::endl;
         }
     }
 

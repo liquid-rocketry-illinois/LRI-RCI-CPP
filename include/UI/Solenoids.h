@@ -17,8 +17,9 @@ namespace LRI::RCI {
 
         std::map<uint8_t, bool> solUpdated;
         std::map<uint8_t, bool> sols;
+        time_t lastRefresh;
 
-        Solenoids() = default;
+        Solenoids();
 
     public:
         static Solenoids* const getInstance();
