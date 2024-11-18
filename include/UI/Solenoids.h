@@ -4,8 +4,6 @@
 #include <map>
 #include <set>
 #include <RCP_Host/RCP_Host.h>
-#include <mutex>
-
 #include "BaseUI.h"
 
 namespace LRI::RCI {
@@ -19,7 +17,6 @@ namespace LRI::RCI {
 
         std::map<uint8_t, bool> solUpdated;
         std::map<uint8_t, bool> sols;
-        std::mutex pollingMutex;
 
         Solenoids() = default;
 

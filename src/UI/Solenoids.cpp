@@ -16,7 +16,6 @@ namespace LRI::RCI {
     }
 
     void Solenoids::render() {
-        pollingMutex.lock();
         ImGui::SetNextWindowPos(scale(ImVec2(50, 300), scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(
                                            buttonLeftMargin + ((buttonSize + buttonLeftMargin) * 4),
@@ -72,7 +71,6 @@ namespace LRI::RCI {
         }
 
         ImGui::End();
-        pollingMutex.unlock();
     }
 
     void Solenoids::setHardwareConfig(const std::set<uint8_t>& solIds) {
@@ -87,10 +85,7 @@ namespace LRI::RCI {
     }
 
     void Solenoids::receiveRCPUpdate(const uint8_t id, RCP_SolenoidState_t state) {
-        pollingMutex.lock();
         sols[id] = state == SOLENOID_ON;
         solUpdated[id] = true;
-        pollingMutex.unlock();
-        std::cout << "Received update: " << id << "   state: " << (state == SOLENOID_ON) << std::endl;
     }
 }
