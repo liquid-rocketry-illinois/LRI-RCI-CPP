@@ -70,7 +70,7 @@ namespace LRI::RCI {
                 if(!solUpdated[id]) ImGui::BeginDisabled();
                 if(ImGui::Button((std::string("ID: ") + std::to_string(id) + "##solbutton").c_str(),
                                  ImVec2(buttonSize * scaling_factor, buttonSize * scaling_factor))) {
-                    RCP_SolenoidState newstate = state ? SOLENOID_OFF : SOLENOID_ON;
+                    RCP_SolenoidState newstate = state ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON;
                     RCP_sendSolenoidWrite(id, newstate);
                     buttonTimer.reset();
                     sols[id] = !sols[id];
@@ -100,7 +100,7 @@ namespace LRI::RCI {
     }
 
     void Solenoids::receiveRCPUpdate(const uint8_t id, RCP_SolenoidState_t state) {
-        sols[id] = state == SOLENOID_ON;
+        sols[id] = state == RCP_SOLENOID_ON;
         solUpdated[id] = true;
     }
 }

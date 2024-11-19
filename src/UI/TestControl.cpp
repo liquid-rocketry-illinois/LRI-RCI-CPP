@@ -10,7 +10,7 @@ namespace LRI::RCI {
         return instance;
     }
 
-    TestControl::TestControl() : testState(TEST_STOPPED), testNumber(0) {
+    TestControl::TestControl() : testState(RCP_TEST_STOPPED), testNumber(0) {
         refresh.reset();
         heartbeat.reset();
     }
@@ -25,31 +25,31 @@ namespace LRI::RCI {
             bool lockButtons = buttonTimer.timeSince() < buttonDelay;
             if(lockButtons) ImGui::BeginDisabled();
 
-            if(testState != TEST_STOPPED) ImGui::BeginDisabled();
+            if(testState != RCP_TEST_STOPPED) ImGui::BeginDisabled();
             if(ImGui::Button("Start")) {
-                RCP_sendTestUpdate(TEST_START, testNumber);
+                RCP_sendTestUpdate(RCP_TEST_START, testNumber);
                 buttonTimer.reset();
-                testState = TEST_START;
+                testState = RCP_TEST_START;
             }
-            if(testState != TEST_STOPPED) ImGui::EndDisabled();
+            if(testState != RCP_TEST_STOPPED) ImGui::EndDisabled();
 
-            if(testState != TEST_RUNNING && testState != TEST_PAUSED) ImGui::BeginDisabled();
+            if(testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button("End")) {
-                RCP_sendTestUpdate(TEST_STOP, testNumber);
+                RCP_sendTestUpdate(RCP_TEST_STOP, testNumber);
                 buttonTimer.reset();
-                testState = TEST_STOP;
+                testState = RCP_TEST_STOP;
             }
-            if(testState != TEST_RUNNING && testState != TEST_PAUSED) ImGui::EndDisabled();
+            if(testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED) ImGui::EndDisabled();
 
-            if(testState != TEST_RUNNING || testState != TEST_PAUSED) ImGui::BeginDisabled();
+            if(testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
             ImGui::SameLine();
-            if(ImGui::Button(testState == TEST_PAUSE ? "Resume" : "Pause")) {
-                RCP_sendTestUpdate(TEST_PAUSE, testNumber);
+            if(ImGui::Button(testState == RCP_TEST_PAUSE ? "Resume" : "Pause")) {
+                RCP_sendTestUpdate(RCP_TEST_PAUSE, testNumber);
                 buttonTimer.reset();
-                testState = testState == TEST_RUNNING ? TEST_PAUSED : TEST_RUNNING;
+                testState = testState == RCP_TEST_RUNNING ? RCP_TEST_PAUSED : RCP_TEST_RUNNING;
             }
-            if(testState != TEST_RUNNING || testState != TEST_PAUSED) ImGui::EndDisabled();
+            if(testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED) ImGui::EndDisabled();
 
             if(lockButtons) ImGui::EndDisabled();
 

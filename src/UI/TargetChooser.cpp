@@ -132,7 +132,7 @@ namespace LRI::RCI {
                     if(_interf != nullptr) {
                         interf = _interf;
                         RCP_init(callbacks);
-                        RCP_setChannel(CH_ZERO);
+                        RCP_setChannel(RCP_CH_ZERO);
                         std::ifstream config(targetpaths[chosenConfig]);
                         targetconfig = nlohmann::json::parse(config);
                         initWindows();

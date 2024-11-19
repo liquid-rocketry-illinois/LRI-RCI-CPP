@@ -107,7 +107,7 @@ namespace LRI::RCI {
         bool hasData;
         if(buffer->size() == 0) hasData = false;
         else {
-            hasData = buffer->size() > buffer->peek() & (~CHANNEL_MASK);
+            hasData = buffer->size() > buffer->peek() & (~RCP_CHANNEL_MASK);
         }
 
         dataAccess.unlock();
