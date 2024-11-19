@@ -20,7 +20,7 @@ int main() {
 
     while(!glfwWindowShouldClose(window)) {
         LRI::RCI::imgui_prerender(window);
-        LRI::RCI::renderWindows();
+        LRI::RCI::BaseUI::renderWindows();
         LRI::RCI::imgui_postrender(window);
     }
 

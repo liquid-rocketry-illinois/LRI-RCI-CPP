@@ -79,4 +79,20 @@ namespace LRI::RCI {
         return ImVec2(vec.x * scale, vec.y * scale);
     }
 
+    StopWatch::StopWatch() {
+        time(&lastClock);
+    }
+
+    void StopWatch::reset() {
+        time(&lastClock);
+    }
+
+    time_t StopWatch::timeSince() {
+        time_t now;
+        time(&now);
+        return now - lastClock;
+    }
+
+
+
 }

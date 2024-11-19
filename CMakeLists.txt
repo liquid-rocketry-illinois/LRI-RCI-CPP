@@ -25,6 +25,7 @@ add_executable(LRI_control_panel
         src/UI/EStop.cpp
         src/UI/Solenoids.cpp
         src/interfaces/VirtualPort.cpp
+        src/UI/TestControl.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host nlohmann_json)

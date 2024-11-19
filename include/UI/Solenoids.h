@@ -3,6 +3,7 @@
 
 #include <map>
 #include <set>
+#include <utils.h>
 #include <RCP_Host/RCP_Host.h>
 #include "BaseUI.h"
 
@@ -17,9 +18,9 @@ namespace LRI::RCI {
 
         std::map<uint8_t, bool> solUpdated;
         std::map<uint8_t, bool> sols;
-        time_t lastRefresh;
+        StopWatch refresh;
 
-        Solenoids();
+        Solenoids() = default;
 
     public:
         static Solenoids* const getInstance();

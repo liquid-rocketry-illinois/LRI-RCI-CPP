@@ -7,6 +7,7 @@
 #include <set>
 #include <interfaces/VirtualPort.h>
 #include <UI/Solenoids.h>
+#include <UI/TestControl.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -154,6 +155,8 @@ namespace LRI::RCI {
     }
 
     void TargetChooser::initWindows() {
+        TestControl::getInstance()->showWindow();
+
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             switch(targetconfig["devices"][i]["devclass"].get<int>()) {
             case 0x01: {

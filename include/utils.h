@@ -19,6 +19,17 @@ namespace LRI::RCI {
 
     void renderCOMChooser();
     void renderEStop();
+
+    class StopWatch final {
+        time_t lastClock;
+
+    public:
+        StopWatch();
+        ~StopWatch() = default;
+
+        void reset();
+        time_t timeSince();
+    };
 }
 
 #endif //UTILS_H

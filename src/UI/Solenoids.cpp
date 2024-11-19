@@ -15,11 +15,6 @@ namespace LRI::RCI {
         return instance;
     }
 
-    Solenoids::Solenoids() {
-        time(&lastRefresh);
-    }
-
-
     void Solenoids::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 300), scaling_factor), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(
@@ -36,10 +31,10 @@ namespace LRI::RCI {
             ImGui::NewLine();
             time_t now;
             time(&now);
-            bool lockButton = now - lastRefresh < 3;
+            bool lockButton = refresh.timeSince() < 3;
             if(lockButton) ImGui::BeginDisabled();
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
-                time(&lastRefresh);
+                refresh.reset();
                 for(const auto [id, state] : sols) {
                     solUpdated[id] = false;
                     RCP_requestSolenoidRead(id);
@@ -88,7 +83,7 @@ namespace LRI::RCI {
     void Solenoids::setHardwareConfig(const std::set<uint8_t>& solIds) {
         sols.clear();
         solUpdated.clear();
-        time(&lastRefresh);
+        refresh.reset();
 
         for(const auto& i : solIds) {
             sols[i] = false;
