@@ -16,12 +16,12 @@ namespace LRI::RCI {
     }
 
     void Solenoids::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(50, 300), scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(50, 300)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(
                                            buttonLeftMargin + ((buttonSize + buttonLeftMargin) * 4),
                                            ((sols.size() / solsPerRow) * (buttonSize + buttonTopMargin)) +
                                            buttonTopMargin +
-                                           buttonExtraMargin), scaling_factor), ImGuiCond_FirstUseEver);
+                                           buttonExtraMargin)), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("Manual Solenoid Control")) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
@@ -31,17 +31,15 @@ namespace LRI::RCI {
             ImGui::NewLine();
             time_t now;
             time(&now);
-            bool lockButton = refresh.timeSince() < 3;
-            if(lockButton) ImGui::BeginDisabled();
+            bool lockButtons = buttonTimer.timeSince() < buttonDelay;
+            if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
-                refresh.reset();
                 for(const auto [id, state] : sols) {
                     solUpdated[id] = false;
                     RCP_requestSolenoidRead(id);
                 }
+                buttonTimer.reset();
             }
-
-            if(lockButton) ImGui::EndDisabled();
 
             int pos = 0;
             for(const auto [id, state] : sols) {
@@ -49,9 +47,15 @@ namespace LRI::RCI {
                                               buttonLeftMargin + ((pos % solsPerRow) * (buttonLeftMargin + buttonSize)),
                                               buttonExtraMargin + buttonTopMargin + ((pos / solsPerRow) * (
                                                   buttonTopMargin + buttonSize))
-                                          ), scaling_factor));
+                                          )));
 
-                if(state) {
+                if(!solUpdated[id]) {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 0, 1));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 1, 0, 1));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 1, 0, 1));
+                }
+
+                else if(state) {
                     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9, 0, 1));
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7, 0, 1));
@@ -66,8 +70,9 @@ namespace LRI::RCI {
                 if(!solUpdated[id]) ImGui::BeginDisabled();
                 if(ImGui::Button((std::string("ID: ") + std::to_string(id) + "##solbutton").c_str(),
                                  ImVec2(buttonSize * scaling_factor, buttonSize * scaling_factor))) {
-                    RCP_SolenoidState state = sols[id] ? SOLENOID_OFF : SOLENOID_ON;
-                    RCP_sendSolenoidWrite(id, state);
+                    RCP_SolenoidState newstate = state ? SOLENOID_OFF : SOLENOID_ON;
+                    RCP_sendSolenoidWrite(id, newstate);
+                    buttonTimer.reset();
                     sols[id] = !sols[id];
                 }
                 if(!solUpdated[id]) ImGui::EndDisabled();
@@ -75,6 +80,8 @@ namespace LRI::RCI {
                 ImGui::PopStyleColor(3);
                 pos++;
             }
+
+            if(lockButtons) ImGui::EndDisabled();
         }
 
         ImGui::End();
@@ -83,13 +90,13 @@ namespace LRI::RCI {
     void Solenoids::setHardwareConfig(const std::set<uint8_t>& solIds) {
         sols.clear();
         solUpdated.clear();
-        refresh.reset();
 
         for(const auto& i : solIds) {
             sols[i] = false;
             solUpdated[i] = false;
             RCP_requestSolenoidRead(i);
         }
+        buttonTimer.reset();
     }
 
     void Solenoids::receiveRCPUpdate(const uint8_t id, RCP_SolenoidState_t state) {

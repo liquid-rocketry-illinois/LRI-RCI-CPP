@@ -3,6 +3,7 @@
 
 namespace LRI::RCI {
     std::set<BaseUI*> BaseUI::windows;
+    StopWatch BaseUI::buttonTimer;
 
     void BaseUI::showWindow() {
         if(!windows.contains(this)) windows.insert(this);

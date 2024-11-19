@@ -18,7 +18,6 @@ namespace LRI::RCI {
 
         std::map<uint8_t, bool> solUpdated;
         std::map<uint8_t, bool> sols;
-        StopWatch refresh;
 
         Solenoids() = default;
 

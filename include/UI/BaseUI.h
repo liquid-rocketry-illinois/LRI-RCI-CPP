@@ -2,12 +2,16 @@
 #define BASEUI_H
 
 #include <set>
+#include <utils.h>
 
 namespace LRI::RCI {
     class BaseUI {
         static std::set<BaseUI*> windows;
 
     protected:
+        static StopWatch buttonTimer;
+        static constexpr long long buttonDelay = 1;
+
         explicit BaseUI() = default;
 
     public:
