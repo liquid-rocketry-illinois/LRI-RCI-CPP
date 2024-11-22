@@ -79,6 +79,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Checkbox("##datastreamingcheckbox", &dataStreaming)) {
+                RCP_sendTestUpdate(dataStreaming ? RCP_DATA_STREAM_START : RCP_DATA_STREAM_STOP, 0x00);
                 buttonTimer.reset();
             }
             if(lockButtons) ImGui::EndDisabled();
