@@ -72,6 +72,7 @@ namespace LRI::RCI {
                     RCP_shutdown();
                     delete interf;
                     interf = nullptr;
+                    hideAll();
                 }
             }
 

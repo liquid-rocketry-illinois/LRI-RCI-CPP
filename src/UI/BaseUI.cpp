@@ -20,7 +20,8 @@ namespace LRI::RCI {
     }
 
     void BaseUI::hideAll() {
-        for(const auto& window : windows) window->hideWindow();
+        std::set<BaseUI*> wins(windows);
+        for(const auto& window : wins) window->hideWindow();
     }
 
 }
