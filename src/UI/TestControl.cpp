@@ -123,7 +123,7 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void TestControl::receiveRCPUpdate(const RCP_TestData data) {
+    void TestControl::receiveRCPUpdate(const RCP_TestData& data) {
         testNumber = data.selectedTest;
         testState = data.state;
         dataStreaming = data.dataStreaming != 0;

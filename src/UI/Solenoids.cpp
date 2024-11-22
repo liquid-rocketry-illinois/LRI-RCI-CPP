@@ -99,8 +99,8 @@ namespace LRI::RCI {
         buttonTimer.reset();
     }
 
-    void Solenoids::receiveRCPUpdate(const uint8_t id, RCP_SolenoidState_t state) {
-        sols[id] = state == RCP_SOLENOID_ON;
-        solUpdated[id] = true;
+    void Solenoids::receiveRCPUpdate(const RCP_SolenoidData& data) {
+        sols[data.ID] = data.state == RCP_SOLENOID_ON;
+        solUpdated[data.ID] = true;
     }
 }

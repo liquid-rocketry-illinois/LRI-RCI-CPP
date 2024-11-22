@@ -1,9 +1,10 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include <UI/Solenoids.h>
 
 #include "UI/TargetChooser.h"
+#include "UI/Solenoids.h"
+#include "UI/TestControl.h"
 
 namespace LRI::RCI {
     RCP_LibInitData callbacks = {
@@ -30,11 +31,12 @@ namespace LRI::RCI {
     }
 
     int processTestUpdate(const RCP_TestData data) {
+        TestControl::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processSolenoidData(const RCP_SolenoidData data) {
-        Solenoids::getInstance()->receiveRCPUpdate(data.ID, data.state);
+        Solenoids::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
