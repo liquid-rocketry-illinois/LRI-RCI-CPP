@@ -2,6 +2,8 @@
 
 #include "utils.h"
 
+#include <iostream>
+
 namespace LRI::RCI {
     TestControl* TestControl::instance;
 
@@ -11,12 +13,16 @@ namespace LRI::RCI {
     }
 
     TestControl::TestControl() : testState(RCP_TEST_STOPPED), testNumber(0) {
-        refresh.reset();
         heartbeat.reset();
     }
 
 
     void TestControl::render() {
+        if(doHeartbeats && heartbeatRate != 0 && (double) heartbeat.timeSince() > heartbeatRate * 0.9) {
+            RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, 0xFF);
+            heartbeat.reset();
+        }
+
         ImGui::SetNextWindowPos(scale(ImVec2(650, 50)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(360, 200)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Test Control")) {
@@ -79,20 +85,36 @@ namespace LRI::RCI {
 
             ImGui::Text("Send Heartbeat Packets: ");
             ImGui::SameLine();
-            ImGui::Checkbox("##doheartbeats", &doHeartbeats);
+            if(ImGui::Checkbox("##doheartbeats", &doHeartbeats)) {
+                if(doHeartbeats) heartbeatRate = 0;
+                else RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, 0x00);
+            }
 
             if(doHeartbeats) {
                 ImGui::Text("Time between hearbeats (seconds): ");
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(scale(75));
-                ImGui::InputInt("##heartbeatrate", &heartbeatRate);
+                ImGui::InputInt("##heartbeatrate", &inputHeartbeatRate);
                 if(heartbeatRate < 0) heartbeatRate = 0;
                 if(heartbeatRate > 14) heartbeatRate = 14;
 
                 if(lockButtons) ImGui::BeginDisabled();
+
+                bool restyle = inputHeartbeatRate != heartbeatRate;
+                if(restyle) {
+                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9, 0, 1));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7, 0, 1));
+                }
+
                 if(ImGui::Button("Confirm##heartbeatconfirm")) {
+                    heartbeatRate = inputHeartbeatRate;
+                    RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, (uint8_t)heartbeatRate);
                     buttonTimer.reset();
                 }
+
+                if(restyle) ImGui::PopStyleColor(3);
+
                 if(lockButtons) ImGui::EndDisabled();
             }
         }

@@ -12,10 +12,10 @@ namespace LRI::RCI {
 
         RCP_TestRunningState_t testState;
         int testNumber;
-        bool dataStreaming;
-        bool doHeartbeats;
-        int heartbeatRate;
-        StopWatch refresh;
+        bool dataStreaming{};
+        bool doHeartbeats{};
+        int heartbeatRate{};
+        int inputHeartbeatRate{};
         StopWatch heartbeat;
 
         TestControl();
