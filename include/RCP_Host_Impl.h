@@ -17,7 +17,7 @@ namespace LRI::RCI {
     int processAMTemperatureData(const RCP_AMTemperatureData data);
     int processAccelerationData(const RCP_AxisData data);
     int processGyroData(const RCP_AxisData data);
-    int processSerialData(const RCP_SerialData data);
+    int processSerialData(const RCP_CustomData data);
 }
 
 #endif //RCP_HOST_IMPL_H

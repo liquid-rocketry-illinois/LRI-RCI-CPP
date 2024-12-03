@@ -72,7 +72,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int processSerialData(const RCP_SerialData data) {
+    int processSerialData(const RCP_CustomData data) {
         return 0;
     }
 }

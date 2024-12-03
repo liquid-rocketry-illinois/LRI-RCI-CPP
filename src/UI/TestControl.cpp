@@ -19,7 +19,7 @@ namespace LRI::RCI {
 
     void TestControl::render() {
         if(doHeartbeats && heartbeatRate != 0 && (double) heartbeat.timeSince() > heartbeatRate * 0.9) {
-            RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, 0xFF);
+            RCP_sendHeartbeat();
             heartbeat.reset();
         }
 
@@ -33,7 +33,7 @@ namespace LRI::RCI {
 
             if(testState != RCP_TEST_STOPPED) ImGui::BeginDisabled();
             if(ImGui::Button("Start")) {
-                RCP_sendTestUpdate(RCP_TEST_START, testNumber);
+                RCP_startTest(testNumber);
                 buttonTimer.reset();
                 testState = RCP_TEST_START;
             }
@@ -42,7 +42,7 @@ namespace LRI::RCI {
             if(testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button("End")) {
-                RCP_sendTestUpdate(RCP_TEST_STOP, testNumber);
+                RCP_changeTestProgress(RCP_TEST_STOP);
                 buttonTimer.reset();
                 testState = RCP_TEST_STOP;
             }
@@ -51,7 +51,7 @@ namespace LRI::RCI {
             if(testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button(testState == RCP_TEST_PAUSE ? "Resume" : "Pause")) {
-                RCP_sendTestUpdate(RCP_TEST_PAUSE, testNumber);
+                RCP_changeTestProgress(RCP_TEST_PAUSE);
                 buttonTimer.reset();
                 testState = testState == RCP_TEST_RUNNING ? RCP_TEST_PAUSED : RCP_TEST_RUNNING;
             }
@@ -79,7 +79,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Checkbox("##datastreamingcheckbox", &dataStreaming)) {
-                RCP_sendTestUpdate(dataStreaming ? RCP_DATA_STREAM_START : RCP_DATA_STREAM_STOP, 0x00);
+                RCP_setDataStreaming(dataStreaming ? RCP_DATA_STREAM_START : RCP_DATA_STREAM_STOP);
                 buttonTimer.reset();
             }
             if(lockButtons) ImGui::EndDisabled();
@@ -88,7 +88,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Checkbox("##doheartbeats", &doHeartbeats)) {
                 if(doHeartbeats) heartbeatRate = 0;
-                else RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, 0x00);
+                else RCP_setHeartbeatTime(0);
             }
 
             if(doHeartbeats) {
@@ -110,7 +110,7 @@ namespace LRI::RCI {
 
                 if(ImGui::Button("Confirm##heartbeatconfirm")) {
                     heartbeatRate = inputHeartbeatRate;
-                    RCP_sendTestUpdate(RCP_HEARTBEATS_CONTROL, (uint8_t)heartbeatRate);
+                    RCP_setHeartbeatTime(heartbeatRate);
                     buttonTimer.reset();
                 }
 
@@ -124,7 +124,8 @@ namespace LRI::RCI {
     }
 
     void TestControl::receiveRCPUpdate(const RCP_TestData& data) {
-        testNumber = data.selectedTest;
+        heartbeatRate = data.heartbeatTime;
+        inputHeartbeatRate = data.heartbeatTime;
         testState = data.state;
         dataStreaming = data.dataStreaming != 0;
     }
