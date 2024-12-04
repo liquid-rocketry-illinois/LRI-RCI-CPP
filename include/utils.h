@@ -11,7 +11,7 @@ namespace LRI::RCI {
     extern float scaling_factor;
     extern HANDLE com;
 
-    ImVec2 scale(ImVec2 vec);
+    ImVec2 scale(const ImVec2& vec);
     float scale(float val);
     void imgui_init(GLFWwindow* window);
     void imgui_prerender(GLFWwindow* window);
