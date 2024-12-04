@@ -3,22 +3,22 @@
   "heartbeat": false,
   "devices": [
     {
-      "devclass": 126
+      "devclass": 129
     },
     {
-      "devclass": 125
+      "devclass": 130
     },
     {
-      "devclass": 124
+      "devclass": 131
     },
     {
-      "devclass": 123
+      "devclass": 132
     },
     {
-      "devclass": 122
+      "devclass": 133
     },
     {
-      "devclass": 121
+      "devclass": 134
     }
   ]
 }

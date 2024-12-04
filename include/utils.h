@@ -31,6 +31,15 @@ namespace LRI::RCI {
         void reset();
         time_t timeSince();
     };
+
+    // ImVec2 operators
+    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator*(ImVec2 const& v1, float constant);
+    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator/(ImVec2 const& v1, float constant);
+
 }
 
 #endif //UTILS_H

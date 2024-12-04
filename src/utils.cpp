@@ -75,8 +75,8 @@ namespace LRI::RCI {
         glfwTerminate();
     }
 
-    ImVec2 scale(ImVec2 vec) {
-        return ImVec2(vec.x * scaling_factor, vec.y * scaling_factor);
+    ImVec2 scale(const ImVec2& vec) {
+        return vec * scaling_factor;
     }
 
     float scale(float val) {
@@ -97,6 +97,28 @@ namespace LRI::RCI {
         return now - lastClock;
     }
 
+    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) {
+        return {v1.x + v2.x, v1.y + v2.y};
+    }
 
+    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) {
+        return {v1.x - v2.x, v1.y - v2.y};
+    }
+
+    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2) {
+        return {v1.x * v2.x, v1.y * v2.y};
+    }
+
+    ImVec2 operator*(ImVec2 const& v1, const float constant) {
+        return {v1.x * constant, v1.y * constant};
+    }
+
+    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) {
+        return {v1.x / v2.x, v1.y / v2.y};
+    }
+
+    ImVec2 operator/(ImVec2 const& v1, const float constant) {
+        return {v1.x / constant, v1.y / constant};
+    }
 
 }
