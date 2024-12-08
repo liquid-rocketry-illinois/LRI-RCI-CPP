@@ -95,7 +95,7 @@ namespace LRI::RCI {
         }
         dataAccess.unlock();
 
-        return bytesread + 1;
+        return bytesread;
     }
 
     std::string COMPort::interfaceType() const {

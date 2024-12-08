@@ -160,9 +160,17 @@ namespace LRI::RCI {
 
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             switch(targetconfig["devices"][i]["devclass"].get<int>()) {
-            case 0x01: {
-                auto set = targetconfig["devices"][i]["ids"].get<std::set<uint8_t>>();
-                Solenoids::getInstance()->setHardwareConfig(set);
+            case RCP_DEVCLASS_SOLENOID: {
+                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                std::map<uint8_t, std::string> sols;
+                if(ids.size() != names.size()) {
+                    Solenoids::getInstance()->setHardwareConfig(sols);
+                    break;
+                }
+
+                for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
+                Solenoids::getInstance()->setHardwareConfig(sols);
                 Solenoids::getInstance()->showWindow();
                 break;
             }
@@ -238,7 +246,7 @@ namespace LRI::RCI {
         if(connectattempt) {
             port = new COMPort(
                 portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(),
-                CBR_115200);
+                CBR_9600);
         }
         if(portlist.empty()) ImGui::EndDisabled();
 

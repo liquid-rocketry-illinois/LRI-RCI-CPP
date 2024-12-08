@@ -2,8 +2,9 @@
 
 #include <imgui.h>
 #include <iostream>
-#include <string>
 #include <utils.h>
+#include <thread>
+#include <chrono>
 
 #include "RCP_Host/RCP_Host.h"
 
@@ -17,13 +18,11 @@ namespace LRI::RCI {
 
     void Solenoids::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 300)), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(scale(ImVec2(
-                                           buttonLeftMargin + ((buttonSize + buttonLeftMargin) * 4),
-                                           ((sols.size() / solsPerRow) * (buttonSize + buttonTopMargin)) +
-                                           buttonTopMargin +
-                                           buttonExtraMargin)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(scale(ImVec2(350, 200)), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("Manual Solenoid Control")) {
+            ImDrawList* draw = ImGui::GetWindowDrawList();
+
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
             ImGui::Text("WARNING: This panel is for manual\ncontrol only. Solenoid states may be stale");
             ImGui::PopStyleColor();
@@ -36,65 +35,47 @@ namespace LRI::RCI {
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
                 for(const auto [id, state] : sols) {
                     solUpdated[id] = false;
-                    RCP_requestSolenoidRead(id);
+                    // RCP_requestSolenoidRead(id);
                 }
                 buttonTimer.reset();
             }
+            if(lockButtons) ImGui::EndDisabled();
+            ImGui::Separator();
 
-            int pos = 0;
-            for(const auto [id, state] : sols) {
-                ImGui::SetCursorPos(scale(ImVec2(
-                                              buttonLeftMargin + ((pos % solsPerRow) * (buttonLeftMargin + buttonSize)),
-                                              buttonExtraMargin + buttonTopMargin + ((pos / solsPerRow) * (
-                                                  buttonTopMargin + buttonSize))
-                                          )));
+            for(const auto& [id, state] : sols) {
+                ImVec2 pos = ImGui::GetCursorScreenPos();
+                ImU32 statusColor = solUpdated[id] ? (state ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;
+                const char* tooltip = solUpdated[id] ? (state ? "Solenoid ON" : "Solenoid OFF") : "Stale Data";
+                draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
+                ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
+                if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
+                ImGui::SameLine();
+                ImGui::Text("Solenoid %s (%d)", solname[id].c_str(), id);
 
-                if(!solUpdated[id]) {
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 1, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1, 1, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1, 1, 0, 1));
-                }
+                ImGui::SameLine();
 
-                else if(state) {
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7, 0, 1));
-                }
-
-                else {
-                    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
-                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
-                }
-
-                if(!solUpdated[id]) ImGui::BeginDisabled();
-                if(ImGui::Button((std::string("ID: ") + std::to_string(id) + "##solbutton").c_str(),
-                                 ImVec2(buttonSize * scaling_factor, buttonSize * scaling_factor))) {
-                    RCP_SolenoidState newstate = state ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON;
-                    RCP_sendSolenoidWrite(id, newstate);
+                if(lockButtons || !solUpdated[id]) ImGui::BeginDisabled();
+                if(ImGui::Button((std::string(state ? "ON##" : "OFF##") + std::to_string(id)).c_str())) {
+                    RCP_sendSolenoidWrite(id, state ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON);
                     buttonTimer.reset();
                     sols[id] = !sols[id];
                 }
-                if(!solUpdated[id]) ImGui::EndDisabled();
-
-                ImGui::PopStyleColor(3);
-                pos++;
+                if(lockButtons || !solUpdated[id]) ImGui::EndDisabled();
             }
-
-            if(lockButtons) ImGui::EndDisabled();
         }
 
         ImGui::End();
     }
 
-    void Solenoids::setHardwareConfig(const std::set<uint8_t>& solIds) {
+    void Solenoids::setHardwareConfig(const std::map<uint8_t, std::string>& solIds) {
         sols.clear();
         solUpdated.clear();
 
-        for(const auto& i : solIds) {
-            sols[i] = false;
-            solUpdated[i] = false;
-            RCP_requestSolenoidRead(i);
+        for(const auto& [id, name] : solIds) {
+            sols[id] = false;
+            solUpdated[id] = false;
+            solname[id] = name.empty() ? std::to_string(id) : name;
+            RCP_requestSolenoidRead(id);
         }
         buttonTimer.reset();
     }
