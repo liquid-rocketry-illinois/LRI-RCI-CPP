@@ -35,7 +35,7 @@ namespace LRI::RCI {
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
                 for(const auto [id, state] : sols) {
                     solUpdated[id] = false;
-                    // RCP_requestSolenoidRead(id);
+                    RCP_requestSolenoidRead(id);
                 }
                 buttonTimer.reset();
             }
@@ -75,8 +75,8 @@ namespace LRI::RCI {
             sols[id] = false;
             solUpdated[id] = false;
             solname[id] = name.empty() ? std::to_string(id) : name;
-            RCP_requestSolenoidRead(id);
         }
+            RCP_requestSolenoidRead(3);
         buttonTimer.reset();
     }
 
