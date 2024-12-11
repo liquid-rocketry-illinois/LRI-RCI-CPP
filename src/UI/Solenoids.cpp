@@ -19,7 +19,7 @@ namespace LRI::RCI {
     void Solenoids::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 300)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(350, 200)), ImGuiCond_FirstUseEver);
-
+        ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Manual Solenoid Control")) {
             ImDrawList* draw = ImGui::GetWindowDrawList();
 

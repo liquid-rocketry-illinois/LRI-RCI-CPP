@@ -7,6 +7,7 @@
 #include <set>
 #include <interfaces/VirtualPort.h>
 #include <UI/Solenoids.h>
+#include <UI/Steppers.h>
 #include <UI/TestControl.h>
 
 #include "imgui.h"
@@ -164,15 +165,23 @@ namespace LRI::RCI {
                 auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
                 auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
                 std::map<uint8_t, std::string> sols;
-                if(ids.size() != names.size()) {
-                    Solenoids::getInstance()->setHardwareConfig(sols);
-                    break;
-                }
+                if(ids.size() != names.size()) break;
 
                 for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
                 Solenoids::getInstance()->setHardwareConfig(sols);
                 Solenoids::getInstance()->showWindow();
                 break;
+            }
+
+            case RCP_DEVCLASS_STEPPER: {
+                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                std::map<uint8_t, std::string> steps;
+                if(ids.size() != names.size())break;
+
+                for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
+                Steppers::getInstance()->setHardwareConfig(steps);
+                Steppers::getInstance()->showWindow();
             }
 
             default:

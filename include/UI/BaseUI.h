@@ -15,6 +15,7 @@ namespace LRI::RCI {
         static constexpr ImU32 ENABLED_COLOR = ImU32(0xFF00FF00); // Colors are stored as ABGR
         static constexpr ImU32 STALE_COLOR = ImU32(0xF000CDDB);
         static constexpr ImU32 DISABLED_COLOR = ImU32(0xFF0000FF);
+        static constexpr ImU32 REBECCA_PURPLE = ImU32(0xFF993366);
 
         explicit BaseUI() = default;
 

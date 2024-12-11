@@ -6,6 +6,8 @@
 #include "imgui.h"
 
 namespace LRI::RCI {
+    static constexpr ImVec4 BACKGROUND_COLOR {0.4f, 0.2f, 0.6f, 1.0f};
+
     extern ImFont* font_regular;
     extern ImFont* font_bold;
     extern float scaling_factor;
