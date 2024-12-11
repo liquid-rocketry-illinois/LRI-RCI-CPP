@@ -24,7 +24,9 @@ namespace LRI::RCI {
             ImDrawList* draw = ImGui::GetWindowDrawList();
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("WARNING: This panel is for manual\ncontrol only. Solenoid states may be stale");
+            ImGui::PushTextWrapPos(0);
+            ImGui::Text("WARNING: This panel is for manual control only. Stepper states may be stale.");
+            ImGui::PopTextWrapPos();
             ImGui::PopStyleColor();
 
             ImGui::NewLine();
