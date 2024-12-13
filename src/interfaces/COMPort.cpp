@@ -48,7 +48,7 @@ namespace LRI::RCI {
         open = true;
         lastErrorVal = 0;
 
-        buffer = new RingBuffer(bufferSize);
+        buffer = new RCI::RingBuffer<uint8_t>(bufferSize);
         read = true;
         thread = new std::thread(&COMPort::threadRead, this);
     }
@@ -134,36 +134,5 @@ namespace LRI::RCI {
             buffer->push(byte);
             dataAccess.unlock();
         }
-    }
-
-    COMPort::RingBuffer::RingBuffer(int _buffersize) :
-        buffersize(_buffersize), datastart(0), dataend(0), data(nullptr) {
-        data = new uint8_t[buffersize];
-        memset(data, 0, buffersize);
-    }
-
-    COMPort::RingBuffer::~RingBuffer() {
-        delete[] data;
-    }
-
-    int COMPort::RingBuffer::size() {
-        return dataend - datastart;
-    }
-
-    uint8_t COMPort::RingBuffer::pop() {
-        if(size() == 0) return 0;
-        uint8_t retval = data[datastart % buffersize];
-        datastart++;
-        return retval;
-    }
-
-    uint8_t COMPort::RingBuffer::peek() {
-        return data[datastart % buffersize];
-    }
-
-
-    void COMPort::RingBuffer::push(uint8_t value) {
-        data[dataend] = value;
-        dataend++;
     }
 }

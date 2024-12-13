@@ -6,6 +6,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include "utils.h"
 #include "RCP_Interface.h"
 
 namespace LRI::RCI {
@@ -18,28 +19,12 @@ namespace LRI::RCI {
         bool open = false;
         std::atomic_ulong lastErrorVal;
 
-        RingBuffer* buffer;
+        RCI::RingBuffer<uint8_t>* buffer;
         std::atomic_bool read;
         std::thread* thread;
         mutable std::mutex dataAccess;
 
         void threadRead();
-
-        class RingBuffer {
-            int buffersize;
-            int datastart;
-            int dataend;
-            uint8_t* data;
-
-        public:
-            explicit RingBuffer(int buffersize);
-            ~RingBuffer();
-
-            int size();
-            uint8_t pop();
-            uint8_t peek();
-            void push(uint8_t);
-        };
 
     public:
         explicit COMPort(const char* portname, DWORD baudrate);

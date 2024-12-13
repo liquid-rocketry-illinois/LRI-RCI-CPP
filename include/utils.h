@@ -42,6 +42,25 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
     ImVec2 operator/(ImVec2 const& v1, float constant);
 
+    template <typename T, T ret = 0>
+    class RingBuffer {
+        uint32_t buffersize;
+        uint32_t datastart;
+        uint32_t dataend;
+        T* data;
+
+    public:
+        explicit RingBuffer(uint32_t buffersize);
+        ~RingBuffer();
+
+        [[nodiscard]] uint32_t length() const;
+        [[nodiscard]] uint32_t size() const;
+        T pop();
+        T peek() const;
+        void push(T value);
+    };
+
 }
 
+#include "RingBuffer.inl"
 #endif //UTILS_H
