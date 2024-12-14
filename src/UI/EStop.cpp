@@ -8,9 +8,7 @@
 namespace LRI::RCI {
     constexpr int winFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
     EStop* EStop::instance;
-    EStop::EStop(): BaseUI() {
-        BaseUI::showWindow();
-    }
+    EStop::EStop(): BaseUI() {}
 
     EStop* const EStop::getInstance() {
         if(instance == nullptr) instance = new EStop();
@@ -18,8 +16,8 @@ namespace LRI::RCI {
     }
 
     void EStop::render() {
-        ImGui::SetNextWindowPos(ImVec2(650 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(100 * scaling_factor, 100 * scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(450, 275)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(scale(ImVec2(100, 100)), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("ESTOP", nullptr, winFlags)) {
             if(!RCP_isOpen()) ImGui::BeginDisabled();
@@ -36,9 +34,4 @@ namespace LRI::RCI {
 
         ImGui::End();
     }
-
-    void EStop::hideWindow() {}
-    void EStop::showWindow() {}
-
-
 }

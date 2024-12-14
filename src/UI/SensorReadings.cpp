@@ -16,6 +16,13 @@ namespace LRI::RCI {
     }
 
     void SensorReadings::render() {
+        ImGui::SetNextWindowPos(scale(ImVec2(675, 50)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(scale(ImVec2(700, 300)), ImGuiCond_FirstUseEver);
+        if(ImGui::Begin("Sensor Readouts")) {
+
+        }
+
+        ImGui::End();
     }
 
     void SensorReadings::setHardwareConfig(const std::set<SensorQualifier>& sensids) {

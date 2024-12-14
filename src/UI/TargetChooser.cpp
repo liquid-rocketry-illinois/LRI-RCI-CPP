@@ -6,6 +6,8 @@
 #include <fstream>
 #include <set>
 #include <interfaces/VirtualPort.h>
+#include <UI/EStop.h>
+#include <UI/SensorReadings.h>
 #include <UI/Solenoids.h>
 #include <UI/Steppers.h>
 #include <UI/TestControl.h>
@@ -41,8 +43,8 @@ namespace LRI::RCI {
     }
 
     void TargetChooser::render() {
-        ImGui::SetNextWindowPos(ImVec2(50 * scaling_factor, 50 * scaling_factor), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(550 * scaling_factor, 200 * scaling_factor), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(50, 50)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(scale(ImVec2(550, 200)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Target Settings", nullptr, ImGuiWindowFlags_NoResize)) {
             ImGui::Text("Target Connection Status: ");
             ImGui::SameLine();
@@ -158,7 +160,9 @@ namespace LRI::RCI {
 
     void TargetChooser::initWindows() {
         TestControl::getInstance()->showWindow();
+        EStop::getInstance()->showWindow();
 
+        std::set<SensorQualifier> sensors;
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             switch(targetconfig["devices"][i]["devclass"].get<int>()) {
             case RCP_DEVCLASS_SOLENOID: {
@@ -176,17 +180,61 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_STEPPER: {
                 auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
                 auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                std::map<uint8_t, std::string> steps;
-                if(ids.size() != names.size())break;
+                if(ids.size() != names.size()) break;
 
+                std::map<uint8_t, std::string> steps;
                 for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
                 Steppers::getInstance()->setHardwareConfig(steps);
                 Steppers::getInstance()->showWindow();
             }
 
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER: {
+                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                if(ids.size() != names.size()) break;
+
+                for(size_t j = 0; j < ids.size(); j++)
+                    sensors.insert({
+                        .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
+                        .id = ids[j],
+                        .name = names[j]
+                    });
+
+                break;
+            }
+
+            case RCP_DEVCLASS_GPS:
+                sensors.insert({.devclass = RCP_DEVCLASS_GPS, .name = "GPS"});
+                break;
+
+            case RCP_DEVCLASS_MAGNETOMETER:
+                sensors.insert({.devclass = RCP_DEVCLASS_MAGNETOMETER, .name = "Magnetometer"});
+                break;
+
+            case RCP_DEVCLASS_AM_PRESSURE:
+                sensors.insert({.devclass = RCP_DEVCLASS_AM_PRESSURE, .name = "Ambient Pressure"});
+                break;
+
+            case RCP_DEVCLASS_AM_TEMPERATURE:
+                sensors.insert({.devclass = RCP_DEVCLASS_AM_TEMPERATURE, .name = "Ambient Temperature"});
+                break;
+
+            case RCP_DEVCLASS_ACCELEROMETER:
+                sensors.insert({.devclass = RCP_DEVCLASS_ACCELEROMETER, .name = "Accelerometer"});
+                break;
+
+            case RCP_DEVCLASS_GYROSCOPE:
+                sensors.insert({.devclass = RCP_DEVCLASS_GYROSCOPE, .name = "Gyroscope"});
+                break;
+
             default:
                 break;
             }
+        }
+
+        if(!sensors.empty()) {
+            SensorReadings::getInstance()->setHardwareConfig(sensors);
+            SensorReadings::getInstance()->showWindow();
         }
     }
 

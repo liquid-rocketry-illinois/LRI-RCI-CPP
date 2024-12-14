@@ -17,7 +17,7 @@ namespace LRI::RCI {
     }
 
     void Steppers::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(50, 350)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(675, 375)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 400)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Manual Stepper Motor Control")) {

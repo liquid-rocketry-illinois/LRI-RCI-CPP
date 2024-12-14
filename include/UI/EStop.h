@@ -11,8 +11,6 @@ namespace LRI::RCI {
     public:
         void render() override;
         static EStop* const getInstance();
-        void hideWindow() override;
-        void showWindow() override;
     };
 }
 

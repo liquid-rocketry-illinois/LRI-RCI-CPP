@@ -23,7 +23,7 @@ namespace LRI::RCI {
             heartbeat.reset();
         }
 
-        ImGui::SetNextWindowPos(scale(ImVec2(650, 50)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(50, 275)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(360, 200)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Test Control")) {
             ImGui::Text("Test Control");
@@ -88,7 +88,10 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Checkbox("##doheartbeats", &doHeartbeats)) {
                 if(doHeartbeats) heartbeatRate = 0;
-                else RCP_setHeartbeatTime(0);
+                else {
+                    RCP_setHeartbeatTime(0);
+                    buttonTimer.reset();
+                }
             }
 
             if(doHeartbeats) {
@@ -96,8 +99,8 @@ namespace LRI::RCI {
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(scale(75));
                 ImGui::InputInt("##heartbeatrate", &inputHeartbeatRate);
-                if(heartbeatRate < 0) heartbeatRate = 0;
-                if(heartbeatRate > 14) heartbeatRate = 14;
+                if(inputHeartbeatRate < 0) inputHeartbeatRate = 0;
+                if(inputHeartbeatRate > 14) inputHeartbeatRate = 14;
 
                 if(lockButtons) ImGui::BeginDisabled();
 

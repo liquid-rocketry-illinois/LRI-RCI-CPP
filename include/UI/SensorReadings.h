@@ -21,7 +21,7 @@ namespace LRI::RCI {
         union {
             int32_t int32val;
             int32_t axisData[3];
-            int64_t gpsData[4];
+            int32_t gpsData[4];
         } data;
     };
 

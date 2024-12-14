@@ -3,7 +3,6 @@
 
 #include <UI/Steppers.h>
 
-
 #include "UI/TargetChooser.h"
 #include "UI/Solenoids.h"
 #include "UI/TestControl.h"
@@ -55,15 +54,13 @@ namespace LRI::RCI {
         return 0;
     }
 
-
     int processGPSData(const RCP_GPSData data) {
         static const SensorQualifier GPS_QUALIFIER{.devclass = RCP_DEVCLASS_GPS};
         DataPoint d{.timestamp = data.timestamp};
-        memcpy(&d.data, &data.latitude, 32);
+        memcpy(&d.data, &data.latitude, 16);
         SensorReadings::getInstance()->receiveRCPUpdate(GPS_QUALIFIER, d);
         return 0;
     }
-
 
     int processMagnetometerData(const RCP_AxisData data) {
         static const SensorQualifier MAGNETOMETER_QUALIFIER{.devclass = RCP_DEVCLASS_MAGNETOMETER};
@@ -73,14 +70,12 @@ namespace LRI::RCI {
         return 0;
     }
 
-
     int processAMPressureData(const RCP_AMPressureData data) {
         static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER,
                                                         {.timestamp = data.timestamp, .data = data.pressure});
         return 0;
     }
-
 
     int processAMTemperatureData(const RCP_AMTemperatureData data) {
         static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
@@ -89,7 +84,6 @@ namespace LRI::RCI {
         return 0;
     }
 
-
     int processAccelerationData(const RCP_AxisData data) {
         static const SensorQualifier ACCELEROMETER_QUALIFIER{.devclass = RCP_DEVCLASS_ACCELEROMETER};
         DataPoint d{.timestamp = data.timestamp};
@@ -97,7 +91,6 @@ namespace LRI::RCI {
         SensorReadings::getInstance()->receiveRCPUpdate(ACCELEROMETER_QUALIFIER, d);
         return 0;
     }
-
 
     int processGyroData(const RCP_AxisData data) {
         static const SensorQualifier GYRO_QUALIFIER{.devclass = RCP_DEVCLASS_GYROSCOPE};

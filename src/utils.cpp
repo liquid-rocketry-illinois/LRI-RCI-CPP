@@ -43,7 +43,6 @@ namespace LRI::RCI {
         font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
 
         TargetChooser::getInstance();
-        EStop::getInstance();
     }
 
     void imgui_prerender(GLFWwindow* window) {
