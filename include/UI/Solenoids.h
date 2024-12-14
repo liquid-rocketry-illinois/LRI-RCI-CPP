@@ -11,7 +11,6 @@
 namespace LRI::RCI {
     class Solenoids : public BaseUI {
         static Solenoids* instance;
-        static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(20, 20);
 
         std::map<uint8_t, bool> solUpdated;
         std::map<uint8_t, bool> sols;

@@ -10,14 +10,10 @@
 
 namespace LRI::RCI {
     struct SensorQualifier {
-        RCP_DeviceClass_t devclass;
+        RCP_DeviceClass_t devclass = 0;
         uint8_t id = 0;
         std::string name;
-
-        bool operator<(SensorQualifier const& lhf, SensorQualifier const& rhf) const {
-            if(lhf.devclass == rhf.devclass) return lhf.id < rhf.id;
-            return lhf.devclass < rhf.devclass;
-        }
+        bool operator<(SensorQualifier const& rhf) const;
     };
 
     struct DataPoint {
@@ -30,7 +26,6 @@ namespace LRI::RCI {
     };
 
     class SensorReadings : public BaseUI {
-        static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(20, 20);
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 500'000;
 
         static SensorReadings* instance;

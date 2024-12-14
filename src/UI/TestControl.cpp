@@ -28,7 +28,7 @@ namespace LRI::RCI {
         if(ImGui::Begin("Test Control")) {
             ImGui::Text("Test Control");
 
-            bool lockButtons = buttonTimer.timeSince() < buttonDelay;
+            bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
             if(lockButtons) ImGui::BeginDisabled();
 
             if(testState != RCP_TEST_STOPPED) ImGui::BeginDisabled();

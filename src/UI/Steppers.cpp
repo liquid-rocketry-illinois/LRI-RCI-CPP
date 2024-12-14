@@ -32,7 +32,7 @@ namespace LRI::RCI {
             ImGui::NewLine();
             time_t now;
             time(&now);
-            bool lockButtons = buttonTimer.timeSince() < buttonDelay;
+            bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
 
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Button("Invalidate Cache and Refresh States")) {

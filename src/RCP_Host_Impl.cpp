@@ -50,55 +50,57 @@ namespace LRI::RCI {
     }
 
     int processTransducerData(const RCP_TransducerData data) {
-        SensorQualifier qual{.devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER, .id = data.ID};
+        SensorQualifier qual(RCP_DEVCLASS_PRESSURE_TRANSDUCER, data.ID);
         SensorReadings::getInstance()->receiveRCPUpdate(qual, {.timestamp = data.timestamp, .data = data.pressure});
         return 0;
     }
 
-    constexpr SensorQualifier GPS_QUALIFIER{.devclass = RCP_DEVCLASS_GPS};
 
     int processGPSData(const RCP_GPSData data) {
+        static const SensorQualifier GPS_QUALIFIER{.devclass = RCP_DEVCLASS_GPS};
         DataPoint d{.timestamp = data.timestamp};
         memcpy(&d.data, &data.latitude, 32);
         SensorReadings::getInstance()->receiveRCPUpdate(GPS_QUALIFIER, d);
         return 0;
     }
 
-    constexpr SensorQualifier MAGNETOMETER_QUALIFIER{.devclass = RCP_DEVCLASS_MAGNETOMETER};
 
     int processMagnetometerData(const RCP_AxisData data) {
+        static const SensorQualifier MAGNETOMETER_QUALIFIER{.devclass = RCP_DEVCLASS_MAGNETOMETER};
         DataPoint d{.timestamp = data.timestamp};
         memcpy(&d.data, &data.x, 12);
         SensorReadings::getInstance()->receiveRCPUpdate(MAGNETOMETER_QUALIFIER, d);
         return 0;
     }
 
-    constexpr SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
 
     int processAMPressureData(const RCP_AMPressureData data) {
+        static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER,
                                                         {.timestamp = data.timestamp, .data = data.pressure});
         return 0;
     }
 
-    constexpr SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
 
     int processAMTemperatureData(const RCP_AMTemperatureData data) {
+        static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_TEMPERATURE_QUALIFIER,
                                                         {.timestamp = data.timestamp, .data = data.temperature});
         return 0;
     }
 
-    constexpr SensorQualifier ACCELEROMETER_QUALIFIER{.devclass = RCP_DEVCLASS_ACCELEROMETER};
+
     int processAccelerationData(const RCP_AxisData data) {
+        static const SensorQualifier ACCELEROMETER_QUALIFIER{.devclass = RCP_DEVCLASS_ACCELEROMETER};
         DataPoint d{.timestamp = data.timestamp};
         memcpy(&d.data, &data.x, 12);
         SensorReadings::getInstance()->receiveRCPUpdate(ACCELEROMETER_QUALIFIER, d);
         return 0;
     }
 
-    constexpr SensorQualifier GYRO_QUALIFIER{.devclass = RCP_DEVCLASS_GYROSCOPE};
+
     int processGyroData(const RCP_AxisData data) {
+        static const SensorQualifier GYRO_QUALIFIER{.devclass = RCP_DEVCLASS_GYROSCOPE};
         DataPoint d{.timestamp = data.timestamp};
         memcpy(&d.data, &data.x, 12);
         SensorReadings::getInstance()->receiveRCPUpdate(GYRO_QUALIFIER, d);

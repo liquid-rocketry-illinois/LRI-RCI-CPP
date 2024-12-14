@@ -10,7 +10,6 @@
 
 namespace LRI::RCI {
     class Steppers : public BaseUI {
-        static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(20, 20);
         static const std::map<uint8_t, std::vector<std::string>> BTN_NAMES; // Unfortunately, it can't be constexpr
 
         struct Stepper {

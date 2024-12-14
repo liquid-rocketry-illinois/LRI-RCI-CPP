@@ -1,6 +1,13 @@
+#include <utility>
+
 #include "UI/SensorReadings.h"
 
 namespace LRI::RCI {
+    bool SensorQualifier::operator<(SensorQualifier const& rhf) const {
+        if(devclass == rhf.devclass) return id < rhf.id;
+        return devclass < rhf.devclass;
+    }
+
     SensorReadings* SensorReadings::instance;
 
     SensorReadings* const SensorReadings::getInstance() {
@@ -9,7 +16,6 @@ namespace LRI::RCI {
     }
 
     void SensorReadings::render() {
-
     }
 
     void SensorReadings::setHardwareConfig(const std::set<SensorQualifier>& sensids) {
