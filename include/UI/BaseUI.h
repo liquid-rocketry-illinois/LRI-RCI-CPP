@@ -10,7 +10,7 @@ namespace LRI::RCI {
 
     protected:
         static constexpr long long BUTTON_DELAY = 1;
-        static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(20, 20);
+        static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(15, 15);
         static StopWatch buttonTimer;
 
         static constexpr ImU32 ENABLED_COLOR = ImU32(0xFF00FF00); // Colors are stored as ABGR

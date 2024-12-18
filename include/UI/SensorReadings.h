@@ -14,19 +14,21 @@ namespace LRI::RCI {
         uint8_t id = 0;
         std::string name;
         bool operator<(SensorQualifier const& rhf) const;
+        std::string asString() const;
     };
 
     struct DataPoint {
-        uint32_t timestamp;
+        double timestamp;
         union {
-            int32_t int32val;
-            int32_t axisData[3];
+            double singleVal;
+            double axisData[3];
             int32_t gpsData[4];
         } data;
     };
 
     class SensorReadings : public BaseUI {
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 500'000;
+        static const std::map<RCP_DeviceClass_t, std::string> DEVCLASS_NAMES;
 
         static SensorReadings* instance;
 

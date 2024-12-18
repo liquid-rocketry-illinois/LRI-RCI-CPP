@@ -186,6 +186,7 @@ namespace LRI::RCI {
                 for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
                 Steppers::getInstance()->setHardwareConfig(steps);
                 Steppers::getInstance()->showWindow();
+                break;
             }
 
             case RCP_DEVCLASS_PRESSURE_TRANSDUCER: {

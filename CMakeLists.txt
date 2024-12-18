@@ -13,10 +13,12 @@ add_executable(LRI_control_panel
         libs/imgui/imgui_draw.cpp
         libs/imgui/imgui_tables.cpp
         libs/imgui/imgui_widgets.cpp
+        libs/imgui/imgui_demo.cpp
         libs/imgui/backends/imgui_impl_glfw.cpp
         libs/imgui/backends/imgui_impl_opengl3.cpp
         libs/implot/implot.cpp
         libs/implot/implot_items.cpp
+        libs/implot/implot_demo.cpp
         src/main.cpp
         src/utils.cpp
         src/interfaces/COMPort.cpp
