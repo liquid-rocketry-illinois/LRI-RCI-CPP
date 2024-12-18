@@ -22,7 +22,7 @@ namespace LRI::RCI {
         union {
             double singleVal;
             double axisData[3];
-            int32_t gpsData[4];
+            double gpsData[4];
         } data;
     };
 

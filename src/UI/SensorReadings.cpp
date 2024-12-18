@@ -39,15 +39,97 @@ namespace LRI::RCI {
                 ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
                 if(ImGui::IsItemHovered()) ImGui::SetTooltip(data.empty() ? "No data received" : "Receiving data");
 
-                if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(),
-                                     ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                if(qual.devclass == RCP_DEVCLASS_GPS) {
+                    if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":latlon").c_str(),
+                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                        ImPlot::SetupAxes("Time (s)", "Latitude/Longitude (degrees)");
+                        ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.gpsData[0], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::PlotLine((std::string("Longitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.gpsData[1], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::EndPlot();
+                    }
+
+                    if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":alt").c_str(),
+                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                        ImPlot::SetupAxes("Time (s)", "Altitude (m)");
+                        ImPlot::PlotLine((std::string("Altitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.gpsData[2], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::EndPlot();
+                    }
+
+                    if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":gs").c_str(),
+                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                        ImPlot::SetupAxes("Time (s)", "Ground Speed (m/s)");
+                        ImPlot::PlotLine((std::string("Ground Speed##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.gpsData[3], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::EndPlot();
+                    }
+                }
+
+                else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(),
+                                          ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                    std::string graphname;
                     switch(qual.devclass) {
                     case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                        ImPlot::SetupAxes("Time (ms)", "Pressure (millibars)");
-                        if(data.empty()) break;
-                        ImPlot::PlotLine((std::string("Pressure##") + qual.asString()).c_str(), &data[0].timestamp,
+                    case RCP_DEVCLASS_AM_PRESSURE:
+                        ImPlot::SetupAxes("Time (s)", "Pressure (millibars)");
+                        graphname = "Pressure##";
+                        break;
+
+                    case RCP_DEVCLASS_MAGNETOMETER:
+                        ImPlot::SetupAxes("Time (s)", "Magnetic Strength (Gauss)");
+                        break;
+
+                    case RCP_DEVCLASS_AM_TEMPERATURE:
+                        ImPlot::SetupAxes("Time (s)", "Temperature (Celcius)");
+                        graphname = "Temperature##";
+                        break;
+
+                    case RCP_DEVCLASS_ACCELEROMETER:
+                        ImPlot::SetupAxes("Time (s)", "Acceleration (m/s/s)");
+                        break;
+
+                    case RCP_DEVCLASS_GYROSCOPE:
+                        ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)");
+                        break;
+
+                    default:
+                        ImPlot::SetupAxes("Unknown Data", "Unknown Data");
+                        break;
+                    }
+                    switch(qual.devclass) {
+                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                    case RCP_DEVCLASS_AM_PRESSURE:
+                    case RCP_DEVCLASS_AM_TEMPERATURE:
+                        ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
                                          &data[0].data.singleVal, static_cast<int>(data.size()),
                                          0, 0, sizeof(DataPoint));
+                        break;
+
+                    case RCP_DEVCLASS_MAGNETOMETER:
+                    case RCP_DEVCLASS_ACCELEROMETER:
+                    case RCP_DEVCLASS_GYROSCOPE:
+                        ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
+                        ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
+                                         &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+
                         break;
 
                     default:
@@ -70,16 +152,6 @@ namespace LRI::RCI {
         for(const auto& qual : sensids) {
             sensors[qual] = std::vector<DataPoint>();
             sensors[qual].reserve(DATA_VECTOR_INITIAL_SIZE);
-
-            int point = 1;
-            for(int i = 0; i < 50; i++) {
-                DataPoint d{.timestamp = static_cast<double>(point)};
-                point += 1;
-                d.data.singleVal = point % 2;
-                sensors[qual].push_back(d);
-            }
-
-            int j = 3;
         }
     }
 

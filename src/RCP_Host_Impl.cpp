@@ -60,7 +60,10 @@ namespace LRI::RCI {
     int processGPSData(const RCP_GPSData data) {
         static const SensorQualifier GPS_QUALIFIER{.devclass = RCP_DEVCLASS_GPS};
         DataPoint d{.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
-        memcpy(&d.data, &data.latitude, 16);
+        d.data.gpsData[0] = static_cast<double>(data.latitude) / 1'000'000.0;
+        d.data.gpsData[1] = static_cast<double>(data.longitude) / 1'000'000.0;
+        d.data.gpsData[2] = static_cast<double>(data.altitude) / 1'000.0;
+        d.data.gpsData[3] = static_cast<double>(data.groundSpeed) / 1'000.0;
         SensorReadings::getInstance()->receiveRCPUpdate(GPS_QUALIFIER, d);
         return 0;
     }
