@@ -14,7 +14,7 @@ namespace LRI::RCI {
         uint8_t id = 0;
         std::string name;
         bool operator<(SensorQualifier const& rhf) const;
-        std::string asString() const;
+        [[nodiscard]] std::string asString() const;
     };
 
     struct DataPoint {
@@ -37,7 +37,7 @@ namespace LRI::RCI {
         std::map<SensorQualifier, std::vector<DataPoint>> sensors;
 
     public:
-        static SensorReadings* const getInstance();
+        static SensorReadings* getInstance();
 
         void render() override;
         void setHardwareConfig(const std::set<SensorQualifier>& sensids);

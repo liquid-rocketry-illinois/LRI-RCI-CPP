@@ -7,7 +7,8 @@ namespace LRI::RCI {
     COMPort::COMPort(const char* _portname, DWORD baudrate) {
         portname = new char[strlen(_portname)];
         strcpy(portname, _portname);
-        port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+        port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
+                          nullptr);
 
         if(port == INVALID_HANDLE_VALUE) {
             lastErrorVal = GetLastError();
@@ -87,7 +88,7 @@ namespace LRI::RCI {
 
     size_t COMPort::readData(void* rawbytes, size_t bufferlength) const {
         int bytesread;
-        uint8_t* bytes = (uint8_t*) rawbytes;
+        auto bytes = static_cast<uint8_t*>(rawbytes);
 
         dataAccess.lock();
         for(bytesread = 0; buffer->size() > 0 && bytesread < bufferlength; bytesread++) {

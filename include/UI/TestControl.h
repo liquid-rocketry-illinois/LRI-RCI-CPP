@@ -21,7 +21,7 @@ namespace LRI::RCI {
         TestControl();
 
     public:
-        static TestControl* const getInstance();
+        static TestControl* getInstance();
 
         void render() override;
         void receiveRCPUpdate(const RCP_TestData& data);

@@ -11,7 +11,6 @@
 #include "WindowsResource.h"
 
 #include "UI/TargetChooser.h"
-#include "UI/EStop.h"
 
 namespace LRI::RCI {
     ImFont* font_regular;
@@ -42,9 +41,9 @@ namespace LRI::RCI {
         fontConfig.FontDataOwnedByAtlas = false;
 
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
-        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()), 16 * scaling_factor, &fontConfig);
         fonts = WindowsResource("font-bold.ttf", "TTFFONT");
-        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), fonts.getSize(), 16 * scaling_factor, &fontConfig);
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()), 16 * scaling_factor, &fontConfig);
 
         TargetChooser::getInstance();
     }
@@ -95,7 +94,7 @@ namespace LRI::RCI {
         time(&lastClock);
     }
 
-    time_t StopWatch::timeSince() {
+    time_t StopWatch::timeSince() const {
         time_t now;
         time(&now);
         return now - lastClock;

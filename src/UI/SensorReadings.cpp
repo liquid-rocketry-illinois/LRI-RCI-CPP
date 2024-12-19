@@ -1,8 +1,6 @@
 #include <utility>
 
 #include "UI/SensorReadings.h"
-
-#include <chrono>
 #include <implot.h>
 
 namespace LRI::RCI {
@@ -18,9 +16,13 @@ namespace LRI::RCI {
     SensorReadings* SensorReadings::instance;
     const std::map<RCP_DeviceClass_t, std::string> SensorReadings::DEVCLASS_NAMES = {};
 
-    SensorReadings* const SensorReadings::getInstance() {
+    SensorReadings* SensorReadings::getInstance() {
         if(instance == nullptr) instance = new SensorReadings();
         return instance;
+    }
+
+    float min3(float a, float b, float c) {
+        return min(a, min(b, c));
     }
 
     void SensorReadings::render() {
@@ -28,6 +30,9 @@ namespace LRI::RCI {
         ImGui::SetNextWindowSize(scale(ImVec2(700, 300)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Sensor Readouts")) {
             ImDrawList* draw = ImGui::GetWindowDrawList();
+            float xsize = ImGui::GetWindowWidth() - scale(50);
+            ImVec2 plotsize = ImVec2(xsize,
+                min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
             for(const auto& [qual, data] : sensors) {
                 if(!ImGui::TreeNode(
                     (qual.name + "##" + qual.asString()).c_str()))
@@ -41,42 +46,46 @@ namespace LRI::RCI {
 
                 if(qual.devclass == RCP_DEVCLASS_GPS) {
                     if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":latlon").c_str(),
-                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                                         plotsize)) {
                         ImPlot::SetupAxes("Time (s)", "Latitude/Longitude (degrees)");
-                        ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.gpsData[0], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                        if(data.empty())
+                            ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.gpsData[0], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
-                        ImPlot::PlotLine((std::string("Longitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.gpsData[1], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                        if(!data.empty())
+                            ImPlot::PlotLine((std::string("Longitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.gpsData[1], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
                         ImPlot::EndPlot();
                     }
 
                     if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":alt").c_str(),
-                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                                         plotsize)) {
                         ImPlot::SetupAxes("Time (s)", "Altitude (m)");
-                        ImPlot::PlotLine((std::string("Altitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.gpsData[2], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                        if(!data.empty())
+                            ImPlot::PlotLine((std::string("Altitude##") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.gpsData[2], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
                         ImPlot::EndPlot();
                     }
 
                     if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":gs").c_str(),
-                                         ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                                         plotsize)) {
                         ImPlot::SetupAxes("Time (s)", "Ground Speed (m/s)");
-                        ImPlot::PlotLine((std::string("Ground Speed##") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.gpsData[3], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                        if(!data.empty())
+                            ImPlot::PlotLine((std::string("Ground Speed##") + qual.asString()).c_str(),
+                                             &data[0].timestamp,
+                                             &data[0].data.gpsData[3], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
                         ImPlot::EndPlot();
                     }
                 }
 
-                else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(),
-                                          ImVec2(ImGui::GetWindowWidth() - scale(50), scale(200)))) {
+                else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
                     std::string graphname;
                     switch(qual.devclass) {
                     case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
@@ -106,35 +115,36 @@ namespace LRI::RCI {
                         ImPlot::SetupAxes("Unknown Data", "Unknown Data");
                         break;
                     }
-                    switch(qual.devclass) {
-                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                    case RCP_DEVCLASS_AM_PRESSURE:
-                    case RCP_DEVCLASS_AM_TEMPERATURE:
-                        ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.singleVal, static_cast<int>(data.size()),
-                                         0, 0, sizeof(DataPoint));
-                        break;
+                    if(!data.empty())
+                        switch(qual.devclass) {
+                        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                        case RCP_DEVCLASS_AM_PRESSURE:
+                        case RCP_DEVCLASS_AM_TEMPERATURE:
+                            ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.singleVal, static_cast<int>(data.size()),
+                                             0, 0, sizeof(DataPoint));
+                            break;
 
-                    case RCP_DEVCLASS_MAGNETOMETER:
-                    case RCP_DEVCLASS_ACCELEROMETER:
-                    case RCP_DEVCLASS_GYROSCOPE:
-                        ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                        case RCP_DEVCLASS_MAGNETOMETER:
+                        case RCP_DEVCLASS_ACCELEROMETER:
+                        case RCP_DEVCLASS_GYROSCOPE:
+                            ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
-                        ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                            ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
-                        ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
-                                         &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
-                                         sizeof(DataPoint));
+                            ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
+                                             &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
+                                             sizeof(DataPoint));
 
-                        break;
+                            break;
 
-                    default:
-                        break;
-                    }
+                        default:
+                            break;
+                        }
                     ImPlot::EndPlot();
                 }
 

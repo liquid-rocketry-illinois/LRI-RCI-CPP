@@ -19,7 +19,7 @@ namespace LRI::RCI {
         Solenoids() = default;
 
     public:
-        static Solenoids* const getInstance();
+        static Solenoids* getInstance();
         void render() override;
         void setHardwareConfig(const std::map<uint8_t, std::string>& solIds);
         void receiveRCPUpdate(const RCP_SolenoidData& data);

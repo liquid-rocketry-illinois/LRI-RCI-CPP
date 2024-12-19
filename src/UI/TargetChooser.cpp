@@ -37,7 +37,7 @@ namespace LRI::RCI {
         chooser = new COMPortChooser(this);
     }
 
-    TargetChooser* const TargetChooser::getInstance() {
+    TargetChooser* TargetChooser::getInstance() {
         if(instance == nullptr) instance = new TargetChooser();
         return instance;
     }
@@ -249,7 +249,7 @@ namespace LRI::RCI {
 
     bool TargetChooser::COMPortChooser::enumSerialDevs() {
         portlist.clear();
-        HANDLE devs = SetupDiGetClassDevs((LPGUID)&GUID_DEVCLASS_PORTS, 0, 0, DIGCF_PRESENT);
+        HANDLE devs = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, nullptr, nullptr, DIGCF_PRESENT);
         if(devs == INVALID_HANDLE_VALUE) return false;
 
         SP_DEVINFO_DATA data;
@@ -265,7 +265,7 @@ namespace LRI::RCI {
             char comname[16] = {0};
             DWORD len = 16;
 
-            RegQueryValueEx(hkey, "PortName", 0, 0, (LPBYTE)comname, &len);
+            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
             RegCloseKey(hkey);
             if(comname[0] != 'C') continue;
 

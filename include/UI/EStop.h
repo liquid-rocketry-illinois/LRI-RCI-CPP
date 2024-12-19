@@ -10,7 +10,7 @@ namespace LRI::RCI {
 
     public:
         void render() override;
-        static EStop* const getInstance();
+        static EStop* getInstance();
     };
 }
 

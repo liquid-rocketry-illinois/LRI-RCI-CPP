@@ -7,7 +7,7 @@
 namespace LRI::RCI {
     TestControl* TestControl::instance;
 
-    TestControl* const TestControl::getInstance() {
+    TestControl* TestControl::getInstance() {
         if(instance == nullptr) instance = new TestControl();
         return instance;
     }
@@ -18,7 +18,7 @@ namespace LRI::RCI {
 
 
     void TestControl::render() {
-        if(doHeartbeats && heartbeatRate != 0 && (double) heartbeat.timeSince() > heartbeatRate * 0.9) {
+        if(doHeartbeats && heartbeatRate != 0 && static_cast<double>(heartbeat.timeSince()) > heartbeatRate * 0.9) {
             RCP_sendHeartbeat();
             heartbeat.reset();
         }

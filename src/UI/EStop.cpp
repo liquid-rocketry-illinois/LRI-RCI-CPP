@@ -10,7 +10,7 @@ namespace LRI::RCI {
     EStop* EStop::instance;
     EStop::EStop(): BaseUI() {}
 
-    EStop* const EStop::getInstance() {
+    EStop* EStop::getInstance() {
         if(instance == nullptr) instance = new EStop();
         return instance;
     }

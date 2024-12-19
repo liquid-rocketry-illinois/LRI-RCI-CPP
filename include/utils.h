@@ -24,14 +24,14 @@ namespace LRI::RCI {
     void renderEStop();
 
     class StopWatch final {
-        time_t lastClock;
+        time_t lastClock{};
 
     public:
         StopWatch();
         ~StopWatch() = default;
 
         void reset();
-        time_t timeSince();
+        [[nodiscard]] time_t timeSince() const;
     };
 
     // ImVec2 operators

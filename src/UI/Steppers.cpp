@@ -11,7 +11,7 @@ namespace LRI::RCI {
         {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", "degrees/s"}}
     };
 
-    Steppers* const Steppers::getInstance() {
+    Steppers* Steppers::getInstance() {
         if(instance == nullptr) instance = new Steppers();
         return instance;
     }
@@ -87,14 +87,14 @@ namespace LRI::RCI {
                 if(lockButtons || step.stale) ImGui::BeginDisabled();
                 ImGui::SameLine();
                 if(ImGui::Button((std::string("Apply##") + std::to_string(id)).c_str())) {
-                    RCP_sendStepperWrite(id, step.controlMode, (int32_t) (step.controlVal * 1'000'000));
+                    RCP_sendStepperWrite(id, step.controlMode, static_cast<int32_t>(step.controlVal * 1'000'000));
                     buttonTimer.reset();  //    Values are sent in millionths of degrees  ---^^
                 }
                 if(lockButtons || step.stale) ImGui::EndDisabled();
 
                 ImGui::Text("Current State: ");
-                ImGui::Text("   Position: %.3f degrees", (((float) step.position) / 1'000'000));
-                ImGui::Text("   Speed:    %.3f degrees/second", (((float) step.speed) / 1'000'000));
+                ImGui::Text("   Position: %.3f degrees", (static_cast<float>(step.position) / 1'000'000));
+                ImGui::Text("   Speed:    %.3f degrees/second", (static_cast<float>(step.speed) / 1'000'000));
 
                 ImGui::NewLine();
                 ImGui::Separator();

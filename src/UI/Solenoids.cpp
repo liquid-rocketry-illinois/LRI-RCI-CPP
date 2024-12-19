@@ -11,7 +11,7 @@
 namespace LRI::RCI {
     Solenoids* Solenoids::instance;
 
-    Solenoids* const Solenoids::getInstance() {
+    Solenoids* Solenoids::getInstance() {
         if(instance == nullptr) instance = new Solenoids();
         return instance;
     }

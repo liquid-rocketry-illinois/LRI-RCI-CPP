@@ -14,8 +14,8 @@ namespace LRI::RCI {
     public:
         explicit WindowsResource(const std::string& path, const std::string& type);
         ~WindowsResource();
-        LPCSTR getData() const;
-        DWORD getSize() const;
+        [[nodiscard]] LPCSTR getData() const;
+        [[nodiscard]] DWORD getSize() const;
     };
 }
 

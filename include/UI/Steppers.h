@@ -27,7 +27,7 @@ namespace LRI::RCI {
         std::map<uint8_t, Stepper> steppers;
 
     public:
-        static Steppers* const getInstance();
+        static Steppers* getInstance();
 
         void render() override;
         void setHardwareConfig(const std::map<uint8_t, std::string>& ids);
