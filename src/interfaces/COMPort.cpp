@@ -4,7 +4,7 @@
 #include <RCP_Host/RCP_Host.h>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const char* _portname, DWORD baudrate) {
+    COMPort::COMPort(const char* _portname, DWORD baudrate) : thread(nullptr), buffer(nullptr) {
         portname = new char[strlen(_portname)];
         strcpy(portname, _portname);
         port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
@@ -61,7 +61,7 @@ namespace LRI::RCI {
     bool COMPort::close() {
         open = false;
         read = false;
-        thread->join();
+        if(thread) thread->join();
         delete thread;
         thread = nullptr;
         delete buffer;
@@ -134,6 +134,7 @@ namespace LRI::RCI {
             dataAccess.lock();
             buffer->push(byte);
             dataAccess.unlock();
+            // std::cout << "RCV: " << std::hex << (int) byte << std::endl;
         }
     }
 }
