@@ -265,7 +265,7 @@ namespace LRI::RCI {
             char comname[16] = {0};
             DWORD len = 16;
 
-            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
+            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE)comname, &len);
             RegCloseKey(hkey);
             if(comname[0] != 'C') continue;
 
@@ -303,8 +303,7 @@ namespace LRI::RCI {
         bool connectattempt = ImGui::Button("Connect");
         if(connectattempt) {
             port = new COMPort(
-                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(),
-                CBR_9600);
+                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), CBR_115200);
         }
         if(portlist.empty()) ImGui::EndDisabled();
 

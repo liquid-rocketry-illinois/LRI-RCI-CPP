@@ -86,6 +86,7 @@ namespace LRI::RCI {
                 }
 
                 else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
+                    ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
                     std::string graphname;
                     switch(qual.devclass) {
                     case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
@@ -162,6 +163,9 @@ namespace LRI::RCI {
         for(const auto& qual : sensids) {
             sensors[qual] = std::vector<DataPoint>();
             sensors[qual].reserve(DATA_VECTOR_INITIAL_SIZE);
+            for(int i = 0; i < 1000; i++) {
+                sensors[qual].push_back({.timestamp = static_cast<double>(i), .data = static_cast<double>(i % 250)});
+            }
         }
     }
 

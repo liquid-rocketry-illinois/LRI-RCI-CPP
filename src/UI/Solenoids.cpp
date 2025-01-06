@@ -77,8 +77,8 @@ namespace LRI::RCI {
             sols[id] = false;
             solUpdated[id] = false;
             solname[id] = name.empty() ? std::to_string(id) : name;
+            RCP_requestSolenoidRead(id);
         }
-            RCP_requestSolenoidRead(3);
         buttonTimer.reset();
     }
 
