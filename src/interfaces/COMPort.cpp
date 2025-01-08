@@ -111,7 +111,7 @@ namespace LRI::RCI {
         const auto _bytes = static_cast<uint8_t*>(bytes);
 
         inlock.lock();
-        for(bytesread = 0; inbuffer->size() > 0; bytesread++) {
+        for(bytesread = 0; inbuffer->size() > 0 && bytesread < bufferlength; bytesread++) {
             _bytes[bytesread] = inbuffer->pop();
         }
 
@@ -160,6 +160,7 @@ namespace LRI::RCI {
                 inlock.lock();
                 inbuffer->push(byte);
                 inlock.unlock();
+                std::cout << "Read byte: " << std::hex << (int) byte << std::endl;
             }
 
             else {

@@ -23,7 +23,7 @@ namespace LRI::RCI {
 
     template<typename T, T ret>
     uint32_t RingBuffer<T, ret>::size() const {
-        return datastart - dataend;
+        return dataend - datastart;
     }
 
     template<typename T, T ret>
