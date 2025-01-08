@@ -51,10 +51,11 @@ namespace LRI::RCI {
 
     public:
         explicit RingBuffer(uint32_t buffersize);
+        RingBuffer(RingBuffer& other);
         ~RingBuffer();
 
-        [[nodiscard]] uint32_t length() const;
         [[nodiscard]] uint32_t size() const;
+        [[nodiscard]] uint32_t capacity() const;
         T pop();
         T peek() const;
         void push(T value);

@@ -12,23 +12,28 @@ namespace LRI::RCI {
     }
 
     template<typename T, T ret>
+    RingBuffer<T, ret>::RingBuffer(RingBuffer& other) {
+
+    }
+
+    template<typename T, T ret>
     RingBuffer<T, ret>::~RingBuffer() {
         delete[] data;
     }
 
     template<typename T, T ret>
-    uint32_t RingBuffer<T, ret>::length() const {
+    uint32_t RingBuffer<T, ret>::size() const {
         return datastart - dataend;
     }
 
     template<typename T, T ret>
-    uint32_t RingBuffer<T, ret>::size() const {
+    uint32_t RingBuffer<T, ret>::capacity() const {
         return buffersize;
     }
 
     template<typename T, T ret>
     T RingBuffer<T, ret>::pop() {
-        if(length() == 0) return ret;
+        if(size() == 0) return ret;
         T retval = data[datastart % buffersize];
         datastart++;
         return retval;
@@ -36,7 +41,7 @@ namespace LRI::RCI {
 
     template<typename T, T ret>
     T RingBuffer<T, ret>::peek() const {
-        if(length() == 0) return ret;
+        if(size() == 0) return ret;
         return data[datastart % buffersize];
     }
 

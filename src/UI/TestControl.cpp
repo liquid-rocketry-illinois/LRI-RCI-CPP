@@ -23,7 +23,7 @@ namespace LRI::RCI {
             heartbeat.reset();
         }
 
-        ImGui::SetNextWindowPos(scale(ImVec2(50, 275)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(50, 300)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(360, 200)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Test Control")) {
             ImGui::Text("Test Control");

@@ -4,6 +4,7 @@
 #include <SetupAPI.h>
 #include <devguid.h>
 #include <fstream>
+#include <improgress.h>
 #include <set>
 #include <interfaces/VirtualPort.h>
 #include <UI/EStop.h>
@@ -44,7 +45,7 @@ namespace LRI::RCI {
 
     void TargetChooser::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 50)), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(scale(ImVec2(550, 200)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(scale(ImVec2(550, 225)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Target Settings", nullptr, ImGuiWindowFlags_NoResize)) {
             ImGui::Text("Target Connection Status: ");
             ImGui::SameLine();
@@ -99,27 +100,14 @@ namespace LRI::RCI {
 
                 ImGui::Text("Interface Type: ");
                 ImGui::SameLine();
+                bool choosermod = !chooser;
                 if(interfaceoptions.empty()) ImGui::Text("No available interfaces");
                 else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].c_str())) {
                     for(size_t i = 0; i < interfaceoptions.size(); i++) {
                         bool selected = i == chosenInterface;
                         if(ImGui::Selectable((interfaceoptions[i] + "##interfacechooser").c_str(), &selected)) {
-                            if(chosenInterface != i) {
-                                delete chooser;
-                                switch(i) {
-                                case 0:
-                                    chooser = new COMPortChooser(this);
-                                    break;
-
-                                case 1:
-                                    chooser = new VirtualPortChooser();
-                                    break;
-
-                                default:
-                                    chooser = nullptr;
-                                }
-                            }
                             chosenInterface = i;
+                            choosermod = true;
                         }
 
                         if(selected) ImGui::SetItemDefaultFocus();
@@ -128,12 +116,30 @@ namespace LRI::RCI {
                     ImGui::EndCombo();
                 }
 
+                if(choosermod) {
+                    delete chooser;
+                    switch(chosenInterface) {
+                    case 0:
+                        chooser = new COMPortChooser(this);
+                        break;
+
+                    case 1:
+                        chooser = new VirtualPortChooser();
+                        break;
+
+                    default:
+                        chooser = nullptr;
+                    }
+                }
+
                 ImGui::NewLine();
                 ImGui::Separator();
 
                 if(chooser != nullptr) {
                     RCP_Interface* _interf = chooser->render();
                     if(_interf != nullptr) {
+                        delete chooser;
+                        chooser = nullptr;
                         interf = _interf;
                         RCP_init(callbacks);
                         RCP_setChannel(RCP_CH_ZERO);
@@ -239,12 +245,12 @@ namespace LRI::RCI {
         }
     }
 
-    TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
-        portlist(), selectedPort(0), error(false) {
-        enumSerialDevs();
+    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {
     }
 
-    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {
+    TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
+        portlist(), selectedPort(0), error(false), baud(115200), port(nullptr) {
+        enumSerialDevs();
     }
 
     bool TargetChooser::COMPortChooser::enumSerialDevs() {
@@ -278,6 +284,9 @@ namespace LRI::RCI {
     }
 
     RCP_Interface* TargetChooser::COMPortChooser::render() {
+        bool disable = port;
+        if(disable) ImGui::BeginDisabled();
+
         ImGui::Text("Choose Serial Port: ");
         ImGui::SameLine();
         if(portlist.empty()) ImGui::Text("No Ports Detected");
@@ -297,26 +306,43 @@ namespace LRI::RCI {
             enumSerialDevs();
         }
 
-        COMPort* port = nullptr;
+        ImGui::Text("Baud Rate: ");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(scale(100));
+        ImGui::InputInt("##comportchooserbaudinput", &baud);
+        if(baud < 0) baud = 0;
+        else if(baud > 500'000) baud = 500'000;
 
         if(portlist.empty()) ImGui::BeginDisabled();
-        bool connectattempt = ImGui::Button("Connect");
-        if(connectattempt) {
+        if(ImGui::Button("Connect")) {
             port = new COMPort(
                 portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), CBR_115200);
         }
         if(portlist.empty()) ImGui::EndDisabled();
+        if(disable) ImGui::EndDisabled();
 
-        if(connectattempt && (port == nullptr || !port->isOpen())) error = true;
-        if(error) {
+        if(!port) return nullptr;
+
+        if(!port->isOpen()) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("Error Connecting to Serial Port");
+            ImGui::Text("Error Connecting to Serial Port (%u)", port->lastError());
             ImGui::PopStyleColor();
-            delete port;
-            port = nullptr;
+
+            ImGui::SameLine();
+            if(ImGui::Button("OK##comportchoosererror")) {
+                delete port;
+                port = nullptr;
+            }
         }
 
-        return port;
+        else if(!port->isReady()) {
+            ImGui::SameLine();
+            ImGui::Spinner("##comportchooserspinner", 8, 1, REBECCA_PURPLE);
+        }
+
+        else return port;
+
+        return nullptr;
     }
 
     TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {

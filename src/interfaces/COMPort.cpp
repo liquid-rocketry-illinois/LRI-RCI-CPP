@@ -4,11 +4,13 @@
 #include <RCP_Host/RCP_Host.h>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const char* _portname, DWORD baudrate) : thread(nullptr), buffer(nullptr) {
-        portname = new char[strlen(_portname)];
+    COMPort::COMPort(const char* _portname, const DWORD& _baudrate)
+        : portname(new char[strlen(_portname)]), baudrate(_baudrate),
+          port(CreateFile(
+              _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
+          lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
         strcpy(portname, _portname);
-        port = CreateFile(portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
-                          nullptr);
 
         if(port == INVALID_HANDLE_VALUE) {
             lastErrorVal = GetLastError();
@@ -49,8 +51,10 @@ namespace LRI::RCI {
         open = true;
         lastErrorVal = 0;
 
-        buffer = new RCI::RingBuffer<uint8_t>(bufferSize);
-        read = true;
+        inbuffer = new RCI::RingBuffer<uint8_t>(bufferSize);
+        outbuffer = new RCI::RingBuffer<uint8_t>(bufferSize);
+
+        doComm = true;
         thread = new std::thread(&COMPort::threadRead, this);
     }
 
@@ -59,13 +63,18 @@ namespace LRI::RCI {
     }
 
     bool COMPort::close() {
+        doComm = false;
         open = false;
-        read = false;
+        ready = false;
         if(thread) thread->join();
         delete thread;
         thread = nullptr;
-        delete buffer;
-        buffer = nullptr;
+
+        delete inbuffer;
+        inbuffer = nullptr;
+        delete outbuffer;
+        outbuffer = nullptr;
+
         return !CloseHandle(port);
     }
 
@@ -73,68 +82,110 @@ namespace LRI::RCI {
         return open;
     }
 
+    bool COMPort::isReady() const {
+        return ready;
+    }
+
     DWORD COMPort::lastError() const {
         return lastErrorVal;
     }
 
-    size_t COMPort::sendData(const void* bytes, size_t length) const {
-        DWORD bytes_written = 0;
+    size_t COMPort::sendData(const void* bytes, const size_t length) const {
+        outlock.lock();
+        if(outbuffer->size() + length > outbuffer->capacity()) {
+            outlock.unlock();
+            return 0;
+        }
 
-        dataAccess.lock();
-        if(!WriteFile(port, bytes, length, &bytes_written, nullptr)) return -1;
-        dataAccess.unlock();
-        return bytes_written;
+        const auto _bytes = static_cast<const uint8_t*>(bytes);
+        for(size_t i = 0; i < length; i++) {
+            outbuffer->push(_bytes[i]);
+        }
+
+        outlock.unlock();
+        return length;
     }
 
-    size_t COMPort::readData(void* rawbytes, size_t bufferlength) const {
+    size_t COMPort::readData(void* bytes, size_t bufferlength) const {
         int bytesread;
-        auto bytes = static_cast<uint8_t*>(rawbytes);
+        const auto _bytes = static_cast<uint8_t*>(bytes);
 
-        dataAccess.lock();
-        for(bytesread = 0; buffer->size() > 0 && bytesread < bufferlength; bytesread++) {
-            bytes[bytesread] = buffer->pop();
+        inlock.lock();
+        for(bytesread = 0; inbuffer->size() > 0; bytesread++) {
+            _bytes[bytesread] = inbuffer->pop();
         }
-        dataAccess.unlock();
 
+        inlock.unlock();
         return bytesread;
     }
 
     std::string COMPort::interfaceType() const {
-        return std::string("Serial Port (") + portname + ")";
+        return std::string("Serial Port (") + portname + " @ " + std::to_string(baudrate) + " baud)";
     }
 
     bool COMPort::pktAvailable() const {
-        dataAccess.lock();
+        inlock.lock();
         bool hasData;
-        if(buffer->size() == 0) hasData = false;
-        else {
-            hasData = buffer->size() > (buffer->peek() & (~RCP_CHANNEL_MASK));
-        }
-
-        dataAccess.unlock();
+        if(inbuffer->size() == 0) hasData = false;
+        else hasData = inbuffer->size() >= (inbuffer->peek() & (~RCP_CHANNEL_MASK)) + 2;
+        inlock.unlock();
         return hasData;
     }
 
     void COMPort::threadRead() {
-        while(read) {
-            dataAccess.lock();
-            if(buffer->size() >= bufferSize) {
-                dataAccess.unlock();
-                continue;
-            }
-            dataAccess.unlock();
-            uint8_t byte;
-            DWORD read;
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(5000ms);
+        ready = true;
 
-            if(!ReadFile(port, &byte, 1, &read, nullptr) || read != 1) {
-                lastErrorVal = GetLastError();
-                continue;
+        bool r_nw = false;
+        while(doComm) {
+            if(r_nw) {
+                r_nw = false;
+
+                inlock.lock();
+                bool res = inbuffer->size() >= inbuffer->capacity();
+                inlock.unlock();
+                if(res) continue;
+
+                uint8_t byte;
+                DWORD read;
+
+                if(!ReadFile(port, &byte, 1, &read, nullptr)) {
+                    lastErrorVal = GetLastError();
+                    continue;
+                }
+
+                if(read == 0) continue;
+
+                inlock.lock();
+                inbuffer->push(byte);
+                inlock.unlock();
             }
 
-            dataAccess.lock();
-            buffer->push(byte);
-            dataAccess.unlock();
-            // std::cout << "RCV: " << std::hex << (int) byte << std::endl;
+            else {
+                r_nw = true;
+
+                outlock.lock();
+                bool res = outbuffer->size() == 0;
+                if(res) {
+                    outlock.unlock();
+                    continue;
+                }
+
+                uint8_t byte = outbuffer->peek();
+                outlock.unlock();
+
+                DWORD written;
+
+                if(!WriteFile(port, &byte, 1, &written, nullptr) || written != 1) {
+                    lastErrorVal = GetLastError();
+                    continue;
+                }
+
+                outlock.lock();
+                outbuffer->pop();
+                outlock.unlock();
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ add_executable(LRI_control_panel
         libs/implot/implot_demo.cpp
         src/main.cpp
         src/utils.cpp
+        src/improgress.cpp
         src/interfaces/COMPort.cpp
         src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp

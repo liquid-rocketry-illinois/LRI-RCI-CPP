@@ -14,28 +14,37 @@ namespace LRI::RCI {
         class RingBuffer;
         static constexpr int bufferSize = 1024;
 
-        char* portname;
-        HANDLE port;
+        char* const portname;
+        DWORD const baudrate;
+        HANDLE const port;
+
         bool open = false;
+        std::atomic_bool ready = false;
         std::atomic_ulong lastErrorVal;
 
-        RCI::RingBuffer<uint8_t>* buffer;
-        std::atomic_bool read;
+        RCI::RingBuffer<uint8_t>* inbuffer;
+        RCI::RingBuffer<uint8_t>* outbuffer;
+        mutable std::mutex inlock;
+        mutable std::mutex outlock;
+
         std::thread* thread;
-        mutable std::mutex dataAccess;
+        std::atomic_bool doComm;
 
         void threadRead();
 
     public:
-        explicit COMPort(const char* portname, DWORD baudrate);
+        explicit COMPort(const char* portname, const DWORD& baudrate);
         ~COMPort() override;
+
         bool close();
         bool isOpen() const override;
+        bool isReady() const;
         bool pktAvailable() const override;
         DWORD lastError() const;
-        size_t sendData(const void* bytes, size_t length) const override;
-        size_t readData(void* bytes, size_t buffersize) const override;
         std::string interfaceType() const override;
+
+        size_t sendData(const void* bytes, size_t length) const override;
+        size_t readData(void* bytes, size_t bufferlength) const override;
     };
 }
 #endif //COMPORT_H

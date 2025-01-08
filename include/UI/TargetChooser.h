@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <interfaces/COMPort.h>
 
 #include "nlohmann/json.hpp"
 
@@ -43,6 +44,8 @@ namespace LRI::RCI {
             std::vector<std::string> portlist;
             size_t selectedPort;
             bool error;
+            int baud;
+            COMPort* port;
 
         public:
             explicit COMPortChooser(TargetChooser* targetchooser);
