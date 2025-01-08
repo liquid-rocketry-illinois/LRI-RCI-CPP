@@ -116,6 +116,7 @@ namespace LRI::RCI {
                 .controlVal = 0
             };
             steppers[id] = s;
+            RCP_requestStepperRead(id);
         }
     }
 
