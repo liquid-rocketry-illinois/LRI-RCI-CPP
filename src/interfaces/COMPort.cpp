@@ -1,6 +1,4 @@
 #include "interfaces/COMPort.h"
-#include <iostream>
-#include <sstream>
 #include <RCP_Host/RCP_Host.h>
 
 namespace LRI::RCI {
@@ -160,7 +158,6 @@ namespace LRI::RCI {
                 inlock.lock();
                 inbuffer->push(byte);
                 inlock.unlock();
-                std::cout << "Read byte: " << std::hex << (int) byte << std::endl;
             }
 
             else {
