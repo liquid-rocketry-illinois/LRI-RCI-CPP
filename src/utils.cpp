@@ -19,7 +19,7 @@ namespace LRI::RCI {
 
     void imgui_init(GLFWwindow* window) {
         glfwMakeContextCurrent(window);
-        glfwSwapInterval(0);
+        glfwSwapInterval(1);
         glfwSetWindowTitle(window, "LRI Rocket Control Panel");
 
         IMGUI_CHECKVERSION();
