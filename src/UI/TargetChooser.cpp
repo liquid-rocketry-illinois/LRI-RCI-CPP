@@ -23,7 +23,7 @@
 namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
 
-    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), pollingRate(5), targetpaths(),
+    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), pollingRate(50), targetpaths(),
                                      targetconfig(), chosenConfig(0), interfaceoptions(), chosenInterface(0) {
         BaseUI::showWindow();
         if(std::filesystem::exists("targets/")) {
