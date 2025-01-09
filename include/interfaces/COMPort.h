@@ -41,6 +41,7 @@ namespace LRI::RCI {
         bool isReady() const;
         bool pktAvailable() const override;
         DWORD lastError() const;
+        uint32_t getInputBufferSize() const;
         std::string interfaceType() const override;
 
         size_t sendData(const void* bytes, size_t length) const override;

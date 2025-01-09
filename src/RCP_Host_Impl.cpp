@@ -71,9 +71,9 @@ namespace LRI::RCI {
     int processMagnetometerData(const RCP_AxisData data) {
         static const SensorQualifier MAGNETOMETER_QUALIFIER{.devclass = RCP_DEVCLASS_MAGNETOMETER};
         DataPoint d{.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
-        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'0000.0;
-        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'0000.0;
-        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'0000.0;
+        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'000.0;
+        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'000.0;
+        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'000.0;
         SensorReadings::getInstance()->receiveRCPUpdate(MAGNETOMETER_QUALIFIER, d);
         return 0;
     }
@@ -82,7 +82,7 @@ namespace LRI::RCI {
         static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.pressure) / 1'000'0000.0
+                                                            .data = static_cast<double>(data.pressure) / 1'000'000.0
                                                         });
         return 0;
     }
@@ -91,7 +91,7 @@ namespace LRI::RCI {
         static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_TEMPERATURE_QUALIFIER, {
             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-            .data = static_cast<double>(data.temperature) / 1'000'0000.0
+            .data = static_cast<double>(data.temperature) / 1'000'000.0
         });
         return 0;
     }
@@ -99,9 +99,9 @@ namespace LRI::RCI {
     int processAccelerationData(const RCP_AxisData data) {
         static const SensorQualifier ACCELEROMETER_QUALIFIER{.devclass = RCP_DEVCLASS_ACCELEROMETER};
         DataPoint d{.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
-        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'0000.0;
-        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'0000.0;
-        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'0000.0;
+        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'000.0;
+        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'000.0;
+        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'000.0;
         SensorReadings::getInstance()->receiveRCPUpdate(ACCELEROMETER_QUALIFIER, d);
         return 0;
     }
@@ -109,9 +109,9 @@ namespace LRI::RCI {
     int processGyroData(const RCP_AxisData data) {
         static const SensorQualifier GYRO_QUALIFIER{.devclass = RCP_DEVCLASS_GYROSCOPE};
         DataPoint d{.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
-        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'0000.0;
-        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'0000.0;
-        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'0000.0;
+        d.data.axisData[0] = static_cast<double>(data.x) / 1'000'000.0;
+        d.data.axisData[1] = static_cast<double>(data.y) / 1'000'000.0;
+        d.data.axisData[2] = static_cast<double>(data.z) / 1'000'000.0;
         SensorReadings::getInstance()->receiveRCPUpdate(GYRO_QUALIFIER, d);
         return 0;
     }

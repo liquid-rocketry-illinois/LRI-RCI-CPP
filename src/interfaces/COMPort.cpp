@@ -117,6 +117,13 @@ namespace LRI::RCI {
         return bytesread;
     }
 
+    uint32_t COMPort::getInputBufferSize() const {
+        inlock.lock();
+        uint32_t size = inbuffer->size();
+        inlock.unlock();
+        return size;
+    }
+
     std::string COMPort::interfaceType() const {
         return std::string("Serial Port (") + portname + " @ " + std::to_string(baudrate) + " baud)";
     }
