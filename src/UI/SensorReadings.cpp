@@ -128,7 +128,7 @@ namespace LRI::RCI {
                         ImPlot::SetupAxes("Time (s)", "Latitude/Longitude (degrees)");
                         ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
                         ImPlot::SetupAxisLimits(ImAxis_Y1, -200, 200);
-                        if(data.empty())
+                        if(!data.empty())
                             ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(), &data[0].timestamp,
                                              &data[0].data.gpsData[0], static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
