@@ -58,7 +58,7 @@ namespace LRI::RCI {
                 ImGui::Text("Current Interface: %s", interf->interfaceType().c_str());
 
                 ImGui::NewLine();
-                ImGui::Text("Polling Rate (polls/second): ");
+                ImGui::Text("Polling Rate (polls/frame): ");
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(75 * scaling_factor);
                 ImGui::InputInt("##pollinginput", &pollingRate, 1, 5);
@@ -66,7 +66,7 @@ namespace LRI::RCI {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
                 ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
                 ImGui::PopStyleColor();
-                ImGui::Text("Latest Frame Time (ms): %f", ImGui::GetIO().DeltaTime);
+                ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
 
                 for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
                     RCP_poll();

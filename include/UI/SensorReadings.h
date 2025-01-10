@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "BaseUI.h"
@@ -15,6 +16,11 @@ namespace LRI::RCI {
         std::string name;
         bool operator<(SensorQualifier const& rhf) const;
         [[nodiscard]] std::string asString() const;
+    };
+
+    struct FileWriteThreadData {
+        std::thread* thread;
+        std::atomic_bool done;
     };
 
     struct DataPoint {
@@ -30,11 +36,13 @@ namespace LRI::RCI {
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 500'000;
         static const std::map<RCP_DeviceClass_t, std::string> DEVCLASS_NAMES;
 
+        static void toCSVFile(SensorQualifier qual, std::vector<DataPoint>* data, std::atomic_bool* done);
         static SensorReadings* instance;
 
         SensorReadings() = default;
 
         std::map<SensorQualifier, std::vector<DataPoint>> sensors;
+        std::map<SensorQualifier, FileWriteThreadData> filewritethreads;
 
     public:
         static SensorReadings* getInstance();
