@@ -198,6 +198,10 @@ namespace LRI::RCI {
                         ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)");
                         break;
 
+                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                        ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)");
+                        break;
+
                     default:
                         ImPlot::SetupAxes("Unknown Data", "Unknown Data");
                         break;
@@ -207,6 +211,7 @@ namespace LRI::RCI {
                         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                         case RCP_DEVCLASS_AM_PRESSURE:
                         case RCP_DEVCLASS_AM_TEMPERATURE:
+                        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
                             ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
                                              &data[0].data.singleVal, static_cast<int>(data.size()),
                                              0, 0, sizeof(DataPoint));

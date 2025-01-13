@@ -22,6 +22,7 @@ namespace LRI::RCI {
         .processAMTemperatureData = processAMTemperatureData,
         .processAccelerationData = processAccelerationData,
         .processGyroData = processGyroData,
+        .processHumidityData = processRelativeHumidityData,
         .processSerialData = processSerialData
     };
 
@@ -78,21 +79,21 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int processAMPressureData(const RCP_AMPressureData data) {
+    int processAMPressureData(const RCP_int32Data data) {
         static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.pressure) / 1'000'000.0
+                                                            .data = static_cast<double>(data.data) / 1'000'000.0
                                                         });
         return 0;
     }
 
-    int processAMTemperatureData(const RCP_AMTemperatureData data) {
+    int processAMTemperatureData(const RCP_int32Data data) {
         static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_TEMPERATURE_QUALIFIER, {
-            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-            .data = static_cast<double>(data.temperature) / 1'000'000.0
-        });
+                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                                                            .data = static_cast<double>(data.data) / 1'000'000.0
+                                                        });
         return 0;
     }
 
@@ -115,6 +116,16 @@ namespace LRI::RCI {
         SensorReadings::getInstance()->receiveRCPUpdate(GYRO_QUALIFIER, d);
         return 0;
     }
+
+    int processRelativeHumidityData(RCP_int32Data data) {
+        static const SensorQualifier RELHUMIDITY_QUALIFIER{.devclass = RCP_DEVCLASS_RELATIVE_HYGROMETER};
+        SensorReadings::getInstance()->receiveRCPUpdate(RELHUMIDITY_QUALIFIER, {
+                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                                                            .data = static_cast<double>(data.data) / 1'000'000.0
+                                                        });
+        return 0;
+    }
+
 
     int processSerialData(const RCP_CustomData data) {
         return 0;
