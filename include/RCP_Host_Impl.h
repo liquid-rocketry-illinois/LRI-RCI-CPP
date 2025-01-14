@@ -13,12 +13,12 @@ namespace LRI::RCI {
     int processTransducerData(RCP_TransducerData data);
     int processGPSData(RCP_GPSData data);
     int processMagnetometerData(RCP_AxisData data);
-    int processAMPressureData(RCP_int32Data data);
-    int processAMTemperatureData(RCP_int32Data data);
+    int processAMPressureData(RCP_floatData data);
+    int processAMTemperatureData(RCP_floatData data);
     int processAccelerationData(RCP_AxisData data);
     int processGyroData(RCP_AxisData data);
     int processSerialData(RCP_CustomData data);
-    int processRelativeHumidityData(RCP_int32Data data);
+    int processRelativeHumidityData(RCP_floatData data);
 }
 
 #endif //RCP_HOST_IMPL_H
