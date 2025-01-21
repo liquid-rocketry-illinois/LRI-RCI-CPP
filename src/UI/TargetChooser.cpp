@@ -7,6 +7,7 @@
 #include <improgress.h>
 #include <set>
 #include <interfaces/VirtualPort.h>
+#include <UI/CustomData.h>
 #include <UI/EStop.h>
 #include <UI/SensorReadings.h>
 #include <UI/Solenoids.h>
@@ -167,6 +168,7 @@ namespace LRI::RCI {
     void TargetChooser::initWindows() {
         TestControl::getInstance()->showWindow();
         EStop::getInstance()->showWindow();
+        CustomData::getInstance()->showWindow();
 
         std::set<SensorQualifier> sensors;
         for(int i = 0; i < targetconfig["devices"].size(); i++) {

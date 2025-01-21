@@ -33,6 +33,7 @@ add_executable(LRI_control_panel
         src/UI/TestControl.cpp
         src/UI/Steppers.cpp
         src/UI/SensorReadings.cpp
+        src/UI/CustomData.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host nlohmann_json)

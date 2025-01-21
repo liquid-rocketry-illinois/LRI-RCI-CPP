@@ -7,6 +7,7 @@
 #include "UI/Solenoids.h"
 #include "UI/TestControl.h"
 #include "UI/SensorReadings.h"
+#include "UI/CustomData.h"
 
 namespace LRI::RCI {
     RCP_LibInitData callbacks = {
@@ -124,6 +125,7 @@ namespace LRI::RCI {
 
 
     int processSerialData(const RCP_CustomData data) {
+        CustomData::getInstance()->recevieRCPUpdate(data);
         return 0;
     }
 }
