@@ -88,14 +88,14 @@ namespace LRI::RCI {
                 if(lockButtons || step.stale) ImGui::BeginDisabled();
                 ImGui::SameLine();
                 if(ImGui::Button((std::string("Apply##") + std::to_string(id)).c_str())) {
-                    RCP_sendStepperWrite(id, step.controlMode, static_cast<int32_t>(step.controlVal * 1'000'000));
-                    buttonTimer.reset();  //    Values are sent in millionths of degrees  ---^^
+                    RCP_sendStepperWrite(id, step.controlMode, *(((int32_t*) &step.controlVal)));
+                    buttonTimer.reset();
                 }
                 if(lockButtons || step.stale) ImGui::EndDisabled();
 
                 ImGui::Text("Current State: ");
-                ImGui::Text("   Position: %.3f degrees", (static_cast<float>(step.position) / 1'000'000));
-                ImGui::Text("   Speed:    %.3f degrees/second", (static_cast<float>(step.speed) / 1'000'000));
+                ImGui::Text("   Position: %.3f degrees", static_cast<float>(step.position));
+                ImGui::Text("   Speed:    %.3f degrees/second", static_cast<float>(step.speed));
 
                 ImGui::NewLine();
                 ImGui::Separator();
