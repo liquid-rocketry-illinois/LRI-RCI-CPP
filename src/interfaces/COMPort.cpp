@@ -4,11 +4,11 @@
 
 namespace LRI::RCI {
     COMPort::COMPort(const char* _portname, const DWORD& _baudrate)
-        : portname(new char[strlen(_portname)]), baudrate(_baudrate),
-          port(CreateFile(
-              _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-              OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
-          lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
+            : portname(new char[strlen(_portname)]), baudrate(_baudrate),
+              port(CreateFile(
+                      _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
+              lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
         strcpy(portname, _portname);
 
         if(port == INVALID_HANDLE_VALUE) {

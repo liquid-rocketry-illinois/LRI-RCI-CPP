@@ -121,16 +121,16 @@ namespace LRI::RCI {
                 if(choosermod) {
                     delete chooser;
                     switch(chosenInterface) {
-                    case 0:
-                        chooser = new COMPortChooser(this);
-                        break;
+                        case 0:
+                            chooser = new COMPortChooser(this);
+                            break;
 
-                    case 1:
-                        chooser = new VirtualPortChooser();
-                        break;
+                        case 1:
+                            chooser = new VirtualPortChooser();
+                            break;
 
-                    default:
-                        chooser = nullptr;
+                        default:
+                            chooser = nullptr;
                     }
                 }
 
@@ -174,71 +174,71 @@ namespace LRI::RCI {
         std::set<SensorQualifier> sensors;
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             switch(targetconfig["devices"][i]["devclass"].get<int>()) {
-            case RCP_DEVCLASS_SOLENOID: {
-                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                std::map<uint8_t, std::string> sols;
-                if(ids.size() != names.size()) break;
+                case RCP_DEVCLASS_SOLENOID: {
+                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                    std::map<uint8_t, std::string> sols;
+                    if(ids.size() != names.size()) break;
 
-                for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
-                Solenoids::getInstance()->setHardwareConfig(sols);
-                Solenoids::getInstance()->showWindow();
-                break;
-            }
+                    for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
+                    Solenoids::getInstance()->setHardwareConfig(sols);
+                    Solenoids::getInstance()->showWindow();
+                    break;
+                }
 
-            case RCP_DEVCLASS_STEPPER: {
-                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                if(ids.size() != names.size()) break;
+                case RCP_DEVCLASS_STEPPER: {
+                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                    if(ids.size() != names.size()) break;
 
-                std::map<uint8_t, std::string> steps;
-                for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
-                Steppers::getInstance()->setHardwareConfig(steps);
-                Steppers::getInstance()->showWindow();
-                break;
-            }
+                    std::map<uint8_t, std::string> steps;
+                    for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
+                    Steppers::getInstance()->setHardwareConfig(steps);
+                    Steppers::getInstance()->showWindow();
+                    break;
+                }
 
-            case RCP_DEVCLASS_PRESSURE_TRANSDUCER: {
-                auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                if(ids.size() != names.size()) break;
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER: {
+                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+                    if(ids.size() != names.size()) break;
 
-                for(size_t j = 0; j < ids.size(); j++)
-                    sensors.insert({
-                        .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
-                        .id = ids[j],
-                        .name = names[j]
-                    });
+                    for(size_t j = 0; j < ids.size(); j++)
+                        sensors.insert({
+                                               .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
+                                               .id = ids[j],
+                                               .name = names[j]
+                                       });
 
-                break;
-            }
+                    break;
+                }
 
-            case RCP_DEVCLASS_GPS:
-                sensors.insert({.devclass = RCP_DEVCLASS_GPS, .name = "GPS"});
-                break;
+                case RCP_DEVCLASS_GPS:
+                    sensors.insert({.devclass = RCP_DEVCLASS_GPS, .name = "GPS"});
+                    break;
 
-            case RCP_DEVCLASS_MAGNETOMETER:
-                sensors.insert({.devclass = RCP_DEVCLASS_MAGNETOMETER, .name = "Magnetometer"});
-                break;
+                case RCP_DEVCLASS_MAGNETOMETER:
+                    sensors.insert({.devclass = RCP_DEVCLASS_MAGNETOMETER, .name = "Magnetometer"});
+                    break;
 
-            case RCP_DEVCLASS_AM_PRESSURE:
-                sensors.insert({.devclass = RCP_DEVCLASS_AM_PRESSURE, .name = "Ambient Pressure"});
-                break;
+                case RCP_DEVCLASS_AM_PRESSURE:
+                    sensors.insert({.devclass = RCP_DEVCLASS_AM_PRESSURE, .name = "Ambient Pressure"});
+                    break;
 
-            case RCP_DEVCLASS_AM_TEMPERATURE:
-                sensors.insert({.devclass = RCP_DEVCLASS_AM_TEMPERATURE, .name = "Ambient Temperature"});
-                break;
+                case RCP_DEVCLASS_AM_TEMPERATURE:
+                    sensors.insert({.devclass = RCP_DEVCLASS_AM_TEMPERATURE, .name = "Ambient Temperature"});
+                    break;
 
-            case RCP_DEVCLASS_ACCELEROMETER:
-                sensors.insert({.devclass = RCP_DEVCLASS_ACCELEROMETER, .name = "Accelerometer"});
-                break;
+                case RCP_DEVCLASS_ACCELEROMETER:
+                    sensors.insert({.devclass = RCP_DEVCLASS_ACCELEROMETER, .name = "Accelerometer"});
+                    break;
 
-            case RCP_DEVCLASS_GYROSCOPE:
-                sensors.insert({.devclass = RCP_DEVCLASS_GYROSCOPE, .name = "Gyroscope"});
-                break;
+                case RCP_DEVCLASS_GYROSCOPE:
+                    sensors.insert({.devclass = RCP_DEVCLASS_GYROSCOPE, .name = "Gyroscope"});
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
             }
         }
 
@@ -252,7 +252,9 @@ namespace LRI::RCI {
     }
 
     TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
-        portlist(), selectedPort(0), error(false), baud(115200), port(nullptr) {
+                                                                                  portlist(), selectedPort(0),
+                                                                                  error(false), baud(115200),
+                                                                                  port(nullptr) {
         enumSerialDevs();
     }
 
@@ -274,11 +276,11 @@ namespace LRI::RCI {
             char comname[16] = {0};
             DWORD len = 16;
 
-            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE)comname, &len);
+            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
             RegCloseKey(hkey);
             if(comname[0] != 'C') continue;
 
-            SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE)s, sizeof(s), nullptr);
+            SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE) s, sizeof(s), nullptr);
 
             portlist.push_back(std::string(comname) + ": " + std::string(s));
         }
@@ -319,7 +321,7 @@ namespace LRI::RCI {
         if(portlist.empty()) ImGui::BeginDisabled();
         if(ImGui::Button("Connect")) {
             port = new COMPort(
-                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), CBR_115200);
+                    portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), CBR_115200);
         }
         if(portlist.empty()) ImGui::EndDisabled();
         if(disable) ImGui::EndDisabled();

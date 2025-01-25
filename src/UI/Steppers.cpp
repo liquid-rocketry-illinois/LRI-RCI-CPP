@@ -6,9 +6,9 @@ namespace LRI::RCI {
     Steppers* Steppers::instance;
 
     const std::map<uint8_t, std::vector<std::string>> Steppers::BTN_NAMES = {
-        {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
-        {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
-        {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", "degrees/s"}}
+            {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
+            {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
+            {RCP_STEPPER_SPEED_CONTROL,        {"Velocity Control##",     "degrees/s"}}
     };
 
     Steppers* Steppers::getInstance() {
@@ -78,8 +78,9 @@ namespace LRI::RCI {
                 ImGui::SameLine();
                 ImGui::SetNextItemWidth(scale(75));
                 ImGui::InputFloat(
-                    (" " + BTN_NAMES.at(step.controlMode)[1] + std::string("##inputval") + std::to_string(id)).c_str(),
-                    &step.controlVal);
+                        (" " + BTN_NAMES.at(step.controlMode)[1] + std::string("##inputval") +
+                         std::to_string(id)).c_str(),
+                        &step.controlVal);
 
                 if(step.controlVal > 2000) step.controlVal = 2000;
                 if(step.controlVal < -2000) step.controlVal = -2000;
@@ -108,12 +109,12 @@ namespace LRI::RCI {
         steppers.clear();
         for(const auto& [id, name] : ids) {
             Stepper s{
-                .controlMode = RCP_STEPPER_ABSOLUTE_POS_CONTROL,
-                .position = 0,
-                .speed = 0,
-                .stale = true,
-                .name = name,
-                .controlVal = 0
+                    .controlMode = RCP_STEPPER_ABSOLUTE_POS_CONTROL,
+                    .position = 0,
+                    .speed = 0,
+                    .stale = true,
+                    .name = name,
+                    .controlVal = 0
             };
             steppers[id] = s;
             RCP_requestStepperRead(id);

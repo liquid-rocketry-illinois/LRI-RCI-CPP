@@ -32,39 +32,41 @@ namespace LRI::RCI {
 
         const auto now = std::chrono::system_clock::now();
         std::ofstream file(
-            std::string("./exports/") + std::format("{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
+                std::string("./exports/") + std::format("{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
 
         switch(qual.devclass) {
-        case RCP_DEVCLASS_GPS:
-            file << "relmillis,latitude,longitude,altitude,groundspeed\n";
-            for(const auto& point : *data) {
-                file << std::format("{},{},{},{},{}\n", point.timestamp, point.data.gpsData[0], point.data.gpsData[1],
-                                    point.data.gpsData[2], point.data.gpsData[3]);
-            }
-            break;
+            case RCP_DEVCLASS_GPS:
+                file << "relmillis,latitude,longitude,altitude,groundspeed\n";
+                for(const auto& point : *data) {
+                    file << std::format("{},{},{},{},{}\n", point.timestamp, point.data.gpsData[0],
+                                        point.data.gpsData[1],
+                                        point.data.gpsData[2], point.data.gpsData[3]);
+                }
+                break;
 
-        case RCP_DEVCLASS_MAGNETOMETER:
-        case RCP_DEVCLASS_ACCELEROMETER:
-        case RCP_DEVCLASS_GYROSCOPE:
-            file << "relmillis,x,y,z\n";
-            for(const auto& point : *data) {
-                file << std::format("{},{},{},{}\n", point.timestamp, point.data.axisData[0], point.data.axisData[1],
-                                    point.data.axisData[2]);
-            }
-            break;
+            case RCP_DEVCLASS_MAGNETOMETER:
+            case RCP_DEVCLASS_ACCELEROMETER:
+            case RCP_DEVCLASS_GYROSCOPE:
+                file << "relmillis,x,y,z\n";
+                for(const auto& point : *data) {
+                    file << std::format("{},{},{},{}\n", point.timestamp, point.data.axisData[0],
+                                        point.data.axisData[1],
+                                        point.data.axisData[2]);
+                }
+                break;
 
-        case RCP_DEVCLASS_AM_PRESSURE:
-        case RCP_DEVCLASS_AM_TEMPERATURE:
-        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            file << "relmillis,data\n";
-            for(const auto& point : *data) {
-                file << std::format("{},{}\n", point.timestamp, point.data.singleVal);
-            }
-            break;
+            case RCP_DEVCLASS_AM_PRESSURE:
+            case RCP_DEVCLASS_AM_TEMPERATURE:
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                file << "relmillis,data\n";
+                for(const auto& point : *data) {
+                    file << std::format("{},{}\n", point.timestamp, point.data.singleVal);
+                }
+                break;
 
-        default:
-            file << "Device Class not supported/recognized for export";
-            break;
+            default:
+                file << "Device Class not supported/recognized for export";
+                break;
         }
 
         delete data;
@@ -93,7 +95,7 @@ namespace LRI::RCI {
 
             for(const auto& [qual, data] : sensors) {
                 if(!ImGui::TreeNode(
-                    (qual.name + "##" + qual.asString()).c_str()))
+                        (qual.name + "##" + qual.asString()).c_str()))
                     continue;
                 ImGui::Text("Sensor Status: ");
                 ImGui::SameLine();
@@ -175,67 +177,67 @@ namespace LRI::RCI {
                     // ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
                     std::string graphname;
                     switch(qual.devclass) {
-                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                    case RCP_DEVCLASS_AM_PRESSURE:
-                        ImPlot::SetupAxes("Time (s)", "Pressure (millibars)");
-                        graphname = "Pressure##";
-                        break;
-
-                    case RCP_DEVCLASS_MAGNETOMETER:
-                        ImPlot::SetupAxes("Time (s)", "Magnetic Strength (Gauss)");
-                        break;
-
-                    case RCP_DEVCLASS_AM_TEMPERATURE:
-                        ImPlot::SetupAxes("Time (s)", "Temperature (Celcius)");
-                        graphname = "Temperature##";
-                        break;
-
-                    case RCP_DEVCLASS_ACCELEROMETER:
-                        ImPlot::SetupAxes("Time (s)", "Acceleration (m/s/s)");
-                        break;
-
-                    case RCP_DEVCLASS_GYROSCOPE:
-                        ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)");
-                        break;
-
-                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                        ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)");
-                        break;
-
-                    default:
-                        ImPlot::SetupAxes("Unknown Data", "Unknown Data");
-                        break;
-                    }
-                    if(!data.empty())
-                        switch(qual.devclass) {
                         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                         case RCP_DEVCLASS_AM_PRESSURE:
-                        case RCP_DEVCLASS_AM_TEMPERATURE:
-                        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                            ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.singleVal, static_cast<int>(data.size()),
-                                             0, 0, sizeof(DataPoint));
+                            ImPlot::SetupAxes("Time (s)", "Pressure (millibars)");
+                            graphname = "Pressure##";
                             break;
 
                         case RCP_DEVCLASS_MAGNETOMETER:
+                            ImPlot::SetupAxes("Time (s)", "Magnetic Strength (Gauss)");
+                            break;
+
+                        case RCP_DEVCLASS_AM_TEMPERATURE:
+                            ImPlot::SetupAxes("Time (s)", "Temperature (Celcius)");
+                            graphname = "Temperature##";
+                            break;
+
                         case RCP_DEVCLASS_ACCELEROMETER:
+                            ImPlot::SetupAxes("Time (s)", "Acceleration (m/s/s)");
+                            break;
+
                         case RCP_DEVCLASS_GYROSCOPE:
-                            ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
+                            ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)");
+                            break;
 
-                            ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
-
-                            ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
-
+                        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                            ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)");
                             break;
 
                         default:
+                            ImPlot::SetupAxes("Unknown Data", "Unknown Data");
                             break;
+                    }
+                    if(!data.empty())
+                        switch(qual.devclass) {
+                            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                            case RCP_DEVCLASS_AM_PRESSURE:
+                            case RCP_DEVCLASS_AM_TEMPERATURE:
+                            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                                ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
+                                                 &data[0].data.singleVal, static_cast<int>(data.size()),
+                                                 0, 0, sizeof(DataPoint));
+                                break;
+
+                            case RCP_DEVCLASS_MAGNETOMETER:
+                            case RCP_DEVCLASS_ACCELEROMETER:
+                            case RCP_DEVCLASS_GYROSCOPE:
+                                ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
+                                                 &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
+                                                 sizeof(DataPoint));
+
+                                ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
+                                                 &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
+                                                 sizeof(DataPoint));
+
+                                ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
+                                                 &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
+                                                 sizeof(DataPoint));
+
+                                break;
+
+                            default:
+                                break;
                         }
                     ImPlot::EndPlot();
                 }

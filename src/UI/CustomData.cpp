@@ -11,17 +11,17 @@ namespace LRI::RCI {
 
     std::string CustomData::interpretModeToString(InterpretMode mode) {
         switch(mode) {
-        case InterpretMode::HEX:
-            return "HEX";
+            case InterpretMode::HEX:
+                return "HEX";
 
-        case InterpretMode::DEC:
-            return "DEC";
+            case InterpretMode::DEC:
+                return "DEC";
 
-        case InterpretMode::STR:
-            return "TEXT";
+            case InterpretMode::STR:
+                return "TEXT";
 
-        default:
-            return "";
+            default:
+                return "";
         }
     }
 
@@ -37,17 +37,17 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Button((interpretModeToString(mode) + "##intmodebtn").c_str())) {
                 switch(mode) {
-                case InterpretMode::HEX:
-                    mode = InterpretMode::DEC;
-                    break;
+                    case InterpretMode::HEX:
+                        mode = InterpretMode::DEC;
+                        break;
 
-                case InterpretMode::DEC:
-                    mode = InterpretMode::STR;
-                    break;
+                    case InterpretMode::DEC:
+                        mode = InterpretMode::STR;
+                        break;
 
-                case InterpretMode::STR:
-                    mode = InterpretMode::HEX;
-                    break;
+                    case InterpretMode::STR:
+                        mode = InterpretMode::HEX;
+                        break;
                 }
 
                 reformatDisplay();
@@ -72,50 +72,51 @@ namespace LRI::RCI {
             ImGui::Separator();
 
             switch(mode) {
-            case InterpretMode::DEC: {
-                ImGui::SetNextItemWidth(scale(100));
-                bool send = ImGui::InputText("##serialsend", out, 4, ImGuiInputTextFlags_EnterReturnsTrue);
-                ImGui::SameLine();
-                send = send || ImGui::Button("Send");
+                case InterpretMode::DEC: {
+                    ImGui::SetNextItemWidth(scale(100));
+                    bool send = ImGui::InputText("##serialsend", out, 4, ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGui::SameLine();
+                    send = send || ImGui::Button("Send");
 
-                if(send) {
-                    int val = std::stoi(out);
-                    if(val > 255 || val < 0) break;
-                    uint8_t rawval = static_cast<uint8_t>(val);
-                    RCP_sendRawSerial(&rawval, 1);
+                    if(send) {
+                        int val = std::stoi(out);
+                        if(val > 255 || val < 0) break;
+                        uint8_t rawval = static_cast<uint8_t>(val);
+                        RCP_sendRawSerial(&rawval, 1);
+                    }
+                    break;
                 }
-                break;
+
+                case InterpretMode::HEX: {
+                    ImGui::SetNextItemWidth(scale(100));
+                    bool send = ImGui::InputText("##serialsend", out, 3, ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGui::SameLine();
+                    send = send || ImGui::Button("Send");
+
+                    if(send) {
+                        int val = std::stoi(out, nullptr, 16);
+                        if(val > 255 || val < 0) break;
+                        uint8_t rawval = static_cast<uint8_t>(val);
+                        RCP_sendRawSerial(&rawval, 1);
+                    }
+                    break;
+                }
+
+                case InterpretMode::STR: {
+                    ImGui::SetNextItemWidth(scale(485));
+                    bool send = ImGui::InputText("##serialsend", out, OUT_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGui::SameLine();
+                    send = send || ImGui::Button("Send");
+
+                    if(send) {
+                        std::string str(out);
+                        if(str.length() > 63) break;
+                        RCP_sendRawSerial(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+                    }
+
+                    break;
+                }
             }
-
-            case InterpretMode::HEX: {
-                ImGui::SetNextItemWidth(scale(100));
-                bool send = ImGui::InputText("##serialsend", out, 3, ImGuiInputTextFlags_EnterReturnsTrue);
-                ImGui::SameLine();
-                send = send || ImGui::Button("Send");
-
-                if(send) {
-                    int val = std::stoi(out, nullptr, 16);
-                    if(val > 255 || val < 0) break;
-                    uint8_t rawval = static_cast<uint8_t>(val);
-                    RCP_sendRawSerial(&rawval, 1);
-                }
-                break;
-            }
-
-            case InterpretMode::STR: {
-                ImGui::SetNextItemWidth(scale(485));
-                bool send = ImGui::InputText("##serialsend", out, OUT_SIZE, ImGuiInputTextFlags_EnterReturnsTrue);
-                ImGui::SameLine();
-                send = send || ImGui::Button("Send");
-
-                if(send) {
-                    std::string str(out);
-                    if(str.length() > 63) break;
-                    RCP_sendRawSerial(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
-                }
-
-                break;
-            }}
 
             ImGui::End();
         }
@@ -123,24 +124,24 @@ namespace LRI::RCI {
 
     void CustomData::recevieRCPUpdate(const RCP_CustomData& data) {
         switch(mode) {
-        case InterpretMode::HEX:
-        case InterpretMode::DEC: {
-            for(int i = 0; i < data.length; i++) {
-                if(mode == InterpretMode::HEX) display << std::format("{:02X}", ((uint8_t*) data.data)[i]) << " ";
-                else display << std::format("{:03}", ((uint8_t*) data.data)[i]) << " ";
+            case InterpretMode::HEX:
+            case InterpretMode::DEC: {
+                for(int i = 0; i < data.length; i++) {
+                    if(mode == InterpretMode::HEX) display << std::format("{:02X}", ((uint8_t*) data.data)[i]) << " ";
+                    else display << std::format("{:03}", ((uint8_t*) data.data)[i]) << " ";
 
-                if(numElems % 16 == 0) display << "\n";
-                else if(numElems % 8 == 0) display << "   ";
-                numElems = (numElems + 1) % 16;
+                    if(numElems % 16 == 0) display << "\n";
+                    else if(numElems % 8 == 0) display << "   ";
+                    numElems = (numElems + 1) % 16;
+                }
+                break;
             }
-            break;
-        }
 
-        case InterpretMode::STR: {
-            for(int i = 0; i < data.length; i++) {
-                display << static_cast<char*>(data.data)[i];
+            case InterpretMode::STR: {
+                for(int i = 0; i < data.length; i++) {
+                    display << static_cast<char*>(data.data)[i];
+                }
             }
-        }
         }
         raw.insert(raw.end(), static_cast<uint8_t*>(data.data), static_cast<uint8_t*>(data.data) + data.length);
     }

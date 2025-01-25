@@ -11,20 +11,20 @@
 
 namespace LRI::RCI {
     RCP_LibInitData callbacks = {
-        .sendData = sendData,
-        .readData = readData,
-        .processTestUpdate = processTestUpdate,
-        .processSolenoidData = processSolenoidData,
-        .processStepperData = processStepperData,
-        .processTransducerData = processTransducerData,
-        .processGPSData = processGPSData,
-        .processMagnetometerData = processMagnetometerData,
-        .processAMPressureData = processAMPressureData,
-        .processAMTemperatureData = processAMTemperatureData,
-        .processHumidityData = processRelativeHumidityData,
-        .processAccelerationData = processAccelerationData,
-        .processGyroData = processGyroData,
-        .processSerialData = processSerialData
+            .sendData = sendData,
+            .readData = readData,
+            .processTestUpdate = processTestUpdate,
+            .processSolenoidData = processSolenoidData,
+            .processStepperData = processStepperData,
+            .processTransducerData = processTransducerData,
+            .processGPSData = processGPSData,
+            .processMagnetometerData = processMagnetometerData,
+            .processAMPressureData = processAMPressureData,
+            .processAMTemperatureData = processAMTemperatureData,
+            .processHumidityData = processRelativeHumidityData,
+            .processAccelerationData = processAccelerationData,
+            .processGyroData = processGyroData,
+            .processSerialData = processSerialData
     };
 
     size_t sendData(const void* data, size_t length) {
@@ -53,8 +53,8 @@ namespace LRI::RCI {
     int processTransducerData(const RCP_TransducerData data) {
         SensorQualifier qual(RCP_DEVCLASS_PRESSURE_TRANSDUCER, data.ID);
         SensorReadings::getInstance()->receiveRCPUpdate(qual, {
-                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = {static_cast<double>(data.pressure)}});
+                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                .data = {static_cast<double>(data.pressure)}});
         return 0;
     }
 
@@ -82,16 +82,16 @@ namespace LRI::RCI {
     int processAMPressureData(const RCP_floatData data) {
         static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER, {
-                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = {static_cast<double>(data.data)}});
+                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                .data = {static_cast<double>(data.data)}});
         return 0;
     }
 
     int processAMTemperatureData(const RCP_floatData data) {
         static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_TEMPERATURE_QUALIFIER, {
-                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = {static_cast<double>(data.data)}});
+                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                .data = {static_cast<double>(data.data)}});
         return 0;
     }
 
@@ -118,8 +118,8 @@ namespace LRI::RCI {
     int processRelativeHumidityData(RCP_floatData data) {
         static const SensorQualifier RELHUMIDITY_QUALIFIER{.devclass = RCP_DEVCLASS_RELATIVE_HYGROMETER};
         SensorReadings::getInstance()->receiveRCPUpdate(RELHUMIDITY_QUALIFIER, {
-                                                            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = {static_cast<double>(data.data)}});
+                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                .data = {static_cast<double>(data.data)}});
         return 0;
     }
 

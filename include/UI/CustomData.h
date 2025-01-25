@@ -28,7 +28,6 @@ namespace LRI::RCI {
         int numElems;
 
 
-
         CustomData();
 
     public:

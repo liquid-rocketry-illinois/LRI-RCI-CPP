@@ -20,8 +20,4 @@ namespace LRI::RCI {
     DWORD WindowsResource::getSize() const {
         return size;
     }
-
-
-
-
 }

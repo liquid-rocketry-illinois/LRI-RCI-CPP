@@ -8,7 +8,8 @@
 namespace LRI::RCI {
     constexpr int winFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
     EStop* EStop::instance;
-    EStop::EStop(): BaseUI() {}
+
+    EStop::EStop() : BaseUI() {}
 
     EStop* EStop::getInstance() {
         if(instance == nullptr) instance = new EStop();

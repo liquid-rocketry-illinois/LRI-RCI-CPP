@@ -1,5 +1,6 @@
 #ifndef VIRTUAL_H
 #define VIRTUAL_H
+
 #include <string>
 
 #include "RCP_Interface.h"

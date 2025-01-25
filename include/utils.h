@@ -6,7 +6,7 @@
 #include "imgui.h"
 
 namespace LRI::RCI {
-    static constexpr ImVec4 BACKGROUND_COLOR {0.4f, 0.2f, 0.6f, 1.0f};
+    static constexpr ImVec4 BACKGROUND_COLOR{0.4f, 0.2f, 0.6f, 1.0f};
 
     extern ImFont* font_regular;
     extern ImFont* font_bold;
@@ -42,7 +42,7 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
     ImVec2 operator/(ImVec2 const& v1, float constant);
 
-    template <typename T, T ret = 0>
+    template<typename T, T ret = 0>
     class RingBuffer {
         uint32_t buffersize;
         uint32_t datastart;
@@ -64,4 +64,5 @@ namespace LRI::RCI {
 }
 
 #include "RingBuffer.inl"
+
 #endif //UTILS_H

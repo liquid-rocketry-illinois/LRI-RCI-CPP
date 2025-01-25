@@ -12,6 +12,7 @@
 namespace LRI::RCI {
     class COMPort : public RCP_Interface {
         class RingBuffer;
+
         static constexpr int bufferSize = 1'048'576;
 
         char* const portname;

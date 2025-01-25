@@ -41,9 +41,11 @@ namespace LRI::RCI {
         fontConfig.FontDataOwnedByAtlas = false;
 
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
-        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()), 16 * scaling_factor, &fontConfig);
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
+                                                      16 * scaling_factor, &fontConfig);
         fonts = WindowsResource("font-bold.ttf", "TTFFONT");
-        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()), 16 * scaling_factor, &fontConfig);
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
+                                                   16 * scaling_factor, &fontConfig);
 
         TargetChooser::getInstance();
     }

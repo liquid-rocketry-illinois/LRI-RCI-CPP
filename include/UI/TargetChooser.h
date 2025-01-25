@@ -1,4 +1,4 @@
-#ifndef TARAGETCHOOSER_H
+#ifndef TARGETCHOOSER_H
 #define TARGETCHOOSER_H
 
 #include <string>
@@ -13,6 +13,7 @@
 namespace LRI::RCI {
     class TargetChooser final : public BaseUI {
         class InterfaceChooser;
+
         static TargetChooser* instance;
 
         RCP_Interface* interf;
@@ -70,4 +71,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //TARAGETCHOOSER_H
+#endif //TARGETCHOOSER_H

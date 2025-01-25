@@ -13,7 +13,7 @@ namespace LRI::RCI {
 
     template<typename T, T ret>
     RingBuffer<T, ret>::RingBuffer(RingBuffer& other) : buffersize(other.buffersize), datastart(other.datastart),
-                                                dataend(other.dataend), data(nullptr) {
+                                                        dataend(other.dataend), data(nullptr) {
         data = new T[buffersize];
         memcpy(data, other.data, buffersize);
     }
