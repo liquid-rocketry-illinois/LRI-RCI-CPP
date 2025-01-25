@@ -25,6 +25,7 @@ namespace LRI::RCI {
         std::stringstream display;
         InterpretMode mode;
         char out[OUT_SIZE];
+        int numElems;
 
 
 

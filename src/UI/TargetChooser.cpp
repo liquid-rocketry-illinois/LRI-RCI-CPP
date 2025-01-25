@@ -70,7 +70,8 @@ namespace LRI::RCI {
                 ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
 
                 for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
-                    RCP_poll();
+                    int k = RCP_poll();
+                    int j = k;
                 }
 
                 if(ImGui::Button("Close Interface")) {

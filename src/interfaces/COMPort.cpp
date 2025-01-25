@@ -1,5 +1,6 @@
 #include "interfaces/COMPort.h"
 #include <RCP_Host/RCP_Host.h>
+#include <iostream>
 
 namespace LRI::RCI {
     COMPort::COMPort(const char* _portname, const DWORD& _baudrate)
@@ -138,8 +139,8 @@ namespace LRI::RCI {
     }
 
     void COMPort::threadRead() {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(5000ms);
+//        using namespace std::chrono_literals;
+//        std::this_thread::sleep_for(5000ms);
         ready = true;
 
         bool r_nw = false;

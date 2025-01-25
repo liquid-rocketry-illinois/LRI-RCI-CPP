@@ -1,4 +1,5 @@
 #include "UI/CustomData.h"
+#include <iomanip>
 
 namespace LRI::RCI {
     CustomData* CustomData::instance;
@@ -24,7 +25,7 @@ namespace LRI::RCI {
         }
     }
 
-    CustomData::CustomData() : raw(), display(), mode(InterpretMode::HEX), out() {
+    CustomData::CustomData() : raw(), display(), mode(InterpretMode::STR), out(), numElems(0) {
     }
 
     void CustomData::render() {
@@ -57,7 +58,7 @@ namespace LRI::RCI {
             ImGui::Text("|");
             ImGui::SameLine();
             if(ImGui::Button("Clear##serialclear")) {
-                display.clear();
+                display.str("");
                 raw.clear();
             }
 
@@ -124,13 +125,15 @@ namespace LRI::RCI {
         switch(mode) {
         case InterpretMode::HEX:
         case InterpretMode::DEC: {
-            display << (mode == InterpretMode::HEX ? std::ios::hex : std::ios::dec);
+            if(mode == InterpretMode::HEX) display << std::hex << std::setfill('0') << std::setw(2);
+            else display << std::dec << std::setfill('0') << std::setw(3);
             size_t arrlen = raw.size();
             for(int i = 0; i < data.length; i++) {
-                display << static_cast<uint8_t*>(data.data)[i] << " ";
+                display << (int) static_cast<uint8_t*>(data.data)[i] << " ";
 
-                if(arrlen % 16 == 0) display << "\n";
-                else if(arrlen % 8 == 0) display << "   ";
+                if(numElems % 16 == 0) display << "\n";
+                else if(numElems % 8 == 0) display << "   ";
+                numElems = (numElems + 1) % 16;
             }
             break;
         }
