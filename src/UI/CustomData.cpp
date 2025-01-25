@@ -25,7 +25,7 @@ namespace LRI::RCI {
         }
     }
 
-    CustomData::CustomData() : raw(), display(), mode(InterpretMode::STR), out(), numElems(0) {
+    CustomData::CustomData() : raw(), display(), mode(InterpretMode::STR), out(), numElems(1) {
     }
 
     void CustomData::render() {
@@ -125,11 +125,9 @@ namespace LRI::RCI {
         switch(mode) {
         case InterpretMode::HEX:
         case InterpretMode::DEC: {
-            if(mode == InterpretMode::HEX) display << std::hex << std::setfill('0') << std::setw(2);
-            else display << std::dec << std::setfill('0') << std::setw(3);
-            size_t arrlen = raw.size();
             for(int i = 0; i < data.length; i++) {
-                display << (int) static_cast<uint8_t*>(data.data)[i] << " ";
+                if(mode == InterpretMode::HEX) display << std::format("{:02X}", ((uint8_t*) data.data)[i]) << " ";
+                else display << std::format("{:03}", ((uint8_t*) data.data)[i]) << " ";
 
                 if(numElems % 16 == 0) display << "\n";
                 else if(numElems % 8 == 0) display << "   ";
@@ -148,5 +146,28 @@ namespace LRI::RCI {
     }
 
     void CustomData::reformatDisplay() {
+        numElems = 1;
+        display.str("");
+        switch(mode) {
+            case InterpretMode::HEX:
+            case InterpretMode::DEC: {
+                for(uint8_t c : raw) {
+                    if(mode == InterpretMode::HEX) display << std::format("{:02X}", c) << " ";
+                    else display << std::format("{:03}", c) << " ";
+
+                    if(numElems % 16 == 0) display << "\n";
+                    else if(numElems % 8 == 0) display << "   ";
+                    numElems = (numElems + 1) % 16;
+                }
+                break;
+            }
+
+            case InterpretMode::STR: {
+                for(uint8_t c : raw) {
+                    display << (char) c;
+                }
+                break;
+            }
+        }
     }
 }

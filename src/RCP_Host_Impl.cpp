@@ -54,7 +54,7 @@ namespace LRI::RCI {
         SensorQualifier qual(RCP_DEVCLASS_PRESSURE_TRANSDUCER, data.ID);
         SensorReadings::getInstance()->receiveRCPUpdate(qual, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.pressure)});
+                                                            .data = {static_cast<double>(data.pressure)}});
         return 0;
     }
 
@@ -83,7 +83,7 @@ namespace LRI::RCI {
         static const SensorQualifier AM_PRESSURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_PRESSURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_PRESSURE_QUALIFIER, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.data)});
+                                                            .data = {static_cast<double>(data.data)}});
         return 0;
     }
 
@@ -91,7 +91,7 @@ namespace LRI::RCI {
         static const SensorQualifier AM_TEMPERATURE_QUALIFIER{.devclass = RCP_DEVCLASS_AM_TEMPERATURE};
         SensorReadings::getInstance()->receiveRCPUpdate(AM_TEMPERATURE_QUALIFIER, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.data)});
+                                                            .data = {static_cast<double>(data.data)}});
         return 0;
     }
 
@@ -119,7 +119,7 @@ namespace LRI::RCI {
         static const SensorQualifier RELHUMIDITY_QUALIFIER{.devclass = RCP_DEVCLASS_RELATIVE_HYGROMETER};
         SensorReadings::getInstance()->receiveRCPUpdate(RELHUMIDITY_QUALIFIER, {
                                                             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                                                            .data = static_cast<double>(data.data)});
+                                                            .data = {static_cast<double>(data.data)}});
         return 0;
     }
 
