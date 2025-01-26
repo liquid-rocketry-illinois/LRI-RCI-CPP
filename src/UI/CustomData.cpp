@@ -91,6 +91,8 @@ namespace LRI::RCI {
 
             ImGui::Separator();
 
+            bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
+            if(lockButtons) ImGui::BeginDisabled();
             switch(mode) {
                 case InterpretMode::DEC: {
                     ImGui::SetNextItemWidth(scale(100));
@@ -103,6 +105,7 @@ namespace LRI::RCI {
                         if(val > 255 || val < 0) break;
                         uint8_t rawval = static_cast<uint8_t>(val);
                         RCP_sendRawSerial(&rawval, 1);
+                        buttonTimer.reset();
                     }
                     break;
                 }
@@ -118,6 +121,7 @@ namespace LRI::RCI {
                         if(val > 255 || val < 0) break;
                         uint8_t rawval = static_cast<uint8_t>(val);
                         RCP_sendRawSerial(&rawval, 1);
+                        buttonTimer.reset();
                     }
                     break;
                 }
@@ -133,11 +137,14 @@ namespace LRI::RCI {
                         if(str.length() > 63) break;
                         RCP_sendRawSerial(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
                         memset(out, 0, OUT_SIZE);
+                        buttonTimer.reset();
                     }
 
                     break;
                 }
             }
+
+            if(lockButtons) ImGui::EndDisabled();
 
             ImGui::End();
         }
