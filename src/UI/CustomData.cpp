@@ -1,5 +1,7 @@
 #include "UI/CustomData.h"
 #include <iomanip>
+#include <filesystem>
+#include <fstream>
 
 namespace LRI::RCI {
     CustomData* CustomData::instance;
@@ -50,7 +52,8 @@ namespace LRI::RCI {
                         break;
                 }
 
-                reformatDisplay();
+                display.str("");
+                formatRaw(display, raw, mode, &numElems);
                 memset(out, 0, OUT_SIZE);
             }
 
@@ -60,6 +63,23 @@ namespace LRI::RCI {
             if(ImGui::Button("Clear##serialclear")) {
                 display.str("");
                 raw.clear();
+            }
+
+            ImGui::SameLine();
+            ImGui::Text("|");
+            ImGui::SameLine();
+            if(ImGui::Button("Save to file")) {
+                if(std::filesystem::exists("exports")) {
+                    if(!std::filesystem::is_directory("./exports")) {
+                        return;
+                    }
+                }
+
+                else std::filesystem::create_directory("./exports");
+
+                const auto now = std::chrono::system_clock::now();
+                std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-serial", now));
+                formatRaw(file, raw, mode);
             }
 
             ImGui::Separator();
@@ -112,6 +132,7 @@ namespace LRI::RCI {
                         std::string str(out);
                         if(str.length() > 63) break;
                         RCP_sendRawSerial(reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
+                        memset(out, 0, OUT_SIZE);
                     }
 
                     break;
@@ -146,29 +167,37 @@ namespace LRI::RCI {
         raw.insert(raw.end(), static_cast<uint8_t*>(data.data), static_cast<uint8_t*>(data.data) + data.length);
     }
 
-    void CustomData::reformatDisplay() {
-        numElems = 1;
-        display.str("");
+    void CustomData::formatRaw(std::basic_ostream<char>& out, std::vector<uint8_t>& raw,
+                               const InterpretMode& mode, int* elems) {
+        int* numElems;
+        if(elems != nullptr) {
+            numElems = elems;
+            *numElems = 1;
+        }
+        else numElems = new int(1);
+
         switch(mode) {
             case InterpretMode::HEX:
             case InterpretMode::DEC: {
                 for(uint8_t c : raw) {
-                    if(mode == InterpretMode::HEX) display << std::format("{:02X}", c) << " ";
-                    else display << std::format("{:03}", c) << " ";
+                    if(mode == InterpretMode::HEX) out << std::format("{:02X}", c) << " ";
+                    else out << std::format("{:03}", c) << " ";
 
-                    if(numElems % 16 == 0) display << "\n";
-                    else if(numElems % 8 == 0) display << "   ";
-                    numElems = (numElems + 1) % 16;
+                    if(*numElems % 16 == 0) out << "\n";
+                    else if(*numElems % 8 == 0) out << "   ";
+                    *numElems = ((*numElems) + 1) % 16;
                 }
                 break;
             }
 
             case InterpretMode::STR: {
                 for(uint8_t c : raw) {
-                    display << (char) c;
+                    out << (char) c;
                 }
                 break;
             }
         }
+
+        if(elems == nullptr) delete numElems;
     }
 }

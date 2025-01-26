@@ -19,7 +19,8 @@ namespace LRI::RCI {
         };
 
         static std::string interpretModeToString(InterpretMode mode);
-        void reformatDisplay();
+        static void formatRaw(std::basic_ostream<char>& out, std::vector<uint8_t>& raw, const InterpretMode& mode,
+                                    int* elems = nullptr);
 
         std::vector<uint8_t> raw;
         std::stringstream display;

@@ -91,6 +91,7 @@ namespace LRI::RCI {
                     RCP_sendStepperWrite(id, step.controlMode, *(((int32_t*) &step.controlVal)));
                     buttonTimer.reset();
                 }
+
                 if(lockButtons || step.stale) ImGui::EndDisabled();
 
                 ImGui::Text("Current State: ");

@@ -31,8 +31,7 @@ namespace LRI::RCI {
         else std::filesystem::create_directory("./exports");
 
         const auto now = std::chrono::system_clock::now();
-        std::ofstream file(
-                std::string("./exports/") + std::format("{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
+        std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
 
         switch(qual.devclass) {
             case RCP_DEVCLASS_GPS:
