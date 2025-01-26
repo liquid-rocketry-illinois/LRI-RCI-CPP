@@ -167,6 +167,13 @@ namespace LRI::RCI {
         raw.insert(raw.end(), static_cast<uint8_t*>(data.data), static_cast<uint8_t*>(data.data) + data.length);
     }
 
+    void CustomData::reset() {
+        raw.clear();
+        display.str("");
+        numElems = 1;
+        mode = InterpretMode::STR;
+    }
+
     void CustomData::formatRaw(std::basic_ostream<char>& out, std::vector<uint8_t>& raw,
                                const InterpretMode& mode, int* elems) {
         int* numElems;

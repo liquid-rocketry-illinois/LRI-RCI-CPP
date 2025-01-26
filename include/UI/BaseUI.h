@@ -28,6 +28,7 @@ namespace LRI::RCI {
         virtual void render() = 0;
         virtual void hideWindow();
         virtual void showWindow();
+        virtual void reset();
     };
 
 

@@ -36,6 +36,7 @@ namespace LRI::RCI {
 
         void render() override;
         void recevieRCPUpdate(const RCP_CustomData& data);
+        void reset() override;
 
         ~CustomData() override = default;
     };

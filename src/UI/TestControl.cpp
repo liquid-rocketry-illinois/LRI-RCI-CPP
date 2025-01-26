@@ -132,4 +132,12 @@ namespace LRI::RCI {
         testState = data.state;
         dataStreaming = data.dataStreaming != 0;
     }
+
+    void TestControl::reset() {
+        testState = RCP_TEST_STOPPED;
+        testNumber = 0;
+        dataStreaming = false;
+        doHeartbeats = false;
+        inputHeartbeatRate = 0;
+    }
 }

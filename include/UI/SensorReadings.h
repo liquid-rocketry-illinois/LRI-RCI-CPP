@@ -50,6 +50,7 @@ namespace LRI::RCI {
         void render() override;
         void setHardwareConfig(const std::set<SensorQualifier>& sensids);
         void receiveRCPUpdate(const SensorQualifier& qual, const DataPoint& data);
+        void reset() override;
 
         ~SensorReadings() override = default;
     };

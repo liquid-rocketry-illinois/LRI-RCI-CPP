@@ -25,6 +25,7 @@ namespace LRI::RCI {
 
         void render() override;
         void receiveRCPUpdate(const RCP_TestData& data);
+        void reset() override;
 
         ~TestControl() override = default;
     };

@@ -106,8 +106,12 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void Steppers::setHardwareConfig(const std::map<uint8_t, std::string>& ids) {
+    void Steppers::reset() {
         steppers.clear();
+    }
+
+    void Steppers::setHardwareConfig(const std::map<uint8_t, std::string>& ids) {
+        reset();
         for(const auto& [id, name] : ids) {
             Stepper s{
                     .controlMode = RCP_STEPPER_ABSOLUTE_POS_CONTROL,

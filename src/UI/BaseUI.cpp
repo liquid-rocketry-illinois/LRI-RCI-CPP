@@ -19,6 +19,8 @@ namespace LRI::RCI {
         }
     }
 
+    void BaseUI::reset() {}
+
     void BaseUI::hideAll() {
         std::set<BaseUI*> wins(windows);
         for(const auto& window : wins) window->hideWindow();

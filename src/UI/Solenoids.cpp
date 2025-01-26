@@ -72,6 +72,7 @@ namespace LRI::RCI {
     void Solenoids::setHardwareConfig(const std::map<uint8_t, std::string>& solIds) {
         sols.clear();
         solUpdated.clear();
+        solname.clear();
 
         for(const auto& [id, name] : solIds) {
             sols[id] = false;

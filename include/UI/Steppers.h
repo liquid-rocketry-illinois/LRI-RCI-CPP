@@ -32,6 +32,7 @@ namespace LRI::RCI {
         void render() override;
         void setHardwareConfig(const std::map<uint8_t, std::string>& ids);
         void receiveRCPUpdate(const RCP_StepperData& state);
+        void reset() override;
 
         ~Steppers() override = default;
     };

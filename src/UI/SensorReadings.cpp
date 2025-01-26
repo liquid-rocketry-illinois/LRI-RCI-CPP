@@ -249,7 +249,23 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
+    void SensorReadings::reset() {
+        for(auto& [qual, data] : sensors) {
+            data.clear();
+        }
+
+        for(auto& [qual, thread] : filewritethreads) {
+            if(thread.thread) {
+                thread.thread->join();
+                delete thread.thread;
+            }
+        }
+
+        filewritethreads.clear();
+    }
+
     void SensorReadings::setHardwareConfig(const std::set<SensorQualifier>& sensids) {
+        reset();
         sensors.clear();
 
         for(const auto& qual : sensids) {

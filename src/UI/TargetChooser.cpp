@@ -167,6 +167,12 @@ namespace LRI::RCI {
     }
 
     void TargetChooser::initWindows() {
+        CustomData::getInstance()->reset();
+        SensorReadings::getInstance()->reset();
+        Solenoids::getInstance()->reset();
+        Steppers::getInstance()->reset();
+        TestControl::getInstance()->reset();
+
         TestControl::getInstance()->showWindow();
         EStop::getInstance()->showWindow();
         CustomData::getInstance()->showWindow();
