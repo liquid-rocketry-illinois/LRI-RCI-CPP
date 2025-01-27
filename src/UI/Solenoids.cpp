@@ -34,6 +34,8 @@ namespace LRI::RCI {
             time(&now);
             bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
             if(lockButtons) ImGui::BeginDisabled();
+
+            // A button to manually refresh the states of each solenoid
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
                 for(const auto [id, state] : sols) {
                     solUpdated[id] = false;
@@ -44,6 +46,8 @@ namespace LRI::RCI {
             if(lockButtons) ImGui::EndDisabled();
             ImGui::Separator();
 
+            // Rendering each solenoid is simple. It consists of a status square, and a button to turn the solenoid
+            // on and off
             for(const auto& [id, state] : sols) {
                 ImVec2 pos = ImGui::GetCursorScreenPos();
                 ImU32 statusColor = solUpdated[id] ? (state ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;

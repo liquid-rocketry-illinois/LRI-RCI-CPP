@@ -1,13 +1,20 @@
+// Make sure Windows doesn't allocate a console window, since we have the UI
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
+// Even though Windows.h is not explicitly used in this file, one of the macros it defines is not checked if it has
+// already been defined (silly windows) so it conflicts with when GLFW also defines it. However, glfw is smart and
+// does checks if this particular macro has already been defined, so Windows.h must be included first that way the smart
+// people avoid redefining a macro and raising a compiler warning and the dumb people can do what they want.
 #include <Windows.h>
+
 #include "GLFW/glfw3.h"
-#include "imgui.h"
 #include "utils.h"
 
 #include "UI/BaseUI.h"
 
+// A very small main function :)
 int main() {
+    // Initialize glfw and create the window
     if(!glfwInit()) {
         return -1;
     }
@@ -18,14 +25,18 @@ int main() {
         return -1;
     }
 
+    // Run the init function in utils.cpp
     LRI::RCI::imgui_init(window);
 
+    // A very simple loop :)
+    // While the window should not close, render stuff
     while(!glfwWindowShouldClose(window)) {
         LRI::RCI::imgui_prerender(window);
         LRI::RCI::BaseUI::renderWindows();
         LRI::RCI::imgui_postrender(window);
     }
 
+    // Once the window should close, then terminate libraries
     LRI::RCI::imgui_shutdown(window);
 
     return 0;

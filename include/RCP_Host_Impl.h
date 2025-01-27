@@ -4,6 +4,7 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
+    // All callbacks for RCP
     extern RCP_LibInitData callbacks;
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);

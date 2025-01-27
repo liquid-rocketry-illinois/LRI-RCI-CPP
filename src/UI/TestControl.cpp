@@ -12,12 +12,15 @@ namespace LRI::RCI {
         return instance;
     }
 
-    TestControl::TestControl() : testState(RCP_TEST_STOPPED), testNumber(0) {
+    TestControl::TestControl() : testState(RCP_TEST_STOPPED), testNumber(0), dataStreaming(false), doHeartbeats(false),
+                                 heartbeatRate(0), inputHeartbeatRate(0) {
         heartbeat.reset();
     }
 
 
     void TestControl::render() {
+        // How heartbeats are handled is a little WIP since if a heartbeat is missed nothing much really happens on the
+        // host side. The target should still respond to heartbeats though
         if(doHeartbeats && heartbeatRate != 0 && static_cast<double>(heartbeat.timeSince()) > heartbeatRate * 0.9) {
             RCP_sendHeartbeat();
             heartbeat.reset();
@@ -31,6 +34,7 @@ namespace LRI::RCI {
             bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
             if(lockButtons) ImGui::BeginDisabled();
 
+            // Display controls for starting, stopping, pausing, estopping, and selecting a test
             if(testState != RCP_TEST_STOPPED) ImGui::BeginDisabled();
             if(ImGui::Button("Start")) {
                 RCP_startTest(testNumber);
@@ -75,6 +79,8 @@ namespace LRI::RCI {
             if(testNumber < 0) testNumber = 0;
             if(testNumber > 15) testNumber = 15;
 
+            // Enabling data streaming means that sensor values are streamed back to the host. It is not necessary for
+            // a test to be running for this to occur
             ImGui::Text("Enable Data Streaming: ");
             ImGui::SameLine();
             if(lockButtons) ImGui::BeginDisabled();

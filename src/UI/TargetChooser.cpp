@@ -24,9 +24,12 @@
 namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
 
+    // This window always exists and is used to control the rest of the program
     TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), pollingRate(25), targetpaths(),
                                      targetconfig(), chosenConfig(0), interfaceoptions(), chosenInterface(0) {
         BaseUI::showWindow();
+
+        // Iterate through the targets/ directory if it exists and create a list of the available targets
         if(std::filesystem::exists("targets/")) {
             for(const auto& file : std::filesystem::directory_iterator("targets/")) {
                 if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
@@ -34,8 +37,11 @@ namespace LRI::RCI {
             }
         }
 
+        // Set up the two interface options
         interfaceoptions.emplace_back("Serial Port");
         interfaceoptions.emplace_back("Virtual Port");
+
+        // Create the default chooser
         chooser = new COMPortChooser(this);
     }
 
@@ -50,7 +56,11 @@ namespace LRI::RCI {
         if(ImGui::Begin("Target Settings", nullptr, ImGuiWindowFlags_NoResize)) {
             ImGui::Text("Target Connection Status: ");
             ImGui::SameLine();
+
+            // There are two different "modes" this window is in: when the interface is open and when it is not.
             if(interf && interf->isOpen()) {
+                // When the interface is open, it shows the current target and interface configurations, as well as an
+                // option to change the polling rate of RCP, in addition to a close button.
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
                 ImGui::Text("Open");
                 ImGui::PopStyleColor();
@@ -70,8 +80,7 @@ namespace LRI::RCI {
                 ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
 
                 for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
-                    int k = RCP_poll();
-                    int j = k;
+                    RCP_poll();
                 }
 
                 if(ImGui::Button("Close Interface")) {
@@ -82,11 +91,13 @@ namespace LRI::RCI {
                 }
             }
 
+                // If an interface is not open, then a chooser should be rendered
             else {
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
                 ImGui::Text("Closed");
                 ImGui::PopStyleColor();
 
+                // First the user needs to select the target though
                 ImGui::Text("Choose Target Config: ");
                 ImGui::SameLine();
                 if(targetpaths.empty()) ImGui::Text("No Target configs available");
@@ -100,6 +111,8 @@ namespace LRI::RCI {
                     ImGui::EndCombo();
                 }
 
+                // Afterward a dropdown with the available interfaces is shown, and if a different interface chooser is
+                // selected it is created
                 ImGui::Text("Interface Type: ");
                 ImGui::SameLine();
                 bool choosermod = !chooser;
@@ -137,6 +150,7 @@ namespace LRI::RCI {
                 ImGui::NewLine();
                 ImGui::Separator();
 
+                // Render the chooser, and if it returns an open interface initialize RCP and the rest of the program
                 if(chooser != nullptr) {
                     RCP_Interface* _interf = chooser->render();
                     if(_interf != nullptr) {
@@ -160,12 +174,12 @@ namespace LRI::RCI {
         return interf;
     }
 
-    void TargetChooser::hideWindow() {
-    }
+    // Hide and show are blank because this window should always be present
+    void TargetChooser::hideWindow() {}
 
-    void TargetChooser::showWindow() {
-    }
+    void TargetChooser::showWindow() {}
 
+    // Helper function that resets and initializes all windows
     void TargetChooser::initWindows() {
         CustomData::getInstance()->reset();
         SensorReadings::getInstance()->reset();
@@ -173,10 +187,12 @@ namespace LRI::RCI {
         Steppers::getInstance()->reset();
         TestControl::getInstance()->reset();
 
+        // These 3 can be shown regardless of the target
         TestControl::getInstance()->showWindow();
         EStop::getInstance()->showWindow();
         CustomData::getInstance()->showWindow();
 
+        // Iterate through all the devices in the json and initialize the appropriate windows
         std::set<SensorQualifier> sensors;
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             switch(targetconfig["devices"][i]["devclass"].get<int>()) {
@@ -248,15 +264,16 @@ namespace LRI::RCI {
             }
         }
 
+        // If there is an actual sensor present, then display the sensors window
         if(!sensors.empty()) {
             SensorReadings::getInstance()->setHardwareConfig(sensors);
             SensorReadings::getInstance()->showWindow();
         }
     }
 
-    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {
-    }
+    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {}
 
+    // The COMPort chooser will enumerate all available serial devices to be picked from
     TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
                                                                                   portlist(), selectedPort(0),
                                                                                   error(false), baud(115200),
@@ -264,6 +281,8 @@ namespace LRI::RCI {
         enumSerialDevs();
     }
 
+    // Honestly I dont know what this does its some Windows spaghetti I stole from SO but it works so yay
+    // https://stackoverflow.com/a/77752863
     bool TargetChooser::COMPortChooser::enumSerialDevs() {
         portlist.clear();
         HANDLE devs = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, nullptr, nullptr, DIGCF_PRESENT);
@@ -288,16 +307,21 @@ namespace LRI::RCI {
 
             SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE) s, sizeof(s), nullptr);
 
+            // Somehow we end up with the name we need to open the port, and a more user friendly display string.
+            // These get appended to this vector for later
             portlist.push_back(std::string(comname) + ": " + std::string(s));
         }
+
         SetupDiDestroyDeviceInfoList(devs);
         return true;
     }
 
+    // The COMPort chooser rendering function
     RCP_Interface* TargetChooser::COMPortChooser::render() {
         bool disable = port;
         if(disable) ImGui::BeginDisabled();
 
+        // It has a dropdown for which device, as listed in enumSerial()
         ImGui::Text("Choose Serial Port: ");
         ImGui::SameLine();
         if(portlist.empty()) ImGui::Text("No Ports Detected");
@@ -317,6 +341,7 @@ namespace LRI::RCI {
             enumSerialDevs();
         }
 
+        // Input for baud rate
         ImGui::Text("Baud Rate: ");
         ImGui::SameLine();
         ImGui::SetNextItemWidth(scale(100));
@@ -326,14 +351,17 @@ namespace LRI::RCI {
 
         if(portlist.empty()) ImGui::BeginDisabled();
         if(ImGui::Button("Connect")) {
+            // If connect, then create the COMPort
             port = new COMPort(
-                    portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), CBR_115200);
+                    portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), baud);
         }
         if(portlist.empty()) ImGui::EndDisabled();
         if(disable) ImGui::EndDisabled();
 
+        // If the port failed to allocate then return
         if(!port) return nullptr;
 
+        // If the port allocated but did not open then show an error
         if(!port->isOpen()) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
             ImGui::Text("Error Connecting to Serial Port (%u)", port->lastError());
@@ -346,19 +374,20 @@ namespace LRI::RCI {
             }
         }
 
+        // While the port is readying, don't return it just yet and display a loading spinner
         else if(!port->isReady()) {
             ImGui::SameLine();
             ImGui::Spinner("##comportchooserspinner", 8, 1, REBECCA_PURPLE);
         }
 
         else return port;
-
         return nullptr;
     }
 
     TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {
     }
 
+    // Virtual port is easy
     RCP_Interface* TargetChooser::VirtualPortChooser::render() {
         if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
         return nullptr;

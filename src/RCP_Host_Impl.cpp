@@ -10,6 +10,7 @@
 #include "UI/CustomData.h"
 
 namespace LRI::RCI {
+    // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
     RCP_LibInitData callbacks = {
             .sendData = sendData,
             .readData = readData,

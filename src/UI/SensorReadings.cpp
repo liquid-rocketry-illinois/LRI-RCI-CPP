@@ -8,19 +8,22 @@
 #include <implot.h>
 
 namespace LRI::RCI {
+    // This is used for sorting the sensors in the list on the display
     bool SensorQualifier::operator<(SensorQualifier const& rhf) const {
         if(devclass == rhf.devclass) return id < rhf.id;
         return devclass < rhf.devclass;
     }
 
+    // Used in imgui IDs, not necessarily meant for display. In the format of DEVCLASS-ID-NAME
     std::string SensorQualifier::asString() const {
         return std::to_string(devclass) + "-" + std::to_string(id) + "-" + name;
     }
 
     SensorReadings* SensorReadings::instance;
-    const std::map<RCP_DeviceClass_t, std::string> SensorReadings::DEVCLASS_NAMES = {};
 
+    // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
     void SensorReadings::toCSVFile(SensorQualifier qual, std::vector<DataPoint>* data, std::atomic_bool* done) {
+        // Create the exports directory if it does not exist. If it exists as a file, exit early
         if(std::filesystem::exists("exports")) {
             if(!std::filesystem::is_directory("./exports")) {
                 *done = true;
@@ -33,6 +36,8 @@ namespace LRI::RCI {
         const auto now = std::chrono::system_clock::now();
         std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
 
+        // The actual file writing. Depending on the device class, a header is created, and each datapoint is iterated
+        // through and written to the file
         switch(qual.devclass) {
             case RCP_DEVCLASS_GPS:
                 file << "relmillis,latitude,longitude,altitude,groundspeed\n";
@@ -79,6 +84,7 @@ namespace LRI::RCI {
         return instance;
     }
 
+    // Helper
     float min3(float a, float b, float c) {
         return min(a, min(b, c));
     }
@@ -89,13 +95,20 @@ namespace LRI::RCI {
         if(ImGui::Begin("Sensor Readouts")) {
             ImDrawList* draw = ImGui::GetWindowDrawList();
             float xsize = ImGui::GetWindowWidth() - scale(50);
+
+            // Scale the plot based on the available space it has. Still needs some work
+            // TODO: Improve plot scaling
             ImVec2 plotsize = ImVec2(xsize,
                                      min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
 
+            // Iterate through every sensor in the list to graph
             for(const auto& [qual, data] : sensors) {
+                // Tree nodes to keep things organized
                 if(!ImGui::TreeNode(
                         (qual.name + "##" + qual.asString()).c_str()))
                     continue;
+
+                // Status square
                 ImGui::Text("Sensor Status: ");
                 ImGui::SameLine();
                 ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -103,6 +116,10 @@ namespace LRI::RCI {
                 ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
                 if(ImGui::IsItemHovered()) ImGui::SetTooltip(data.empty() ? "No data received" : "Receiving data");
 
+                // This all is for the button to write the data to a file. With datasets of around 10,000 points this
+                // operation can take some time, hence why it is done on a seperate thread. The data vector is copied
+                // to a new vector, so that the thread has its own copy that is not changing. It is deleted by the
+                // thread once the file operation is done.
                 ImGui::SameLine();
                 bool disable = filewritethreads.contains(qual) && filewritethreads[qual].thread;
                 if(disable) ImGui::BeginDisabled();
@@ -121,8 +138,19 @@ namespace LRI::RCI {
                     filewritethreads[qual].done = false;
                 }
 
+                // Simple helper for seeing how many datapoints are present. Once it gets over ~200k points, it starts
+                // becomming a little laggy. Not much you can do there, its just a fault of rendering 200k line segments
                 ImGui::Text("Datapoints: %u", data.size());
 
+                // Graphing is done by giving implot a pointer to the beginning of each data vector. From there, it is
+                // also given offsets to the timestamp value of each datapoint, as well as the appropriate type from the
+                // union inside each datapoint. It is also given a "stride" value (the last argument in the PlotLine
+                // function), which tells implot how many bytes in memory to step over to get to the next piece of data.
+                // This is useful since the datapoint struct technically stores 4 different values in the union, so
+                // the stride lets us tell implot how much to skip over for each datapoint.
+
+                // The gps is special, since it has 4 different data types in one sensor, hence why it gets its own
+                // section
                 if(qual.devclass == RCP_DEVCLASS_GPS) {
                     if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":latlon").c_str(),
                                          plotsize)) {
@@ -170,10 +198,17 @@ namespace LRI::RCI {
                     }
                 }
 
+                // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
+                // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
                 else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
                     ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
                     ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 30);
+                    // The below line can be uncommented to enable markers on each datapoint, however this drastically
+                    // decreases performance to a max of around ~75k points
                     // ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
+
+                    // Two switches happen. The first is to set the axis names to the correct datatype, since this is
+                    // unique to each sensor
                     std::string graphname;
                     switch(qual.devclass) {
                         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
@@ -207,6 +242,10 @@ namespace LRI::RCI {
                             ImPlot::SetupAxes("Unknown Data", "Unknown Data");
                             break;
                     }
+
+                    // The second switch (which only happens when data is present) actually plots the graphs. This is
+                    // done since several different sensors are graphed in the same way, and just have different axis
+                    // names and units
                     if(!data.empty())
                         switch(qual.devclass) {
                             case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
@@ -250,10 +289,12 @@ namespace LRI::RCI {
     }
 
     void SensorReadings::reset() {
+        // Clear all sensors from the list
         for(auto& [qual, data] : sensors) {
             data.clear();
         }
 
+        // Make sure no more file writing threads are active. Then exit
         for(auto& [qual, thread] : filewritethreads) {
             if(thread.thread) {
                 thread.thread->join();

@@ -6,6 +6,8 @@
 #include "utils.h"
 
 namespace LRI::RCI {
+
+    // Very simple class
     constexpr int winFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
     EStop* EStop::instance;
 
@@ -21,16 +23,16 @@ namespace LRI::RCI {
         ImGui::SetNextWindowSize(scale(ImVec2(100, 100)), ImGuiCond_FirstUseEver);
 
         if(ImGui::Begin("ESTOP", nullptr, winFlags)) {
-            if(!RCP_isOpen()) ImGui::BeginDisabled();
             ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
-            if(ImGui::Button("EMERGENCY\n  STOP", ImVec2(90 * scaling_factor, 70 * scaling_factor))) {
+
+            // If button pushed, send E-STOP packet
+            if(ImGui::Button("EMERGENCY\n  STOP", ImVec2(scale(90), scale(70)))) {
                 RCP_sendEStop();
             }
 
             ImGui::PopStyleColor(3);
-            if(!RCP_isOpen()) ImGui::EndDisabled();
         }
 
         ImGui::End();

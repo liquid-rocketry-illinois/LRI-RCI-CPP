@@ -1,5 +1,3 @@
-#include <Windows.h>
-
 #include "utils.h"
 
 #include <implot.h>
@@ -12,16 +10,24 @@
 
 #include "UI/TargetChooser.h"
 
+// A mish-mash of various different things that are useful
 namespace LRI::RCI {
+    // Fonts
     ImFont* font_regular;
     ImFont* font_bold;
+
+    // Scaling factor for hidpi screens
     float scaling_factor;
 
+    // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
+        // Set window as current context, enable vsync, give it a title.
+        // TODO: window icon
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
         glfwSetWindowTitle(window, "LRI Rocket Control Panel");
 
+        // Create imgui and implot contexts
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImPlot::CreateContext();
@@ -40,6 +46,7 @@ namespace LRI::RCI {
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
 
+        // Load the fonts and add them to imgui. Ubuntu mono my beloved
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
         font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                       16 * scaling_factor, &fontConfig);
@@ -47,9 +54,11 @@ namespace LRI::RCI {
         font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                    16 * scaling_factor, &fontConfig);
 
+        // Start the TargetChooser window
         TargetChooser::getInstance();
     }
 
+    // Is called to set up each frame before rendering
     void imgui_prerender(GLFWwindow* window) {
         glfwPollEvents();
 
@@ -58,6 +67,7 @@ namespace LRI::RCI {
         ImGui::NewFrame();
     }
 
+    // Is called after each frame to draw the framebuffer and swap it to the screen
     void imgui_postrender(GLFWwindow* window) {
         ImGui::Render();
         int display_w, display_h;
@@ -70,6 +80,7 @@ namespace LRI::RCI {
         glfwSwapBuffers(window);
     }
 
+    // All shutdown functions for imgui, implot, and glfw
     void imgui_shutdown(GLFWwindow* window) {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -88,6 +99,7 @@ namespace LRI::RCI {
         return val * scaling_factor;
     }
 
+    // Stopwatch class implementation
     StopWatch::StopWatch() {
         time(&lastClock);
     }

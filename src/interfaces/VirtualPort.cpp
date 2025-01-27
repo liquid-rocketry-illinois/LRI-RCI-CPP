@@ -1,6 +1,7 @@
 #include "interfaces/VirtualPort.h"
 
 namespace LRI::RCI {
+    // Everything here is basically just stubs
     bool VirtualPort::isOpen() const {
         return true;
     }

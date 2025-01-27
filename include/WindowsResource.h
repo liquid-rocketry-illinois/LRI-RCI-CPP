@@ -5,10 +5,18 @@
 #include <string>
 
 namespace LRI::RCI {
+    // Utility class for accessing data bundled via windows resource files. Used for fonts in this project
     class WindowsResource {
+        // Raw data buffer
         LPCSTR bdata;
+
+        // The Windows resource struct
         HGLOBAL resource;
+
+        // The Windows info struct
         HRSRC info;
+
+        // Size of the resource
         DWORD size;
 
     public:

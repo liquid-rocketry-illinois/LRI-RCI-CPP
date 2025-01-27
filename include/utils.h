@@ -5,32 +5,43 @@
 #include "GLFW/glfw3.h"
 #include "imgui.h"
 
+// A mish-mash of various helper functions and stuff
+
 namespace LRI::RCI {
+    // Background purple color. CSS Rebecca Purple
     static constexpr ImVec4 BACKGROUND_COLOR{0.4f, 0.2f, 0.6f, 1.0f};
 
+    // Pointers to the regular and bold fonts
     extern ImFont* font_regular;
     extern ImFont* font_bold;
-    extern float scaling_factor;
-    extern HANDLE com;
 
+    // Scaling factor for hi-dpi screens
+    extern float scaling_factor;
+
+
+    // Helpers for scaling floats and ImVec2's by scaling_factor
     ImVec2 scale(const ImVec2& vec);
     float scale(float val);
+
+    // Helpers to organize the various ImGui related calls
     void imgui_init(GLFWwindow* window);
     void imgui_prerender(GLFWwindow* window);
     void imgui_postrender(GLFWwindow* window);
     void imgui_shutdown(GLFWwindow* window);
 
-    void renderCOMChooser();
-    void renderEStop();
-
+    // Stopwatch class for time tracking
     class StopWatch final {
+        // The last time the stopwatch was reset
         time_t lastClock{};
 
     public:
         StopWatch();
         ~StopWatch() = default;
 
+        // Resets time to zero
         void reset();
+
+        // Gets time since last reset
         [[nodiscard]] time_t timeSince() const;
     };
 
@@ -42,6 +53,7 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
     ImVec2 operator/(ImVec2 const& v1, float constant);
 
+    // Class definition for RingBuffer. See RingBuffer.inl
     template<typename T, T ret = 0>
     class RingBuffer {
         uint32_t buffersize;

@@ -5,6 +5,7 @@
 namespace LRI::RCI {
     Steppers* Steppers::instance;
 
+    // Maps stepper control modes to the correct name and unit
     const std::map<uint8_t, std::vector<std::string>> Steppers::BTN_NAMES = {
             {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
             {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
@@ -30,10 +31,9 @@ namespace LRI::RCI {
             ImGui::PopStyleColor();
 
             ImGui::NewLine();
-            time_t now;
-            time(&now);
             bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
 
+            // Button for manually refreshing the states of all steppers
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Button("Invalidate Cache and Refresh States")) {
                 for(auto& [id, step] : steppers) {
@@ -48,6 +48,7 @@ namespace LRI::RCI {
             ImGui::Separator();
 
             for(auto& [id, step] : steppers) {
+                // Status square
                 ImVec2 pos = ImGui::GetCursorScreenPos();
                 ImU32 statusColor = step.stale ? STALE_COLOR : ENABLED_COLOR;
                 const char* tooltip = step.stale ? "Stale Data" : "Current Data";
@@ -58,6 +59,7 @@ namespace LRI::RCI {
 
                 ImGui::Text("Stepper Motor %s (%d)", step.name.c_str(), id);
 
+                // Button for toggling how the inputted value will be interpreted
                 ImGui::Text("Control Mode: ");
                 for(const auto& [controlMode, strings] : BTN_NAMES) {
                     bool activemode = step.controlMode == controlMode;
@@ -73,6 +75,7 @@ namespace LRI::RCI {
                     ImGui::SameLine();
                 }
 
+                // The actual control value
                 ImGui::NewLine();
                 ImGui::Text("Value: ");
                 ImGui::SameLine();
@@ -82,18 +85,17 @@ namespace LRI::RCI {
                          std::to_string(id)).c_str(),
                         &step.controlVal);
 
-                if(step.controlVal > 2000) step.controlVal = 2000;
-                if(step.controlVal < -2000) step.controlVal = -2000;
-
+                // The apply button actually sends the control value to the stepper motors
                 if(lockButtons || step.stale) ImGui::BeginDisabled();
                 ImGui::SameLine();
                 if(ImGui::Button((std::string("Apply##") + std::to_string(id)).c_str())) {
-                    RCP_sendStepperWrite(id, step.controlMode, *(((int32_t*) &step.controlVal)));
+                    RCP_sendStepperWrite(id, step.controlMode, &step.controlVal);
                     buttonTimer.reset();
                 }
 
                 if(lockButtons || step.stale) ImGui::EndDisabled();
 
+                // Text for the current state of the stepper
                 ImGui::Text("Current State: ");
                 ImGui::Text("   Position: %.3f degrees", static_cast<float>(step.position));
                 ImGui::Text("   Speed:    %.3f degrees/second", static_cast<float>(step.speed));
