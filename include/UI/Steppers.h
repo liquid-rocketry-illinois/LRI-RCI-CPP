@@ -45,7 +45,7 @@ namespace LRI::RCI {
         void setHardwareConfig(const std::map<uint8_t, std::string>& ids);
 
         // Callback for RCP
-        void receiveRCPUpdate(const RCP_StepperData& state);
+        void receiveRCPUpdate(const RCP_TwoFloat& state);
 
         // Custom reset
         void reset() override;

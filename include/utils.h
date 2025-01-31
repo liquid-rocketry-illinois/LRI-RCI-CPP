@@ -2,8 +2,10 @@
 #define UTILS_H
 
 #include <Windows.h>
+#include <string>
 #include "GLFW/glfw3.h"
 #include "imgui.h"
+#include "RCP_Host/RCP_Host.h"
 
 // A mish-mash of various helper functions and stuff
 
@@ -45,6 +47,10 @@ namespace LRI::RCI {
         [[nodiscard]] time_t timeSince() const;
     };
 
+
+    // Small helper
+    std::string devclassToString(RCP_DeviceClass_t devclass);
+
     // ImVec2 operators
     ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
     ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
@@ -71,6 +77,7 @@ namespace LRI::RCI {
         T pop();
         T peek() const;
         void push(T value);
+        void clear();
     };
 
 }

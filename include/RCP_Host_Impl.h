@@ -10,16 +10,11 @@ namespace LRI::RCI {
     size_t readData(void* data, size_t bufferSize);
     int processTestUpdate(RCP_TestData data);
     int processSolenoidData(RCP_SolenoidData data);
-    int processStepperData(RCP_StepperData data);
-    int processTransducerData(RCP_TransducerData data);
-    int processGPSData(RCP_GPSData data);
-    int processMagnetometerData(RCP_AxisData data);
-    int processAMPressureData(RCP_floatData data);
-    int processAMTemperatureData(RCP_floatData data);
-    int processAccelerationData(RCP_AxisData data);
-    int processGyroData(RCP_AxisData data);
     int processSerialData(RCP_CustomData data);
-    int processRelativeHumidityData(RCP_floatData data);
+    int processOneFloat(RCP_OneFloat data);
+    int processTwoFloat(RCP_TwoFloat data);
+    int processThreeFloat(RCP_ThreeFloat data);
+    int processFourFloat(RCP_FourFloat data);
 }
 
 #endif //RCP_HOST_IMPL_H

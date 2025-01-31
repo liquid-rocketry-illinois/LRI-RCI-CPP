@@ -195,69 +195,74 @@ namespace LRI::RCI {
         // Iterate through all the devices in the json and initialize the appropriate windows
         std::set<SensorQualifier> sensors;
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
-            switch(targetconfig["devices"][i]["devclass"].get<int>()) {
-                case RCP_DEVCLASS_SOLENOID: {
-                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                    std::map<uint8_t, std::string> sols;
-                    if(ids.size() != names.size()) break;
+            auto devclass = static_cast<RCP_DeviceClass_t>(targetconfig["devices"][i]["devclass"].get<int>());
+            std::vector<uint8_t> ids;
+            std::vector<std::string> names;
 
-                    for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
+            if(targetconfig["devices"][i].contains("ids"))
+                ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+
+            if(targetconfig["devices"][i].contains("names"))
+                names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+
+            switch(devclass) {
+                case RCP_DEVCLASS_SOLENOID: {
+                    std::map<uint8_t, std::string> sols;
+
+                    if(ids.empty() && names.empty()) sols[0] = "Solenoid";
+                    else {
+                        if(ids.size() != names.size()) break;
+                        for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
+                    }
+
                     Solenoids::getInstance()->setHardwareConfig(sols);
                     Solenoids::getInstance()->showWindow();
                     break;
                 }
 
                 case RCP_DEVCLASS_STEPPER: {
-                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                    if(ids.size() != names.size()) break;
-
                     std::map<uint8_t, std::string> steps;
-                    for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
+
+                    if(ids.empty() && names.empty()) steps[0] = "Stepper Motor";
+                    else {
+                        if(ids.size() != names.size()) break;
+                        for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
+                    }
+
                     Steppers::getInstance()->setHardwareConfig(steps);
                     Steppers::getInstance()->showWindow();
                     break;
                 }
 
-                case RCP_DEVCLASS_PRESSURE_TRANSDUCER: {
-                    auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-                    auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-                    if(ids.size() != names.size()) break;
-
-                    for(size_t j = 0; j < ids.size(); j++)
+                case RCP_DEVCLASS_AM_PRESSURE:
+                case RCP_DEVCLASS_AM_TEMPERATURE:
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                case RCP_DEVCLASS_LOAD_CELL:
+                case RCP_DEVCLASS_POWERMON:
+                case RCP_DEVCLASS_ACCELEROMETER:
+                case RCP_DEVCLASS_GYROSCOPE:
+                case RCP_DEVCLASS_MAGNETOMETER:
+                case RCP_DEVCLASS_GPS: {
+                    if(ids.empty() && names.empty())
                         sensors.insert({
-                                               .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
-                                               .id = ids[j],
-                                               .name = names[j]
+                                               .devclass = devclass,
+                                               .id = 0,
+                                               .name = devclassToString(devclass)
                                        });
+
+                    else {
+                        if(ids.size() != names.size()) break;
+                        for(size_t j = 0; j < ids.size(); j++)
+                            sensors.insert({
+                                                   .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
+                                                   .id = ids[j],
+                                                   .name = names[j]
+                                           });
+                    }
 
                     break;
                 }
-
-                case RCP_DEVCLASS_GPS:
-                    sensors.insert({.devclass = RCP_DEVCLASS_GPS, .name = "GPS"});
-                    break;
-
-                case RCP_DEVCLASS_MAGNETOMETER:
-                    sensors.insert({.devclass = RCP_DEVCLASS_MAGNETOMETER, .name = "Magnetometer"});
-                    break;
-
-                case RCP_DEVCLASS_AM_PRESSURE:
-                    sensors.insert({.devclass = RCP_DEVCLASS_AM_PRESSURE, .name = "Ambient Pressure"});
-                    break;
-
-                case RCP_DEVCLASS_AM_TEMPERATURE:
-                    sensors.insert({.devclass = RCP_DEVCLASS_AM_TEMPERATURE, .name = "Ambient Temperature"});
-                    break;
-
-                case RCP_DEVCLASS_ACCELEROMETER:
-                    sensors.insert({.devclass = RCP_DEVCLASS_ACCELEROMETER, .name = "Accelerometer"});
-                    break;
-
-                case RCP_DEVCLASS_GYROSCOPE:
-                    sensors.insert({.devclass = RCP_DEVCLASS_GYROSCOPE, .name = "Gyroscope"});
-                    break;
 
                 default:
                     break;
@@ -374,7 +379,7 @@ namespace LRI::RCI {
             }
         }
 
-        // While the port is readying, don't return it just yet and display a loading spinner
+            // While the port is readying, don't return it just yet and display a loading spinner
         else if(!port->isReady()) {
             ImGui::SameLine();
             ImGui::Spinner("##comportchooserspinner", 8, 1, REBECCA_PURPLE);

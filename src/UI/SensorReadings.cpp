@@ -42,9 +42,9 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_GPS:
                 file << "relmillis,latitude,longitude,altitude,groundspeed\n";
                 for(const auto& point : *data) {
-                    file << std::format("{},{},{},{},{}\n", point.timestamp, point.data.gpsData[0],
-                                        point.data.gpsData[1],
-                                        point.data.gpsData[2], point.data.gpsData[3]);
+                    file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0],
+                                        point.data[1],
+                                        point.data[2], point.data[3]);
                 }
                 break;
 
@@ -53,9 +53,9 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_GYROSCOPE:
                 file << "relmillis,x,y,z\n";
                 for(const auto& point : *data) {
-                    file << std::format("{},{},{},{}\n", point.timestamp, point.data.axisData[0],
-                                        point.data.axisData[1],
-                                        point.data.axisData[2]);
+                    file << std::format("{},{},{},{}\n", point.timestamp, point.data[0],
+                                        point.data[1],
+                                        point.data[2]);
                 }
                 break;
 
@@ -64,7 +64,7 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                 file << "relmillis,data\n";
                 for(const auto& point : *data) {
-                    file << std::format("{},{}\n", point.timestamp, point.data.singleVal);
+                    file << std::format("{},{}\n", point.timestamp, point.data[0]);
                 }
                 break;
 
@@ -159,12 +159,12 @@ namespace LRI::RCI {
                         ImPlot::SetupAxisLimits(ImAxis_Y1, -200, 200);
                         if(!data.empty())
                             ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.gpsData[0], static_cast<int>(data.size()), 0, 0,
+                                             data[0].data, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
                         if(!data.empty())
                             ImPlot::PlotLine((std::string("Longitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.gpsData[1], static_cast<int>(data.size()), 0, 0,
+                                             data[0].data + 1, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
                         ImPlot::EndPlot();
@@ -177,7 +177,7 @@ namespace LRI::RCI {
                         ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
                         if(!data.empty())
                             ImPlot::PlotLine((std::string("Altitude##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             &data[0].data.gpsData[2], static_cast<int>(data.size()), 0, 0,
+                                             data[0].data + 2, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
                         ImPlot::EndPlot();
@@ -191,15 +191,15 @@ namespace LRI::RCI {
                         if(!data.empty())
                             ImPlot::PlotLine((std::string("Ground Speed##") + qual.asString()).c_str(),
                                              &data[0].timestamp,
-                                             &data[0].data.gpsData[3], static_cast<int>(data.size()), 0, 0,
+                                             data[0].data + 3, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
                         ImPlot::EndPlot();
                     }
                 }
 
-                // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
-                // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
+                    // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
+                    // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
                 else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
                     ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
                     ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 30);
@@ -253,7 +253,7 @@ namespace LRI::RCI {
                             case RCP_DEVCLASS_AM_TEMPERATURE:
                             case RCP_DEVCLASS_RELATIVE_HYGROMETER:
                                 ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
-                                                 &data[0].data.singleVal, static_cast<int>(data.size()),
+                                                 data[0].data, static_cast<int>(data.size()),
                                                  0, 0, sizeof(DataPoint));
                                 break;
 
@@ -261,15 +261,15 @@ namespace LRI::RCI {
                             case RCP_DEVCLASS_ACCELEROMETER:
                             case RCP_DEVCLASS_GYROSCOPE:
                                 ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
-                                                 &data[0].data.axisData[0], static_cast<int>(data.size()), 0, 0,
+                                                 data[0].data, static_cast<int>(data.size()), 0, 0,
                                                  sizeof(DataPoint));
 
                                 ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
-                                                 &data[0].data.axisData[1], static_cast<int>(data.size()), 0, 0,
+                                                 data[0].data + 1, static_cast<int>(data.size()), 0, 0,
                                                  sizeof(DataPoint));
 
                                 ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
-                                                 &data[0].data.axisData[2], static_cast<int>(data.size()), 0, 0,
+                                                 data[0].data + 2, static_cast<int>(data.size()), 0, 0,
                                                  sizeof(DataPoint));
 
                                 break;
@@ -315,7 +315,34 @@ namespace LRI::RCI {
         }
     }
 
-    void SensorReadings::receiveRCPUpdate(const SensorQualifier& qual, const DataPoint& data) {
-        sensors[qual].push_back(data);
+    void SensorReadings::receiveRCPUpdate(const RCP_OneFloat& data) {
+        SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        DataPoint d = {
+                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                .data = {static_cast<double>(data.data)}
+        };
+
+        sensors[qual].push_back(d);
+    }
+
+    void SensorReadings::receiveRCPUpdate(const RCP_TwoFloat& data) {
+        SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
+        sensors[qual].push_back(d);
+    }
+
+    void SensorReadings::receiveRCPUpdate(const RCP_ThreeFloat& data) {
+        SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
+        sensors[qual].push_back(d);
+    }
+
+    void SensorReadings::receiveRCPUpdate(const RCP_FourFloat& data) {
+        SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);
+        sensors[qual].push_back(d);
     }
 }

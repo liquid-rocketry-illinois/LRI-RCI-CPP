@@ -13,7 +13,7 @@
       "names": ["step1", "step2"]
     },
     {
-      "devclass": 135,
+      "devclass": 146,
       "ids": [1, 2, 3, 4, 5, 6, 7, 8],
       "names": ["pt1", "pt2", "pt3", "pt4", "pt5", "pt6", "pt7", "pt8"]
     }

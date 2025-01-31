@@ -27,11 +27,7 @@ namespace LRI::RCI {
     // list of 3 values (for example, accelerometer data with 3 axes), and a list of 4 values (for GPS data)
     struct DataPoint {
         double timestamp;
-        union {
-            double singleVal;
-            double axisData[3];
-            double gpsData[4];
-        } data;
+        double data[4];
     };
 
     // A window which shows graphs logging received sensor datapoints
@@ -71,7 +67,10 @@ namespace LRI::RCI {
         void setHardwareConfig(const std::set<SensorQualifier>& sensids);
 
         // Callback for RCP
-        void receiveRCPUpdate(const SensorQualifier& qual, const DataPoint& data);
+        void receiveRCPUpdate(const RCP_OneFloat& data);
+        void receiveRCPUpdate(const RCP_TwoFloat& data);
+        void receiveRCPUpdate(const RCP_ThreeFloat& data);
+        void receiveRCPUpdate(const RCP_FourFloat& data);
 
         // Needs custom reset
         void reset() override;

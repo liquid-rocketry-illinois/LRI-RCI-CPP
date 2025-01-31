@@ -159,8 +159,17 @@ namespace LRI::RCI {
 
     // The actual work. Alternates between a read and a write on each loop
     void COMPort::threadRead() {
+        PurgeComm(port, PURGE_RXABORT | PURGE_RXCLEAR | PURGE_TXABORT | PURGE_TXCLEAR);
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(3000ms);
+        inlock.lock();
+        inbuffer->clear();
+        inlock.unlock();
+
+        outlock.lock();
+        outbuffer->clear();
+        outlock.unlock();
+
         ready = true;
 
         bool r_nw = false;

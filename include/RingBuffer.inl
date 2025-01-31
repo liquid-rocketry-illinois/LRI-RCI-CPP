@@ -65,6 +65,12 @@ namespace LRI::RCI {
         // If the buffer is full move the start index one forward
         if(dataend == datastart) datastart = (datastart + 1) % buffersize;
     }
+
+    template<typename T, T ret>
+    void RingBuffer<T, ret>::clear() {
+        datastart = 0;
+        dataend = 0;
+    }
 }
 
 #endif

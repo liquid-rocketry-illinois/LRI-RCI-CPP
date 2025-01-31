@@ -3,22 +3,30 @@
   "heartbeat": false,
   "devices": [
     {
-      "devclass": 129
+      "devclass": 144
     },
     {
-      "devclass": 130
+      "devclass": 145
     },
     {
-      "devclass": 131
+      "devclass": 147
     },
     {
-      "devclass": 132
+      "devclass": 160
     },
     {
-      "devclass": 133
+      "devclass": 176
     },
     {
-      "devclass": 134
+      "devclass": 177
+    },
+    {
+      "devclass": 178
+    },
+    {
+      "devclass": 192,
+      "ids": [1],
+      "names": ["Super Awesome GPS WOO"]
     }
   ]
 }

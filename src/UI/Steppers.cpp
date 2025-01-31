@@ -128,10 +128,10 @@ namespace LRI::RCI {
         }
     }
 
-    void Steppers::receiveRCPUpdate(const RCP_StepperData& state) {
+    void Steppers::receiveRCPUpdate(const RCP_TwoFloat& state) {
         Stepper& s = steppers[state.ID];
         s.stale = false;
-        s.position = state.position;
-        s.speed = state.speed;
+        s.position = state.data[0];
+        s.speed = state.data[1];
     }
 }

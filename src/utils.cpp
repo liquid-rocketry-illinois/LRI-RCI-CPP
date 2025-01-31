@@ -1,6 +1,7 @@
 #include "utils.h"
 
 #include <implot.h>
+#include "RCP_Host/RCP_Host.h"
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -112,6 +113,55 @@ namespace LRI::RCI {
         time_t now;
         time(&now);
         return now - lastClock;
+    }
+
+    std::string devclassToString(RCP_DeviceClass_t devclass) {
+        switch(devclass) {
+            case RCP_DEVCLASS_TEST_STATE:
+                return "Test State (Virtual Device)";
+
+            case RCP_DEVCLASS_SOLENOID:
+                return "Solenoid";
+
+            case RCP_DEVCLASS_STEPPER:
+                return "Stepper Motor";
+
+            case RCP_DEVCLASS_CUSTOM:
+                return "Raw Data (Virtual Device)";
+
+            case RCP_DEVCLASS_AM_PRESSURE:
+                return "Ambient Pressure";
+
+            case RCP_DEVCLASS_AM_TEMPERATURE:
+                return "Ambient Temperature";
+
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                return "Pressure Transducer";
+
+            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                return "Relative Hygrometer";
+
+            case RCP_DEVCLASS_LOAD_CELL:
+                return "Load Cell (weight)";
+
+            case RCP_DEVCLASS_POWERMON:
+                return "Power Monitor";
+
+            case RCP_DEVCLASS_ACCELEROMETER:
+                return "Accelerometer";
+
+            case RCP_DEVCLASS_GYROSCOPE:
+                return "Gyroscope";
+
+            case RCP_DEVCLASS_MAGNETOMETER:
+                return "Magnetometer";
+
+            case RCP_DEVCLASS_GPS:
+                return "GPS";
+
+            default:
+                return "Unknown";
+        }
     }
 
     ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) {

@@ -45,11 +45,7 @@ float toFloat(const uint8_t* start) {
 void setup() {
     Serial.begin(115200);
     while(!Serial);
-    RCPDebug("setup");
-    // Serial.setRxBufferSize(1024);
-    // display.init();
-    // display.clear();
-    // display.display();
+    
     timestamp = 0;
     header = 0;
     hasheader = false;
@@ -65,6 +61,8 @@ void setup() {
         yield();
         delay(10);
     };
+
+    RCPDebug("setup");
 }
 
 // void loop() {
@@ -77,21 +75,22 @@ void loop() {
     timestamp = millis();
 
     if(datastreaming) {
-        uint8_t data[10];
-        data[0] = channel | 0x08;
-        data[1] = 0x83;
+        uint8_t data[11];
+        data[0] = channel | 0x09;
+        data[1] = RCP_DEVCLASS_AM_TEMPERATURE;
         data[2] = timestamp >> 24;
         data[3] = timestamp >> 16;
         data[4] = timestamp >> 8;
         data[5] = timestamp;
+        data[6] = 0;
 
         float temp = thermistor_measurement_in_celsius(analogRead(temppin));
         uint8_t* t = (uint8_t*) &temp;
-        data[6] = t[0];
-        data[7] = t[1];
-        data[8] = t[2];
-        data[9] = t[3];
-        Serial.write(data, 10);
+        data[7] = t[0];
+        data[8] = t[1];
+        data[9] = t[2];
+        data[10] = t[3];
+        Serial.write(data, 11);
     }
     // display.clear();
     // char sbuf[20];
