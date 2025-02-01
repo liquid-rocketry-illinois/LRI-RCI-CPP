@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(LRI_control_panel)
 
 set(CMAKE_CXX_STANDARD 23)
+set(EXE_NAME "LRIRCI")
 
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/RCP-Host)
@@ -42,4 +43,12 @@ target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui
 
 set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
+
+get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
 file(COPY targets/ DESTINATION ${CMAKE_BINARY_DIR}/targets)
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    add_custom_target(LRI_control_panel_GithubRelease
+            COMMAND ${CMAKE_SOURCE_DIR}/GithubRelease.sh ${CMAKE_BINARY_DIR} ${EXENAME})
+    add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
+endif()
