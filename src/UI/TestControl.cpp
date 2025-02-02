@@ -35,31 +35,34 @@ namespace LRI::RCI {
             if(lockButtons) ImGui::BeginDisabled();
 
             // Display controls for starting, stopping, pausing, estopping, and selecting a test
-            if(testState != RCP_TEST_STOPPED) ImGui::BeginDisabled();
+            bool lock2 = testState != RCP_TEST_STOPPED;
+            if(lock2) ImGui::BeginDisabled();
             if(ImGui::Button("Start")) {
                 RCP_startTest(testNumber);
                 buttonTimer.reset();
                 testState = RCP_TEST_START;
             }
-            if(testState != RCP_TEST_STOPPED) ImGui::EndDisabled();
+            if(lock2) ImGui::EndDisabled();
 
-            if(testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
+            lock2 = testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED;
+            if(lock2) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button("End")) {
                 RCP_changeTestProgress(RCP_TEST_STOP);
                 buttonTimer.reset();
                 testState = RCP_TEST_STOP;
             }
-            if(testState != RCP_TEST_RUNNING && testState != RCP_TEST_PAUSED) ImGui::EndDisabled();
+            if(lock2) ImGui::EndDisabled();
 
-            if(testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED) ImGui::BeginDisabled();
+            lock2 = testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED;
+            if(lock2) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button(testState == RCP_TEST_PAUSE ? "Resume" : "Pause")) {
                 RCP_changeTestProgress(RCP_TEST_PAUSE);
                 buttonTimer.reset();
                 testState = testState == RCP_TEST_RUNNING ? RCP_TEST_PAUSED : RCP_TEST_RUNNING;
             }
-            if(testState != RCP_TEST_RUNNING || testState != RCP_TEST_PAUSED) ImGui::EndDisabled();
+            if(lock2) ImGui::EndDisabled();
 
             if(lockButtons) ImGui::EndDisabled();
 
