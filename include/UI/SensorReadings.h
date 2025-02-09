@@ -38,6 +38,13 @@ namespace LRI::RCI {
             std::atomic_bool done;
         };
 
+        static constexpr ImGuiWindowFlags fullscreenFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove |
+                                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                                                  ImGuiWindowFlags_NoDecoration;
+
+        static constexpr ImGuiWindowFlags regularFlags = ImGuiWindowFlags_None;
+
+
         // Initial size for the vectors storing the sensor data
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 50'000;
 
@@ -54,6 +61,13 @@ namespace LRI::RCI {
 
         // Holds the file writing threads mapped to sensor qualifiers
         std::map<SensorQualifier, FileWriteThreadData> filewritethreads;
+
+        void drawSensors();
+
+        bool fullscreen;
+        bool doResize = false;
+        ImVec2 preFullscreenSize;
+        ImVec2 preFullscreeenPos;
 
     public:
         // Get singleton instance
