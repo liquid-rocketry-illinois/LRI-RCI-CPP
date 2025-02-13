@@ -198,6 +198,7 @@ namespace LRI::RCI {
                 inlock.lock();
                 inbuffer->push(byte);
                 inlock.unlock();
+//                std::cout << "rcv: " << std::hex << (int) byte << std::endl;
             }
 
             else {
@@ -228,6 +229,7 @@ namespace LRI::RCI {
                 outlock.lock();
                 outbuffer->pop();
                 outlock.unlock();
+//                std::cout << "snd: " << std::hex << (int) byte << std::endl;
             }
         }
     }

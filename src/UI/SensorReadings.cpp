@@ -98,8 +98,10 @@ namespace LRI::RCI {
 
         if(!ImGui::BeginChild("##sensorchild", ImGui::GetWindowSize() - scale(
                 fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)
-        )))
+        ))) {
+            ImGui::EndChild();
             return;
+        }
         // Iterate through every sensor in the list to graph
         for(const auto& [qual, data] : sensors) {
             // Tree nodes to keep things organized

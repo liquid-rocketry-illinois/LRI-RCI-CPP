@@ -255,7 +255,7 @@ namespace LRI::RCI {
                         if(ids.size() != names.size()) break;
                         for(size_t j = 0; j < ids.size(); j++)
                             sensors.insert({
-                                                   .devclass = RCP_DEVCLASS_PRESSURE_TRANSDUCER,
+                                                   .devclass = devclass,
                                                    .id = ids[j],
                                                    .name = names[j]
                                            });

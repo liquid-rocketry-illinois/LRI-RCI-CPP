@@ -97,8 +97,8 @@ namespace LRI::RCI {
             if(ImGui::BeginChild("##serialchild", scale(ImVec2(540, 175)))) {
                 // Displaying the text just by rendering the string stream
                 ImGui::TextUnformatted(display.str().c_str());
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
 
             ImGui::Separator();
 

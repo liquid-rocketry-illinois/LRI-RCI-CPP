@@ -6,6 +6,16 @@
       "devclass": 1,
       "ids": [0, 1, 2, 3, 4, 5, 6, 7],
       "names": ["sol1", "sol2", "sol3", "sol4", "sol5", "sol6", "sol7", "sol8"]
+    },
+    {
+      "devclass": 146,
+      "ids": [0, 1, 2, 3, 4, 5, 6, 7],
+      "names": ["pt0", "pt1", "pt2", "pt3", "pt4", "pt5", "pt6", "pt7"]
+    },
+    {
+      "devclass": 148,
+      "ids": [0, 1, 2, 3],
+      "names": ["lc", "lc", "lc", "lc"]
     }
   ]
 }

@@ -55,10 +55,10 @@ including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for 
 
 Although the program is in a mostly complete state, there are a few things left to work on:
 
-- [ ] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
+- [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
   [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
-- [ ] Full screen graphs and better scaling for non-fullscreen graphs
+- [x] Full screen graphs and better scaling for non-fullscreen graphs
 - [ ] Test mode lockout of actuators
 - [ ] Better error and heartbeat handling
 - [ ] Some final fixes to RCP
