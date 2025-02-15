@@ -58,6 +58,7 @@ Although the program is in a mostly complete state, there are a few things left 
 - [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
   [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
+- [ ] Switch out glfw for sfml (dpi makes me sad)
 - [x] Full screen graphs and better scaling for non-fullscreen graphs
 - [ ] Test mode lockout of actuators
 - [ ] Better error and heartbeat handling
