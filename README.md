@@ -55,10 +55,8 @@ including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for 
 
 Although the program is in a mostly complete state, there are a few things left to work on:
 
-- [ ] TCP Interface
+- [ ] TCP Interface (IN PROGRESS)
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
-- [ ] Show latest sensor readings as text
-- [ ] Fix having to press estop twice to trigger it
 - [ ] Manual confirms and numeric input over RCP
 - [ ] Test mode lockout of actuators
 - [ ] Better error and heartbeat handling
@@ -74,3 +72,5 @@ Although the program is in a mostly complete state, there are a few things left 
   [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
 - [x] Full screen graphs and better scaling for non-fullscreen graphs
 - [x] Fix ringbuffer
+- [x] Show latest sensor readings as text
+- [x] Fix having to press estop twice to trigger it

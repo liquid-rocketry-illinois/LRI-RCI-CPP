@@ -92,8 +92,11 @@ namespace LRI::RCI {
     void SensorReadings::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
         switch(qual.devclass) {
             case RCP_DEVCLASS_AM_PRESSURE:
-            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                 ImGui::Text("Pressure: %.3f mbar", data.data[0]);
+                break;
+
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                ImGui::Text("Pressure: %.3f psi", data.data[0]);
                 break;
 
             case RCP_DEVCLASS_AM_TEMPERATURE:
@@ -168,6 +171,8 @@ namespace LRI::RCI {
             // to a new vector, so that the thread has its own copy that is not changing. It is deleted by the
             // thread once the file operation is done.
             ImGui::SameLine();
+            ImGui::Text(" | ");
+            ImGui::SameLine();
             bool disable = filewritethreads.contains(qual) && filewritethreads[qual].thread;
             if(disable) ImGui::BeginDisabled();
             if(ImGui::Button("Write Data to CSV")) {
@@ -188,6 +193,8 @@ namespace LRI::RCI {
 
             // Simple helper for seeing how many datapoints are present. Once it gets over ~200k points, it starts
             // becoming a little laggy. Not much you can do there, its just a fault of rendering 200k line segments
+            ImGui::SameLine();
+            ImGui::Text(" | ");
             ImGui::SameLine();
             ImGui::Text("Datapoints: %u", static_cast<unsigned int>(data.size()));
             renderLatestReadings(qual, data.empty() ?
@@ -291,6 +298,10 @@ namespace LRI::RCI {
                 std::string graphname;
                 switch(qual.devclass) {
                     case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                        ImPlot::SetupAxes("Time (s)", "Pressure (psi)");
+                        graphname = "Pressure##";
+                        break;
+
                     case RCP_DEVCLASS_AM_PRESSURE:
                         ImPlot::SetupAxes("Time (s)", "Pressure (millibars)");
                         graphname = "Pressure##";
