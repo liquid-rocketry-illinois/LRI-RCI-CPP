@@ -185,7 +185,7 @@ namespace LRI::RCI {
 
                 // If there is no space in the buffer return
                 inlock.lock();
-                bool res = inbuffer->size() >= inbuffer->capacity();
+                bool res = inbuffer->isFull();
                 inlock.unlock();
                 if(res) continue;
 
@@ -212,7 +212,7 @@ namespace LRI::RCI {
 
                 // If the output buffer is empty return
                 outlock.lock();
-                bool res = outbuffer->size() == 0;
+                bool res = outbuffer->isEmpty();
                 if(res) {
                     outlock.unlock();
                     continue;

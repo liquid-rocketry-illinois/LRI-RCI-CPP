@@ -8,7 +8,7 @@ namespace LRI::RCI {
 
     // New buffer constructor. Takes in a size for the buffer. Initializes all variables and allocates memory
     template<typename T, T ret>
-    RingBuffer<T, ret>::RingBuffer(uint32_t _buffersize) : buffersize(_buffersize), datastart(0), dataend(0),
+    RingBuffer<T, ret>::RingBuffer(uint32_t _buffersize) : buffersize(_buffersize + 1), datastart(0), dataend(0),
                                                            data(nullptr) {
         data = new T[buffersize];
         memset(data, ret, buffersize);
@@ -28,10 +28,19 @@ namespace LRI::RCI {
         delete[] data;
     }
 
-    // Size functino
+    template<typename T, T ret>
+    bool RingBuffer<T, ret>::isEmpty() const {
+        return datastart == dataend;
+    }
+
+    template<typename T, T ret>
+    bool RingBuffer<T, ret>::isFull() const {
+        return datastart == dataend + 1;
+    }
+
     template<typename T, T ret>
     uint32_t RingBuffer<T, ret>::size() const {
-        return dataend - datastart;
+        return dataend > datastart ? dataend - datastart : buffersize - (datastart - dataend);
     }
 
     // Capacity is not size
@@ -43,7 +52,7 @@ namespace LRI::RCI {
     // Pops a value from the buffer
     template<typename T, T ret>
     T RingBuffer<T, ret>::pop() {
-        if(size() == 0) return ret;
+        if(isEmpty()) return ret;
         T retval = data[datastart];
         datastart = (datastart + 1) % buffersize;
         return retval;
@@ -52,7 +61,7 @@ namespace LRI::RCI {
     // Returns the value at the front of the buffer but does not remove it
     template<typename T, T ret>
     T RingBuffer<T, ret>::peek() const {
-        if(size() == 0) return ret;
+        if(isEmpty()) return ret;
         return data[datastart];
     }
 

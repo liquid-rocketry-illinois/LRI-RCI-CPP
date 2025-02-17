@@ -156,7 +156,7 @@ namespace LRI::RCI {
                 r_nw = true;
 
                 outlock.lock();
-                bool skip = outbuffer->size() > 0;
+                bool skip = !outbuffer->isEmpty();
                 if(skip) {
                     outlock.unlock();
                     continue;
@@ -165,7 +165,7 @@ namespace LRI::RCI {
                 uint8_t bytes[128];
                 size_t toSend;
 
-                for(toSend = 0; outbuffer->size() > 0 && toSend < 128; toSend++) bytes[toSend] = outbuffer->pop();
+                for(toSend = 0; !outbuffer->isEmpty() && toSend < 128; toSend++) bytes[toSend] = outbuffer->pop();
 
                 sf::Socket::Status status = targetsock.send(bytes, toSend);
 

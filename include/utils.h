@@ -73,6 +73,8 @@ namespace LRI::RCI {
         ~RingBuffer();
 
         [[nodiscard]] uint32_t size() const;
+        [[nodiscard]] bool isEmpty() const;
+        [[nodiscard]] bool isFull() const;
         [[nodiscard]] uint32_t capacity() const;
         T pop();
         T peek() const;

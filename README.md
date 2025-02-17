@@ -56,7 +56,6 @@ including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for 
 Although the program is in a mostly complete state, there are a few things left to work on:
 
 - [ ] TCP Interface
-- [ ] Fix ringbuffer
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
 - [ ] Show latest sensor readings as text
 - [ ] Fix having to press estop twice to trigger it
@@ -74,3 +73,4 @@ Although the program is in a mostly complete state, there are a few things left 
 - [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
   [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
 - [x] Full screen graphs and better scaling for non-fullscreen graphs
+- [x] Fix ringbuffer
