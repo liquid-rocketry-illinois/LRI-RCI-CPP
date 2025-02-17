@@ -89,6 +89,52 @@ namespace LRI::RCI {
         return min(a, min(b, c));
     }
 
+    void SensorReadings::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
+        switch(qual.devclass) {
+            case RCP_DEVCLASS_AM_PRESSURE:
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                ImGui::Text("Pressure: %.3f mbar", data.data[0]);
+                break;
+
+            case RCP_DEVCLASS_AM_TEMPERATURE:
+                ImGui::Text("Temperature: %.3f C", data.data[0]);
+                break;
+
+            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                ImGui::Text("Humidity: %.3f %%", data.data[0]);
+                break;
+
+            case RCP_DEVCLASS_LOAD_CELL:
+                ImGui::Text("Mass: %.3f kg", data.data[0]);
+                break;
+
+            case RCP_DEVCLASS_POWERMON:
+                ImGui::Text("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
+                break;
+
+            case RCP_DEVCLASS_ACCELEROMETER:
+                ImGui::Text("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1], data.data[2]);
+                break;
+
+            case RCP_DEVCLASS_GYROSCOPE:
+                ImGui::Text("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1], data.data[2]);
+                break;
+
+            case RCP_DEVCLASS_MAGNETOMETER:
+                ImGui::Text("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
+                break;
+
+            case RCP_DEVCLASS_GPS:
+                ImGui::Text("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
+                            data.data[0], data.data[1], data.data[2], data.data[3]);
+                break;
+
+            default:
+                ImGui::Text("Unrecognized sensor");
+                break;
+        }
+    }
+
     void SensorReadings::drawSensors() {
         ImDrawList* draw = ImGui::GetWindowDrawList();
         float xsize = ImGui::GetWindowWidth() - scale(50);
@@ -97,8 +143,7 @@ namespace LRI::RCI {
                                  min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
 
         if(!ImGui::BeginChild("##sensorchild", ImGui::GetWindowSize() - scale(
-                fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)
-        ))) {
+                fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)))) {
             ImGui::EndChild();
             return;
         }
@@ -142,8 +187,12 @@ namespace LRI::RCI {
             }
 
             // Simple helper for seeing how many datapoints are present. Once it gets over ~200k points, it starts
-            // becomming a little laggy. Not much you can do there, its just a fault of rendering 200k line segments
-            ImGui::Text("Datapoints: %u", data.size());
+            // becoming a little laggy. Not much you can do there, its just a fault of rendering 200k line segments
+            ImGui::SameLine();
+            ImGui::Text("Datapoints: %u", static_cast<unsigned int>(data.size()));
+            renderLatestReadings(qual, data.empty() ?
+                                       DataPoint{.timestamp = 0, .data = {0, 0, 0, 0}} :
+                                       data[data.size() - 1]);
 
             // Graphing is done by giving implot a pointer to the beginning of each data vector. From there, it is
             // also given offsets to the timestamp value of each datapoint, as well as the appropriate type from the
@@ -204,6 +253,30 @@ namespace LRI::RCI {
                 }
             }
 
+            else if(qual.devclass == RCP_DEVCLASS_POWERMON) {
+                if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":volt").c_str(), plotsize)) {
+                    ImPlot::SetupAxes("Time(s)", "Voltage (V)");
+                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
+                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    if(!data.empty())
+                        ImPlot::PlotLine((std::string("Voltage##") + qual.asString()).c_str(),
+                                         &data[0].timestamp,
+                                         data[0].data, static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+                }
+
+                if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":pow").c_str(), plotsize)) {
+                    ImPlot::SetupAxes("Time(s)", "Power (W)");
+                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
+                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    if(!data.empty())
+                        ImPlot::PlotLine((std::string("Power##") + qual.asString()).c_str(),
+                                         &data[0].timestamp,
+                                         data[0].data + 1, static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
+                }
+            }
+
                 // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
                 // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
             else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
@@ -244,6 +317,10 @@ namespace LRI::RCI {
                         ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)");
                         break;
 
+                    case RCP_DEVCLASS_LOAD_CELL:
+                        ImPlot::SetupAxes("Time (s)", "Mass (kg)");
+                        break;
+
                     default:
                         ImPlot::SetupAxes("Unknown Data", "Unknown Data");
                         break;
@@ -258,6 +335,7 @@ namespace LRI::RCI {
                         case RCP_DEVCLASS_AM_PRESSURE:
                         case RCP_DEVCLASS_AM_TEMPERATURE:
                         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                        case RCP_DEVCLASS_LOAD_CELL:
                             ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
                                              data[0].data, static_cast<int>(data.size()),
                                              0, 0, sizeof(DataPoint));
@@ -266,15 +344,15 @@ namespace LRI::RCI {
                         case RCP_DEVCLASS_MAGNETOMETER:
                         case RCP_DEVCLASS_ACCELEROMETER:
                         case RCP_DEVCLASS_GYROSCOPE:
-                            ImPlot::PlotLine((std::string("X") + qual.asString()).c_str(), &data[0].timestamp,
+                            ImPlot::PlotLine((std::string("X##") + qual.asString()).c_str(), &data[0].timestamp,
                                              data[0].data, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
-                            ImPlot::PlotLine((std::string("Y") + qual.asString()).c_str(), &data[0].timestamp,
+                            ImPlot::PlotLine((std::string("Y##") + qual.asString()).c_str(), &data[0].timestamp,
                                              data[0].data + 1, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
-                            ImPlot::PlotLine((std::string("Z") + qual.asString()).c_str(), &data[0].timestamp,
+                            ImPlot::PlotLine((std::string("Z##") + qual.asString()).c_str(), &data[0].timestamp,
                                              data[0].data + 2, static_cast<int>(data.size()), 0, 0,
                                              sizeof(DataPoint));
 
