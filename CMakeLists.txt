@@ -8,6 +8,14 @@ add_subdirectory(libs/glfw)
 add_subdirectory(libs/RCP-Host)
 add_subdirectory(libs/json)
 
+set(SFML_BUILD_GRAPHICS OFF)
+set(SFML_BUILD_WINDOW OFF)
+set(SFML_BUILD_AUDIO OFF)
+set(SFML_USE_STATIC_STD_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
+set(SFML_INSTALL_PKGCONFIG_FILES OFF)
+add_subdirectory(libs/sfml)
+
 add_executable(LRI_control_panel
         resources/resources.rc
         libs/imgui/imgui.cpp
@@ -35,9 +43,11 @@ add_executable(LRI_control_panel
         src/UI/Steppers.cpp
         src/UI/SensorReadings.cpp
         src/UI/CustomData.cpp
+        src/interfaces/TCPSocket.cpp
 )
 
-target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host nlohmann_json)
+target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi Iphlpapi RCP-Host
+        nlohmann_json SFML::Network)
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui libs/imgui/backends libs/json/include
         libs/implot include)
 

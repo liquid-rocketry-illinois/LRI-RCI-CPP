@@ -55,15 +55,22 @@ including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for 
 
 Although the program is in a mostly complete state, there are a few things left to work on:
 
-- [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
-  [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
+- [ ] TCP Interface
+- [ ] Fix ringbuffer
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
-- [ ] Switch out glfw for sfml (dpi makes me sad)
-- [x] Full screen graphs and better scaling for non-fullscreen graphs
+- [ ] Show latest sensor readings as text
+- [ ] Fix having to press estop twice to trigger it
+- [ ] Manual confirms and numeric input over RCP
 - [ ] Test mode lockout of actuators
 - [ ] Better error and heartbeat handling
+- [ ] Serial disconnects
+- [ ] Switch out glfw for sfml (dpi makes me sad)
 - [ ] Some final fixes to RCP
 - [ ] Fix whatever is going on with the button delay
-- [ ] Linux support
 - [ ] Nicer UI styling and executable icon
+- [ ] Linux support
 - [ ] Fancy emergency stop button :)
+
+- [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
+  [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
+- [x] Full screen graphs and better scaling for non-fullscreen graphs

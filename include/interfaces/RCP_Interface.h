@@ -1,6 +1,8 @@
 #ifndef RCP_INTERFACE_H
 #define RCP_INTERFACE_H
 
+#include <string>
+
 namespace LRI::RCI {
 
     // An interface representing an interface RCP can use to communicate

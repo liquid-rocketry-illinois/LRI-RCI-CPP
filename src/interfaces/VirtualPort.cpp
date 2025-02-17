@@ -22,4 +22,10 @@ namespace LRI::RCI {
     std::string VirtualPort::interfaceType() const {
         return "Virtual Interface";
     }
+
+    // Virtual port is easy
+    RCP_Interface* VirtualPortChooser::render() {
+        if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
+        return nullptr;
+    }
 }

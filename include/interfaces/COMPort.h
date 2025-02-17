@@ -9,6 +9,7 @@
 
 #include "utils.h"
 #include "RCP_Interface.h"
+#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
     class COMPort : public RCP_Interface {
@@ -66,6 +67,33 @@ namespace LRI::RCI {
         // Functions for writing and reading from the serial device
         size_t sendData(const void* bytes, size_t length) const override;
         size_t readData(void* bytes, size_t bufferlength) const override;
+    };
+
+    // This is the only actual interface available at the moment. This chooser is for connecting to serial devices
+    // (e.g. COM1, COM2, so on). It allows selecting a device and choosing the baud rate
+    class COMPortChooser final : public InterfaceChooser {
+        // Helper function to enumerate available serial devices and store their names in portlist
+        bool enumSerialDevs();
+
+        // Storage for available ports. Ports will be in the format of their handle name, a colon, and the windows
+        // display name (ex. COM1:Arduino Serial Device)
+        std::vector<std::string> portlist;
+
+        // The index of the selected port
+        size_t selectedPort;
+
+        // If there was an error
+        bool error;
+
+        // The current baud rate
+        int baud;
+
+        // The interface itself
+        COMPort* port;
+
+    public:
+        explicit COMPortChooser();
+        RCP_Interface* render() override;
     };
 }
 #endif //COMPORT_H

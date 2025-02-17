@@ -162,9 +162,9 @@ namespace LRI::RCI {
             }
 
             if(lockButtons) ImGui::EndDisabled();
-
-            ImGui::End();
         }
+
+        ImGui::End();
     }
 
     void CustomData::recevieRCPUpdate(const RCP_CustomData& data) {

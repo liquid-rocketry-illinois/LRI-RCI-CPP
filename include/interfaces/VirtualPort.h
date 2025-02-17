@@ -4,6 +4,7 @@
 #include <string>
 
 #include "RCP_Interface.h"
+#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
 
@@ -25,6 +26,13 @@ namespace LRI::RCI {
 
         // Returns "Virtual Interface"
         [[nodiscard]] std::string interfaceType() const override;
+    };
+
+    // A testing interface for debugging. See interfaces/VirtualPort.h
+    class VirtualPortChooser final : public InterfaceChooser {
+    public:
+        VirtualPortChooser() = default;
+        RCP_Interface* render() override;
     };
 }
 

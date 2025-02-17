@@ -12,11 +12,16 @@ namespace LRI::RCI {
         static std::set<BaseUI*> windows;
 
     protected:
-        // Timer available to all windows to prevent button spam
-        static constexpr long long BUTTON_DELAY = 1; // Seconds
         static StopWatch buttonTimer;
 
         // Size for all status squares
+
+        explicit BaseUI() = default;
+
+    public:
+        // Timer available to all windows to prevent button spam
+        static constexpr long long BUTTON_DELAY = 1; // Seconds
+
         static constexpr ImVec2 STATUS_SQUARE_SIZE = ImVec2(15, 15);
 
         // Common colors
@@ -24,10 +29,6 @@ namespace LRI::RCI {
         static constexpr ImU32 STALE_COLOR = ImU32(0xF000CDDB);
         static constexpr ImU32 DISABLED_COLOR = ImU32(0xFF0000FF);
         static constexpr ImU32 REBECCA_PURPLE = ImU32(0xFF993366);
-
-        explicit BaseUI() = default;
-
-    public:
         // Called by the main loop to render and update all windows
         static void renderWindows();
 

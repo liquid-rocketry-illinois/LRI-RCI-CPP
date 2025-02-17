@@ -1,12 +1,7 @@
 #include "UI/TargetChooser.h"
 
-#include <Windows.h>
-#include <SetupAPI.h>
-#include <devguid.h>
 #include <fstream>
-#include <improgress.h>
 #include <set>
-#include <interfaces/VirtualPort.h>
 #include <UI/CustomData.h>
 #include <UI/EStop.h>
 #include <UI/SensorReadings.h>
@@ -19,7 +14,10 @@
 
 #include "utils.h"
 #include "RCP_Host_Impl.h"
+
+#include "interfaces/VirtualPort.h"
 #include "interfaces/COMPort.h"
+#include "interfaces/TCPSocket.h"
 
 namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
@@ -40,9 +38,10 @@ namespace LRI::RCI {
         // Set up the two interface options
         interfaceoptions.emplace_back("Serial Port");
         interfaceoptions.emplace_back("Virtual Port");
+        interfaceoptions.emplace_back("TCP Socket");
 
         // Create the default chooser
-        chooser = new COMPortChooser(this);
+        chooser = new COMPortChooser();
     }
 
     TargetChooser* TargetChooser::getInstance() {
@@ -135,11 +134,15 @@ namespace LRI::RCI {
                     delete chooser;
                     switch(chosenInterface) {
                         case 0:
-                            chooser = new COMPortChooser(this);
+                            chooser = new COMPortChooser();
                             break;
 
                         case 1:
                             chooser = new VirtualPortChooser();
+                            break;
+
+                        case 2:
+                            chooser = new TCPInterfaceChooser();
                             break;
 
                         default:
@@ -274,127 +277,5 @@ namespace LRI::RCI {
             SensorReadings::getInstance()->setHardwareConfig(sensors);
             SensorReadings::getInstance()->showWindow();
         }
-    }
-
-    TargetChooser::InterfaceChooser::InterfaceChooser(TargetChooser* _targetchooser) : targetchooser(_targetchooser) {}
-
-    // The COMPort chooser will enumerate all available serial devices to be picked from
-    TargetChooser::COMPortChooser::COMPortChooser(TargetChooser* targetchooser) : InterfaceChooser(targetchooser),
-                                                                                  portlist(), selectedPort(0),
-                                                                                  error(false), baud(115200),
-                                                                                  port(nullptr) {
-        enumSerialDevs();
-    }
-
-    // Honestly I dont know what this does its some Windows spaghetti I stole from SO but it works so yay
-    // https://stackoverflow.com/a/77752863
-    bool TargetChooser::COMPortChooser::enumSerialDevs() {
-        portlist.clear();
-        HANDLE devs = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, nullptr, nullptr, DIGCF_PRESENT);
-        if(devs == INVALID_HANDLE_VALUE) return false;
-
-        SP_DEVINFO_DATA data;
-        data.cbSize = sizeof(SP_DEVINFO_DATA);
-        char s[80];
-
-        for(DWORD i = 0; SetupDiEnumDeviceInfo(devs, i, &data); i++) {
-            HKEY hkey = SetupDiOpenDevRegKey(devs, &data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
-            if(hkey == INVALID_HANDLE_VALUE) {
-                return false;
-            }
-
-            char comname[16] = {0};
-            DWORD len = 16;
-
-            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
-            RegCloseKey(hkey);
-            if(comname[0] != 'C') continue;
-
-            SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE) s, sizeof(s), nullptr);
-
-            // Somehow we end up with the name we need to open the port, and a more user friendly display string.
-            // These get appended to this vector for later
-            portlist.push_back(std::string(comname) + ": " + std::string(s));
-        }
-
-        SetupDiDestroyDeviceInfoList(devs);
-        return true;
-    }
-
-    // The COMPort chooser rendering function
-    RCP_Interface* TargetChooser::COMPortChooser::render() {
-        bool disable = port;
-        if(disable) ImGui::BeginDisabled();
-
-        // It has a dropdown for which device, as listed in enumSerial()
-        ImGui::Text("Choose Serial Port: ");
-        ImGui::SameLine();
-        if(portlist.empty()) ImGui::Text("No Ports Detected");
-        else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].c_str())) {
-            for(size_t i = 0; i < portlist.size(); i++) {
-                bool selected = i == selectedPort;
-                if(ImGui::Selectable((portlist[i] + "##portselectcombo").c_str(), &selected))
-                    selectedPort = i;
-                if(selected) ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-        }
-
-        if(ImGui::Button("Refresh List")) {
-            selectedPort = 0;
-            enumSerialDevs();
-        }
-
-        // Input for baud rate
-        ImGui::Text("Baud Rate: ");
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(scale(100));
-        ImGui::InputInt("##comportchooserbaudinput", &baud);
-        if(baud < 0) baud = 0;
-        else if(baud > 500'000) baud = 500'000;
-
-        if(portlist.empty()) ImGui::BeginDisabled();
-        if(ImGui::Button("Connect")) {
-            // If connect, then create the COMPort
-            port = new COMPort(
-                    portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), baud);
-        }
-        if(portlist.empty()) ImGui::EndDisabled();
-        if(disable) ImGui::EndDisabled();
-
-        // If the port failed to allocate then return
-        if(!port) return nullptr;
-
-        // If the port allocated but did not open then show an error
-        if(!port->isOpen()) {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("Error Connecting to Serial Port (%u)", port->lastError());
-            ImGui::PopStyleColor();
-
-            ImGui::SameLine();
-            if(ImGui::Button("OK##comportchoosererror")) {
-                delete port;
-                port = nullptr;
-            }
-        }
-
-            // While the port is readying, don't return it just yet and display a loading spinner
-        else if(!port->isReady()) {
-            ImGui::SameLine();
-            ImGui::Spinner("##comportchooserspinner", 8, 1, REBECCA_PURPLE);
-        }
-
-        else return port;
-        return nullptr;
-    }
-
-    TargetChooser::VirtualPortChooser::VirtualPortChooser() : InterfaceChooser(nullptr) {
-    }
-
-    // Virtual port is easy
-    RCP_Interface* TargetChooser::VirtualPortChooser::render() {
-        if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
-        return nullptr;
     }
 }
