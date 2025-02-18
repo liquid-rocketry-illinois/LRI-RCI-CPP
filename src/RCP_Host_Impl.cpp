@@ -1,7 +1,6 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include <string>
 #include <UI/Steppers.h>
 
 #include "UI/TargetChooser.h"
@@ -9,6 +8,7 @@
 #include "UI/TestControl.h"
 #include "UI/SensorReadings.h"
 #include "UI/CustomData.h"
+#include "UI/Prompt.h"
 
 namespace LRI::RCI {
     // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
@@ -17,6 +17,7 @@ namespace LRI::RCI {
             .readData = readData,
             .processTestUpdate = processTestUpdate,
             .processSolenoidData = processSolenoidData,
+            .processPromptInput = processPromptInput,
             .processSerialData = processSerialData,
             .processOneFloat = processOneFloat,
             .processTwoFloat = processTwoFloat,
@@ -39,6 +40,11 @@ namespace LRI::RCI {
 
     int processSolenoidData(const RCP_SolenoidData data) {
         Solenoids::getInstance()->receiveRCPUpdate(data);
+        return 0;
+    }
+
+    int processPromptInput(RCP_PromptInputRequest request) {
+        Prompt::getInstance()->setPrompt(request);
         return 0;
     }
 

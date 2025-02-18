@@ -13,9 +13,7 @@
       "names": ["pt0", "pt1", "pt2", "pt3", "pt4", "pt5", "pt6", "pt7"]
     },
     {
-      "devclass": 148,
-      "ids": [0, 1, 2, 3],
-      "names": ["lc", "lc", "lc", "lc"]
+      "devclass": 148
     }
   ]
 }

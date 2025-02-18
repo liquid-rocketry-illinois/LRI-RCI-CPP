@@ -40,7 +40,7 @@ namespace LRI::RCI {
 
     template<typename T, T ret>
     uint32_t RingBuffer<T, ret>::size() const {
-        return dataend > datastart ? dataend - datastart : buffersize - (datastart - dataend);
+        return dataend >= datastart ? dataend - datastart : buffersize - (datastart - dataend);
     }
 
     // Capacity is not size

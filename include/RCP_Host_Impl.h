@@ -10,6 +10,7 @@ namespace LRI::RCI {
     size_t readData(void* data, size_t bufferSize);
     int processTestUpdate(RCP_TestData data);
     int processSolenoidData(RCP_SolenoidData data);
+    int processPromptInput(RCP_PromptInputRequest request);
     int processSerialData(RCP_CustomData data);
     int processOneFloat(RCP_OneFloat data);
     int processTwoFloat(RCP_TwoFloat data);
