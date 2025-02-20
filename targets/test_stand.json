@@ -10,7 +10,7 @@
     {
       "devclass": 146,
       "ids": [0, 1, 2, 3, 4, 5, 6, 7],
-      "names": ["pt0", "pt1", "pt2", "pt3", "pt4", "pt5", "pt6", "pt7"]
+      "names": ["PT7-F-PROP", "PT6-OX-PROP", "pt2", "pt3", "PT1-OX-PRS", "PT2-F-PRS", "pt6", "pt7"]
     },
     {
       "devclass": 148
