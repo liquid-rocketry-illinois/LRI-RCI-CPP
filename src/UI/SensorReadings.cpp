@@ -22,7 +22,7 @@ namespace LRI::RCI {
     SensorReadings* SensorReadings::instance;
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
-    void SensorReadings::toCSVFile(SensorQualifier qual, std::vector<DataPoint>* data, std::atomic_bool* done) {
+    void SensorReadings::toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done) {
         // Create the exports directory if it does not exist. If it exists as a file, exit early
         if(std::filesystem::exists("exports")) {
             if(!std::filesystem::is_directory("./exports")) {
@@ -192,7 +192,7 @@ namespace LRI::RCI {
             }
 
             // Simple helper for seeing how many datapoints are present. Once it gets over ~200k points, it starts
-            // becoming a little laggy. Not much you can do there, its just a fault of rendering 200k line segments
+            // becoming a little laggy. Not much you can do there, it's just a fault of rendering 200k line segments
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();

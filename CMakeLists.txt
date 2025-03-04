@@ -47,7 +47,7 @@ add_executable(LRI_control_panel
         src/UI/Prompt.cpp
 )
 
-target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi Iphlpapi RCP-Host
+target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
         nlohmann_json SFML::Network)
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui libs/imgui/backends libs/json/include
         libs/implot include)

@@ -13,16 +13,16 @@
 namespace LRI::RCI {
     // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
     RCP_LibInitData callbacks = {
-            .sendData = sendData,
-            .readData = readData,
-            .processTestUpdate = processTestUpdate,
-            .processSolenoidData = processSolenoidData,
-            .processPromptInput = processPromptInput,
-            .processSerialData = processSerialData,
-            .processOneFloat = processOneFloat,
-            .processTwoFloat = processTwoFloat,
-            .processThreeFloat = processThreeFloat,
-            .processFourFloat = processFourFloat,
+        .sendData = sendData,
+        .readData = readData,
+        .processTestUpdate = processTestUpdate,
+        .processSolenoidData = processSolenoidData,
+        .processPromptInput = processPromptInput,
+        .processSerialData = processSerialData,
+        .processOneFloat = processOneFloat,
+        .processTwoFloat = processTwoFloat,
+        .processThreeFloat = processThreeFloat,
+        .processFourFloat = processFourFloat,
     };
 
     size_t sendData(const void* data, size_t length) {
@@ -59,12 +59,8 @@ namespace LRI::RCI {
     }
 
     int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER) {
-            Steppers::getInstance()->receiveRCPUpdate(data);
-            return 0;
-        }
-
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        if(data.devclass == RCP_DEVCLASS_STEPPER) Steppers::getInstance()->receiveRCPUpdate(data);
+        else SensorReadings::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 

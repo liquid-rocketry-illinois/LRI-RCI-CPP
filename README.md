@@ -55,6 +55,7 @@ including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for 
 
 Although the program is in a mostly complete state, there are a few things left to work on:
 
+- [ ] Fix PCA9534 arduino initialization thingy
 - [ ] TCP Interface (IN PROGRESS)
 - [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
 - [ ] Manual confirms and numeric input over RCP

@@ -4,13 +4,13 @@
   "devices": [
     {
       "devclass": 1,
-      "ids": [0, 1, 2, 3, 4, 5, 6, 7],
-      "names": ["sol1", "sol2", "sol3", "sol4", "sol5", "sol6", "sol7", "sol8"]
+      "ids": [0, 1, 2, 3, 4, 5, 6],
+      "names": ["SV7-F-V", "SV2-F-PRS", "SV1-OX-PRS", "SV3-OX-ACT", "SV4-F-ACT", "SV9-OX-ACT", "SV10-OX-ACT"]
     },
     {
       "devclass": 146,
       "ids": [0, 1, 2, 3, 4, 5, 6, 7],
-      "names": ["PT7-F-PROP", "PT6-OX-PROP", "pt2", "pt3", "PT1-OX-PRS", "PT2-F-PRS", "pt6", "pt7"]
+      "names": ["PT5-ACT", "PT6-OX-PROP", "PT7-F-PROP", "PT8-IGN", "PT1-OX-PRS", "PT2-F-PRS", "PT3-OX-TNK", "PT4-F-TNK"]
     },
     {
       "devclass": 148

@@ -7,28 +7,13 @@
 #include <mutex>
 #include "utils.h"
 #include "UI/TargetChooser.h"
-#include <iphlpapi.h>
 
 namespace LRI::RCI {
-    union IPAddress {
-        struct {
-            uint8_t b1;
-            uint8_t b2;
-            uint8_t b3;
-            uint8_t b4;
-        } bytes;
-        uint32_t ulong;
-    };
-
     class TCPSocket : public RCP_Interface {
         static constexpr uint32_t BUFFER_SIZE = 1'000'000;
-        const DWORD adapterIndex;
-        const std::string adapterName;
-        const IPAddress hostaddr;
         const uint16_t port;
-        const IPAddress netmask;
-
-        ULONG NTEContext;
+        const sf::IpAddress serverAddress;
+        const bool isServer;
 
         sf::TcpListener listensock;
         sf::TcpSocket targetsock;
@@ -58,8 +43,7 @@ namespace LRI::RCI {
             unsigned long value;
         };
 
-        explicit TCPSocket(DWORD adapterIndex, std::string adapterName, const IPAddress& hostaddr, uint16_t port,
-                           const IPAddress& netmask = {255, 255, 255, 0});
+        explicit TCPSocket(uint16_t port, const sf::IpAddress& serverAddress = {0, 0, 0, 0});
         ~TCPSocket() override;
 
         [[nodiscard]] bool isOpen() const override;
@@ -76,16 +60,14 @@ namespace LRI::RCI {
     };
 
     class TCPInterfaceChooser final : public InterfaceChooser {
-        std::map<DWORD, std::string> adapters;
-        int address[4] = {192, 168, 254, 1};
-        int port = 12345;
+        int port = 5000;
+        int ip[4] = {192, 168, 254, 2};
+        bool server = false;
 
-        TCPSocket* interf;
-        DWORD selectedAdapter;
+        TCPSocket* interf = nullptr;
 
-        bool enumAdapters();
     public:
-        explicit TCPInterfaceChooser();
+        explicit TCPInterfaceChooser() = default;
         RCP_Interface* render() override;
     };
 }
