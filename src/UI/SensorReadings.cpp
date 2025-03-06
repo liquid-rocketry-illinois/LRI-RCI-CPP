@@ -22,7 +22,8 @@ namespace LRI::RCI {
     SensorReadings* SensorReadings::instance;
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
-    void SensorReadings::toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done) {
+    void SensorReadings::toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data,
+                                   std::atomic_bool* done) {
         // Create the exports directory if it does not exist. If it exists as a file, exit early
         if(std::filesystem::exists("exports")) {
             if(!std::filesystem::is_directory("./exports")) {
@@ -39,38 +40,38 @@ namespace LRI::RCI {
         // The actual file writing. Depending on the device class, a header is created, and each datapoint is iterated
         // through and written to the file
         switch(qual.devclass) {
-            case RCP_DEVCLASS_GPS:
-                file << "relmillis,latitude,longitude,altitude,groundspeed\n";
-                for(const auto& point : *data) {
-                    file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0],
-                                        point.data[1],
-                                        point.data[2], point.data[3]);
-                }
-                break;
+        case RCP_DEVCLASS_GPS:
+            file << "relmillis,latitude,longitude,altitude,groundspeed\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0],
+                                    point.data[1],
+                                    point.data[2], point.data[3]);
+            }
+            break;
 
-            case RCP_DEVCLASS_MAGNETOMETER:
-            case RCP_DEVCLASS_ACCELEROMETER:
-            case RCP_DEVCLASS_GYROSCOPE:
-                file << "relmillis,x,y,z\n";
-                for(const auto& point : *data) {
-                    file << std::format("{},{},{},{}\n", point.timestamp, point.data[0],
-                                        point.data[1],
-                                        point.data[2]);
-                }
-                break;
+        case RCP_DEVCLASS_MAGNETOMETER:
+        case RCP_DEVCLASS_ACCELEROMETER:
+        case RCP_DEVCLASS_GYROSCOPE:
+            file << "relmillis,x,y,z\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{},{},{}\n", point.timestamp, point.data[0],
+                                    point.data[1],
+                                    point.data[2]);
+            }
+            break;
 
-            case RCP_DEVCLASS_AM_PRESSURE:
-            case RCP_DEVCLASS_AM_TEMPERATURE:
-            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                file << "relmillis,data\n";
-                for(const auto& point : *data) {
-                    file << std::format("{},{}\n", point.timestamp, point.data[0]);
-                }
-                break;
+        case RCP_DEVCLASS_AM_PRESSURE:
+        case RCP_DEVCLASS_AM_TEMPERATURE:
+        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            file << "relmillis,data\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{}\n", point.timestamp, point.data[0]);
+            }
+            break;
 
-            default:
-                file << "Device Class not supported/recognized for export";
-                break;
+        default:
+            file << "Device Class not supported/recognized for export";
+            break;
         }
 
         delete data;
@@ -91,50 +92,50 @@ namespace LRI::RCI {
 
     void SensorReadings::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
         switch(qual.devclass) {
-            case RCP_DEVCLASS_AM_PRESSURE:
-                ImGui::Text("Pressure: %.3f mbar", data.data[0]);
-                break;
+        case RCP_DEVCLASS_AM_PRESSURE:
+            ImGui::Text("Pressure: %.3f mbar", data.data[0]);
+            break;
 
-            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                ImGui::Text("Pressure: %.3f psi", data.data[0]);
-                break;
+        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            ImGui::Text("Pressure: %.3f psi", data.data[0]);
+            break;
 
-            case RCP_DEVCLASS_AM_TEMPERATURE:
-                ImGui::Text("Temperature: %.3f C", data.data[0]);
-                break;
+        case RCP_DEVCLASS_AM_TEMPERATURE:
+            ImGui::Text("Temperature: %.3f C", data.data[0]);
+            break;
 
-            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                ImGui::Text("Humidity: %.3f %%", data.data[0]);
-                break;
+        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+            ImGui::Text("Humidity: %.3f %%", data.data[0]);
+            break;
 
-            case RCP_DEVCLASS_LOAD_CELL:
-                ImGui::Text("Mass: %.3f kg", data.data[0]);
-                break;
+        case RCP_DEVCLASS_LOAD_CELL:
+            ImGui::Text("Mass: %.3f kg", data.data[0]);
+            break;
 
-            case RCP_DEVCLASS_POWERMON:
-                ImGui::Text("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
-                break;
+        case RCP_DEVCLASS_POWERMON:
+            ImGui::Text("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
+            break;
 
-            case RCP_DEVCLASS_ACCELEROMETER:
-                ImGui::Text("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1], data.data[2]);
-                break;
+        case RCP_DEVCLASS_ACCELEROMETER:
+            ImGui::Text("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1], data.data[2]);
+            break;
 
-            case RCP_DEVCLASS_GYROSCOPE:
-                ImGui::Text("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1], data.data[2]);
-                break;
+        case RCP_DEVCLASS_GYROSCOPE:
+            ImGui::Text("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1], data.data[2]);
+            break;
 
-            case RCP_DEVCLASS_MAGNETOMETER:
-                ImGui::Text("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
-                break;
+        case RCP_DEVCLASS_MAGNETOMETER:
+            ImGui::Text("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
+            break;
 
-            case RCP_DEVCLASS_GPS:
-                ImGui::Text("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
-                            data.data[0], data.data[1], data.data[2], data.data[3]);
-                break;
+        case RCP_DEVCLASS_GPS:
+            ImGui::Text("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
+                        data.data[0], data.data[1], data.data[2], data.data[3]);
+            break;
 
-            default:
-                ImGui::Text("Unrecognized sensor");
-                break;
+        default:
+            ImGui::Text("Unrecognized sensor");
+            break;
         }
     }
 
@@ -146,7 +147,7 @@ namespace LRI::RCI {
                                  min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
 
         if(!ImGui::BeginChild("##sensorchild", ImGui::GetWindowSize() - scale(
-                fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)))) {
+                                  fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)))) {
             ImGui::EndChild();
             return;
         }
@@ -154,7 +155,7 @@ namespace LRI::RCI {
         for(const auto& [qual, data] : sensors) {
             // Tree nodes to keep things organized
             if(!ImGui::TreeNode(
-                    (qual.name + "##" + qual.asString()).c_str()))
+                (qual.name + "##" + qual.asString()).c_str()))
                 continue;
 
             // Status square
@@ -184,7 +185,7 @@ namespace LRI::RCI {
             if(disable) ImGui::EndDisabled();
 
             if(filewritethreads.contains(qual) && filewritethreads[qual].thread &&
-               filewritethreads[qual].done) {
+                filewritethreads[qual].done) {
                 filewritethreads[qual].thread->join();
                 delete filewritethreads[qual].thread;
                 filewritethreads[qual].thread = nullptr;
@@ -197,9 +198,9 @@ namespace LRI::RCI {
             ImGui::Text(" | ");
             ImGui::SameLine();
             ImGui::Text("Datapoints: %u", static_cast<unsigned int>(data.size()));
-            renderLatestReadings(qual, data.empty() ?
-                                       DataPoint{.timestamp = 0, .data = {0, 0, 0, 0}} :
-                                       data[data.size() - 1]);
+            renderLatestReadings(qual, data.empty()
+                                           ? DataPoint{.timestamp = 0, .data = {0, 0, 0, 0}}
+                                           : data[data.size() - 1]);
 
             // Graphing is done by giving implot a pointer to the beginning of each data vector. From there, it is
             // also given offsets to the timestamp value of each datapoint, as well as the appropriate type from the
@@ -213,9 +214,8 @@ namespace LRI::RCI {
             if(qual.devclass == RCP_DEVCLASS_GPS) {
                 if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":latlon").c_str(),
                                      plotsize)) {
-                    ImPlot::SetupAxes("Time (s)", "Latitude/Longitude (degrees)");
-                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                    ImPlot::SetupAxisLimits(ImAxis_Y1, -200, 200);
+                    ImPlot::SetupAxes("Time (s)", "Latitude/Longitude (degrees)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
                     if(!data.empty())
                         ImPlot::PlotLine((std::string("Latitude##") + qual.asString()).c_str(),
                                          &data[0].timestamp,
@@ -233,9 +233,7 @@ namespace LRI::RCI {
 
                 if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":alt").c_str(),
                                      plotsize)) {
-                    ImPlot::SetupAxes("Time (s)", "Altitude (m)");
-                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    ImPlot::SetupAxes("Time (s)", "Altitude (m)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
                     if(!data.empty())
                         ImPlot::PlotLine((std::string("Altitude##") + qual.asString()).c_str(),
                                          &data[0].timestamp,
@@ -247,9 +245,8 @@ namespace LRI::RCI {
 
                 if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":gs").c_str(),
                                      plotsize)) {
-                    ImPlot::SetupAxes("Time (s)", "Ground Speed (m/s)");
-                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    ImPlot::SetupAxes("Time (s)", "Ground Speed (m/s)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
                     if(!data.empty())
                         ImPlot::PlotLine((std::string("Ground Speed##") + qual.asString()).c_str(),
                                          &data[0].timestamp,
@@ -262,9 +259,7 @@ namespace LRI::RCI {
 
             else if(qual.devclass == RCP_DEVCLASS_POWERMON) {
                 if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":volt").c_str(), plotsize)) {
-                    ImPlot::SetupAxes("Time(s)", "Voltage (V)");
-                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    ImPlot::SetupAxes("Time(s)", "Voltage (V)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
                     if(!data.empty())
                         ImPlot::PlotLine((std::string("Voltage##") + qual.asString()).c_str(),
                                          &data[0].timestamp,
@@ -273,9 +268,7 @@ namespace LRI::RCI {
                 }
 
                 if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString() + ":pow").c_str(), plotsize)) {
-                    ImPlot::SetupAxes("Time(s)", "Power (W)");
-                    ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                    ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+                    ImPlot::SetupAxes("Time(s)", "Power (W)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
                     if(!data.empty())
                         ImPlot::PlotLine((std::string("Power##") + qual.asString()).c_str(),
                                          &data[0].timestamp,
@@ -284,11 +277,9 @@ namespace LRI::RCI {
                 }
             }
 
-                // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
-                // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
+            // For every other sensor that just has one type, they are handled here. Sensors with 3 axis data
+            // (accelerometer, magnetometer, gyroscope) have all data on one plot, but with 3 different lines.
             else if(ImPlot::BeginPlot((std::string("Sensor Data##") + qual.asString()).c_str(), plotsize)) {
-                ImPlot::SetupAxisLimits(ImAxis_X1, -1, 20);
-                ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 30);
                 // The below line can be uncommented to enable markers on each datapoint, however this drastically
                 // decreases performance to a max of around ~75k points
                 // ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
@@ -297,44 +288,50 @@ namespace LRI::RCI {
                 // unique to each sensor
                 std::string graphname;
                 switch(qual.devclass) {
-                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                        ImPlot::SetupAxes("Time (s)", "Pressure (psi)");
-                        graphname = "Pressure##";
-                        break;
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                    ImPlot::SetupAxes("Time (s)", "Pressure (psi)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+                    graphname = "Pressure##";
+                    break;
 
-                    case RCP_DEVCLASS_AM_PRESSURE:
-                        ImPlot::SetupAxes("Time (s)", "Pressure (millibars)");
-                        graphname = "Pressure##";
-                        break;
+                case RCP_DEVCLASS_AM_PRESSURE:
+                    ImPlot::SetupAxes("Time (s)", "Pressure (millibars)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    graphname = "Pressure##";
+                    break;
 
-                    case RCP_DEVCLASS_MAGNETOMETER:
-                        ImPlot::SetupAxes("Time (s)", "Magnetic Strength (Gauss)");
-                        break;
+                case RCP_DEVCLASS_MAGNETOMETER:
+                    ImPlot::SetupAxes("Time (s)", "Magnetic Strength (Gauss)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    break;
 
-                    case RCP_DEVCLASS_AM_TEMPERATURE:
-                        ImPlot::SetupAxes("Time (s)", "Temperature (Celcius)");
-                        graphname = "Temperature##";
-                        break;
+                case RCP_DEVCLASS_AM_TEMPERATURE:
+                    ImPlot::SetupAxes("Time (s)", "Temperature (Celcius)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    graphname = "Temperature##";
+                    break;
 
-                    case RCP_DEVCLASS_ACCELEROMETER:
-                        ImPlot::SetupAxes("Time (s)", "Acceleration (m/s/s)");
-                        break;
+                case RCP_DEVCLASS_ACCELEROMETER:
+                    ImPlot::SetupAxes("Time (s)", "Acceleration (m/s/s)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    break;
 
-                    case RCP_DEVCLASS_GYROSCOPE:
-                        ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)");
-                        break;
+                case RCP_DEVCLASS_GYROSCOPE:
+                    ImPlot::SetupAxes("Time (s)", "Angular Acceleration (d/s/s)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    break;
 
-                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                        ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)");
-                        break;
+                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                    ImPlot::SetupAxes("Time (s)", "Humidity (Relative %)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+                    break;
 
-                    case RCP_DEVCLASS_LOAD_CELL:
-                        ImPlot::SetupAxes("Time (s)", "Mass (kg)");
-                        break;
+                case RCP_DEVCLASS_LOAD_CELL:
+                    ImPlot::SetupAxes("Time (s)", "Mass (kg)", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+                    break;
 
-                    default:
-                        ImPlot::SetupAxes("Unknown Data", "Unknown Data");
-                        break;
+                default:
+                    ImPlot::SetupAxes("Unknown Data", "Unknown Data", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+                    break;
                 }
 
                 // The second switch (which only happens when data is present) actually plots the graphs. This is
@@ -342,35 +339,35 @@ namespace LRI::RCI {
                 // names and units
                 if(!data.empty())
                     switch(qual.devclass) {
-                        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                        case RCP_DEVCLASS_AM_PRESSURE:
-                        case RCP_DEVCLASS_AM_TEMPERATURE:
-                        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                        case RCP_DEVCLASS_LOAD_CELL:
-                            ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
-                                             data[0].data, static_cast<int>(data.size()),
-                                             0, 0, sizeof(DataPoint));
-                            break;
+                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                    case RCP_DEVCLASS_AM_PRESSURE:
+                    case RCP_DEVCLASS_AM_TEMPERATURE:
+                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                    case RCP_DEVCLASS_LOAD_CELL:
+                        ImPlot::PlotLine((graphname + qual.asString()).c_str(), &data[0].timestamp,
+                                         data[0].data, static_cast<int>(data.size()),
+                                         0, 0, sizeof(DataPoint));
+                        break;
 
-                        case RCP_DEVCLASS_MAGNETOMETER:
-                        case RCP_DEVCLASS_ACCELEROMETER:
-                        case RCP_DEVCLASS_GYROSCOPE:
-                            ImPlot::PlotLine((std::string("X##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             data[0].data, static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
+                    case RCP_DEVCLASS_MAGNETOMETER:
+                    case RCP_DEVCLASS_ACCELEROMETER:
+                    case RCP_DEVCLASS_GYROSCOPE:
+                        ImPlot::PlotLine((std::string("X##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         data[0].data, static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
 
-                            ImPlot::PlotLine((std::string("Y##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             data[0].data + 1, static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
+                        ImPlot::PlotLine((std::string("Y##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         data[0].data + 1, static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
 
-                            ImPlot::PlotLine((std::string("Z##") + qual.asString()).c_str(), &data[0].timestamp,
-                                             data[0].data + 2, static_cast<int>(data.size()), 0, 0,
-                                             sizeof(DataPoint));
+                        ImPlot::PlotLine((std::string("Z##") + qual.asString()).c_str(), &data[0].timestamp,
+                                         data[0].data + 2, static_cast<int>(data.size()), 0, 0,
+                                         sizeof(DataPoint));
 
-                            break;
+                        break;
 
-                        default:
-                            break;
+                    default:
+                        break;
                     }
                 ImPlot::EndPlot();
             }
@@ -380,7 +377,6 @@ namespace LRI::RCI {
         }
 
         ImGui::EndChild();
-
     }
 
     void SensorReadings::render() {
@@ -447,8 +443,8 @@ namespace LRI::RCI {
     void SensorReadings::receiveRCPUpdate(const RCP_OneFloat& data) {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {
-                .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-                .data = {static_cast<double>(data.data)}
+            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+            .data = {static_cast<double>(data.data)}
         };
 
         sensors[qual].push_back(d);
