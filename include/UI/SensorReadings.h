@@ -65,6 +65,7 @@ namespace LRI::RCI {
         std::map<SensorQualifier, FileWriteThreadData> filewritethreads;
 
         void drawSensors();
+        double latestVal(const SensorQualifier& qual);
 
         bool fullscreen;
         bool doResize = false;

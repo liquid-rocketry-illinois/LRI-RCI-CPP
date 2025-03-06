@@ -90,6 +90,11 @@ namespace LRI::RCI {
         return min(a, min(b, c));
     }
 
+    double SensorReadings::latestVal(const SensorQualifier& qual) {
+        if(sensors[qual].empty()) return 0;
+        return sensors[qual][sensors[qual].size() - 1].data[0];
+    }
+
     void SensorReadings::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
         switch(qual.devclass) {
         case RCP_DEVCLASS_AM_PRESSURE:
@@ -150,6 +155,40 @@ namespace LRI::RCI {
                                   fullscreen ? ImVec2(0, 30) : ImVec2(0, 50)))) {
             ImGui::EndChild();
             return;
+        }
+
+        ImGui::Text("PT1: %.3f | PT2: %.3f | PT3: %.3f | PT4: %.3f",
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 4}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 5}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 6}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 7}));
+        ImGui::Text("PT5: %.3f | PT6: %.3f | PT7: %.3f | PT8: %.3f",
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 0}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 1}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 2}),
+                    latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 3}));
+
+        if(ImPlot::BeginPlot("Important PTs", plotsize)) {
+            ImPlot::SetupAxes("Time (s)", "Pressure (PSI)", ImPlotAxisFlags_AutoFit,
+                                      ImPlotAxisFlags_AutoFit);
+            SensorQualifier qual{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 6};
+
+            if(!sensors[qual].empty()) {
+                ImPlot::PlotLine((std::string("PT3-OX-TNK##extrareadingpt3") + qual.asString()).c_str(),
+                                         &sensors[qual][0].timestamp,
+                                         sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
+                                         sizeof(DataPoint));
+            }
+
+            qual = {RCP_DEVCLASS_PRESSURE_TRANSDUCER, 7};
+            if(!sensors[qual].empty()) {
+                ImPlot::PlotLine((std::string("PT4-F-TNK##extrareadingpt4") + qual.asString()).c_str(),
+                                         &sensors[qual][0].timestamp,
+                                         sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
+                                         sizeof(DataPoint));
+            }
+
+            ImPlot::EndPlot();
         }
         // Iterate through every sensor in the list to graph
         for(const auto& [qual, data] : sensors) {
