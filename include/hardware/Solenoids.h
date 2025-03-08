@@ -19,14 +19,15 @@ namespace LRI::RCI {
     public:
         struct SolenoidState {
             bool open;
-            bool fresh;
+            bool stale;
         };
 
         static Solenoids* getInstance();
         void receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
         void setHardwareConfig(const std::vector<HardwareQualifier>& solIds);
 
-        [[nodiscard]] const std::map<HardwareQualifier, SolenoidState>* getState() const;
+        [[nodiscard]] const std::map<HardwareQualifier, SolenoidState>& getState() const;
+        void refreshAll() const;
         void setSolenoidState(const HardwareQualifier& qual, RCP_SolenoidState_t newState);
     };
 }

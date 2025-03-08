@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include "hardware/Solenoids.h"
 
 namespace LRI::RCI {
@@ -9,7 +11,7 @@ namespace LRI::RCI {
     }
 
     void Solenoids::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
-        state[qual].fresh = true;
+        state[qual].stale = false;
         state[qual].open = newState;
     }
 
@@ -21,12 +23,19 @@ namespace LRI::RCI {
         }
     }
 
-    const std::map<HardwareQualifier, Solenoids::SolenoidState>* Solenoids::getState() const {
-        return &state;
+    const std::map<HardwareQualifier, Solenoids::SolenoidState>& Solenoids::getState() const {
+        return state;
     }
 
+    void Solenoids::refreshAll() const {
+        for(const auto& qual : state | std::views::keys) {
+            RCP_requestSolenoidRead(qual.id);
+        }
+    }
+
+
     void Solenoids::setSolenoidState(const HardwareQualifier& qual, RCP_SolenoidState_t newState) {
-        state[qual].fresh = false;
+        state[qual].stale = true;
         RCP_sendSolenoidWrite(qual.id, newState);
     }
 }
