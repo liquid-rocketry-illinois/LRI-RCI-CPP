@@ -11,20 +11,30 @@ namespace LRI::RCI {
     }
 
     void Solenoids::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
-        state[qual].stale = false;
-        state[qual].open = newState;
+        state[qual]->stale = false;
+        state[qual]->open = newState;
     }
 
     void Solenoids::setHardwareConfig(const std::vector<HardwareQualifier>& solIds) {
+        for(const SolenoidState* s : state | std::views::values) delete s;
         state.clear();
 
         for(const auto& qual : solIds) {
-            state[qual] = SolenoidState();
+            state[qual] = new SolenoidState();
         }
     }
 
-    const std::map<HardwareQualifier, Solenoids::SolenoidState>& Solenoids::getState() const {
-        return state;
+    void Solenoids::reset() {
+        for(const SolenoidState* s : state | std::views::values) delete s;
+        state.clear();
+    }
+
+    const std::map<HardwareQualifier, Solenoids::SolenoidState*>* Solenoids::getState() const {
+        return &state;
+    }
+
+    const Solenoids::SolenoidState* Solenoids::getState(const HardwareQualifier& qual) const {
+        return state.at(qual);
     }
 
     void Solenoids::refreshAll() const {
@@ -33,9 +43,8 @@ namespace LRI::RCI {
         }
     }
 
-
     void Solenoids::setSolenoidState(const HardwareQualifier& qual, RCP_SolenoidState_t newState) {
-        state[qual].stale = true;
+        state[qual]->stale = true;
         RCP_sendSolenoidWrite(qual.id, newState);
     }
 }

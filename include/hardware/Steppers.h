@@ -1,7 +1,6 @@
 #ifndef STEPPERS_H
 #define STEPPERS_H
 
-#include <string>
 #include <map>
 #include <vector>
 
@@ -13,7 +12,7 @@ namespace LRI::RCI {
         struct Stepper;
         static Steppers* instance;
 
-        std::map<HardwareQualifier, Stepper> motors;
+        std::map<HardwareQualifier, Stepper*> motors;
 
         Steppers() = default;
 
@@ -30,9 +29,11 @@ namespace LRI::RCI {
 
         void receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
         void setHardwareConfig(const std::vector<HardwareQualifier>& motorlist);
+        void reset();
 
         void refreshAll() const;
-        [[nodiscard]] const std::map<HardwareQualifier, Stepper>& getState() const;
+        [[nodiscard]] const std::map<HardwareQualifier, Stepper*>* getState() const;
+        [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;
         void setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value);
     };
 }

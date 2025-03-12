@@ -11,14 +11,18 @@ namespace LRI::RCI {
         return instance;
     }
 
-    const std::map<HardwareQualifier, Steppers::Stepper>& Steppers::getState() const {
-        return motors;
+    const std::map<HardwareQualifier, Steppers::Stepper*>* Steppers::getState() const {
+        return &motors;
+    }
+
+    const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
+        return motors.at(qual);
     }
 
     void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
-        motors[qual].position = pos;
-        motors[qual].speed = speed;
-        motors[qual].stale = true;
+        motors[qual]->position = pos;
+        motors[qual]->speed = speed;
+        motors[qual]->stale = true;
     }
 
     void Steppers::refreshAll() const {
@@ -27,20 +31,18 @@ namespace LRI::RCI {
         }
     }
 
-
     void Steppers::setHardwareConfig(const std::vector<HardwareQualifier>& motorlist) {
+        for(const Stepper* s : motors | std::views::values) delete s;
         motors.clear();
 
         for(const auto& qual : motorlist) {
-            motors[qual] = Stepper();
+            motors[qual] = new Stepper();
         }
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value) {
-        motors[qual].controlMode = controlMode;
-        motors[qual].controlVal = value;
+        motors[qual]->controlMode = controlMode;
+        motors[qual]->controlVal = value;
         RCP_sendStepperWrite(qual.id, controlMode, &value);
     }
-
-
 }

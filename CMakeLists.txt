@@ -48,6 +48,7 @@ add_executable(LRI_control_panel
         src/hardware/Solenoids.cpp
         src/hardware/HardwareQualifier.cpp
         src/hardware/Steppers.cpp
+        src/hardware/Sensors.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
