@@ -7,8 +7,6 @@
 
 namespace LRI::RCI {
     class RawData {
-        static RawData* instance;
-
         std::vector<uint8_t> raw;
 
         RawData() = default;

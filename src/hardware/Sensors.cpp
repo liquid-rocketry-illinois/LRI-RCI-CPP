@@ -9,9 +9,8 @@ namespace LRI::RCI {
         return thread < rhf.thread;
     }
 
-    Sensors* Sensors::instance;
-
     Sensors* Sensors::getInstance() {
+        static Sensors* instance = nullptr;
         if(instance == nullptr) instance = new Sensors();
         return instance;
     }

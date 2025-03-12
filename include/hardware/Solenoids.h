@@ -9,7 +9,6 @@
 
 namespace LRI::RCI {
     class Solenoids {
-        static Solenoids* instance;
         struct SolenoidState;
 
         std::map<HardwareQualifier, SolenoidState*> state;

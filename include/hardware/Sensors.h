@@ -23,8 +23,6 @@ namespace LRI::RCI {
         // Helper function that is ran in a thread to write sensor data to a CSV file. The vector pointer is de-allocated!
         static void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done);
 
-        static Sensors* instance;
-
         // Holds the data vectors mapped to their qualifiers
         std::map<HardwareQualifier, std::vector<DataPoint>*> sensors;
 

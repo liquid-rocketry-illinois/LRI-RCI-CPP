@@ -1,9 +1,9 @@
 #include "hardware/RawData.h"
 
 namespace LRI::RCI {
-    RawData* RawData::instance;
 
     RawData* RawData::getInstance() {
+        static RawData* instance = nullptr;
         if(instance == nullptr) instance = new RawData();
         return instance;
     }

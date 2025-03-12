@@ -3,9 +3,8 @@
 #include "hardware/Solenoids.h"
 
 namespace LRI::RCI {
-    Solenoids* Solenoids::instance;
-
     Solenoids* Solenoids::getInstance() {
+        static Solenoids* instance = nullptr;
         if(instance == nullptr) instance = new Solenoids();
         return instance;
     }

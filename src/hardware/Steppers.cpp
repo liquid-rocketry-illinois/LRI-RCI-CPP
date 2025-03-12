@@ -4,9 +4,8 @@
 #include "hardware/Solenoids.h"
 
 namespace LRI::RCI {
-    Steppers* Steppers::instance;
-
     Steppers* Steppers::getInstance() {
+        static Steppers* instance = nullptr;
         if(instance == nullptr) instance = new Steppers();
         return instance;
     }

@@ -10,7 +10,6 @@
 namespace LRI::RCI {
     class Steppers {
         struct Stepper;
-        static Steppers* instance;
 
         std::map<HardwareQualifier, Stepper*> motors;
 
