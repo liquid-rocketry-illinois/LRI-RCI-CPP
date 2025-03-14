@@ -72,6 +72,11 @@ namespace LRI::RCI {
         *done = true;
     }
 
+    Sensors::~Sensors() {
+        reset();
+    }
+
+
     void Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {
@@ -117,6 +122,8 @@ namespace LRI::RCI {
         for(const auto* data : sensors | std::views::values) {
             delete data;
         }
+
+        sensors.clear();
 
         // Make sure no more file writing threads are active. Then exit
         for(auto& thread : filewritethreads) {

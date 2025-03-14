@@ -10,6 +10,7 @@ namespace LRI::RCI {
         std::vector<uint8_t> raw;
 
         RawData() = default;
+        ~RawData() = default;
 
     public:
         static RawData* getInstance();

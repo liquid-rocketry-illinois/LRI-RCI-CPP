@@ -10,6 +10,12 @@ namespace LRI::RCI {
         return instance;
     }
 
+    Steppers::~Steppers() {
+        for(const Stepper* s : motors | std::views::values) delete s;
+        motors.clear();
+    }
+
+
     const std::map<HardwareQualifier, Steppers::Stepper*>* Steppers::getState() const {
         return &motors;
     }

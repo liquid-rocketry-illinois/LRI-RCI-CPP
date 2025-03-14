@@ -14,6 +14,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, Stepper*> motors;
 
         Steppers() = default;
+        ~Steppers();
 
     public:
         struct Stepper {

@@ -28,6 +28,10 @@ namespace LRI::RCI {
 
         // Holds the file writing threads mapped to sensor qualifiers
         std::set<FileWriteThreadData> filewritethreads;
+
+        Sensors() = default;
+        ~Sensors();
+
     public:
         struct DataPoint {
             double timestamp;

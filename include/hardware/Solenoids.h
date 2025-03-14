@@ -14,6 +14,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, SolenoidState*> state;
 
         Solenoids() = default;
+        ~Solenoids();
 
     public:
         struct SolenoidState {
