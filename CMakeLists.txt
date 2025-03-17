@@ -36,15 +36,15 @@ add_executable(LRI_control_panel
         src/RCP_Host_Impl.cpp
         src/UI/BaseUI.cpp
         src/UI/TargetChooser.cpp
-        src/UI/EStop.cpp
-        src/UI/Solenoids.cpp
+        src/UI/EStopViewer.cpp
+        src/UI/SolenoidViewer.cpp
         src/interfaces/VirtualPort.cpp
-        src/UI/TestControl.cpp
-        src/UI/Steppers.cpp
-        src/UI/SensorReadings.cpp
-        src/UI/CustomData.cpp
+        src/UI/TestStateViewer.cpp
+        src/UI/StepperViewer.cpp
+        src/UI/SensorViewer.cpp
+        src/UI/RawViewer.cpp
         src/interfaces/TCPSocket.cpp
-        src/UI/Prompt.cpp
+        src/UI/PromptViewer.cpp
         src/hardware/Solenoids.cpp
         src/hardware/HardwareQualifier.cpp
         src/hardware/Steppers.cpp

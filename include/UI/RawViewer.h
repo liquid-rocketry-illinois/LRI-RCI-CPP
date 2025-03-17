@@ -10,9 +10,9 @@
 namespace LRI::RCI {
 
     // Window which shows the output to the custom device class from RCP
-    class CustomData : public BaseUI {
+    class RawViewer : public BaseUI {
         // Singleton instance
-        static CustomData* instance;
+        static RawViewer* instance;
 
         // Size of buffer the user can type in to send data back
         static constexpr size_t OUT_SIZE = 64;
@@ -46,11 +46,11 @@ namespace LRI::RCI {
         // Used for formatting
         int numElems;
 
-        CustomData();
+        RawViewer();
 
     public:
         // Get singleton instance
-        static CustomData* getInstance();
+        static RawViewer* getInstance();
 
         // Overridden render function
         void render() override;
@@ -61,7 +61,7 @@ namespace LRI::RCI {
         // Needs a custom reset
         void reset() override;
 
-        ~CustomData() override = default;
+        ~RawViewer() override = default;
     };
 }
 

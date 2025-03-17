@@ -1,14 +1,14 @@
-#include "UI/Prompt.h"
+#include "UI/PromptViewer.h"
 
 namespace LRI::RCI {
-    Prompt* Prompt::instance;
+    PromptViewer* PromptViewer::instance;
 
-    Prompt* Prompt::getInstance() {
-        if(instance == nullptr) instance = new Prompt();
+    PromptViewer* PromptViewer::getInstance() {
+        if(instance == nullptr) instance = new PromptViewer();
         return instance;
     }
 
-    void Prompt::render() {
+    void PromptViewer::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(1000, 400)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(400, 150)), ImGuiCond_FirstUseEver);
         if(ImGui::Begin("Target Prompts")) {
@@ -49,7 +49,7 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void Prompt::setPrompt(const RCP_PromptInputRequest& req) {
+    void PromptViewer::setPrompt(const RCP_PromptInputRequest& req) {
         prompt = std::string(req.prompt);
         type = req.type;
         showWindow();

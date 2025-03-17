@@ -1,4 +1,4 @@
-#include "UI/EStop.h"
+#include "UI/EStopViewer.h"
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -9,16 +9,16 @@ namespace LRI::RCI {
 
     // Very simple class
     constexpr int winFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
-    EStop* EStop::instance;
+    EStopViewer* EStopViewer::instance;
 
-    EStop::EStop() : BaseUI() {}
+    EStopViewer::EStopViewer() : BaseUI() {}
 
-    EStop* EStop::getInstance() {
-        if(instance == nullptr) instance = new EStop();
+    EStopViewer* EStopViewer::getInstance() {
+        if(instance == nullptr) instance = new EStopViewer();
         return instance;
     }
 
-    void EStop::render() {
+    void EStopViewer::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(450, 300)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(100, 100)), ImGuiCond_FirstUseEver);
 

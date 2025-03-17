@@ -137,14 +137,17 @@ namespace LRI::RCI {
     }
 
     void Sensors::update() {
-        auto filtered = filewritethreads | std::views::filter([](const auto& val) { return val.done; });
-        std::ranges::for_each(filtered, [](const FileWriteThreadData& val) {
-            val.thread->join();
-            delete val.thread;
-        });
-
-        std::set rem(filtered.begin(), filtered.end());
-        filewritethreads.erase(rem.cbegin(), rem.cend());
+        // std::set<FileWriteThreadData> rem;
+        //
+        // for(auto& data : filewritethreads) {
+        //     if(data.done) {
+        //         data.thread->join();
+        //         delete data.thread;
+        //         rem.insert(data);
+        //     }
+        // }
+        //
+        // filewritethreads.erase(rem.cbegin(), rem.cend());
     }
 
     const std::map<HardwareQualifier, std::vector<Sensors::DataPoint>*>* Sensors::getState() const {
@@ -156,10 +159,10 @@ namespace LRI::RCI {
     }
 
     void Sensors::writeCSV(const HardwareQualifier& qual) {
-        std::vector<DataPoint>* copy = new std::vector(*sensors[qual]);
-        FileWriteThreadData data;
-        data.done = false;
-        data.thread = new std::thread(toCSVFile, qual, copy, &data.done);
-        filewritethreads.insert(data);
+        // std::vector<DataPoint>* copy = new std::vector(*sensors[qual]);
+        // FileWriteThreadData data;
+        // data.done = false;
+        // data.thread = new std::thread(toCSVFile, qual, copy, &data.done);
+        // filewritethreads.insert(data);
     }
 }

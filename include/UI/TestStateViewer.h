@@ -9,9 +9,9 @@
 namespace LRI::RCI {
 
     // A window for controlling the test state of the target
-    class TestControl : public BaseUI {
+    class TestStateViewer : public BaseUI {
         // Singleton instance
-        static TestControl* instance;
+        static TestStateViewer* instance;
 
         // The currently running test state
         RCP_TestRunningState_t testState;
@@ -34,11 +34,11 @@ namespace LRI::RCI {
         // Stopwatch for heartbeats
         StopWatch heartbeat;
 
-        TestControl();
+        TestStateViewer();
 
     public:
         // Get singleton instance
-        static TestControl* getInstance();
+        static TestStateViewer* getInstance();
 
         // Overridden render function
         void render() override;
@@ -49,7 +49,7 @@ namespace LRI::RCI {
         // Custom reset
         void reset() override;
 
-        ~TestControl() override = default;
+        ~TestStateViewer() override = default;
     };
 }
 

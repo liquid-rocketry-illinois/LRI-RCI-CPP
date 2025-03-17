@@ -31,7 +31,7 @@ namespace LRI::RCI {
     };
 
     // A window which shows graphs logging received sensor datapoints
-    class SensorReadings : public BaseUI {
+    class SensorViewer : public BaseUI {
         // Structure for combining a thread and an atomic done flag
         struct FileWriteThreadData {
             std::thread* thread;
@@ -54,9 +54,9 @@ namespace LRI::RCI {
         static void renderLatestReadings(const SensorQualifier& qual, const DataPoint& data);
 
         // Singleton instance
-        static SensorReadings* instance;
+        static SensorViewer* instance;
 
-        SensorReadings() = default;
+        SensorViewer() = default;
 
         // Holds the data vectors mapped to their qualifiers
         std::map<SensorQualifier, std::vector<DataPoint>> sensors;
@@ -73,7 +73,7 @@ namespace LRI::RCI {
 
     public:
         // Get singleton instance
-        static SensorReadings* getInstance();
+        static SensorViewer* getInstance();
 
         // Overridden render function
         void render() override;
@@ -91,7 +91,7 @@ namespace LRI::RCI {
         // Needs custom reset
         void reset() override;
 
-        ~SensorReadings() override = default;
+        ~SensorViewer() override = default;
     };
 }
 

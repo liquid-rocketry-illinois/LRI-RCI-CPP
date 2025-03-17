@@ -4,7 +4,7 @@
 #include <chrono>
 #include <format>
 
-#include "UI/SensorReadings.h"
+#include "UI/SensorViewer.h"
 #include <implot.h>
 
 namespace LRI::RCI {
@@ -19,10 +19,10 @@ namespace LRI::RCI {
         return std::to_string(devclass) + "-" + std::to_string(id) + "-" + name;
     }
 
-    SensorReadings* SensorReadings::instance;
+    SensorViewer* SensorViewer::instance;
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
-    void SensorReadings::toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data,
+    void SensorViewer::toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data,
                                    std::atomic_bool* done) {
         // Create the exports directory if it does not exist. If it exists as a file, exit early
         if(std::filesystem::exists("exports")) {
@@ -80,8 +80,8 @@ namespace LRI::RCI {
     }
 
 
-    SensorReadings* SensorReadings::getInstance() {
-        if(instance == nullptr) instance = new SensorReadings();
+    SensorViewer* SensorViewer::getInstance() {
+        if(instance == nullptr) instance = new SensorViewer();
         return instance;
     }
 
@@ -90,7 +90,7 @@ namespace LRI::RCI {
         return min(a, min(b, c));
     }
 
-    void SensorReadings::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
+    void SensorViewer::renderLatestReadings(const SensorQualifier& qual, const DataPoint& data) {
         switch(qual.devclass) {
         case RCP_DEVCLASS_AM_PRESSURE:
             ImGui::Text("Pressure: %.3f mbar", data.data[0]);
@@ -139,7 +139,7 @@ namespace LRI::RCI {
         }
     }
 
-    void SensorReadings::drawSensors() {
+    void SensorViewer::drawSensors() {
         ImDrawList* draw = ImGui::GetWindowDrawList();
         float xsize = ImGui::GetWindowWidth() - scale(50);
 
@@ -379,7 +379,7 @@ namespace LRI::RCI {
         ImGui::EndChild();
     }
 
-    void SensorReadings::render() {
+    void SensorViewer::render() {
         ImGui::SetNextWindowSize(scale(ImVec2(700, 350)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos(scale(ImVec2(675, 50)), ImGuiCond_FirstUseEver);
 
@@ -413,7 +413,7 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void SensorReadings::reset() {
+    void SensorViewer::reset() {
         // Clear all sensors from the list
         for(auto& [qual, data] : sensors) {
             data.clear();
@@ -430,7 +430,7 @@ namespace LRI::RCI {
         filewritethreads.clear();
     }
 
-    void SensorReadings::setHardwareConfig(const std::set<SensorQualifier>& sensids) {
+    void SensorViewer::setHardwareConfig(const std::set<SensorQualifier>& sensids) {
         reset();
         sensors.clear();
 
@@ -440,7 +440,7 @@ namespace LRI::RCI {
         }
     }
 
-    void SensorReadings::receiveRCPUpdate(const RCP_OneFloat& data) {
+    void SensorViewer::receiveRCPUpdate(const RCP_OneFloat& data) {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {
             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
@@ -450,21 +450,21 @@ namespace LRI::RCI {
         sensors[qual].push_back(d);
     }
 
-    void SensorReadings::receiveRCPUpdate(const RCP_TwoFloat& data) {
+    void SensorViewer::receiveRCPUpdate(const RCP_TwoFloat& data) {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
         for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
     }
 
-    void SensorReadings::receiveRCPUpdate(const RCP_ThreeFloat& data) {
+    void SensorViewer::receiveRCPUpdate(const RCP_ThreeFloat& data) {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
         for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
     }
 
-    void SensorReadings::receiveRCPUpdate(const RCP_FourFloat& data) {
+    void SensorViewer::receiveRCPUpdate(const RCP_FourFloat& data) {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
         for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);

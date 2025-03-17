@@ -2,12 +2,12 @@
 
 #include <fstream>
 #include <set>
-#include <UI/CustomData.h>
-#include <UI/EStop.h>
-#include <UI/SensorReadings.h>
-#include <UI/Solenoids.h>
-#include <UI/Steppers.h>
-#include <UI/TestControl.h>
+#include <UI/RawViewer.h>
+#include <UI/EStopViewer.h>
+#include <UI/SensorViewer.h>
+#include <UI/SolenoidViewer.h>
+#include <UI/StepperViewer.h>
+#include <UI/TestStateViewer.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -184,16 +184,16 @@ namespace LRI::RCI {
 
     // Helper function that resets and initializes all windows
     void TargetChooser::initWindows() {
-        CustomData::getInstance()->reset();
-        SensorReadings::getInstance()->reset();
-        Solenoids::getInstance()->reset();
-        Steppers::getInstance()->reset();
-        TestControl::getInstance()->reset();
+        RawViewer::getInstance()->reset();
+        SensorViewer::getInstance()->reset();
+        SolenoidViewer::getInstance()->reset();
+        StepperViewer::getInstance()->reset();
+        TestStateViewer::getInstance()->reset();
 
         // These 3 can be shown regardless of the target
-        TestControl::getInstance()->showWindow();
-        EStop::getInstance()->showWindow();
-        CustomData::getInstance()->showWindow();
+        TestStateViewer::getInstance()->showWindow();
+        EStopViewer::getInstance()->showWindow();
+        RawViewer::getInstance()->showWindow();
 
         // Iterate through all the devices in the json and initialize the appropriate windows
         std::set<SensorQualifier> sensors;
@@ -218,8 +218,8 @@ namespace LRI::RCI {
                         for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
                     }
 
-                    Solenoids::getInstance()->setHardwareConfig(sols);
-                    Solenoids::getInstance()->showWindow();
+                    SolenoidViewer::getInstance()->setHardwareConfig(sols);
+                    SolenoidViewer::getInstance()->showWindow();
                     break;
                 }
 
@@ -232,8 +232,8 @@ namespace LRI::RCI {
                         for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
                     }
 
-                    Steppers::getInstance()->setHardwareConfig(steps);
-                    Steppers::getInstance()->showWindow();
+                    StepperViewer::getInstance()->setHardwareConfig(steps);
+                    StepperViewer::getInstance()->showWindow();
                     break;
                 }
 
@@ -274,8 +274,8 @@ namespace LRI::RCI {
 
         // If there is an actual sensor present, then display the sensors window
         if(!sensors.empty()) {
-            SensorReadings::getInstance()->setHardwareConfig(sensors);
-            SensorReadings::getInstance()->showWindow();
+            SensorViewer::getInstance()->setHardwareConfig(sensors);
+            SensorViewer::getInstance()->showWindow();
         }
     }
 }

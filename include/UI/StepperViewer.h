@@ -10,7 +10,7 @@
 
 namespace LRI::RCI {
     // A window for showing and controlling states of stepper motors
-    class Steppers : public BaseUI {
+    class StepperViewer : public BaseUI {
         // Maps control modes to UI button names
         static const std::map<uint8_t, std::vector<std::string>> BTN_NAMES; // Unfortunately, it can't be constexpr
 
@@ -27,16 +27,16 @@ namespace LRI::RCI {
         };
 
         // Singleton instance
-        static Steppers* instance;
+        static StepperViewer* instance;
 
-        Steppers() = default;
+        StepperViewer() = default;
 
         // Maps stepper IDs to their structure
         std::map<uint8_t, Stepper> steppers;
 
     public:
         // Get singleton instance
-        static Steppers* getInstance();
+        static StepperViewer* getInstance();
 
         // Overridden render function
         void render() override;
@@ -50,7 +50,7 @@ namespace LRI::RCI {
         // Custom reset
         void reset() override;
 
-        ~Steppers() override = default;
+        ~StepperViewer() override = default;
     };
 }
 

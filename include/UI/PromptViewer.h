@@ -7,10 +7,10 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    class Prompt : public BaseUI {
-        static Prompt* instance;
+    class PromptViewer : public BaseUI {
+        static PromptViewer* instance;
 
-        Prompt() = default;
+        PromptViewer() = default;
 
         std::string prompt;
         RCP_PromptDataType_t type = RCP_PromptDataType_GONOGO;
@@ -18,11 +18,11 @@ namespace LRI::RCI {
         float value = 0;
 
     public:
-        static Prompt* getInstance();
+        static PromptViewer* getInstance();
 
         void render() override;
         void setPrompt(const RCP_PromptInputRequest& req);
-        ~Prompt() override = default;
+        ~PromptViewer() override = default;
     };
 }
 

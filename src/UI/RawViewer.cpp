@@ -1,17 +1,17 @@
-#include "UI/CustomData.h"
+#include "UI/RawViewer.h"
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
 
 namespace LRI::RCI {
-    CustomData* CustomData::instance;
+    RawViewer* RawViewer::instance;
 
-    CustomData* CustomData::getInstance() {
-        if(instance == nullptr) instance = new CustomData();
+    RawViewer* RawViewer::getInstance() {
+        if(instance == nullptr) instance = new RawViewer();
         return instance;
     }
 
-    std::string CustomData::interpretModeToString(InterpretMode mode) {
+    std::string RawViewer::interpretModeToString(InterpretMode mode) {
         switch(mode) {
             case InterpretMode::HEX:
                 return "HEX";
@@ -27,10 +27,10 @@ namespace LRI::RCI {
         }
     }
 
-    CustomData::CustomData() : raw(), display(), mode(InterpretMode::STR), out(), numElems(1) {
+    RawViewer::RawViewer() : raw(), display(), mode(InterpretMode::STR), out(), numElems(1) {
     }
 
-    void CustomData::render() {
+    void RawViewer::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 525)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 250)), ImGuiCond_FirstUseEver);
 
@@ -167,7 +167,7 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void CustomData::recevieRCPUpdate(const RCP_CustomData& data) {
+    void RawViewer::recevieRCPUpdate(const RCP_CustomData& data) {
         // Parse data differently depending on interpret mode. See reformatRaw for more info
         switch(mode) {
             case InterpretMode::HEX:
@@ -192,7 +192,7 @@ namespace LRI::RCI {
         raw.insert(raw.end(), static_cast<uint8_t*>(data.data), static_cast<uint8_t*>(data.data) + data.length);
     }
 
-    void CustomData::reset() {
+    void RawViewer::reset() {
         // Clear both raw and display
         raw.clear();
         display.str("");
@@ -203,7 +203,7 @@ namespace LRI::RCI {
     }
 
     // Helper function to take raw data and format it according to the current interpret mode
-    void CustomData::formatRaw(std::basic_ostream<char>& out, std::vector<uint8_t>& raw,
+    void RawViewer::formatRaw(std::basic_ostream<char>& out, std::vector<uint8_t>& raw,
                                const InterpretMode& mode, int* elems) {
         // A numElems can be passed in if desired
         int* numElems;

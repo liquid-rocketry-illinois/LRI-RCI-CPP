@@ -6,15 +6,15 @@
 namespace LRI::RCI {
 
     // A simple window which will send an E-STOP packet when pushed
-    class EStop : public BaseUI {
+    class EStopViewer : public BaseUI {
         // Singleton instance
-        static EStop* instance;
+        static EStopViewer* instance;
 
-        EStop();
+        EStopViewer();
 
     public:
         // Get singleton instance
-        static EStop* getInstance();
+        static EStopViewer* getInstance();
 
         // Overridden render
         void render() override;

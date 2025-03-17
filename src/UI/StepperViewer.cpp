@@ -1,23 +1,23 @@
-#include "UI/Steppers.h"
+#include "UI/StepperViewer.h"
 
 #include <ctime>
 
 namespace LRI::RCI {
-    Steppers* Steppers::instance;
+    StepperViewer* StepperViewer::instance;
 
     // Maps stepper control modes to the correct name and unit
-    const std::map<uint8_t, std::vector<std::string>> Steppers::BTN_NAMES = {
+    const std::map<uint8_t, std::vector<std::string>> StepperViewer::BTN_NAMES = {
             {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
             {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
             {RCP_STEPPER_SPEED_CONTROL,        {"Velocity Control##",     "degrees/s"}}
     };
 
-    Steppers* Steppers::getInstance() {
-        if(instance == nullptr) instance = new Steppers();
+    StepperViewer* StepperViewer::getInstance() {
+        if(instance == nullptr) instance = new StepperViewer();
         return instance;
     }
 
-    void Steppers::render() {
+    void StepperViewer::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(675, 375)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 400)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
@@ -108,11 +108,11 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void Steppers::reset() {
+    void StepperViewer::reset() {
         steppers.clear();
     }
 
-    void Steppers::setHardwareConfig(const std::map<uint8_t, std::string>& ids) {
+    void StepperViewer::setHardwareConfig(const std::map<uint8_t, std::string>& ids) {
         reset();
         for(const auto& [id, name] : ids) {
             Stepper s{
@@ -128,7 +128,7 @@ namespace LRI::RCI {
         }
     }
 
-    void Steppers::receiveRCPUpdate(const RCP_TwoFloat& state) {
+    void StepperViewer::receiveRCPUpdate(const RCP_TwoFloat& state) {
         Stepper& s = steppers[state.ID];
         s.stale = false;
         s.position = state.data[0];

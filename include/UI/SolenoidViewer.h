@@ -11,9 +11,9 @@
 namespace LRI::RCI {
 
     // A window for showing and controlling solenoid status
-    class Solenoids : public BaseUI {
+    class SolenoidViewer : public BaseUI {
         // Singleton instance
-        static Solenoids* instance;
+        static SolenoidViewer* instance;
 
         // Maps whether data is stale to a solenoid ID
         std::map<uint8_t, bool> solUpdated;
@@ -24,11 +24,11 @@ namespace LRI::RCI {
         // Maps human identifiable names to solenoid ID
         std::map<uint8_t, std::string> solname;
 
-        Solenoids() = default;
+        SolenoidViewer() = default;
 
     public:
         // Get singleton instance
-        static Solenoids* getInstance();
+        static SolenoidViewer* getInstance();
 
         // Overridden render function
         void render() override;
@@ -39,7 +39,7 @@ namespace LRI::RCI {
         // Callback for RCP
         void receiveRCPUpdate(const RCP_SolenoidData& data);
 
-        ~Solenoids() override = default;
+        ~SolenoidViewer() override = default;
     };
 }
 

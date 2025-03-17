@@ -1,24 +1,24 @@
-#include "UI/TestControl.h"
+#include "UI/TestStateViewer.h"
 
 #include "utils.h"
 
 #include <iostream>
 
 namespace LRI::RCI {
-    TestControl* TestControl::instance;
+    TestStateViewer* TestStateViewer::instance;
 
-    TestControl* TestControl::getInstance() {
-        if(instance == nullptr) instance = new TestControl();
+    TestStateViewer* TestStateViewer::getInstance() {
+        if(instance == nullptr) instance = new TestStateViewer();
         return instance;
     }
 
-    TestControl::TestControl() : testState(RCP_TEST_STOPPED), testNumber(0), dataStreaming(false), doHeartbeats(false),
+    TestStateViewer::TestStateViewer() : testState(RCP_TEST_STOPPED), testNumber(0), dataStreaming(false), doHeartbeats(false),
                                  heartbeatRate(0), inputHeartbeatRate(0) {
         heartbeat.reset();
     }
 
 
-    void TestControl::render() {
+    void TestStateViewer::render() {
         // How heartbeats are handled is a little WIP since if a heartbeat is missed nothing much really happens on the
         // host side. The target should still respond to heartbeats though
         if(doHeartbeats && heartbeatRate != 0 && static_cast<double>(heartbeat.timeSince()) > heartbeatRate * 0.9) {
@@ -135,14 +135,14 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void TestControl::receiveRCPUpdate(const RCP_TestData& data) {
+    void TestStateViewer::receiveRCPUpdate(const RCP_TestData& data) {
         heartbeatRate = data.heartbeatTime;
         inputHeartbeatRate = data.heartbeatTime;
         testState = data.state;
         dataStreaming = data.dataStreaming != 0;
     }
 
-    void TestControl::reset() {
+    void TestStateViewer::reset() {
         testState = RCP_TEST_STOPPED;
         testNumber = 0;
         dataStreaming = false;

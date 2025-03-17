@@ -1,14 +1,14 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include <UI/Steppers.h>
+#include <UI/StepperViewer.h>
 
 #include "UI/TargetChooser.h"
-#include "UI/Solenoids.h"
-#include "UI/TestControl.h"
-#include "UI/SensorReadings.h"
-#include "UI/CustomData.h"
-#include "UI/Prompt.h"
+#include "UI/SolenoidViewer.h"
+#include "UI/TestStateViewer.h"
+#include "UI/SensorViewer.h"
+#include "UI/RawViewer.h"
+#include "UI/PromptViewer.h"
 
 namespace LRI::RCI {
     // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
@@ -34,43 +34,43 @@ namespace LRI::RCI {
     }
 
     int processTestUpdate(const RCP_TestData data) {
-        TestControl::getInstance()->receiveRCPUpdate(data);
+        TestStateViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processSolenoidData(const RCP_SolenoidData data) {
-        Solenoids::getInstance()->receiveRCPUpdate(data);
+        SolenoidViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {
-        Prompt::getInstance()->setPrompt(request);
+        PromptViewer::getInstance()->setPrompt(request);
         return 0;
     }
 
     int processSerialData(const RCP_CustomData data) {
-        CustomData::getInstance()->recevieRCPUpdate(data);
+        RawViewer::getInstance()->recevieRCPUpdate(data);
         return 0;
     }
 
     int processOneFloat(RCP_OneFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        SensorViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER) Steppers::getInstance()->receiveRCPUpdate(data);
-        else SensorReadings::getInstance()->receiveRCPUpdate(data);
+        if(data.devclass == RCP_DEVCLASS_STEPPER) StepperViewer::getInstance()->receiveRCPUpdate(data);
+        else SensorViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processThreeFloat(RCP_ThreeFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        SensorViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processFourFloat(RCP_FourFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        SensorViewer::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 }

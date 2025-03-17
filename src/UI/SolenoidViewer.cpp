@@ -1,4 +1,4 @@
-#include "UI/Solenoids.h"
+#include "UI/SolenoidViewer.h"
 
 #include <imgui.h>
 #include <iostream>
@@ -9,14 +9,14 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    Solenoids* Solenoids::instance;
+    SolenoidViewer* SolenoidViewer::instance;
 
-    Solenoids* Solenoids::getInstance() {
-        if(instance == nullptr) instance = new Solenoids();
+    SolenoidViewer* SolenoidViewer::getInstance() {
+        if(instance == nullptr) instance = new SolenoidViewer();
         return instance;
     }
 
-    void Solenoids::render() {
+    void SolenoidViewer::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(675, 425)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(350, 200)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowCollapsed(true, ImGuiCond_FirstUseEver);
@@ -73,7 +73,7 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    void Solenoids::setHardwareConfig(const std::map<uint8_t, std::string>& solIds) {
+    void SolenoidViewer::setHardwareConfig(const std::map<uint8_t, std::string>& solIds) {
         sols.clear();
         solUpdated.clear();
         solname.clear();
@@ -87,7 +87,7 @@ namespace LRI::RCI {
         buttonTimer.reset();
     }
 
-    void Solenoids::receiveRCPUpdate(const RCP_SolenoidData& data) {
+    void SolenoidViewer::receiveRCPUpdate(const RCP_SolenoidData& data) {
         sols[data.ID] = data.state == RCP_SOLENOID_ON;
         solUpdated[data.ID] = true;
     }
