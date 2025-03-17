@@ -50,6 +50,7 @@ add_executable(LRI_control_panel
         src/hardware/Steppers.cpp
         src/hardware/Sensors.cpp
         src/hardware/RawData.cpp
+        src/hardware/EStop.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
