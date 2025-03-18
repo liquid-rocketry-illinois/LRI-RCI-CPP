@@ -17,14 +17,14 @@ namespace LRI::RCI {
 
     bool TestState::stopTest() {
         if(state != RCP_TEST_STOPPED && state != RCP_TEST_ESTOP) return false;
-        // TODO: fill in with rcp method once added
+        RCP_stopTest();
         state = RCP_TEST_STOPPED;
         return true;
     }
 
     bool TestState::pause() {
         if(state != RCP_TEST_PAUSED && state != RCP_TEST_RUNNING) return false;
-        // TODO: fill in with rcp method once added
+        RCP_pauseUnpauseTest();
         state = (state == RCP_TEST_RUNNING) ? RCP_TEST_PAUSED : RCP_TEST_RUNNING;
         return true;
     }
