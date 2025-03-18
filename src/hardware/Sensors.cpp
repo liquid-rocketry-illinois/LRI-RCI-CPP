@@ -1,14 +1,11 @@
 #include "hardware/Sensors.h"
 
+#include <cassert>
 #include <filesystem>
 #include <fstream>
 #include <ranges>
 
 namespace LRI::RCI {
-    bool Sensors::FileWriteThreadData::operator<(FileWriteThreadData const& rhf) const {
-        return thread < rhf.thread;
-    }
-
     Sensors* Sensors::getInstance() {
         static Sensors* instance = nullptr;
         if(instance == nullptr) instance = new Sensors();
@@ -16,11 +13,20 @@ namespace LRI::RCI {
     }
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
-    void Sensors::toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done) {
+    void Sensors::toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data) {
+        static auto mapStuff = [&] {
+            threadSetMux.lock();
+            if(destroy) return;
+            const auto id = std::this_thread::get_id();
+            const auto thread = activeThreads[id];
+            activeThreads.erase(id);
+            destroyThreads[id] = thread;
+            threadSetMux.unlock();
+        };
         // Create the exports directory if it does not exist. If it exists as a file, exit early
         if(std::filesystem::exists("exports")) {
             if(!std::filesystem::is_directory("./exports")) {
-                *done = true;
+                mapStuff();
                 return;
             }
         }
@@ -69,7 +75,7 @@ namespace LRI::RCI {
 
         delete data;
         file.close();
-        *done = true;
+        mapStuff();
     }
 
     Sensors::~Sensors() {
@@ -118,6 +124,8 @@ namespace LRI::RCI {
     }
 
     void Sensors::reset() {
+        destroy = true;
+
         // Clear all sensors from the list
         for(const auto* data : sensors | std::views::values) {
             delete data;
@@ -125,29 +133,48 @@ namespace LRI::RCI {
 
         sensors.clear();
 
-        // Make sure no more file writing threads are active. Then exit
-        for(auto& thread : filewritethreads) {
-            if(thread.thread) {
-                thread.thread->join();
-                delete thread.thread;
-            }
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(50ms); // give time for all file write threads to finish
+
+        threadSetMux.lock();
+        destroyThreads.insert(activeThreads.cbegin(), activeThreads.cend());
+        activeThreads.clear();
+        threadSetMux.unlock();
+
+        std::set<std::thread::id> remo;
+
+        for(const auto& [id, thread] : destroyThreads) {
+            thread->join();
+            delete thread;
+            remo.insert(id);
         }
 
-        filewritethreads.clear();
+        for(const auto& id : remo) destroyThreads.erase(id);
+
+        threadSetMux.lock();
+
+#ifndef NDEBUG
+        assert((!activeThreads.empty(), "activeThreads not empty!"));
+        assert((!destroyThreads.empty(), "destroyThreads not empty!"));
+#else
+        if(!activeThreads.empty() || !destroyThreads.empty()) abort();
+#endif
+
+        threadSetMux.unlock();
+        destroy = false;
     }
 
     void Sensors::update() {
-        // std::set<FileWriteThreadData> rem;
-        //
-        // for(auto& data : filewritethreads) {
-        //     if(data.done) {
-        //         data.thread->join();
-        //         delete data.thread;
-        //         rem.insert(data);
-        //     }
-        // }
-        //
-        // filewritethreads.erase(rem.cbegin(), rem.cend());
+        threadSetMux.lock();
+        std::set<std::thread::id> remo;
+        for(const auto& [id, thread] : destroyThreads) {
+            thread->join();
+            delete thread;
+            remo.insert(id);
+        }
+
+        for(const auto& id : remo) destroyThreads.erase(id);
+        threadSetMux.unlock();
     }
 
     const std::map<HardwareQualifier, std::vector<Sensors::DataPoint>*>* Sensors::getState() const {
@@ -159,10 +186,10 @@ namespace LRI::RCI {
     }
 
     void Sensors::writeCSV(const HardwareQualifier& qual) {
-        // std::vector<DataPoint>* copy = new std::vector(*sensors[qual]);
-        // FileWriteThreadData data;
-        // data.done = false;
-        // data.thread = new std::thread(toCSVFile, qual, copy, &data.done);
-        // filewritethreads.insert(data);
+        auto* copy = new std::vector(*sensors[qual]);
+        auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
+        threadSetMux.lock();
+        activeThreads[thread->get_id()] = thread;
+        threadSetMux.unlock();
     }
 }

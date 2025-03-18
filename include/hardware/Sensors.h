@@ -7,27 +7,26 @@
 #include <set>
 #include <atomic>
 #include <thread>
+#include <mutex>
 
 namespace LRI::RCI {
     class Sensors {
         struct DataPoint;
-        struct FileWriteThreadData {
-            std::thread* thread;
-            std::atomic_bool done;
-            bool operator<(FileWriteThreadData const& rhf) const;
-        };
 
         // Initial size for the vectors storing the sensor data
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 5'000;
 
         // Helper function that is ran in a thread to write sensor data to a CSV file. The vector pointer is de-allocated!
-        static void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done);
+        void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data);
 
         // Holds the data vectors mapped to their qualifiers
         std::map<HardwareQualifier, std::vector<DataPoint>*> sensors;
 
         // Holds the file writing threads mapped to sensor qualifiers
-        std::set<FileWriteThreadData> filewritethreads;
+        std::map<std::thread::id, std::thread*> activeThreads;
+        std::map<std::thread::id, std::thread*> destroyThreads;
+        std::mutex threadSetMux;
+        std::atomic_bool destroy;
 
         Sensors() = default;
         ~Sensors();
