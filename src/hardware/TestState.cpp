@@ -58,6 +58,15 @@ namespace LRI::RCI {
         return complete;
     }
 
+    void TestState::update() {
+        if(heartbeatTime == 0) return;
+        if(heartbeat.timeSince() > heartbeatTime) {
+            if(!RCP_sendHeartbeat()) {
+                heartbeat.reset();
+            }
+        }
+    }
+
     void TestState::receiveRCPUpdate(const RCP_TestData& testState) {
         heartbeatTime = testState.heartbeatTime;
         dataStreaming = testState.dataStreaming;
