@@ -10,13 +10,15 @@ namespace LRI::RCI {
     class BaseUI {
         // A list that contains all the windows to be rendered on a call to renderWindows()
         static std::set<BaseUI*> windows;
+        static std::set<BaseUI*> activeWindows;
 
     protected:
         static StopWatch buttonTimer;
 
         // Size for all status squares
 
-        explicit BaseUI() = default;
+        explicit BaseUI();
+        virtual ~BaseUI();
 
     public:
         // Timer available to all windows to prevent button spam
@@ -34,8 +36,6 @@ namespace LRI::RCI {
 
         // Hide all windows that can be hidden (for example TargetChooser cannot be hidden)
         static void hideAll();
-
-        virtual ~BaseUI() = default;
 
         // Function for children to override. This is called to both render and update
         virtual void render() = 0;

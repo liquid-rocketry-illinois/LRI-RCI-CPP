@@ -23,8 +23,8 @@ namespace LRI::RCI {
     TargetChooser* TargetChooser::instance = nullptr;
 
     // This window always exists and is used to control the rest of the program
-    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), chooser(nullptr), pollingRate(25), targetpaths(),
-                                     targetconfig(), chosenConfig(0), interfaceoptions(), chosenInterface(0) {
+    TargetChooser::TargetChooser() : BaseUI(), interf(nullptr), pollingRate(25), chooser(nullptr),
+                                     chosenConfig(0), chosenInterface(0) {
         BaseUI::showWindow();
 
         // Iterate through the targets/ directory if it exists and create a list of the available targets
