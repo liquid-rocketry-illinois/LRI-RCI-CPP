@@ -1,5 +1,6 @@
 #include "utils.h"
 
+#include <ctime>
 #include <implot.h>
 #include "RCP_Host/RCP_Host.h"
 
@@ -9,7 +10,7 @@
 
 #include "WindowsResource.h"
 
-#include "UI/TargetChooser.h"
+#include "UI/Windowlet.h"
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
@@ -58,7 +59,7 @@ namespace LRI::RCI {
                                                    16 * scaling_factor, &fontConfig);
 
         // Start the TargetChooser window
-        TargetChooser::getInstance();
+        ControlWindowlet::getInstance();
     }
 
     // Is called to set up each frame before rendering
