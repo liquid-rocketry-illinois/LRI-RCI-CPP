@@ -15,11 +15,6 @@ namespace LRI::RCI {
         motors.clear();
     }
 
-
-    const std::map<HardwareQualifier, Steppers::Stepper*>* Steppers::getState() const {
-        return &motors;
-    }
-
     const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
         return motors.at(qual);
     }
@@ -33,6 +28,7 @@ namespace LRI::RCI {
     void Steppers::refreshAll() const {
         for(const auto& qual : motors | std::views::keys) {
             RCP_requestStepperRead(qual.id);
+            motors.at(qual)->stale = true;
         }
     }
 
@@ -46,8 +42,7 @@ namespace LRI::RCI {
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value) {
-        motors[qual]->controlMode = controlMode;
-        motors[qual]->controlVal = value;
         RCP_sendStepperWrite(qual.id, controlMode, &value);
+        motors[qual]->stale = true;
     }
 }

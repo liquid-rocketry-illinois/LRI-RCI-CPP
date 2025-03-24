@@ -18,11 +18,9 @@ namespace LRI::RCI {
 
     public:
         struct Stepper {
-            RCP_StepperControlMode_t controlMode = RCP_STEPPER_ABSOLUTE_POS_CONTROL;
             float position{};
             float speed{};
             bool stale{};
-            float controlVal{};
         };
 
         static Steppers* getInstance();
@@ -32,7 +30,6 @@ namespace LRI::RCI {
         void reset();
 
         void refreshAll() const;
-        [[nodiscard]] const std::map<HardwareQualifier, Stepper*>* getState() const;
         [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;
         void setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value);
     };

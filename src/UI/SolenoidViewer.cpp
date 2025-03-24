@@ -8,9 +8,9 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>& _sols, const bool refreshButton)
+    SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton)
         : refreshButton(refreshButton) {
-        for(const auto& sol : _sols) {
+        for(const auto& sol : quals) {
             sols[sol] = Solenoids::getInstance()->getState(sol);
         }
     }
@@ -44,7 +44,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
 
             if(lockButtons || !state->stale) ImGui::BeginDisabled();
-            if(ImGui::Button((std::string(state ? "ON##" : "OFF##") + id.asString()).c_str())) {
+            if(ImGui::Button((std::string(!state->open ? "ON##" : "OFF##") + id.asString()).c_str())) {
                 Solenoids::getInstance()->setSolenoidState(id, state->open ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON);
                 buttonTimer.reset();
             }

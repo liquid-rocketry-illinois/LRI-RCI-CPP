@@ -15,7 +15,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, const Solenoids::SolenoidState*> sols;
 
     public:
-        SolenoidViewer(const std::set<HardwareQualifier>& sols, bool refreshButton = true);
+        SolenoidViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton = true);
 
         // Overridden render function
         void render() override;
