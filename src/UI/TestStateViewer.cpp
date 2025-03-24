@@ -114,8 +114,6 @@ namespace LRI::RCI {
 
             if(lockButtons) ImGui::EndDisabled();
         }
-
-        ImGui::End();
     }
 
     void TestStateViewer::reset() {

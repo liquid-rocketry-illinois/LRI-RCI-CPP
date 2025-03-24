@@ -33,10 +33,6 @@ namespace LRI::RCI {
         state.clear();
     }
 
-    const std::map<HardwareQualifier, Solenoids::SolenoidState*>* Solenoids::getState() const {
-        return &state;
-    }
-
     const Solenoids::SolenoidState* Solenoids::getState(const HardwareQualifier& qual) const {
         return state.at(qual);
     }
@@ -44,6 +40,7 @@ namespace LRI::RCI {
     void Solenoids::refreshAll() const {
         for(const auto& qual : state | std::views::keys) {
             RCP_requestSolenoidRead(qual.id);
+            state.at(qual)->stale = true;
         }
     }
 

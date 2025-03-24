@@ -27,7 +27,6 @@ namespace LRI::RCI {
         void setHardwareConfig(const std::vector<HardwareQualifier>& solIds);
         void reset();
 
-        [[nodiscard]] const std::map<HardwareQualifier, SolenoidState*>* getState() const;
         [[nodiscard]] const SolenoidState* getState(const HardwareQualifier& qual) const;
         void refreshAll() const;
         void setSolenoidState(const HardwareQualifier& qual, RCP_SolenoidState_t newState);

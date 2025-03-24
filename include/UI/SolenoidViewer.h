@@ -3,41 +3,22 @@
 
 #include <map>
 #include <set>
-#include <string>
-#include <utils.h>
-#include <RCP_Host/RCP_Host.h>
 #include "BaseUI.h"
+#include "hardware/HardwareQualifier.h"
+#include "hardware/Solenoids.h"
 
 namespace LRI::RCI {
-
     // A window for showing and controlling solenoid status
     class SolenoidViewer : public BaseUI {
-        // Singleton instance
-        static SolenoidViewer* instance;
-
-        // Maps whether data is stale to a solenoid ID
-        std::map<uint8_t, bool> solUpdated;
-
-        // Maps the current state of a solenoid to its ID
-        std::map<uint8_t, bool> sols;
-
+        const bool refreshButton;
         // Maps human identifiable names to solenoid ID
-        std::map<uint8_t, std::string> solname;
-
-        SolenoidViewer() = default;
+        std::map<HardwareQualifier, const Solenoids::SolenoidState*> sols;
 
     public:
-        // Get singleton instance
-        static SolenoidViewer* getInstance();
+        SolenoidViewer(const std::set<HardwareQualifier>& sols, bool refreshButton = true);
 
         // Overridden render function
         void render() override;
-
-        // Can be used to set the IDs and names of the present solenoids
-        void setHardwareConfig(const std::map<uint8_t, std::string>& solIds);
-
-        // Callback for RCP
-        void receiveRCPUpdate(const RCP_SolenoidData& data);
 
         ~SolenoidViewer() override = default;
     };
