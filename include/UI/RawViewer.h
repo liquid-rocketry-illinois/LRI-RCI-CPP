@@ -1,5 +1,5 @@
-#ifndef CUSTOMDATA_H
-#define CUSTOMDATA_H
+#ifndef RAWVIEWER_H
+#define RAWVIEWER_H
 
 #include <vector>
 #include <sstream>
@@ -65,4 +65,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //CUSTOMDATA_H
+#endif //RAWVIEWER_H

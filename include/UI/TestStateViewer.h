@@ -1,5 +1,5 @@
-#ifndef TESTCONTROL_H
-#define TESTCONTROL_H
+#ifndef TESTSTATEVIEWER_H
+#define TESTSTATEVIEWER_H
 
 #include <utils.h>
 #include <RCP_Host/RCP_Host.h>
@@ -27,4 +27,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //TESTCONTROL_H
+#endif //TESTSTATEVIEWER_H

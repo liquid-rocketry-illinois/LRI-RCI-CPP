@@ -1,5 +1,5 @@
-#ifndef SOLENOIDS_H
-#define SOLENOIDS_H
+#ifndef SOLENOIDSVIEWER_H
+#define SOLENOIDSVIEWER_H
 
 #include <map>
 #include <set>
@@ -24,4 +24,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //SOLENOIDS_H
+#endif //SOLENOIDSVIEWER_H

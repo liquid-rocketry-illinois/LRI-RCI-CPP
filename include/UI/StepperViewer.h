@@ -1,5 +1,5 @@
-#ifndef STEPPERCONTROL_H
-#define STEPPERCONTROL_H
+#ifndef STEPPERVIEWER_H
+#define STEPPERVIEWER_H
 
 #include <map>
 #include <string>
@@ -39,4 +39,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //STEPPERCONTROL_H
+#endif //STEPPERVIEWER_H

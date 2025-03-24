@@ -1,5 +1,5 @@
-#ifndef LRI_CONTROL_PANEL_PROMPT_H
-#define LRI_CONTROL_PANEL_PROMPT_H
+#ifndef PROMPTVIEWER_H
+#define PROMPTVIEWER_H
 
 #include <string>
 
@@ -26,4 +26,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //LRI_CONTROL_PANEL_PROMPT_H
+#endif //PROMPTVIEWER_H

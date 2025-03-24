@@ -1,5 +1,5 @@
-#ifndef SENSORREADINGS_H
-#define SENSORREADINGS_H
+#ifndef SENSORVIEWER_H
+#define SENSORVIEWER_H
 
 #include <map>
 #include <string>
@@ -95,4 +95,4 @@ namespace LRI::RCI {
     };
 }
 
-#endif //SENSORREADINGS_H
+#endif //SENSORVIEWER_H
