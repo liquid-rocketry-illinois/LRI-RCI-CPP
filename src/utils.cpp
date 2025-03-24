@@ -17,6 +17,7 @@ namespace LRI::RCI {
     // Fonts
     ImFont* font_regular;
     ImFont* font_bold;
+    ImFont* font_italic;
 
     // Scaling factor for hidpi screens
     float scaling_factor;
@@ -52,11 +53,15 @@ namespace LRI::RCI {
 
         // Load the fonts and add them to imgui. Ubuntu mono my beloved
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
-        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
                                                       16 * scaling_factor, &fontConfig);
         fonts = WindowsResource("font-bold.ttf", "TTFFONT");
-        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
                                                    16 * scaling_factor, &fontConfig);
+
+        fonts = WindowsResource("font-italic.ttf", "TTFFONT");
+        font_italic = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
+                                                     16 * scaling_factor, &fontConfig);
 
         // Start the TargetChooser window
         ControlWindowlet::getInstance();
@@ -125,50 +130,50 @@ namespace LRI::RCI {
 
     std::string devclassToString(RCP_DeviceClass_t devclass) {
         switch(devclass) {
-            case RCP_DEVCLASS_TEST_STATE:
-                return "Test State (Virtual Device)";
+        case RCP_DEVCLASS_TEST_STATE:
+            return "Test State (Virtual Device)";
 
-            case RCP_DEVCLASS_SOLENOID:
-                return "Solenoid";
+        case RCP_DEVCLASS_SOLENOID:
+            return "Solenoid";
 
-            case RCP_DEVCLASS_STEPPER:
-                return "Stepper Motor";
+        case RCP_DEVCLASS_STEPPER:
+            return "Stepper Motor";
 
-            case RCP_DEVCLASS_CUSTOM:
-                return "Raw Data (Virtual Device)";
+        case RCP_DEVCLASS_CUSTOM:
+            return "Raw Data (Virtual Device)";
 
-            case RCP_DEVCLASS_AM_PRESSURE:
-                return "Ambient Pressure";
+        case RCP_DEVCLASS_AM_PRESSURE:
+            return "Ambient Pressure";
 
-            case RCP_DEVCLASS_AM_TEMPERATURE:
-                return "Ambient Temperature";
+        case RCP_DEVCLASS_AM_TEMPERATURE:
+            return "Ambient Temperature";
 
-            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                return "Pressure Transducer";
+        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            return "Pressure Transducer";
 
-            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                return "Relative Hygrometer";
+        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+            return "Relative Hygrometer";
 
-            case RCP_DEVCLASS_LOAD_CELL:
-                return "Load Cell (weight)";
+        case RCP_DEVCLASS_LOAD_CELL:
+            return "Load Cell (weight)";
 
-            case RCP_DEVCLASS_POWERMON:
-                return "Power Monitor";
+        case RCP_DEVCLASS_POWERMON:
+            return "Power Monitor";
 
-            case RCP_DEVCLASS_ACCELEROMETER:
-                return "Accelerometer";
+        case RCP_DEVCLASS_ACCELEROMETER:
+            return "Accelerometer";
 
-            case RCP_DEVCLASS_GYROSCOPE:
-                return "Gyroscope";
+        case RCP_DEVCLASS_GYROSCOPE:
+            return "Gyroscope";
 
-            case RCP_DEVCLASS_MAGNETOMETER:
-                return "Magnetometer";
+        case RCP_DEVCLASS_MAGNETOMETER:
+            return "Magnetometer";
 
-            case RCP_DEVCLASS_GPS:
-                return "GPS";
+        case RCP_DEVCLASS_GPS:
+            return "GPS";
 
-            default:
-                return "Unknown";
+        default:
+            return "Unknown";
         }
     }
 
@@ -195,5 +200,4 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, const float constant) {
         return {v1.x / constant, v1.y / constant};
     }
-
 }

@@ -16,6 +16,7 @@ namespace LRI::RCI {
     // Pointers to the regular and bold fonts
     extern ImFont* font_regular;
     extern ImFont* font_bold;
+    extern ImFont* font_italic;
 
     // Scaling factor for hi-dpi screens
     extern float scaling_factor;

@@ -4,14 +4,13 @@
 #include "RCP_Host/RCP_Host.h"
 
 #include "utils.h"
-// NOLINTBEGIN
+
 namespace LRI::RCI {
-    class TestState { // For some reason clang tidy warns about the fields below not being initialized by
-                      // the constructor even though its a defualt constructor, hence the NOLINTing
-        RCP_TestRunningState_t state; // NOLINTEND
-        uint8_t testNum;
-        uint8_t heartbeatTime;
-        bool dataStreaming;
+    class TestState {
+        RCP_TestRunningState_t state{};
+        uint8_t testNum{};
+        uint8_t heartbeatTime{};
+        bool dataStreaming{};
 
         StopWatch heartbeat;
 

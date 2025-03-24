@@ -10,6 +10,7 @@ resources/*
 !resources/images/*.png
 !resources/resources.rc
 !resources/*.ico
+!resources/*.ttf
 
 ##### Windows
 # Windows thumbnail cache files

@@ -11,6 +11,8 @@
 
 #include "utils.h"
 
+#include "hardware/Sensors.h"
+#include "hardware/TestState.h"
 #include "UI/Windowlet.h"
 
 // A very small main function :)
@@ -35,6 +37,10 @@ int main() {
         LRI::RCI::imgui_prerender(window);
         LRI::RCI::Windowlet::renderWindowlets();
         LRI::RCI::imgui_postrender(window);
+
+        // Update hardware that needs updating
+        LRI::RCI::TestState::getInstance()->update(); // heartbeats
+        LRI::RCI::Sensors::getInstance()->update(); // Serialization threads
     }
 
     // Once the window should close, then terminate libraries
