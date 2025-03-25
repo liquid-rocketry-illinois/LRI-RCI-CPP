@@ -1,57 +1,58 @@
 #include "UI/PromptViewer.h"
 
-namespace LRI::RCI {
-    PromptViewer* PromptViewer::instance;
+#include "hardware/Prompt.h"
 
-    PromptViewer* PromptViewer::getInstance() {
-        if(instance == nullptr) instance = new PromptViewer();
-        return instance;
+namespace LRI::RCI {
+    PromptViewer::PromptViewer(bool standaloneWindow, const ImVec2&& startPos, const ImVec2&& startSize)
+        : standaloneWindow(standaloneWindow), startPos(startPos), startSize(startSize) {
     }
 
     void PromptViewer::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(1000, 400)), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(scale(ImVec2(400, 150)), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin("Target Prompts")) {
-            ImGui::TextUnformatted(prompt.c_str());
-
-            if(type == RCP_PromptDataType_GONOGO) {
-                bool gng = gonogo;
-                if(gng) ImGui::BeginDisabled();
-                if(ImGui::Button("NO GO")) gonogo = false;
-                if(gng) ImGui::EndDisabled();
-
-                if(!gng) ImGui::BeginDisabled();
-                ImGui::SameLine();
-                if(ImGui::Button("GO")) gonogo = true;
-                if(!gng) ImGui::EndDisabled();
-
-                ImGui::SameLine();
-                ImGui::PushStyleColor(ImGuiCol_Text, gng ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1));
-                ImGui::Text(gng ? "GO" : "NO GO");
-                ImGui::PopStyleColor();
-            }
-
-            else {
-                ImGui::Text("Enter Value: ");
-                ImGui::SameLine();
-                ImGui::InputFloat("##promptfloatval", &value);
-            }
-
-            if(ImGui::Button("Confirm##promptconfirm")) {
-                if(type == RCP_PromptDataType_GONOGO) RCP_promptRespondGONOGO(gonogo ? RCP_GONOGO_GO : RCP_GONOGO_NOGO);
-                else RCP_promptRespondFloat(value);
-                gonogo = false;
-                value = 0;
-                hideWindow();
+        if(standaloneWindow) {
+            ImGui::SetNextWindowPos(scale(startPos), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(scale(startSize), ImGuiCond_FirstUseEver);
+            if(!ImGui::Begin("Target Prompt")) {
+                ImGui::End();
+                return;
             }
         }
 
-        ImGui::End();
-    }
+        if(!Prompt::getInstance()->is_active_prompt()) {
+            ImGui::Text("No Active Prompt");
+            ImGui::End();
+            return;
+        }
 
-    void PromptViewer::setPrompt(const RCP_PromptInputRequest& req) {
-        prompt = std::string(req.prompt);
-        type = req.type;
-        showWindow();
+        ImGui::TextUnformatted(Prompt::getInstance()->get_prompt().c_str());
+
+        if(Prompt::getInstance()->getType() == RCP_PromptDataType_GONOGO) {
+            bool* gng = Prompt::getInstance()->getGNGPointer();
+            bool prev = *gng;
+            if(prev) ImGui::BeginDisabled();
+            if(ImGui::Button("NO GO")) *gng = false;
+            if(prev) ImGui::EndDisabled();
+
+            if(!prev) ImGui::BeginDisabled();
+            ImGui::SameLine();
+            if(ImGui::Button("GO")) *gng = true;
+            if(!prev) ImGui::EndDisabled();
+
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, prev ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1));
+            ImGui::Text(prev ? "GO" : "NO GO");
+            ImGui::PopStyleColor();
+        }
+
+        else {
+            ImGui::Text("Enter Value: ");
+            ImGui::SameLine();
+            ImGui::InputFloat("##promptfloatval", Prompt::getInstance()->getValPointer());
+        }
+
+        if(ImGui::Button("Confirm##promptconfirm")) {
+            Prompt::getInstance()->submitPrompt();
+        }
+
+        if(standaloneWindow) ImGui::End();
     }
 }

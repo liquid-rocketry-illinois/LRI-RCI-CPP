@@ -8,21 +8,16 @@
 
 namespace LRI::RCI {
     class PromptViewer : public BaseUI {
-        static PromptViewer* instance;
-
-        PromptViewer() = default;
-
-        std::string prompt;
-        RCP_PromptDataType_t type = RCP_PromptDataType_GONOGO;
-        bool gonogo = false;
-        float value = 0;
+        const bool standaloneWindow;
+        const ImVec2 startPos;
+        const ImVec2 startSize;
 
     public:
-        static PromptViewer* getInstance();
+        explicit PromptViewer(bool standaloneWindow, const ImVec2&& startPos = {0, 0},
+                              const ImVec2&& startSize = {0, 0});
+        ~PromptViewer() override = default;
 
         void render() override;
-        void setPrompt(const RCP_PromptInputRequest& req);
-        ~PromptViewer() override = default;
     };
 }
 

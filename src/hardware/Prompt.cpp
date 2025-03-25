@@ -36,7 +36,7 @@ namespace LRI::RCI {
     bool Prompt::submitPrompt() {
         bool complete;
         if(type == RCP_PromptDataType_GONOGO) complete = !RCP_promptRespondGONOGO(gng);
-        else complete = !RCP_promptRespondFloat(val);;
+        else complete = !RCP_promptRespondFloat(val);
         if(complete) activePrompt = false;
         return complete;
     }
