@@ -1,40 +1,24 @@
 #include "UI/EStopViewer.h"
 
 #include "imgui.h"
-#include "RCP_Host/RCP_Host.h"
 
 #include "utils.h"
+#include "hardware/EStop.h"
 
 namespace LRI::RCI {
-
-    // Very simple class
-    constexpr int winFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoResize;
-    EStopViewer* EStopViewer::instance;
-
-    EStopViewer::EStopViewer() : BaseUI() {}
-
-    EStopViewer* EStopViewer::getInstance() {
-        if(instance == nullptr) instance = new EStopViewer();
-        return instance;
+    EStopViewer::EStopViewer(const ImVec2&& size) : size(size) {
     }
 
     void EStopViewer::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(450, 300)), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(scale(ImVec2(100, 100)), ImGuiCond_FirstUseEver);
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
 
-        if(ImGui::Begin("ESTOP", nullptr, winFlags)) {
-            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
-
-            // If button pushed, send E-STOP packet
-            if(ImGui::Button("EMERGENCY\n  STOP", ImVec2(scale(90), scale(70)))) {
-                RCP_sendEStop();
-            }
-
-            ImGui::PopStyleColor(3);
+        // If button pushed, send E-STOP packet
+        if(ImGui::Button("EMERGENCY\n  STOP", scale(size))) {
+            EStop::getInstance()->ESTOP();
         }
 
-        ImGui::End();
+        ImGui::PopStyleColor(3);
     }
 }
