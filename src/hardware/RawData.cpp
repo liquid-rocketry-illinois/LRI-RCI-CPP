@@ -1,7 +1,6 @@
 #include "hardware/RawData.h"
 
 namespace LRI::RCI {
-
     RawData* RawData::getInstance() {
         static RawData* instance = nullptr;
         if(instance == nullptr) instance = new RawData();
@@ -9,14 +8,19 @@ namespace LRI::RCI {
     }
 
     void RawData::receiveRCPUpdate(const RCP_CustomData& data) {
-        raw.insert(raw.end(), static_cast<uint8_t*>(data.data), static_cast<uint8_t*>(data.data) + data.length);
+        std::stringstream temp;
+        for(int i = 0; i < data.length; i++) {
+            temp << static_cast<char*>(data.data)[i];
+        }
+
+        chars << temp.str();
     }
 
     void RawData::reset() {
-        raw.clear();
+        chars.str("");
     }
 
-    const std::vector<uint8_t>* RawData::getData() const {
-        return &raw;
+    const std::stringstream& RawData::getData() const {
+        return chars;
     }
 }

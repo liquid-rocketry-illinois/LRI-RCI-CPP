@@ -6,7 +6,7 @@
 #include "hardware/EStop.h"
 
 namespace LRI::RCI {
-    EStopViewer::EStopViewer(const ImVec2&& size) : size(size) {
+    EStopViewer::EStopViewer(const ImVec2&& size) : size(scale(size)) {
     }
 
     void EStopViewer::render() {
@@ -15,7 +15,7 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
 
         // If button pushed, send E-STOP packet
-        if(ImGui::Button("EMERGENCY\n  STOP", scale(size))) {
+        if(ImGui::Button("EMERGENCY\n  STOP", size)) {
             EStop::getInstance()->ESTOP();
         }
 
