@@ -4,13 +4,13 @@
 
 namespace LRI::RCI {
     PromptViewer::PromptViewer(bool standaloneWindow, const ImVec2&& startPos, const ImVec2&& startSize)
-        : standaloneWindow(standaloneWindow), startPos(scale(startPos)), startSize(scale(startSize)) {
+        : standaloneWindow(standaloneWindow), startPos(startPos), startSize(startSize) {
     }
 
     void PromptViewer::render() {
         if(standaloneWindow) {
-            ImGui::SetNextWindowPos(startPos, ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowSize(startSize, ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowPos(scale(startPos), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(scale(startSize), ImGuiCond_FirstUseEver);
             if(!ImGui::Begin("Target Prompt")) {
                 ImGui::End();
                 return;

@@ -2,96 +2,69 @@
 #define SENSORVIEWER_H
 
 #include <map>
-#include <string>
-#include <thread>
 #include <vector>
 
 #include "BaseUI.h"
-#include "RCP_Host/RCP_Host.h"
+#include "hardware/HardwareQualifier.h"
+#include "hardware/Sensors.h"
 
 namespace LRI::RCI {
-    // Structure that is used to represent a sensor. Contains the device class, ID if applicable, and a display string
-    struct SensorQualifier {
-        RCP_DeviceClass_t devclass = 0;
-        uint8_t id = 0;
-        std::string name;
-
-        // Used for ordering
-        bool operator<(SensorQualifier const& rhf) const;
-
-        // Helper for packing data as a string
-        [[nodiscard]] std::string asString() const;
-    };
-
-    // A single point of data. Contains a timestamp and the raw data, which can be interpreted as a single value, a
-    // list of 3 values (for example, accelerometer data with 3 axes), and a list of 4 values (for GPS data)
-    struct DataPoint {
-        double timestamp;
-        double data[4];
-    };
-
     // A window which shows graphs logging received sensor datapoints
     class SensorViewer : public BaseUI {
-        // Structure for combining a thread and an atomic done flag
-        struct FileWriteThreadData {
-            std::thread* thread;
-            std::atomic_bool done;
+        struct Line {
+            const char* name;
+            const int datanum;
         };
 
-        static constexpr ImGuiWindowFlags fullscreenFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove |
-                                                  ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                                                  ImGuiWindowFlags_NoDecoration;
+        struct Graph {
+            const char* name;
+            const char* axis;
+            const std::vector<Line> lines;
+        };
 
-        static constexpr ImGuiWindowFlags regularFlags = ImGuiWindowFlags_None;
+        static void renderLatestReadings(const HardwareQualifier& qual, const Sensors::DataPoint& data);
+        static int classnum;
+        static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 
+        // This map contains how each sensor should be rendered. It is quite a mess. clang-format is turned off
+        // here since it looks neater this way than the way the formatter would make it
 
-        // Initial size for the vectors storing the sensor data
-        static constexpr int DATA_VECTOR_INITIAL_SIZE = 50'000;
+        // The map maps each sensor device class to a vector of graphs. Each graph contains the name of the graph,
+        // what its Y axis should be (all X axes are time), and a vector of lines to be plotted. Each line contains
+        // the name of the line, as well as the offset into the Sensors::DataPoint::Data array. It looks messy, but
+        // this system is significantly cleaner than the previous implementation. As in half the number of LOC cleaner.
 
-        // Helper function that is ran in a thread to write sensor data to a CSV file. The vector pointer is de-allocated!
-        static void toCSVFile(const SensorQualifier& qual, const std::vector<DataPoint>* data, std::atomic_bool* done);
+        // clang-format off
+        static constexpr std::map<RCP_DeviceClass_t, std::vector<Graph>> GRAPHINFO {
+            {RCP_DEVCLASS_AM_PRESSURE, {{.name = "Ambient Pressure", "Pressure (mbars)", {{.name = "Pressure", .datanum = 0}}}}},
+            {RCP_DEVCLASS_AM_TEMPERATURE, {{.name = "Ambient Temperature", "Temperature (Celsius)", {{.name = "Temperature", .datanum = 0}}}}},
+            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{.name = "Pressure", "Pressure (psi)", {{.name = "Pressure", .datanum = 0}}}}},
+            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{.name = "Relative Humidity", "Humidity (Relative %)", {{.name = "Humidity", .datanum = 0}}}}},
+            {RCP_DEVCLASS_LOAD_CELL, {{.name = "Load Cell", "Mass (kg)", {{.name = "Mass", .datanum = 0}}}}},
+            {RCP_DEVCLASS_POWERMON, {{.name = "Power Monitor - Voltage", "Voltage (V)", {{.name = "Volts", .datanum = 0}}}, {.name = "Power Monitor - Power", "Power (W)", {{.name = "Power", .datanum = 1}}}}},
+            {RCP_DEVCLASS_ACCELEROMETER, {{.name = "Accelerometer", "Acceleration (m/s/s)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
+            {RCP_DEVCLASS_GYROSCOPE, {{.name = "Gyroscope", "Angular Acceleration (deg/s/s)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
+            {RCP_DEVCLASS_MAGNETOMETER, {{.name = "Magnetometer", "Magnetic Field (Gauss)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
+            {RCP_DEVCLASS_GPS, {{.name = "GPS - Lat & Lon", "Position (degrees)", {{.name = "Latitude", .datanum = 0}, {.name = "Longitude", .datanum = 1}}}, {.name = "GPS - Altitude", "Altitude (m)", {{.name = "Altitude", .datanum = 2}}}, {.name = "GPS - Ground Speed", "Speed (m/s)", {{.name = "Speed", .datanum = 3}}}}},
+        };
+        // clang-format on
 
-        static void renderLatestReadings(const SensorQualifier& qual, const DataPoint& data);
-
-        // Singleton instance
-        static SensorViewer* instance;
-
-        SensorViewer() = default;
-
+        // In order to avoid conflicts with other sensor viewer classes get a unique id for each class
+        // to be used with imgui
+        const std::string sensorchild;
         // Holds the data vectors mapped to their qualifiers
-        std::map<SensorQualifier, std::vector<DataPoint>> sensors;
+        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> sensors;
+        std::map<HardwareQualifier, bool> abridged;
 
-        // Holds the file writing threads mapped to sensor qualifiers
-        std::map<SensorQualifier, FileWriteThreadData> filewritethreads;
-
-        void drawSensors();
-
-        bool fullscreen;
-        bool doResize = false;
-        ImVec2 preFullscreenSize;
-        ImVec2 preFullscreeenPos;
+        void renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
+                          const ImVec2& plotsize) const;
 
     public:
-        // Get singleton instance
-        static SensorViewer* getInstance();
+        explicit SensorViewer(const std::map<HardwareQualifier, bool>& quals);
+        ~SensorViewer() override = default;
 
         // Overridden render function
         void render() override;
-
-        // Can be used to set the configuration of sensors. Takes in a set of qualifiers that represent which sensors
-        // should be allocated
-        void setHardwareConfig(const std::set<SensorQualifier>& sensids);
-
-        // Callback for RCP
-        void receiveRCPUpdate(const RCP_OneFloat& data);
-        void receiveRCPUpdate(const RCP_TwoFloat& data);
-        void receiveRCPUpdate(const RCP_ThreeFloat& data);
-        void receiveRCPUpdate(const RCP_FourFloat& data);
-
-        // Needs custom reset
-        void reset() override;
-
-        ~SensorViewer() override = default;
     };
 }
 

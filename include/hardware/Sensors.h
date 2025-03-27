@@ -48,7 +48,6 @@ namespace LRI::RCI {
         void reset();
         void update();
 
-        [[nodiscard]] const std::map<HardwareQualifier, std::vector<DataPoint>*>* getState() const;
         [[nodiscard]] const std::vector<DataPoint>* getState(const HardwareQualifier& qual) const;
         void writeCSV(const HardwareQualifier& qual);
     };

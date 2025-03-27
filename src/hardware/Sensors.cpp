@@ -177,18 +177,14 @@ namespace LRI::RCI {
         threadSetMux.unlock();
     }
 
-    const std::map<HardwareQualifier, std::vector<Sensors::DataPoint>*>* Sensors::getState() const {
-        return &sensors;
-    }
-
     const std::vector<Sensors::DataPoint>* Sensors::getState(const HardwareQualifier& qual) const {
         return sensors.at(qual);
     }
 
     void Sensors::writeCSV(const HardwareQualifier& qual) {
         auto* copy = new std::vector(*sensors[qual]);
-        auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
         threadSetMux.lock();
+        auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
         activeThreads[thread->get_id()] = thread;
         threadSetMux.unlock();
     }
