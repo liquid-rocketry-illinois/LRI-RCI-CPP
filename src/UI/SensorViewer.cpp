@@ -8,7 +8,7 @@
 #include <implot.h>
 
 namespace LRI::RCI {
-    int SensorViewer::classnum = 0;
+    int SensorViewer::CLASSID = 0;
 
     // Helper
     float min3(float a, float b, float c) {
@@ -64,8 +64,7 @@ namespace LRI::RCI {
         }
     }
 
-    SensorViewer::SensorViewer(const std::map<HardwareQualifier, bool>& quals)
-        : sensorchild("##sensorchild" + std::to_string(classnum++)) {
+    SensorViewer::SensorViewer(const std::map<HardwareQualifier, bool>& quals) : classid(CLASSID++) {
         for(const auto& [qual, abr] : quals) {
             sensors[qual] = Sensors::getInstance()->getState(qual);
             abridged[qual] = abr;
@@ -73,13 +72,18 @@ namespace LRI::RCI {
     }
 
     void SensorViewer::render() {
+        ImGui::PushID("SensorViewer");
+        ImGui::PushID(classid);
+
         ImDrawList* draw = ImGui::GetWindowDrawList();
         const float xsize = ImGui::GetWindowWidth() - scale(50);
         const ImVec2 plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
                                                    ImGui::GetWindowHeight() - scale(75)));
 
-        if(!ImGui::BeginChild(sensorchild.c_str(), ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
+        if(!ImGui::BeginChild("##child", ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
             ImGui::EndChild();
+            ImGui::PopID();
+            ImGui::PopID();
             return;
         }
 
@@ -96,7 +100,12 @@ namespace LRI::RCI {
 
         for(const auto& [qual, data] // Filter for non-abridged sensors
             : sensors | std::views::filter([&](const auto& a) { return !abridged[a.first]; })) {
-            if(!ImGui::TreeNode((qual.name + sensorchild + qual.asString()).c_str())) continue;
+            ImGui::PushID(qual.asString().c_str());
+
+            if(!ImGui::TreeNode(qual.name.c_str())) {
+                ImGui::PopID();
+                continue;
+            }
 
             ImGui::Text("Sensor Status: ");
             ImGui::SameLine();
@@ -109,38 +118,46 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();
-            if(ImGui::Button(("Write to CSV" + sensorchild + qual.asString() + sensorchild).c_str()))
+            if(ImGui::Button("Write To CSV"))
                 Sensors::getInstance()->writeCSV(qual);
 
             renderGraphs(qual, data, plotsize);
 
             ImGui::Separator();
             ImGui::TreePop();
+
+            ImGui::PopID();
         }
 
         ImGui::EndChild();
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 
     void SensorViewer::renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
                                     const ImVec2& plotsize) const {
         for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
-            if(!ImPlot::BeginPlot((std::string(graph.name) + sensorchild + qual.asString()).c_str(), plotsize))
+            ImGui::PushID(graph.name);
+            if(!ImPlot::BeginPlot(graph.name, plotsize)) {
+                ImGui::PopID();
                 continue;
+            }
 
             ImPlot::SetupAxes("Time (s)", graph.axis, ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
             if(data->empty()) {
                 ImPlot::EndPlot();
+                ImGui::PopID();
                 continue;
             }
 
             for(const auto& line : graph.lines) {
-                ImPlot::PlotLine((line.name + sensorchild + qual.asString()).c_str(),
-                                 &data->at(0).timestamp,
-                                 (data->at(0).data + line.datanum), static_cast<int>(data->size()),
-                                 0, 0, sizeof(Sensors::DataPoint));
+                ImPlot::PlotLine(line.name, &data->at(0).timestamp, (data->at(0).data + line.datanum),
+                                 static_cast<int>(data->size()), 0, 0, sizeof(Sensors::DataPoint));
             }
 
             ImPlot::EndPlot();
+            ImGui::PopID();
         }
     }
 }

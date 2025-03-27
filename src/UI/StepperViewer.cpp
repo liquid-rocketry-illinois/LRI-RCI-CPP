@@ -1,16 +1,20 @@
 #include "UI/StepperViewer.h"
 
 namespace LRI::RCI {
+    int StepperViewer::CLASSID = 0;
+
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton)
-        : refreshButton(refreshButton) {
+        : classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& qual : quals) {
             steppers[qual] = Steppers::getInstance()->getState(qual);
             inputs[qual] = Input();
         }
     }
 
-
     void StepperViewer::render() {
+        ImGui::PushID("StepperViewer");
+        ImGui::PushID(classid);
+
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
         bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
@@ -18,7 +22,7 @@ namespace LRI::RCI {
         // Button for manually refreshing the states of all steppers
         if(refreshButton) {
             if(lockButtons) ImGui::BeginDisabled();
-            if(ImGui::Button("Invalidate Cache and Refresh States")) {
+            if(ImGui::Button("Refresh All")) {
                 Steppers::getInstance()->refreshAll();
                 buttonTimer.reset();
             }
@@ -27,6 +31,8 @@ namespace LRI::RCI {
         }
 
         for(auto& [id, step] : steppers) {
+            ImGui::PushID(id.asString().c_str());
+
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImU32 statusColor = step->stale ? STALE_COLOR : ENABLED_COLOR;
@@ -36,7 +42,7 @@ namespace LRI::RCI {
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
             ImGui::SameLine();
 
-            ImGui::Text("Stepper Motor %s (%d)", id.asString().c_str(), id.id);
+            ImGui::Text("Stepper Motor %s (%d)", id.name.c_str(), id.id);
 
             // Button for toggling how the inputted value will be interpreted
             ImGui::Text("Control Mode: ");
@@ -48,7 +54,7 @@ namespace LRI::RCI {
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, REBECCA_PURPLE);
                 }
 
-                if(ImGui::Button((strings[0] + id.asString()).c_str())) inputs[id].mode = controlMode;
+                if(ImGui::Button(strings[0])) inputs[id].mode = controlMode;
 
                 if(activemode) ImGui::PopStyleColor(3);
                 ImGui::SameLine();
@@ -59,13 +65,12 @@ namespace LRI::RCI {
             ImGui::Text("Value: ");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(scale(75));
-            ImGui::InputFloat((" " + BTN_NAMES.at(inputs[id].mode)[1] + std::string("##inputval") +
-                                  id.asString()).c_str(), &inputs[id].val);
+            ImGui::InputFloat(BTN_NAMES.at(inputs[id].mode)[1], &inputs[id].val);
 
             // The apply button actually sends the control value to the stepper motors
             if(lockButtons || step->stale) ImGui::BeginDisabled();
             ImGui::SameLine();
-            if(ImGui::Button((std::string("Apply##") + id.asString()).c_str())) {
+            if(ImGui::Button("Apply")) {
                 Steppers::getInstance()->setState(id, inputs[id].mode, inputs[id].val);
                 buttonTimer.reset();
             }
@@ -79,7 +84,11 @@ namespace LRI::RCI {
 
             ImGui::NewLine();
             ImGui::Separator();
+            ImGui::PopID();
         }
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 
     void StepperViewer::reset() {

@@ -9,6 +9,9 @@
 namespace LRI::RCI {
     // Window which shows the output to the custom device class from RCP
     class RawViewer : public BaseUI {
+        static int CLASSID;
+
+        const int classid;
         const ImVec2 size;
 
     public:

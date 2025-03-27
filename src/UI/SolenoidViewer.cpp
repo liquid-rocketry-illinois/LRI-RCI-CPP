@@ -8,21 +8,26 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
+    int SolenoidViewer::CLASSID = 0;
+
     SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton)
-        : refreshButton(refreshButton) {
+        : classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& sol : quals) {
             sols[sol] = Solenoids::getInstance()->getState(sol);
         }
     }
 
     void SolenoidViewer::render() {
+        ImGui::PushID("SolenoidViewer");
+        ImGui::PushID(classid);
+
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
         bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
         if(lockButtons) ImGui::BeginDisabled();
 
         // A button to manually refresh the states of each solenoid
-        if(refreshButton && ImGui::Button("Invalidate Cache and Refresh States")) {
+        if(refreshButton && ImGui::Button("Refresh All")) {
             Solenoids::getInstance()->refreshAll();
             buttonTimer.reset();
         }
@@ -32,6 +37,8 @@ namespace LRI::RCI {
         // Rendering each solenoid is simple. It consists of a status square, and a button to turn the solenoid
         // on and off
         for(const auto& [id, state] : sols) {
+            ImGui::PushID(id.asString().c_str());
+
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImU32 statusColor = !state->stale ? (state->open ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;
             const char* tooltip = !state->stale ? (state->open ? "Solenoid ON" : "Solenoid OFF") : "Stale Data";
@@ -44,11 +51,16 @@ namespace LRI::RCI {
             ImGui::SameLine();
 
             if(lockButtons || !state->stale) ImGui::BeginDisabled();
-            if(ImGui::Button((std::string(!state->open ? "ON##" : "OFF##") + id.asString()).c_str())) {
+            if(ImGui::Button(!state->open ? "ON" : "OFF")) {
                 Solenoids::getInstance()->setSolenoidState(id, state->open ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON);
                 buttonTimer.reset();
             }
             if(lockButtons || !state->stale) ImGui::EndDisabled();
+
+            ImGui::PopID();
         }
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 }

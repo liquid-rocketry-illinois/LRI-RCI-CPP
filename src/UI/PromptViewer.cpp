@@ -3,11 +3,16 @@
 #include "hardware/Prompt.h"
 
 namespace LRI::RCI {
+    int PromptViewer::CLASSID = 0;
+
     PromptViewer::PromptViewer(bool standaloneWindow, const ImVec2&& startPos, const ImVec2&& startSize)
-        : standaloneWindow(standaloneWindow), startPos(startPos), startSize(startSize) {
+        : classid(CLASSID++), standaloneWindow(standaloneWindow), startPos(startPos), startSize(startSize) {
     }
 
     void PromptViewer::render() {
+        ImGui::PushID("PromptViewer");
+        ImGui::PushID(classid);
+
         if(standaloneWindow) {
             ImGui::SetNextWindowPos(scale(startPos), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowSize(scale(startSize), ImGuiCond_FirstUseEver);
@@ -19,11 +24,15 @@ namespace LRI::RCI {
 
         if(!Prompt::getInstance()->is_active_prompt()) {
             ImGui::Text("No Active Prompt");
-            ImGui::End();
+            if(standaloneWindow) ImGui::End();
+            ImGui::PopID();
+            ImGui::PopID();
             return;
         }
 
+        ImGui::PushTextWrapPos();
         ImGui::TextUnformatted(Prompt::getInstance()->get_prompt().c_str());
+        ImGui::PopTextWrapPos();
 
         if(Prompt::getInstance()->getType() == RCP_PromptDataType_GONOGO) {
             bool* gng = Prompt::getInstance()->getGNGPointer();
@@ -49,10 +58,13 @@ namespace LRI::RCI {
             ImGui::InputFloat("##promptfloatval", Prompt::getInstance()->getValPointer());
         }
 
-        if(ImGui::Button("Confirm##promptconfirm")) {
+        if(ImGui::Button("Confirm")) {
             Prompt::getInstance()->submitPrompt();
         }
 
         if(standaloneWindow) ImGui::End();
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 }

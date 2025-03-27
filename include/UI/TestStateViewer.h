@@ -9,14 +9,17 @@
 namespace LRI::RCI {
     // A window for controlling the test state of the target
     class TestStateViewer : public BaseUI {
+        static int CLASSID;
+
+        const int classid;
         // The modified hearbeat rate
-        int inputHeartbeatRate{};
-        int inputTestNum{};
-        bool dstream{};
-        bool doHeartbeats{};
+        int inputHeartbeatRate;
+        int inputTestNum;
+        bool dstream;
+        bool doHeartbeats;
 
     public:
-        TestStateViewer() = default;
+        TestStateViewer();
         ~TestStateViewer() override = default;
 
         // Overridden render function

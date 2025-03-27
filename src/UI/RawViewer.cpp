@@ -2,11 +2,16 @@
 #include "hardware/RawData.h"
 
 namespace LRI::RCI {
-    RawViewer::RawViewer(const ImVec2&& size) : size(size) {
+    int RawViewer::CLASSID = 0;
+
+    RawViewer::RawViewer(const ImVec2&& size) : classid(CLASSID++), size(size) {
     }
 
     void RawViewer::render() {
-        if(ImGui::Button("Clear##serialclear")) {
+        ImGui::PushID("RawViewer");
+        ImGui::PushID(classid);
+
+        if(ImGui::Button("Clear")) {
             RawData::getInstance()->reset();
         }
 
@@ -22,5 +27,8 @@ namespace LRI::RCI {
 
         ImGui::EndChild();
         ImGui::Separator();
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 }

@@ -23,7 +23,7 @@ namespace LRI::RCI {
         };
 
         static void renderLatestReadings(const HardwareQualifier& qual, const Sensors::DataPoint& data);
-        static int classnum;
+        static int CLASSID;
         static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 
         // This map contains how each sensor should be rendered. It is quite a mess. clang-format is turned off
@@ -49,9 +49,7 @@ namespace LRI::RCI {
         };
         // clang-format on
 
-        // In order to avoid conflicts with other sensor viewer classes get a unique id for each class
-        // to be used with imgui
-        const std::string sensorchild;
+        const int classid;
         // Holds the data vectors mapped to their qualifiers
         std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> sensors;
         std::map<HardwareQualifier, bool> abridged;

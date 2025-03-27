@@ -7,6 +7,9 @@ namespace LRI::RCI {
 
     // A simple window which will send an E-STOP packet when pushed
     class EStopViewer : public BaseUI {
+        static int CLASSID;
+
+        const int classid;
         const ImVec2 size;
 
     public:

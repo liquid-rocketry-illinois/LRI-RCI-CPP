@@ -8,6 +8,9 @@
 
 namespace LRI::RCI {
     class PromptViewer : public BaseUI {
+        static int CLASSID;
+
+        const int classid;
         const bool standaloneWindow;
         const ImVec2 startPos;
         const ImVec2 startSize;

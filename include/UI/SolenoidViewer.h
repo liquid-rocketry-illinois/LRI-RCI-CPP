@@ -10,6 +10,9 @@
 namespace LRI::RCI {
     // A window for showing and controlling solenoid status
     class SolenoidViewer : public BaseUI {
+        static int CLASSID;
+
+        const int classid;
         const bool refreshButton;
         // Maps human identifiable names to solenoid ID
         std::map<HardwareQualifier, const Solenoids::SolenoidState*> sols;

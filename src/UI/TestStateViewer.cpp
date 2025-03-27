@@ -5,7 +5,17 @@
 #include "utils.h"
 
 namespace LRI::RCI {
+    int TestStateViewer::CLASSID = 0;
+
+    TestStateViewer::TestStateViewer() : classid(CLASSID++), inputHeartbeatRate(0), inputTestNum(0), dstream(false),
+                                         doHeartbeats(false) {
+    }
+
+
     void TestStateViewer::render() {
+        ImGui::PushID("TestStateViewer");
+        ImGui::PushID(classid);
+
         ImGui::Text("Test Control");
 
         bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
@@ -114,6 +124,9 @@ namespace LRI::RCI {
 
             if(lockButtons) ImGui::EndDisabled();
         }
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 
     void TestStateViewer::reset() {
