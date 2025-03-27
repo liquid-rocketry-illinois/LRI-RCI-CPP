@@ -14,7 +14,11 @@ namespace LRI::RCI {
     // A window for showing and controlling states of stepper motors
     class StepperViewer : public BaseUI {
         // Maps control modes to UI button names
-        static const std::map<uint8_t, std::vector<std::string>> BTN_NAMES; // Unfortunately, it can't be constexpr
+        static constexpr std::map<RCP_StepperControlMode_t, std::vector<std::string>> BTN_NAMES{
+            {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
+            {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
+            {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", "degrees/s"}},
+        };
 
         struct Input {
             float val;

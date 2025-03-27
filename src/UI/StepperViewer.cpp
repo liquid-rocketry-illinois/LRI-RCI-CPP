@@ -1,13 +1,6 @@
 #include "UI/StepperViewer.h"
 
 namespace LRI::RCI {
-    // Maps stepper control modes to the correct name and unit
-    const std::map<uint8_t, std::vector<std::string>> StepperViewer::BTN_NAMES = {
-        {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", "degrees"}},
-        {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", "degrees"}},
-        {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", "degrees/s"}}
-    };
-
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton)
         : refreshButton(refreshButton) {
         for(const auto& qual : quals) {
@@ -25,7 +18,7 @@ namespace LRI::RCI {
         // Button for manually refreshing the states of all steppers
         if(refreshButton) {
             if(lockButtons) ImGui::BeginDisabled();
-            if(refreshButton && ImGui::Button("Invalidate Cache and Refresh States")) {
+            if(ImGui::Button("Invalidate Cache and Refresh States")) {
                 Steppers::getInstance()->refreshAll();
                 buttonTimer.reset();
             }
