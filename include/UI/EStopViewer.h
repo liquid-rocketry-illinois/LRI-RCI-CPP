@@ -13,7 +13,7 @@ namespace LRI::RCI {
         const ImVec2 size;
 
     public:
-        explicit EStopViewer(const ImVec2&& size);
+        explicit EStopViewer();
         ~EStopViewer() override = default;
 
         // Overridden render

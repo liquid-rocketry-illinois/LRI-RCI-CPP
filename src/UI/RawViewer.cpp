@@ -5,7 +5,7 @@
 namespace LRI::RCI {
     int RawViewer::CLASSID = 0;
 
-    RawViewer::RawViewer(const ImVec2&& size) : classid(CLASSID++), size(size) {
+    RawViewer::RawViewer() : classid(CLASSID++) {
     }
 
     void RawViewer::render() {
@@ -19,7 +19,7 @@ namespace LRI::RCI {
         ImGui::Separator();
 
         // An imgui child to contain the text
-        if(ImGui::BeginChild("##serialchild", scale(size))) {
+        if(ImGui::BeginChild("##serialchild", {ImGui::GetWindowWidth(), scale(175)})) {
             // Displaying the text just by rendering the string stream
             ImGui::PushTextWrapPos();
             ImGui::TextUnformatted(RawData::getInstance()->getData().str().c_str());

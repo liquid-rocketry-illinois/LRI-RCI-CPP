@@ -6,26 +6,16 @@
 namespace LRI::RCI {
     int PromptViewer::CLASSID = 0;
 
-    PromptViewer::PromptViewer(bool standaloneWindow, const ImVec2&& startPos, const ImVec2&& startSize)
-        : classid(CLASSID++), standaloneWindow(standaloneWindow), startPos(startPos), startSize(startSize) {
+    PromptViewer::PromptViewer()
+        : classid(CLASSID++) {
     }
 
     void PromptViewer::render() {
         ImGui::PushID("PromptViewer");
         ImGui::PushID(classid);
 
-        if(standaloneWindow) {
-            ImGui::SetNextWindowPos(scale(startPos), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowSize(scale(startSize), ImGuiCond_FirstUseEver);
-            if(!ImGui::Begin("Target Prompt")) {
-                ImGui::End();
-                return;
-            }
-        }
-
         if(!Prompt::getInstance()->is_active_prompt()) {
             ImGui::Text("No Active Prompt");
-            if(standaloneWindow) ImGui::End();
             ImGui::PopID();
             ImGui::PopID();
             return;
@@ -62,8 +52,6 @@ namespace LRI::RCI {
         if(ImGui::Button("Confirm")) {
             Prompt::getInstance()->submitPrompt();
         }
-
-        if(standaloneWindow) ImGui::End();
 
         ImGui::PopID();
         ImGui::PopID();

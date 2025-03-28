@@ -8,13 +8,9 @@ namespace LRI::RCI {
         static int CLASSID;
 
         const int classid;
-        const bool standaloneWindow;
-        const ImVec2 startPos;
-        const ImVec2 startSize;
 
     public:
-        explicit PromptViewer(bool standaloneWindow, const ImVec2&& startPos = {0, 0},
-                              const ImVec2&& startSize = {0, 0});
+        explicit PromptViewer();
         ~PromptViewer() override = default;
 
         void render() override;

@@ -8,7 +8,7 @@
 namespace LRI::RCI {
     int EStopViewer::CLASSID = 0;
 
-    EStopViewer::EStopViewer(const ImVec2&& size) : classid(CLASSID++), size(size) {
+    EStopViewer::EStopViewer() : classid(CLASSID++) {
     }
 
     void EStopViewer::render() {
@@ -20,7 +20,7 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
 
         // If button pushed, send E-STOP packet
-        if(ImGui::Button("EMERGENCY STOP", scale(size))) {
+        if(ImGui::Button("EMERGENCY STOP", {ImGui::GetWindowWidth(), ImGui::GetWindowWidth()})) {
             EStop::getInstance()->ESTOP();
         }
 

@@ -9,10 +9,9 @@ namespace LRI::RCI {
         static int CLASSID;
 
         const int classid;
-        const ImVec2 size;
 
     public:
-        explicit RawViewer(const ImVec2&& size);
+        explicit RawViewer();
         ~RawViewer() override = default;
 
         // Overridden render function
