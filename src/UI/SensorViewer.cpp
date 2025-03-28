@@ -62,10 +62,10 @@ namespace LRI::RCI {
         }
     }
 
-    SensorViewer::SensorViewer(const std::map<HardwareQualifier, bool>& quals) : classid(CLASSID++) {
-        for(const auto& [qual, abr] : quals) {
+    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : classid(CLASSID++),
+        abridged(abridged) {
+        for(const auto& qual : quals) {
             sensors[qual] = Sensors::getInstance()->getState(qual);
-            abridged[qual] = abr;
         }
     }
 
@@ -85,19 +85,21 @@ namespace LRI::RCI {
             return;
         }
 
-        int num = 0;
-        for(const auto& [qual, data] // vv-- Filter for abridged sensors
-            : sensors | std::views::filter([&](const auto& a) { return abridged[a.first]; })) {
-            renderLatestReadings(qual, data->empty() ? empty : data[data->size() - 1]);
-            if(num++ % 4 != 0) {
-                ImGui::SameLine();
-                ImGui::Text(" | ");
-                ImGui::SameLine();
+        if(abridged) {
+            int num = 0;
+            for(const auto& [qual, data] : sensors) {
+                renderLatestReadings(qual, data->empty() ? empty : data[data->size() - 1]);
+                if(num++ % 4 != 0) {
+                    ImGui::SameLine();
+                    ImGui::Text(" | ");
+                    ImGui::SameLine();
+                }
             }
+
+            return;
         }
 
-        for(const auto& [qual, data] // Filter for non-abridged sensors
-            : sensors | std::views::filter([&](const auto& a) { return !abridged[a.first]; })) {
+        for(const auto& [qual, data] : sensors) {
             ImGui::PushID(qual.asString().c_str());
 
             if(!ImGui::TreeNode(qual.name.c_str())) {
@@ -134,7 +136,7 @@ namespace LRI::RCI {
     }
 
     void SensorViewer::renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
-                                    const ImVec2& plotsize) const {
+                                    const ImVec2& plotsize) {
         for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
             ImGui::PushID(graph.name);
             if(!ImPlot::BeginPlot(graph.name, plotsize)) {
