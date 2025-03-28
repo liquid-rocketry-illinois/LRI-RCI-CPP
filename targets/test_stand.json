@@ -1,6 +1,5 @@
 {
   "name": "Test Stand",
-  "heartbeat": true,
   "devices": [
     {
       "devclass": 1,
@@ -13,7 +12,156 @@
       "names": ["PT5-ACT", "PT6-OX-PROP", "PT7-F-PROP", "PT8-IGN", "PT1-OX-PRS", "PT2-F-PRS", "PT3-OX-TNK", "PT4-F-TNK"]
     },
     {
-      "devclass": 148
+      "devclass": 148,
+      "ids": [0],
+      "names": ["Load Cell"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "Solenoid Control",
+      "modules": [
+        {
+          "type": 1,
+          "refresh": true,
+          "ids": [0, 1, 2, 3, 4, 5, 6, 7]
+        }
+      ]
+    },
+    {
+      "title": "ESTOP",
+      "modules": [
+        {
+          "type": -1
+        }
+      ]
+    },
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
+    {
+      "title": "Detailed Sensor Info",
+      "modules": [
+        {
+          "type": -2,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 146,
+              "id": 0
+            },
+            {
+              "class": 146,
+              "id": 1
+            },
+            {
+              "class": 146,
+              "id": 2
+            },
+            {
+              "class": 146,
+              "id": 3
+            },
+            {
+              "class": 146,
+              "id": 4
+            },
+            {
+              "class": 146,
+              "id": 5
+            },
+            {
+              "class": 146,
+              "id": 6
+            },
+            {
+              "class": 146,
+              "id": 7
+            },
+            {
+              "class": 148,
+              "id": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Safety Info",
+      "modules": [
+        {
+          "type": -2,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 146,
+              "id": 0
+            },
+            {
+              "class": 146,
+              "id": 1
+            },
+            {
+              "class": 146,
+              "id": 2
+            },
+            {
+              "class": 146,
+              "id": 3
+            },
+            {
+              "class": 146,
+              "id": 4
+            },
+            {
+              "class": 146,
+              "id": 5
+            },
+            {
+              "class": 146,
+              "id": 6
+            },
+            {
+              "class": 146,
+              "id": 7
+            },
+            {
+              "class": 148,
+              "id": 0
+            }
+          ]
+        },
+        {
+          "type": -2,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 146,
+              "id": 3
+            },
+            {
+              "class": 146,
+              "id": 4
+            }
+          ]
+        }
+      ]
     }
   ]
 }

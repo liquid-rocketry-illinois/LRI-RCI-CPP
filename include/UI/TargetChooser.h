@@ -5,8 +5,8 @@
 #include <vector>
 
 #include "nlohmann/json.hpp"
-
-#include "BaseUI.h"
+#include "WModule.h"
+#include "Windowlet.h"
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
@@ -25,9 +25,10 @@ namespace LRI::RCI {
     };
 
     // The most important window. Responsible for initializing and coordinating RCP, the windows, and the interface
-    class TargetChooser final : public BaseUI {
-        // Singleton instance
-        static TargetChooser* instance;
+    class TargetChooser final : public WModule {
+        friend class ControlWindowlet;
+
+        ControlWindowlet* const control;
 
         // The current interface
         RCP_Interface* interf;
@@ -53,7 +54,8 @@ namespace LRI::RCI {
         // Stores the parsed target config
         nlohmann::json targetconfig;
 
-        TargetChooser();
+        explicit TargetChooser(ControlWindowlet* control);
+        ~TargetChooser() override = default;
 
         // Helper to initialize all windows with the correct configurations
         void initWindows();
@@ -62,17 +64,9 @@ namespace LRI::RCI {
         // TargetChooser render function
         void render() override;
 
-        // Get singleton instance
-        static TargetChooser* getInstance();
-
         // Get the interface once open
         [[nodiscard]] const RCP_Interface* getInterface() const;
 
-        // Override hide and show functions to replace with empty functions
-        void hideWindow() override;
-        void showWindow() override;
-
-        ~TargetChooser() override = default;
     };
 }
 
