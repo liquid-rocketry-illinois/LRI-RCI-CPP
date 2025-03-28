@@ -1,10 +1,10 @@
 #include "UI/Windowlet.h"
 
-#include <UI/TestStateViewer.h>
-
+#include "UI/TestStateViewer.h"
 
 namespace LRI::RCI {
     std::set<Windowlet*> Windowlet::windows;
+    StopWatch WModule::buttonTimer = StopWatch();
 
     void Windowlet::renderWindowlets() {
         for(auto* w : windows) {

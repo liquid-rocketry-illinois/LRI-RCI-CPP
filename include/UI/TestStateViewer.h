@@ -1,14 +1,11 @@
 #ifndef TESTSTATEVIEWER_H
 #define TESTSTATEVIEWER_H
 
-#include <utils.h>
-#include <RCP_Host/RCP_Host.h>
-
-#include "BaseUI.h"
+#include "WModule.h"
 
 namespace LRI::RCI {
     // A window for controlling the test state of the target
-    class TestStateViewer : public BaseUI {
+    class TestStateViewer : public WModule {
         static int CLASSID;
 
         const int classid;
@@ -24,9 +21,6 @@ namespace LRI::RCI {
 
         // Overridden render function
         void render() override;
-
-        // Custom reset
-        void reset() override;
     };
 }
 

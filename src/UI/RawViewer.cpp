@@ -1,4 +1,5 @@
 #include "UI/RawViewer.h"
+#include "utils.h"
 #include "hardware/RawData.h"
 
 namespace LRI::RCI {

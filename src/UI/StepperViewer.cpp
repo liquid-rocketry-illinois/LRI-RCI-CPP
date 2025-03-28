@@ -1,4 +1,5 @@
 #include "UI/StepperViewer.h"
+#include "utils.h"
 
 namespace LRI::RCI {
     int StepperViewer::CLASSID = 0;
@@ -89,9 +90,5 @@ namespace LRI::RCI {
 
         ImGui::PopID();
         ImGui::PopID();
-    }
-
-    void StepperViewer::reset() {
-        steppers.clear();
     }
 }

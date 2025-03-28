@@ -1,12 +1,12 @@
 #ifndef ESTOPVIEWER_H
 #define ESTOPVIEWER_H
 
-#include "BaseUI.h"
+#include "WModule.h"
 
 namespace LRI::RCI {
 
     // A simple window which will send an E-STOP packet when pushed
-    class EStopViewer : public BaseUI {
+    class EStopViewer : public WModule {
         static int CLASSID;
 
         const int classid;

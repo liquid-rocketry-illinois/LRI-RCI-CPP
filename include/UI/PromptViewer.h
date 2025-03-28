@@ -1,13 +1,10 @@
 #ifndef PROMPTVIEWER_H
 #define PROMPTVIEWER_H
 
-#include <string>
-
-#include "UI/BaseUI.h"
-#include "RCP_Host/RCP_Host.h"
+#include "WModule.h"
 
 namespace LRI::RCI {
-    class PromptViewer : public BaseUI {
+    class PromptViewer : public WModule {
         static int CLASSID;
 
         const int classid;

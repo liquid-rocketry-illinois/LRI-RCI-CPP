@@ -128,8 +128,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
-
-    void TestStateViewer::reset() {
-        inputHeartbeatRate = 0;
-    }
 }

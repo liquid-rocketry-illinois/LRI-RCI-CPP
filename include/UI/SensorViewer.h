@@ -4,13 +4,13 @@
 #include <map>
 #include <vector>
 
-#include "BaseUI.h"
+#include "WModule.h"
 #include "hardware/HardwareQualifier.h"
 #include "hardware/Sensors.h"
 
 namespace LRI::RCI {
     // A window which shows graphs logging received sensor datapoints
-    class SensorViewer : public BaseUI {
+    class SensorViewer : public WModule {
         struct Line {
             const char* name;
             const int datanum;

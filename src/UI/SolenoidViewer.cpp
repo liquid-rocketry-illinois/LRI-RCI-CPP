@@ -1,10 +1,7 @@
 #include "UI/SolenoidViewer.h"
 
-#include <imgui.h>
-#include <utils.h>
-#include <thread>
-#include <chrono>
-
+#include "imgui.h"
+#include "utils.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {

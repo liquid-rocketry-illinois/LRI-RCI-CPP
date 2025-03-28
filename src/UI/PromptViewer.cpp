@@ -1,6 +1,7 @@
 #include "UI/PromptViewer.h"
 
 #include "hardware/Prompt.h"
+#include "utils.h"
 
 namespace LRI::RCI {
     int PromptViewer::CLASSID = 0;
