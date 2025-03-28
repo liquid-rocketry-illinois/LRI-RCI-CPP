@@ -2,7 +2,7 @@
 #define STEPPERS_H
 
 #include <map>
-#include <vector>
+#include <set>
 
 #include "RCP_Host/RCP_Host.h"
 #include "HardwareQualifier.h"
@@ -26,7 +26,7 @@ namespace LRI::RCI {
         static Steppers* getInstance();
 
         void receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
-        void setHardwareConfig(const std::vector<HardwareQualifier>& motorlist);
+        void setHardwareConfig(const std::set<HardwareQualifier>& motorlist);
         void reset();
 
         void refreshAll() const;

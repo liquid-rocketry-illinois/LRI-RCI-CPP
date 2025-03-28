@@ -2,7 +2,7 @@
 #define HARDWARE_SOLENOIDS_H
 
 #include <map>
-#include <vector>
+#include <set>
 
 #include "RCP_Host/RCP_Host.h"
 #include "HardwareQualifier.h"
@@ -24,7 +24,7 @@ namespace LRI::RCI {
 
         static Solenoids* getInstance();
         void receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
-        void setHardwareConfig(const std::vector<HardwareQualifier>& solIds);
+        void setHardwareConfig(const std::set<HardwareQualifier>& solIds);
         void reset();
 
         [[nodiscard]] const SolenoidState* getState(const HardwareQualifier& qual) const;

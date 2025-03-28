@@ -19,7 +19,7 @@ namespace LRI::RCI {
         state[qual]->open = newState;
     }
 
-    void Solenoids::setHardwareConfig(const std::vector<HardwareQualifier>& solIds) {
+    void Solenoids::setHardwareConfig(const std::set<HardwareQualifier>& solIds) {
         for(const SolenoidState* s : state | std::views::values) delete s;
         state.clear();
 

@@ -32,7 +32,7 @@ namespace LRI::RCI {
         }
     }
 
-    void Steppers::setHardwareConfig(const std::vector<HardwareQualifier>& motorlist) {
+    void Steppers::setHardwareConfig(const std::set<HardwareQualifier>& motorlist) {
         for(const Stepper* s : motors | std::views::values) delete s;
         motors.clear();
 
