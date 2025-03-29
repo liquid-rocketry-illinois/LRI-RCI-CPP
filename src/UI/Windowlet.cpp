@@ -45,6 +45,7 @@ namespace LRI::RCI {
 
         windows.clear();
         windows.insert(this);
+        interf = nullptr;
     }
 
     ControlWindowlet* ControlWindowlet::getInstance() {
@@ -60,4 +61,9 @@ namespace LRI::RCI {
             for(auto* mod : modules) mod->render();
         ImGui::End();
     }
+
+    RCP_Interface* ControlWindowlet::getInterf() const {
+        return interf;
+    }
+
 }

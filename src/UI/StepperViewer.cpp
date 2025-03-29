@@ -91,4 +91,10 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
+
+    const std::map<RCP_StepperControlMode_t, std::vector<const char*>> StepperViewer::BTN_NAMES{
+        {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", " degrees###input"}},
+        {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", " degrees###input"}},
+        {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", " degrees/s###input"}},
+    };
 }

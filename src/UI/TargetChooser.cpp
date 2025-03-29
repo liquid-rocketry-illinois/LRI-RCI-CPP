@@ -161,6 +161,7 @@ namespace LRI::RCI {
                     RCP_setChannel(RCP_CH_ZERO);
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
+                    control->interf = interf;
                     if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini"))
                         ImGui::LoadIniSettingsFromDisk((targetpaths[chosenConfig] + ".ini").c_str());
                     initWindows();
@@ -169,10 +170,6 @@ namespace LRI::RCI {
         }
 
         ImGui::PopID();
-    }
-
-    const RCP_Interface* TargetChooser::getInterface() const {
-        return interf;
     }
 
     // Helper function that resets and initializes all windows

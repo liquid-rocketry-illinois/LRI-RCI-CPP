@@ -65,10 +65,6 @@ namespace LRI::RCI {
     public:
         // TargetChooser render function
         void render() override;
-
-        // Get the interface once open
-        [[nodiscard]] const RCP_Interface* getInterface() const;
-
     };
 }
 

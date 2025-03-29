@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 
+#include "interfaces/RCP_Interface.h"
 #include "WModule.h"
 #include "TargetChooser.h"
 
@@ -27,13 +28,16 @@ namespace LRI::RCI {
         friend class TargetChooser;
 
         ControlWindowlet();
+        ~ControlWindowlet() override = default;
+
         void cleanup();
+        RCP_Interface* interf;
 
     public:
-        ~ControlWindowlet() override = delete;
         static ControlWindowlet* getInstance();
 
         void render() override;
+        RCP_Interface* getInterf() const;
     };
 }
 

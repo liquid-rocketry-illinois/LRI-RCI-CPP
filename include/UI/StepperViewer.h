@@ -14,11 +14,7 @@ namespace LRI::RCI {
     // A window for showing and controlling states of stepper motors
     class StepperViewer : public WModule {
         // Maps control modes to UI button names
-        static constexpr std::map<RCP_StepperControlMode_t, std::vector<const char*>> BTN_NAMES{
-            {RCP_STEPPER_ABSOLUTE_POS_CONTROL, {"Absolute Positioning##", " degrees###input"}},
-            {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", " degrees###input"}},
-            {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", " degrees/s###input"}},
-        };
+        static const std::map<RCP_StepperControlMode_t, std::vector<const char*>> BTN_NAMES;
 
         static int CLASSID;
 

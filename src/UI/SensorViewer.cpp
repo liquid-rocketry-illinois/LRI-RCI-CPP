@@ -88,7 +88,7 @@ namespace LRI::RCI {
         if(abridged) {
             int num = 0;
             for(const auto& [qual, data] : sensors) {
-                renderLatestReadings(qual, data->empty() ? empty : data[data->size() - 1]);
+                renderLatestReadings(qual, data->empty() ? empty : data->at(data->size() - 1));
                 if(num++ % 4 != 0) {
                     ImGui::SameLine();
                     ImGui::Text(" | ");
@@ -169,17 +169,21 @@ namespace LRI::RCI {
     // the name of the line, as well as the offset into the Sensors::DataPoint::Data array. It looks messy, but
     // this system is significantly cleaner than the previous implementation. As in half the number of LOC cleaner.
     // clang-format off
+    const std::map<RCP_DeviceClass_t, std::vector<SensorViewer::Graph>> SensorViewer::test = {
+        {RCP_DEVCLASS_AM_PRESSURE, {
+            {"Ambient Pressure", "Pressure (mbars)", {{"Pressure", 0}}}
+        }}};
     const std::map<RCP_DeviceClass_t, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
-        {RCP_DEVCLASS_AM_PRESSURE, {{.name = "Ambient Pressure", "Pressure (mbars)", {{.name = "Pressure", .datanum = 0}}}}},
-        {RCP_DEVCLASS_AM_TEMPERATURE, {{.name = "Ambient Temperature", "Temperature (Celsius)", {{.name = "Temperature", .datanum = 0}}}}},
-        {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{.name = "Pressure", "Pressure (psi)", {{.name = "Pressure", .datanum = 0}}}}},
-        {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{.name = "Relative Humidity", "Humidity (Relative %)", {{.name = "Humidity", .datanum = 0}}}}},
-        {RCP_DEVCLASS_LOAD_CELL, {{.name = "Load Cell", "Mass (kg)", {{.name = "Mass", .datanum = 0}}}}},
-        {RCP_DEVCLASS_POWERMON, {{.name = "Power Monitor - Voltage", "Voltage (V)", {{.name = "Volts", .datanum = 0}}}, {.name = "Power Monitor - Power", "Power (W)", {{.name = "Power", .datanum = 1}}}}},
-        {RCP_DEVCLASS_ACCELEROMETER, {{.name = "Accelerometer", "Acceleration (m/s/s)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
-        {RCP_DEVCLASS_GYROSCOPE, {{.name = "Gyroscope", "Angular Acceleration (deg/s/s)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
-        {RCP_DEVCLASS_MAGNETOMETER, {{.name = "Magnetometer", "Magnetic Field (Gauss)", {{.name = "X", .datanum = 0}, {.name = "Y", .datanum = 1}, {.name = "Z", .datanum = 2}}}}},
-        {RCP_DEVCLASS_GPS, {{.name = "GPS - Lat & Lon", "Position (degrees)", {{.name = "Latitude", .datanum = 0}, {.name = "Longitude", .datanum = 1}}}, {.name = "GPS - Altitude", "Altitude (m)", {{.name = "Altitude", .datanum = 2}}}, {.name = "GPS - Ground Speed", "Speed (m/s)", {{.name = "Speed", .datanum = 3}}}}},
+        {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
+        {RCP_DEVCLASS_AM_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},
+        {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure",                "Pressure (psi)",                 {{"Pressure", 0}}}}},
+        {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Relative Humidity",       "Humidity (Relative %)",          {{"Humidity", 0}}}}},
+        {RCP_DEVCLASS_LOAD_CELL,           {{"Load Cell",               "Mass (kg)",                      {{"Mass", 0}}}}},
+        {RCP_DEVCLASS_POWERMON,            {{"Power Monitor - Voltage", "Voltage (V)",                    {{"Volts", 0}}}, {"Power Monitor - Power", "Power (W)", {{"Power", 1}}}}},
+        {RCP_DEVCLASS_ACCELEROMETER,       {{"Accelerometer",           "Acceleration (m/s/s)",           {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Angular Acceleration (deg/s/s)", {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetometer",            "Magnetic Field (Gauss)",         {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
     };
     // clang-format on
 }

@@ -1,14 +1,14 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include <UI/StepperViewer.h>
+#include "hardware/Prompt.h"
+#include "hardware/RawData.h"
+#include "hardware/Sensors.h"
+#include "hardware/Solenoids.h"
+#include "hardware/Steppers.h"
+#include "hardware/TestState.h"
 
-#include "UI/TargetChooser.h"
-#include "UI/SolenoidViewer.h"
-#include "UI/TestStateViewer.h"
-#include "UI/SensorViewer.h"
-#include "UI/RawViewer.h"
-#include "UI/PromptViewer.h"
+#include "UI/Windowlet.h"
 
 namespace LRI::RCI {
     // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
@@ -26,51 +26,52 @@ namespace LRI::RCI {
     };
 
     size_t sendData(const void* data, size_t length) {
-        return TargetChooser::getInstance()->getInterface()->sendData(data, length);
+        return ControlWindowlet::getInstance()->getInterf()->sendData(data, length);
     }
 
     size_t readData(void* data, size_t bufferSize) {
-        return TargetChooser::getInstance()->getInterface()->readData(data, bufferSize);
+        return ControlWindowlet::getInstance()->getInterf()->readData(data, bufferSize);
     }
 
     int processTestUpdate(const RCP_TestData data) {
-        TestStateViewer::getInstance()->receiveRCPUpdate(data);
+        TestState::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processSolenoidData(const RCP_SolenoidData data) {
-        SolenoidViewer::getInstance()->receiveRCPUpdate(data);
+        Solenoids::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SOLENOID, data.ID}, data.state == RCP_SOLENOID_ON);
         return 0;
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {
-        PromptViewer::getInstance()->setPrompt(request);
+        Prompt::getInstance()->receiveRCPUpdate(request);
         return 0;
     }
 
     int processSerialData(const RCP_CustomData data) {
-        RawViewer::getInstance()->recevieRCPUpdate(data);
+        RawData::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processOneFloat(RCP_OneFloat data) {
-        SensorViewer::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER) StepperViewer::getInstance()->receiveRCPUpdate(data);
-        else SensorViewer::getInstance()->receiveRCPUpdate(data);
+        if(data.devclass == RCP_DEVCLASS_STEPPER) Steppers::getInstance()->receiveRCPUpdate(
+            {RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
+        else Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processThreeFloat(RCP_ThreeFloat data) {
-        SensorViewer::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processFourFloat(RCP_FourFloat data) {
-        SensorViewer::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 }
