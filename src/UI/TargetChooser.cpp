@@ -218,18 +218,18 @@ namespace LRI::RCI {
         Sensors::getInstance()->setHardwareConfig(sensors);
 
         for(int i = 0; i < targetconfig["windows"].size(); i++) {
-            std::set<WModule*> modules;
+            std::vector<WModule*> modules;
 
             for(int j = 0; j < targetconfig["windows"][i]["modules"].size(); j++) {
                 int type = targetconfig["windows"][i]["modules"][j]["type"].get<int>();
 
                 switch(type) {
                 case -1:
-                    modules.insert(new EStopViewer());
+                    modules.push_back(new EStopViewer());
                     break;
 
                 case RCP_DEVCLASS_TEST_STATE:
-                    modules.insert(new TestStateViewer());
+                    modules.push_back(new TestStateViewer());
                     break;
 
                 case RCP_DEVCLASS_SOLENOID:
@@ -240,18 +240,18 @@ namespace LRI::RCI {
                         return q.devclass == RCP_DEVCLASS_SOLENOID && ids.contains(q.id);
                     });
                     if(type == 1)
-                        modules.insert(new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
-                    else modules.insert(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                        modules.push_back(new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    else modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;
                 }
 
                 case RCP_DEVCLASS_PROMPT:
-                    modules.insert(new PromptViewer());
+                    modules.push_back(new PromptViewer());
                     break;
 
                 case RCP_DEVCLASS_CUSTOM:
-                    modules.insert(new RawViewer());
+                    modules.push_back(new RawViewer());
                     break;
 
                 case RCP_DEVCLASS_AM_PRESSURE:
@@ -278,7 +278,7 @@ namespace LRI::RCI {
                         quals.insert(filtered.begin(), filtered.end());
                     }
 
-                    modules.insert(new SensorViewer(quals, abridged));
+                    modules.push_back(new SensorViewer(quals, abridged));
                     break;
                 }
 

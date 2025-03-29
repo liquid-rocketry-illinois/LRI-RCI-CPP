@@ -5,20 +5,22 @@
 #include <utility>
 
 #include "UI/TestStateViewer.h"
+#include <iostream>
 
 namespace LRI::RCI {
     std::set<Windowlet*> Windowlet::windows;
     StopWatch WModule::buttonTimer = StopWatch();
 
     void Windowlet::renderWindowlets() {
+        ControlWindowlet::getInstance()->render();
         for(auto* w : windows) {
             w->render();
         }
     }
 
-    Windowlet::Windowlet(std::string title, const std::set<WModule*>& modules) : title(std::move(title)),
+    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) : title(std::move(title)),
         modules(modules) {
-        windows.insert(this);
+        if(addToSet) windows.insert(this);
     }
 
     Windowlet::~Windowlet() {
@@ -34,16 +36,13 @@ namespace LRI::RCI {
 
     // TODO: target chooser module here
     ControlWindowlet::ControlWindowlet() :
-        Windowlet("Target Selector", std::set{static_cast<WModule*>(new TargetChooser(this))}) {
+        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this))}, false),
+        interf(nullptr) {
     }
 
     void ControlWindowlet::cleanup() {
-        auto filtered = windows | std::views::filter([this](const auto* ptr) { return ptr != this; });
-        std::set mods(filtered.begin(), filtered.end());
-        for(const auto* ptr : mods) delete ptr;
-
-        windows.clear();
-        windows.insert(this);
+        std::set<Windowlet*> w(windows);
+        for(const auto* win : w) delete win;
         interf = nullptr;
     }
 
