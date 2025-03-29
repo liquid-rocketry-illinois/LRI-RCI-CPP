@@ -4,6 +4,7 @@
 #include <chrono>
 #include <format>
 
+#include <ranges>
 #include "UI/SensorReadings.h"
 #include <implot.h>
 
@@ -157,6 +158,41 @@ namespace LRI::RCI {
             return;
         }
 
+        ImGui::Text("Tare PTs: ");
+        ImGui::SameLine();
+        if(tareState == 0) {
+            if(ImGui::Button("Tare")) {
+                tareState = 1;
+            }
+        }
+
+        else if(tareState == 1) {
+            ImGui::Text("         ");
+            ImGui::SameLine();
+            if(ImGui::Button("Confirm")) {
+                tareState = 0;
+                for(auto& [qual, data] : sensors) {
+                    if(qual.devclass != RCP_DEVCLASS_PRESSURE_TRANSDUCER || data.empty()) continue;
+                    DataPoint d = data[data.size() - 1];
+                    double prevtime = d.timestamp - 1000;
+                    double total = 0;
+                    int numElems = 0;
+                    auto filtered = data | std::views::filter(
+                        [&prevtime](const DataPoint& d) { return d.timestamp > prevtime; });
+                    std::ranges::for_each(filtered, [&total, &numElems](const DataPoint& d) {
+                        numElems++;
+                        total += d.data[0];
+                    });
+
+                    total /= numElems;
+                    std::ranges::for_each(data.begin(), data.end(), [&total](DataPoint& d) {
+                        d.data[0] -= total;
+                    });
+                }
+            }
+        }
+
+
         ImGui::Text("PT1: %.3f | PT2: %.3f | PT3: %.3f | PT4: %.3f",
                     latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 4}),
                     latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 5}),
@@ -170,22 +206,22 @@ namespace LRI::RCI {
 
         if(ImPlot::BeginPlot("Important PTs", plotsize)) {
             ImPlot::SetupAxes("Time (s)", "Pressure (PSI)", ImPlotAxisFlags_AutoFit,
-                                      ImPlotAxisFlags_AutoFit);
+                              ImPlotAxisFlags_AutoFit);
             SensorQualifier qual{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 6};
 
             if(!sensors[qual].empty()) {
                 ImPlot::PlotLine((std::string("PT3-OX-TNK##extrareadingpt3") + qual.asString()).c_str(),
-                                         &sensors[qual][0].timestamp,
-                                         sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
-                                         sizeof(DataPoint));
+                                 &sensors[qual][0].timestamp,
+                                 sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
+                                 sizeof(DataPoint));
             }
 
             qual = {RCP_DEVCLASS_PRESSURE_TRANSDUCER, 7};
             if(!sensors[qual].empty()) {
                 ImPlot::PlotLine((std::string("PT4-F-TNK##extrareadingpt4") + qual.asString()).c_str(),
-                                         &sensors[qual][0].timestamp,
-                                         sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
-                                         sizeof(DataPoint));
+                                 &sensors[qual][0].timestamp,
+                                 sensors[qual][0].data, static_cast<int>(sensors[qual].size()), 0, 0,
+                                 sizeof(DataPoint));
             }
 
             ImPlot::EndPlot();

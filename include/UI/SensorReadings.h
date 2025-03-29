@@ -71,6 +71,7 @@ namespace LRI::RCI {
         bool doResize = false;
         ImVec2 preFullscreenSize;
         ImVec2 preFullscreeenPos;
+        int tareState;
 
     public:
         // Get singleton instance
