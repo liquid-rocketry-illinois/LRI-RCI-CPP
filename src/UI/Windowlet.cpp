@@ -38,10 +38,9 @@ namespace LRI::RCI {
     }
 
     void ControlWindowlet::cleanup() {
-        for(auto* w : windows) {
-            if(w == this) continue;
-            delete w;
-        }
+        auto filtered = windows | std::views::filter([this](const auto* ptr) { return ptr != this; });
+        std::set mods(filtered.begin(), filtered.end());
+        for(const auto* ptr : mods) delete ptr;
 
         windows.clear();
         windows.insert(this);
@@ -65,5 +64,4 @@ namespace LRI::RCI {
     RCP_Interface* ControlWindowlet::getInterf() const {
         return interf;
     }
-
 }

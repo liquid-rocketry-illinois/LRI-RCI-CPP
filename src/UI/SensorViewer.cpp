@@ -96,6 +96,10 @@ namespace LRI::RCI {
                 }
             }
 
+            ImGui::EndChild();
+
+            ImGui::PopID();
+            ImGui::PopID();
             return;
         }
 
