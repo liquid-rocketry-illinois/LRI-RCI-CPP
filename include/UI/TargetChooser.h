@@ -32,6 +32,8 @@ namespace LRI::RCI {
 
         // The current interface
         RCP_Interface* interf;
+        std::string configName;
+        std::string interfName;
 
         // The rate to call RCP_poll()
         int pollingRate;

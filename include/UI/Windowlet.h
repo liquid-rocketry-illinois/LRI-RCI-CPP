@@ -14,10 +14,10 @@ namespace LRI::RCI {
 
         const std::string title;
         const std::set<WModule*> modules;
-        explicit Windowlet(std::string  title, const std::set<WModule*>& modules);
-        virtual ~Windowlet();
 
     public:
+        explicit Windowlet(std::string  title, const std::set<WModule*>& modules);
+        virtual ~Windowlet();
         static void renderWindowlets();
 
         virtual void render();

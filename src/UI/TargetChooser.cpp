@@ -2,12 +2,6 @@
 
 #include <fstream>
 #include <set>
-#include <UI/RawViewer.h>
-#include <UI/EStopViewer.h>
-#include <UI/SensorViewer.h>
-#include <UI/SolenoidViewer.h>
-#include <UI/StepperViewer.h>
-#include <UI/TestStateViewer.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -18,6 +12,18 @@
 #include "interfaces/VirtualPort.h"
 #include "interfaces/COMPort.h"
 #include "interfaces/TCPSocket.h"
+
+#include "hardware/Solenoids.h"
+#include "hardware/Steppers.h"
+#include "hardware/Sensors.h"
+
+#include "UI/EStopViewer.h"
+#include "UI/PromptViewer.h"
+#include "UI/RawViewer.h"
+#include "UI/SensorViewer.h"
+#include "UI/SolenoidViewer.h"
+#include "UI/StepperViewer.h"
+#include "UI/TestStateViewer.h"
 
 namespace LRI::RCI {
     // This window always exists and is used to control the rest of the program
@@ -54,8 +60,8 @@ namespace LRI::RCI {
             ImGui::Text("Open");
             ImGui::PopStyleColor();
 
-            ImGui::Text("Current Target Config: %s", targetconfig["name"].get<std::string>().c_str());
-            ImGui::Text("Current Interface: %s", interf->interfaceType().c_str());
+            ImGui::Text("Current Target Config: %s", configName.c_str());
+            ImGui::Text("Current Interface: %s", interfName.c_str());
 
             ImGui::NewLine();
             ImGui::Text("Polling Rate (polls/frame): ");
@@ -74,6 +80,7 @@ namespace LRI::RCI {
 
             if(ImGui::Button("Close Interface")) {
                 RCP_shutdown();
+                ImGui::SaveIniSettingsToDisk((targetpaths[chosenConfig] + ".ini").c_str());
                 delete interf;
                 interf = nullptr;
                 control->cleanup();
@@ -154,11 +161,12 @@ namespace LRI::RCI {
                     RCP_setChannel(RCP_CH_ZERO);
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
+                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini"))
+                        ImGui::LoadIniSettingsFromDisk((targetpaths[chosenConfig] + ".ini").c_str());
                     initWindows();
                 }
             }
         }
-
 
         ImGui::PopID();
     }
@@ -169,98 +177,120 @@ namespace LRI::RCI {
 
     // Helper function that resets and initializes all windows
     void TargetChooser::initWindows() {
-        // RawViewer::getInstance()->reset();
-        // SensorViewer::getInstance()->reset();
-        // SolenoidViewer::getInstance()->reset();
-        // StepperViewer::getInstance()->reset();
-        // TestStateViewer::getInstance()->reset();
-        //
-        // // These 3 can be shown regardless of the target
-        // TestStateViewer::getInstance()->showWindow();
-        // EStopViewer::getInstance()->showWindow();
-        // RawViewer::getInstance()->showWindow();
-        //
-        // // Iterate through all the devices in the json and initialize the appropriate windows
-        // std::set<SensorQualifier> sensors;
-        // for(int i = 0; i < targetconfig["devices"].size(); i++) {
-        //     auto devclass = static_cast<RCP_DeviceClass_t>(targetconfig["devices"][i]["devclass"].get<int>());
-        //     std::vector<uint8_t> ids;
-        //     std::vector<std::string> names;
-        //
-        //     if(targetconfig["devices"][i].contains("ids"))
-        //         ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-        //
-        //     if(targetconfig["devices"][i].contains("names"))
-        //         names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
-        //
-        //     switch(devclass) {
-        //         case RCP_DEVCLASS_SOLENOID: {
-        //             std::map<uint8_t, std::string> sols;
-        //
-        //             if(ids.empty() && names.empty()) sols[0] = "Solenoid";
-        //             else {
-        //                 if(ids.size() != names.size()) break;
-        //                 for(size_t j = 0; j < ids.size(); j++) sols[ids[j]] = names[j];
-        //             }
-        //
-        //             SolenoidViewer::getInstance()->setHardwareConfig(sols);
-        //             SolenoidViewer::getInstance()->showWindow();
-        //             break;
-        //         }
-        //
-        //         case RCP_DEVCLASS_STEPPER: {
-        //             std::map<uint8_t, std::string> steps;
-        //
-        //             if(ids.empty() && names.empty()) steps[0] = "Stepper Motor";
-        //             else {
-        //                 if(ids.size() != names.size()) break;
-        //                 for(size_t j = 0; j < ids.size(); j++) steps[ids[j]] = names[j];
-        //             }
-        //
-        //             StepperViewer::getInstance()->setHardwareConfig(steps);
-        //             StepperViewer::getInstance()->showWindow();
-        //             break;
-        //         }
-        //
-        //         case RCP_DEVCLASS_AM_PRESSURE:
-        //         case RCP_DEVCLASS_AM_TEMPERATURE:
-        //         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-        //         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-        //         case RCP_DEVCLASS_LOAD_CELL:
-        //         case RCP_DEVCLASS_POWERMON:
-        //         case RCP_DEVCLASS_ACCELEROMETER:
-        //         case RCP_DEVCLASS_GYROSCOPE:
-        //         case RCP_DEVCLASS_MAGNETOMETER:
-        //         case RCP_DEVCLASS_GPS: {
-        //             if(ids.empty() && names.empty())
-        //                 sensors.insert({
-        //                                        .devclass = devclass,
-        //                                        .id = 0,
-        //                                        .name = devclassToString(devclass)
-        //                                });
-        //
-        //             else {
-        //                 if(ids.size() != names.size()) break;
-        //                 for(size_t j = 0; j < ids.size(); j++)
-        //                     sensors.insert({
-        //                                            .devclass = devclass,
-        //                                            .id = ids[j],
-        //                                            .name = names[j]
-        //                                    });
-        //             }
-        //
-        //             break;
-        //         }
-        //
-        //         default:
-        //             break;
-        //     }
-        // }
-        //
-        // // If there is an actual sensor present, then display the sensors window
-        // if(!sensors.empty()) {
-        //     SensorViewer::getInstance()->setHardwareConfig(sensors);
-        //     SensorViewer::getInstance()->showWindow();
-        // }
+        configName = targetconfig["name"].get<std::string>();
+        interfName = interf->interfaceType();
+        std::set<HardwareQualifier> allquals;
+        std::set<HardwareQualifier> sensors;
+
+        for(int i = 0; i < targetconfig["devices"].size(); i++) {
+            auto devclass = static_cast<RCP_DeviceClass_t>(targetconfig["devices"][i]["devclass"].get<int>());
+            std::vector<uint8_t> ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+            std::vector<std::string> names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+            if(ids.empty() || ids.size() != names.size()) continue;
+            std::set<HardwareQualifier> quals;
+            for(size_t j = 0; j < ids.size(); j++)
+                quals.insert(HardwareQualifier{devclass, ids[j], names[j]});
+            allquals.insert(quals.begin(), quals.end());
+
+            switch(devclass) {
+            case RCP_DEVCLASS_STEPPER:
+                Steppers::getInstance()->setHardwareConfig(quals);
+                break;
+
+            case RCP_DEVCLASS_SOLENOID:
+                Solenoids::getInstance()->setHardwareConfig(quals);
+
+            case RCP_DEVCLASS_AM_PRESSURE:
+            case RCP_DEVCLASS_AM_TEMPERATURE:
+            case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+            case RCP_DEVCLASS_LOAD_CELL:
+            case RCP_DEVCLASS_POWERMON:
+            case RCP_DEVCLASS_ACCELEROMETER:
+            case RCP_DEVCLASS_GYROSCOPE:
+            case RCP_DEVCLASS_MAGNETOMETER:
+            case RCP_DEVCLASS_GPS:
+                sensors.insert(quals.cbegin(), quals.cend());
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        Sensors::getInstance()->setHardwareConfig(sensors);
+
+        for(int i = 0; i < targetconfig["windows"].size(); i++) {
+            std::set<WModule*> modules;
+
+            for(int j = 0; j < targetconfig["windows"][i]["modules"].size(); j++) {
+                int type = targetconfig["windows"][i]["modules"][j]["type"].get<int>();
+
+                switch(type) {
+                case -1:
+                    modules.insert(new EStopViewer());
+                    break;
+
+                case RCP_DEVCLASS_TEST_STATE:
+                    modules.insert(new TestStateViewer());
+                    break;
+
+                case RCP_DEVCLASS_SOLENOID:
+                case RCP_DEVCLASS_STEPPER: {
+                    bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
+                    std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
+                    auto filtered = allquals | std::views::filter([&ids](const HardwareQualifier& q) {
+                        return q.devclass == RCP_DEVCLASS_SOLENOID && ids.contains(q.id);
+                    });
+                    if(type == 1)
+                        modules.insert(new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    else modules.insert(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
+
+                    break;
+                }
+
+                case RCP_DEVCLASS_PROMPT:
+                    modules.insert(new PromptViewer());
+                    break;
+
+                case RCP_DEVCLASS_CUSTOM:
+                    modules.insert(new RawViewer());
+                    break;
+
+                case RCP_DEVCLASS_AM_PRESSURE:
+                case RCP_DEVCLASS_AM_TEMPERATURE:
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                case RCP_DEVCLASS_LOAD_CELL:
+                case RCP_DEVCLASS_POWERMON:
+                case RCP_DEVCLASS_ACCELEROMETER:
+                case RCP_DEVCLASS_GYROSCOPE:
+                case RCP_DEVCLASS_MAGNETOMETER:
+                case RCP_DEVCLASS_GPS: {
+                    bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
+                    std::set<HardwareQualifier> quals;
+
+                    for(int k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                        // Json's getting a little long lol
+                        int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+                        std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"]
+                            .get<std::set<int>>();
+                        auto filtered = allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
+                            return q.devclass == devclass && ids.contains(q.id);
+                        });
+                        quals.insert(filtered.begin(), filtered.end());
+                    }
+
+                    modules.insert(new SensorViewer(quals, abridged));
+                    break;
+                }
+
+                default:
+                    break;
+                }
+            }
+
+            new Windowlet(targetconfig["windows"][i]["title"].get<std::string>(), modules);
+        }
     }
 }
