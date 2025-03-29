@@ -174,7 +174,7 @@ namespace LRI::RCI {
                 for(auto& [qual, data] : sensors) {
                     if(qual.devclass != RCP_DEVCLASS_PRESSURE_TRANSDUCER || data.empty()) continue;
                     DataPoint d = data[data.size() - 1];
-                    double prevtime = d.timestamp - 1000;
+                    double prevtime = d.timestamp - 1;
                     double total = 0;
                     int numElems = 0;
                     auto filtered = data | std::views::filter(
@@ -188,10 +188,46 @@ namespace LRI::RCI {
                     std::ranges::for_each(data.begin(), data.end(), [&total](DataPoint& d) {
                         d.data[0] -= total;
                     });
+                    tares[qual] = total;
                 }
             }
         }
 
+        ImGui::Text("Tare Load Cells: ");
+        ImGui::SameLine();
+        if(tareLCState == 0) {
+            if(ImGui::Button("Tare")) {
+                tareLCState = 1;
+            }
+        }
+
+        else if(tareLCState == 1) {
+            ImGui::Text("         ");
+            ImGui::SameLine();
+            if(ImGui::Button("Confirm")) {
+                tareLCState = 0;
+                for(auto& [qual, data] : sensors) {
+                    if(qual.devclass != RCP_DEVCLASS_LOAD_CELL || data.empty()) continue;
+                    DataPoint d = data[data.size() - 1];
+                    double prevtime = d.timestamp - 1;
+                    double total = 0;
+                    int numElems = 0;
+                    auto filtered = data | std::views::filter(
+                        [&prevtime](const DataPoint& d) { return d.timestamp > prevtime; });
+                    std::ranges::for_each(filtered, [&total, &numElems](const DataPoint& d) {
+                        numElems++;
+                        total += d.data[0];
+                    });
+
+                    total /= numElems;
+                    std::ranges::for_each(data.begin(), data.end(), [&total](DataPoint& d) {
+                        d.data[0] -= total;
+                    });
+
+                    tares[qual] = total;
+                }
+            }
+        }
 
         ImGui::Text("PT1: %.3f | PT2: %.3f | PT3: %.3f | PT4: %.3f",
                     latestVal(SensorQualifier{RCP_DEVCLASS_PRESSURE_TRANSDUCER, 4}),
@@ -519,7 +555,7 @@ namespace LRI::RCI {
         SensorQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {
             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-            .data = {static_cast<double>(data.data)}
+            .data = {static_cast<double>(data.data) - (tares.contains(qual) ? tares[qual] : 0)}
         };
 
         sensors[qual].push_back(d);

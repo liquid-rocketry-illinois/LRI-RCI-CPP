@@ -72,6 +72,8 @@ namespace LRI::RCI {
         ImVec2 preFullscreenSize;
         ImVec2 preFullscreeenPos;
         int tareState;
+        int tareLCState;
+        std::map<SensorQualifier, double> tares;
 
     public:
         // Get singleton instance
