@@ -34,7 +34,6 @@ add_executable(LRI_control_panel
         src/interfaces/COMPort.cpp
         src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp
-        src/UI/BaseUI.cpp
         src/UI/TargetChooser.cpp
         src/UI/EStopViewer.cpp
         src/UI/SolenoidViewer.cpp

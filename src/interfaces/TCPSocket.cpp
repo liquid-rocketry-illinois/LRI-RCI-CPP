@@ -291,7 +291,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text("Waiting for connection");
             ImGui::SameLine();
-            ImGui::Spinner("##tcpwaitspinner", 8, 1, BaseUI::REBECCA_PURPLE);
+            ImGui::Spinner("##tcpwaitspinner", 8, 1, WModule::REBECCA_PURPLE);
 
             if(ImGui::Button("Cancel##tcpcancel")) {
                 delete interf;

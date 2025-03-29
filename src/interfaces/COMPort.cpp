@@ -5,7 +5,7 @@
 #include "improgress.h"
 #include <SetupAPI.h>
 #include <devguid.h>
-#include "UI/BaseUI.h"
+#include "UI/WModule.h"
 
 namespace LRI::RCI {
     // Quite an awful looking constructor if I do say so myself
@@ -342,7 +342,7 @@ namespace LRI::RCI {
             // While the port is readying, don't return it just yet and display a loading spinner
         else if(!port->isReady()) {
             ImGui::SameLine();
-            ImGui::Spinner("##comportchooserspinner", 8, 1, BaseUI::REBECCA_PURPLE);
+            ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
         }
 
         else return port;
