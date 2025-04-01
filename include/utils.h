@@ -20,7 +20,15 @@ namespace LRI::RCI {
 
     // Scaling factor for hi-dpi screens
     extern float scaling_factor;
+    class IniFilePath {
+        friend class TargetChooser;
+        std::string path;
+    public:
+        std::string getPath();
+        [[nodiscard]] bool empty() const;
+    };
 
+    extern IniFilePath iniFilePath;
 
     // Helpers for scaling floats and ImVec2's by scaling_factor
     ImVec2 scale(const ImVec2& vec);

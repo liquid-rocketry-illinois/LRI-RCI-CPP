@@ -21,6 +21,17 @@ namespace LRI::RCI {
 
     // Scaling factor for hidpi screens
     float scaling_factor;
+    IniFilePath iniFilePath;
+
+    bool IniFilePath::empty() const {
+        return path.empty();
+    }
+
+    std::string IniFilePath::getPath() {
+        std::string copy = path;
+        path = "";
+        return copy;
+    }
 
     // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
@@ -69,6 +80,10 @@ namespace LRI::RCI {
 
     // Is called to set up each frame before rendering
     void imgui_prerender(GLFWwindow* window) {
+        if(!iniFilePath.empty()) {
+            ImGui::LoadIniSettingsFromDisk(iniFilePath.getPath().c_str());
+        }
+
         glfwPollEvents();
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -96,6 +111,7 @@ namespace LRI::RCI {
 
     // All shutdown functions for imgui, implot, and glfw
     void imgui_shutdown(GLFWwindow* window) {
+        ControlWindowlet::getInstance()->cleanup();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImPlot::DestroyContext();

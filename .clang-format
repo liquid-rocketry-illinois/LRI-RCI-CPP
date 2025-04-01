@@ -8,7 +8,7 @@ AlignConsecutiveDeclarations: false
 AlignOperands: false
 AlignTrailingComments: false
 AllowShortBlocksOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: Always
+AllowShortIfStatementsOnASingleLine: true
 AllowShortCaseExpressionOnASingleLine: false
 AllowShortLoopsOnASingleLine: true
 AllowShortLambdasOnASingleLine: All

@@ -12,8 +12,10 @@ namespace LRI::RCI {
     StopWatch WModule::buttonTimer = StopWatch();
 
     void Windowlet::renderWindowlets() {
-        ControlWindowlet::getInstance()->render();
+        // Important that this line is first, since the Control Window can modify the list of
+        // windows between frames. Not good.
         for(auto* w : windows) w->render();
+        ControlWindowlet::getInstance()->render();
     }
 
     Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :
@@ -38,7 +40,8 @@ namespace LRI::RCI {
         interf(nullptr) {}
 
     void ControlWindowlet::cleanup() {
-        std::set<Windowlet*> w(windows);
+        ImGui::SaveIniSettingsToDisk(inipath.c_str());
+        std::set w(windows);
         for(const auto* win : w) delete win;
         interf = nullptr;
     }

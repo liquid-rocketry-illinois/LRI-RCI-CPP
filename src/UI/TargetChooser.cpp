@@ -80,7 +80,6 @@ namespace LRI::RCI {
 
             if(ImGui::Button("Close Interface")) {
                 RCP_shutdown();
-                ImGui::SaveIniSettingsToDisk((targetpaths[chosenConfig] + ".ini").c_str());
                 delete interf;
                 interf = nullptr;
                 control->cleanup();
@@ -161,8 +160,9 @@ namespace LRI::RCI {
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
                     control->interf = interf;
-                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) ImGui::LoadIniSettingsFromDisk(
-                        (targetpaths[chosenConfig] + ".ini").c_str());
+                    control->inipath = targetpaths[chosenConfig] + ".ini";
+                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) iniFilePath.path = control->inipath;
+
                     initWindows();
                 }
             }
@@ -237,8 +237,9 @@ namespace LRI::RCI {
                     auto filtered = allquals | std::views::filter([&ids](const HardwareQualifier& q) {
                         return q.devclass == RCP_DEVCLASS_SOLENOID && ids.contains(q.id);
                     });
-                    if(type == 1) modules.push_back(
-                        new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    if(type == 1)
+                        modules.push_back(
+                            new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
                     else modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;

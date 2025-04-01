@@ -30,12 +30,13 @@ namespace LRI::RCI {
         ControlWindowlet();
         ~ControlWindowlet() override = default;
 
-        void cleanup();
         RCP_Interface* interf;
+        std::string inipath;
 
     public:
         static ControlWindowlet* getInstance();
 
+        void cleanup();
         void render() override;
         RCP_Interface* getInterf() const;
     };
