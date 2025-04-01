@@ -79,13 +79,6 @@ namespace LRI::RCI {
         const ImVec2 plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
                                                    ImGui::GetWindowHeight() - scale(75)));
 
-        if(!ImGui::BeginChild("##child", ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
-            ImGui::EndChild();
-            ImGui::PopID();
-            ImGui::PopID();
-            return;
-        }
-
         if(abridged) {
             int num = 0;
             for(const auto& [qual, data] : sensors) {
@@ -97,8 +90,13 @@ namespace LRI::RCI {
                 }
             }
 
-            ImGui::EndChild();
+            ImGui::PopID();
+            ImGui::PopID();
+            return;
+        }
 
+        if(!ImGui::BeginChild("##child", ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
+            ImGui::EndChild();
             ImGui::PopID();
             ImGui::PopID();
             return;
