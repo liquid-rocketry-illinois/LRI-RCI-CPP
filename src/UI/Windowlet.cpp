@@ -30,7 +30,13 @@ namespace LRI::RCI {
     }
 
     void Windowlet::render() {
-        if(ImGui::Begin(title.c_str())) for(auto* mod : modules) mod->render();
+        size_t size = modules.size() - 1;
+        size_t i = 0;
+
+        if(ImGui::Begin(title.c_str())) for(auto* mod : modules) {
+            mod->render();
+            if(i++ != size) ImGui::Separator();
+        }
         ImGui::End();
     }
 
@@ -55,7 +61,14 @@ namespace LRI::RCI {
     void ControlWindowlet::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 50)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 225)), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoDocking)) for(auto* mod : modules) mod->render();
+
+        size_t size = modules.size() - 1;
+        size_t i = 0;
+        if(ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoDocking))
+            for(auto* mod : modules) {
+                mod->render();
+                if(i++ != size) ImGui::Separator();
+            }
         ImGui::End();
     }
 
