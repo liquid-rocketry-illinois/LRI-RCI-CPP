@@ -4,8 +4,8 @@
 namespace LRI::RCI {
     int StepperViewer::CLASSID = 0;
 
-    StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton)
-        : classid(CLASSID++), refreshButton(refreshButton) {
+    StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton) :
+        classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& qual : quals) {
             steppers[qual] = Steppers::getInstance()->getState(qual);
             inputs[qual] = Input();

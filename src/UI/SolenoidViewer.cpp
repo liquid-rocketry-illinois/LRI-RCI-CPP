@@ -7,8 +7,8 @@
 namespace LRI::RCI {
     int SolenoidViewer::CLASSID = 0;
 
-    SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton)
-        : classid(CLASSID++), refreshButton(refreshButton) {
+    SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton) :
+        classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& sol : quals) {
             sols[sol] = Solenoids::getInstance()->getState(sol);
         }

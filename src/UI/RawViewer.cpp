@@ -5,8 +5,8 @@
 namespace LRI::RCI {
     int RawViewer::CLASSID = 0;
 
-    RawViewer::RawViewer() : classid(CLASSID++) {
-    }
+    RawViewer::RawViewer() :
+        classid(CLASSID++) {}
 
     void RawViewer::render() {
         ImGui::PushID("RawViewer");

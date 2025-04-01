@@ -82,7 +82,6 @@ namespace LRI::RCI {
         void push(T value);
         void clear();
     };
-
 }
 
 #include "RingBuffer.inl"

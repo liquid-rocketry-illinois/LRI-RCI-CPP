@@ -6,9 +6,8 @@
 namespace LRI::RCI {
     int PromptViewer::CLASSID = 0;
 
-    PromptViewer::PromptViewer()
-        : classid(CLASSID++) {
-    }
+    PromptViewer::PromptViewer() :
+        classid(CLASSID++) {}
 
     void PromptViewer::render() {
         ImGui::PushID("PromptViewer");

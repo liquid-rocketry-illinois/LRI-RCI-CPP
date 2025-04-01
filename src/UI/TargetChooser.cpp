@@ -27,8 +27,8 @@
 
 namespace LRI::RCI {
     // This window always exists and is used to control the rest of the program
-    TargetChooser::TargetChooser(ControlWindowlet* control)
-        : control(control), interf(nullptr), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0) {
+    TargetChooser::TargetChooser(ControlWindowlet* control) :
+        control(control), interf(nullptr), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
         if(std::filesystem::exists("targets/")) {
             for(const auto& file : std::filesystem::directory_iterator("targets/")) {
@@ -100,8 +100,7 @@ namespace LRI::RCI {
             else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].c_str())) {
                 for(size_t i = 0; i < targetpaths.size(); i++) {
                     bool selected = i == chosenConfig;
-                    if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected))
-                        chosenConfig = i;
+                    if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected)) chosenConfig = i;
                     if(selected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
@@ -162,8 +161,8 @@ namespace LRI::RCI {
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
                     control->interf = interf;
-                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini"))
-                        ImGui::LoadIniSettingsFromDisk((targetpaths[chosenConfig] + ".ini").c_str());
+                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) ImGui::LoadIniSettingsFromDisk(
+                        (targetpaths[chosenConfig] + ".ini").c_str());
                     initWindows();
                 }
             }
@@ -185,8 +184,7 @@ namespace LRI::RCI {
             std::vector<std::string> names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
             if(ids.empty() || ids.size() != names.size()) continue;
             std::set<HardwareQualifier> quals;
-            for(size_t j = 0; j < ids.size(); j++)
-                quals.insert(HardwareQualifier{devclass, ids[j], names[j]});
+            for(size_t j = 0; j < ids.size(); j++) quals.insert(HardwareQualifier{devclass, ids[j], names[j]});
             allquals.insert(quals.begin(), quals.end());
 
             switch(devclass) {
@@ -239,8 +237,8 @@ namespace LRI::RCI {
                     auto filtered = allquals | std::views::filter([&ids](const HardwareQualifier& q) {
                         return q.devclass == RCP_DEVCLASS_SOLENOID && ids.contains(q.id);
                     });
-                    if(type == 1)
-                        modules.push_back(new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    if(type == 1) modules.push_back(
+                        new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
                     else modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;

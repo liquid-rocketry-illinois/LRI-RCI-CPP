@@ -9,8 +9,7 @@ namespace ImGui {
     bool BufferingBar(const char* label, float value, const ImVec2& size_arg, const ImU32& bg_col,
                       const ImU32& fg_col) {
         ImGuiWindow* window = GetCurrentWindow();
-        if(window->SkipItems)
-            return false;
+        if(window->SkipItems) return false;
 
         ImGuiContext& g = *GImGui;
         const ImGuiStyle& style = g.Style;
@@ -22,8 +21,7 @@ namespace ImGui {
 
         const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
         ItemSize(bb, style.FramePadding.y);
-        if(!ItemAdd(bb, id))
-            return false;
+        if(!ItemAdd(bb, id)) return false;
 
         // Render
         const float circleStart = size.x * 0.7f;
@@ -38,8 +36,7 @@ namespace ImGui {
 
     bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
         ImGuiWindow* window = GetCurrentWindow();
-        if(window->SkipItems)
-            return false;
+        if(window->SkipItems) return false;
 
         ImGuiContext& g = *GImGui;
         const ImGuiStyle& style = g.Style;
@@ -50,8 +47,7 @@ namespace ImGui {
 
         const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
         ItemSize(bb, style.FramePadding.y);
-        if(!ItemAdd(bb, id))
-            return false;
+        if(!ItemAdd(bb, id)) return false;
 
         // Render
         window->DrawList->PathClear();

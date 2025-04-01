@@ -35,7 +35,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> sensors;
 
         static void renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
-                          const ImVec2& plotsize);
+                                 const ImVec2& plotsize);
 
     public:
         explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false);

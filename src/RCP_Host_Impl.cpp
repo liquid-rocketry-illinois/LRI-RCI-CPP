@@ -59,8 +59,9 @@ namespace LRI::RCI {
     }
 
     int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER) Steppers::getInstance()->receiveRCPUpdate(
-            {RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
+        if(data.devclass == RCP_DEVCLASS_STEPPER)
+            Steppers::getInstance()->receiveRCPUpdate(
+                {RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
         else Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }

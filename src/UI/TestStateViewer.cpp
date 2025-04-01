@@ -7,9 +7,9 @@
 namespace LRI::RCI {
     int TestStateViewer::CLASSID = 0;
 
-    TestStateViewer::TestStateViewer() : classid(CLASSID++), inputHeartbeatRate(0), inputTestNum(0), dstream(false),
-                                         doHeartbeats(false) {
-    }
+    TestStateViewer::TestStateViewer() :
+        classid(CLASSID++), inputHeartbeatRate(0), inputTestNum(0), dstream(false),
+        doHeartbeats(false) {}
 
 
     void TestStateViewer::render() {

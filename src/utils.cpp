@@ -53,14 +53,14 @@ namespace LRI::RCI {
 
         // Load the fonts and add them to imgui. Ubuntu mono my beloved
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
-        font_regular = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                       16 * scaling_factor, &fontConfig);
         fonts = WindowsResource("font-bold.ttf", "TTFFONT");
-        font_bold = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                    16 * scaling_factor, &fontConfig);
 
         fonts = WindowsResource("font-italic.ttf", "TTFFONT");
-        font_italic = io.Fonts->AddFontFromMemoryTTF((void*)fonts.getData(), static_cast<int>(fonts.getSize()),
+        font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                      16 * scaling_factor, &fontConfig);
 
         // Start the TargetChooser window

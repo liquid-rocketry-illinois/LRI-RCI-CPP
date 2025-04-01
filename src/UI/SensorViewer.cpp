@@ -62,7 +62,8 @@ namespace LRI::RCI {
         }
     }
 
-    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : classid(CLASSID++),
+    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) :
+        classid(CLASSID++),
         abridged(abridged) {
         for(const auto& qual : quals) {
             sensors[qual] = Sensors::getInstance()->getState(qual);
@@ -122,8 +123,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();
-            if(ImGui::Button("Write To CSV"))
-                Sensors::getInstance()->writeCSV(qual);
+            if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
 
             renderGraphs(qual, data, plotsize);
 

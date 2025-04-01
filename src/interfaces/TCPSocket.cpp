@@ -8,10 +8,10 @@
 namespace LRI::RCI {
     const sf::IpAddress DEFAULT_IP = sf::IpAddress(0, 0, 0, 0);
 
-    TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress)
-        : port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP), thread(nullptr),
-          inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false),
-          lastErrorVal(0) {
+    TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
+        port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP), thread(nullptr),
+        inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false),
+        lastErrorVal(0) {
         if(isServer) {
             sf::Socket::Status listenStat = listensock.listen(port);
             if(listenStat != sf::Socket::Status::Done) {
@@ -78,8 +78,8 @@ namespace LRI::RCI {
 
     std::string TCPSocket::interfaceType() const {
         return std::string("TCP ") + (isServer
-                                          ? "Client: " + serverAddress.toString() + ": "
-                                          : "Server: ") + std::to_string(port);
+            ? "Client: " + serverAddress.toString() + ": "
+            : "Server: ") + std::to_string(port);
     }
 
     TCPSocket::Error TCPSocket::lastError() {
@@ -265,8 +265,8 @@ namespace LRI::RCI {
 
         if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
             interf = new TCPSocket(port, tempserver
-                                             ? sf::IpAddress(0, 0, 0, 0)
-                                             : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
+                                   ? sf::IpAddress(0, 0, 0, 0)
+                                   : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
         }
         if(!isnull) ImGui::EndDisabled();
 

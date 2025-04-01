@@ -7,6 +7,7 @@ namespace LRI::RCI {
 
         EStop() = default;
         ~EStop() = default;
+
     public:
         static EStop* getInstance();
 

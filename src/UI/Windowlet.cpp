@@ -13,12 +13,11 @@ namespace LRI::RCI {
 
     void Windowlet::renderWindowlets() {
         ControlWindowlet::getInstance()->render();
-        for(auto* w : windows) {
-            w->render();
-        }
+        for(auto* w : windows) w->render();
     }
 
-    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) : title(std::move(title)),
+    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :
+        title(std::move(title)),
         modules(modules) {
         if(addToSet) windows.insert(this);
     }
@@ -29,16 +28,14 @@ namespace LRI::RCI {
     }
 
     void Windowlet::render() {
-        if(ImGui::Begin(title.c_str()))
-            for(auto* mod : modules) mod->render();
+        if(ImGui::Begin(title.c_str())) for(auto* mod : modules) mod->render();
         ImGui::End();
     }
 
     // TODO: target chooser module here
     ControlWindowlet::ControlWindowlet() :
         Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this))}, false),
-        interf(nullptr) {
-    }
+        interf(nullptr) {}
 
     void ControlWindowlet::cleanup() {
         std::set<Windowlet*> w(windows);
@@ -55,8 +52,7 @@ namespace LRI::RCI {
     void ControlWindowlet::render() {
         ImGui::SetNextWindowPos(scale(ImVec2(50, 50)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 225)), ImGuiCond_FirstUseEver);
-        if(ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoDocking))
-            for(auto* mod : modules) mod->render();
+        if(ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoDocking)) for(auto* mod : modules) mod->render();
         ImGui::End();
     }
 

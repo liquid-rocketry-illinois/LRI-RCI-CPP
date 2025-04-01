@@ -13,7 +13,6 @@ namespace LRI::RCI {
         reset();
     }
 
-
     void Solenoids::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
         state[qual]->stale = false;
         state[qual]->open = newState;
