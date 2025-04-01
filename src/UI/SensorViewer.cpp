@@ -13,52 +13,44 @@ namespace LRI::RCI {
         return min(a, min(b, c));
     }
 
-    void SensorViewer::renderLatestReadings(const HardwareQualifier& qual, const Sensors::DataPoint& data) {
+    std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
+                                                         const Sensors::DataPoint& data) {
         switch(qual.devclass) {
         case RCP_DEVCLASS_AM_PRESSURE:
-            ImGui::Text("Pressure: %.3f mbar", data.data[0]);
-            break;
+            return std::format("Pressure: %.3f mbar", data.data[0]);
 
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            ImGui::Text("Pressure: %.3f psi", data.data[0]);
-            break;
+            return std::format("Pressure: %.3f psi", data.data[0]);
 
         case RCP_DEVCLASS_AM_TEMPERATURE:
-            ImGui::Text("Temperature: %.3f C", data.data[0]);
-            break;
+            return std::format("Temperature: %.3f C", data.data[0]);
 
         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-            ImGui::Text("Humidity: %.3f %%", data.data[0]);
-            break;
+            return std::format("Humidity: %.3f %%", data.data[0]);
 
         case RCP_DEVCLASS_LOAD_CELL:
-            ImGui::Text("Mass: %.3f kg", data.data[0]);
-            break;
+            return std::format("Mass: %.3f kg", data.data[0]);
 
         case RCP_DEVCLASS_POWERMON:
-            ImGui::Text("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
-            break;
+            return std::format("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
 
         case RCP_DEVCLASS_ACCELEROMETER:
-            ImGui::Text("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1], data.data[2]);
-            break;
+            return std::format("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1],
+                               data.data[2]);
 
         case RCP_DEVCLASS_GYROSCOPE:
-            ImGui::Text("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1], data.data[2]);
-            break;
+            return std::format("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1],
+                               data.data[2]);
 
         case RCP_DEVCLASS_MAGNETOMETER:
-            ImGui::Text("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
-            break;
+            return std::format("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
 
         case RCP_DEVCLASS_GPS:
-            ImGui::Text("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
-                        data.data[0], data.data[1], data.data[2], data.data[3]);
-            break;
+            return std::format("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
+                               data.data[0], data.data[1], data.data[2], data.data[3]);
 
         default:
-            ImGui::Text("Unrecognized sensor");
-            break;
+            return "Unrecognized sensor";
         }
     }
 
@@ -80,13 +72,22 @@ namespace LRI::RCI {
                                                    ImGui::GetWindowHeight() - scale(75)));
 
         if(abridged) {
-            int num = 0;
+            float currentLineWidth = 0;
+            const float width = ImGui::GetWindowWidth();
+            const float spacerWidth = ImGui::CalcTextSize(" | ").x;
             for(const auto& [qual, data] : sensors) {
-                renderLatestReadings(qual, data->empty() ? empty : data->at(data->size() - 1));
-                if(num++ % 4 != 0) {
+                std::string str = renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1));
+                float size = ImGui::CalcTextSize(str.c_str()).x * 1.075f;
+
+                if(currentLineWidth + size > width || currentLineWidth == 0) {
+                    ImGui::TextUnformatted(str.c_str());
+                    currentLineWidth = size;
+                }
+
+                else {
                     ImGui::SameLine();
-                    ImGui::Text(" | ");
-                    ImGui::SameLine();
+                    ImGui::Text(" | %s", str.c_str());
+                    currentLineWidth += size + spacerWidth;
                 }
             }
 
@@ -171,10 +172,6 @@ namespace LRI::RCI {
     // the name of the line, as well as the offset into the Sensors::DataPoint::Data array. It looks messy, but
     // this system is significantly cleaner than the previous implementation. As in half the number of LOC cleaner.
     // clang-format off
-    const std::map<RCP_DeviceClass_t, std::vector<SensorViewer::Graph>> SensorViewer::test = {
-        {RCP_DEVCLASS_AM_PRESSURE, {
-            {"Ambient Pressure", "Pressure (mbars)", {{"Pressure", 0}}}
-        }}};
     const std::map<RCP_DeviceClass_t, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_AM_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},

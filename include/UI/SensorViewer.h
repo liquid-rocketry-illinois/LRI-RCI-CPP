@@ -22,7 +22,7 @@ namespace LRI::RCI {
             const std::vector<Line> lines;
         };
 
-        static void renderLatestReadings(const HardwareQualifier& qual, const Sensors::DataPoint& data);
+        static std::string renderLatestReadingsString(const HardwareQualifier& qual, const Sensors::DataPoint& data);
         static int CLASSID;
         static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 
