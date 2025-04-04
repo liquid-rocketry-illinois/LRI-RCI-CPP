@@ -16,7 +16,7 @@ namespace LRI::RCI {
     void StepperViewer::render() {
         ImGui::PushID("StepperViewer");
         ImGui::PushID(classid);
-        if(!TestState::getInited()) ImGui::BeginDisabled();
+        if(!TestState::getInited() || TestState::getInstance()->getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
@@ -90,7 +90,7 @@ namespace LRI::RCI {
             ImGui::PopID();
         }
 
-        if(!TestState::getInited()) ImGui::EndDisabled();
+        if(!TestState::getInited() || TestState::getInstance()->getState() == RCP_TEST_RUNNING) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }
