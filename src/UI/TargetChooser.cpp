@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <set>
+#include <UI/BoolSensorViewer.h>
+#include <hardware/BoolSensor.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -194,6 +196,11 @@ namespace LRI::RCI {
 
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 SimpleActuators::getInstance()->setHardwareConfig(quals);
+                break;
+
+            case RCP_DEVCLASS_BOOL_SENSOR:
+                BoolSensors::getInstance()->setHardwareConfig(quals);
+                break;
 
             case RCP_DEVCLASS_AM_PRESSURE:
             case RCP_DEVCLASS_AM_TEMPERATURE:
@@ -231,16 +238,18 @@ namespace LRI::RCI {
                     break;
 
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
+                case RCP_DEVCLASS_BOOL_SENSOR:
                 case RCP_DEVCLASS_STEPPER: {
                     bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
                     std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
-                    auto filtered = allquals | std::views::filter([&ids](const HardwareQualifier& q) {
-                        return q.devclass == RCP_DEVCLASS_SIMPLE_ACTUATOR && ids.contains(q.id);
+                    auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
+                        return q.devclass == type && ids.contains(q.id);
                     });
-                    if(type == 1)
+                    if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(
                             new SimpleActuatorViewer(std::set(filtered.begin(), filtered.end()), refresh));
-                    else modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                    else modules.push_back(new BoolSensorViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;
                 }

@@ -19,8 +19,7 @@ namespace LRI::RCI {
     }
 
     void SimpleActuators::setHardwareConfig(const std::set<HardwareQualifier>& solIds) {
-        for(const ActuatorState* s : state | std::views::values) delete s;
-        state.clear();
+        reset();
 
         for(const auto& qual : solIds) {
             state[qual] = new ActuatorState();

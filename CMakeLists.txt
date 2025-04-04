@@ -53,6 +53,8 @@ add_executable(LRI_control_panel
         src/hardware/TestState.cpp
         src/hardware/Prompt.cpp
         src/UI/Windowlet.cpp
+        src/hardware/BoolSensor.cpp
+        src/UI/BoolSensorViewer.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
