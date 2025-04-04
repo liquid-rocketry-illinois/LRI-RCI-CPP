@@ -144,13 +144,13 @@ namespace LRI::RCI {
         return now - lastClock;
     }
 
-    std::string devclassToString(RCP_DeviceClass_t devclass) {
+    std::string devclassToString(RCP_DeviceClass devclass) {
         switch(devclass) {
         case RCP_DEVCLASS_TEST_STATE:
             return "Test State (Virtual Device)";
 
-        case RCP_DEVCLASS_SOLENOID:
-            return "Solenoid";
+        case RCP_DEVCLASS_SIMPLE_ACTUATOR:
+            return "Simple Actuator";
 
         case RCP_DEVCLASS_STEPPER:
             return "Stepper Motor";

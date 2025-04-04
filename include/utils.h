@@ -58,7 +58,7 @@ namespace LRI::RCI {
 
 
     // Small helper
-    std::string devclassToString(RCP_DeviceClass_t devclass);
+    std::string devclassToString(RCP_DeviceClass devclass);
 
     // ImVec2 operators
     ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);

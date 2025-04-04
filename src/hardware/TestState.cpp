@@ -33,7 +33,7 @@ namespace LRI::RCI {
         return testNum;
     }
 
-    RCP_TestRunningState_t TestState::getState() const {
+    RCP_TestRunningState TestState::getState() const {
         return state;
     }
 

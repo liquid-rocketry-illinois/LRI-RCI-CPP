@@ -26,8 +26,8 @@ namespace LRI::RCI {
         static int CLASSID;
         static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 
-        static const std::map<RCP_DeviceClass_t, std::vector<Graph>> GRAPHINFO;
-        static const std::map<RCP_DeviceClass_t, std::vector<Graph>> test;
+        static const std::map<RCP_DeviceClass, std::vector<Graph>> GRAPHINFO;
+        static const std::map<RCP_DeviceClass, std::vector<Graph>> test;
 
         const int classid;
         const bool abridged;

@@ -31,7 +31,7 @@ namespace LRI::RCI {
 
         void refreshAll() const;
         [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;
-        void setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value);
+        void setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value);
     };
 }
 

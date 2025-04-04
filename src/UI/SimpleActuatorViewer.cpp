@@ -1,20 +1,20 @@
-#include "UI/SolenoidViewer.h"
+#include "UI/SimpleActuatorViewer.h"
 
 #include "imgui.h"
 #include "utils.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    int SolenoidViewer::CLASSID = 0;
+    int SimpleActuatorViewer::CLASSID = 0;
 
-    SolenoidViewer::SolenoidViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton) :
+    SimpleActuatorViewer::SimpleActuatorViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton) :
         classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& sol : quals) {
-            sols[sol] = Solenoids::getInstance()->getState(sol);
+            sols[sol] = SimpleActuators::getInstance()->getState(sol);
         }
     }
 
-    void SolenoidViewer::render() {
+    void SimpleActuatorViewer::render() {
         ImGui::PushID("SolenoidViewer");
         ImGui::PushID(classid);
 
@@ -25,7 +25,7 @@ namespace LRI::RCI {
 
         // A button to manually refresh the states of each solenoid
         if(refreshButton && ImGui::Button("Refresh All")) {
-            Solenoids::getInstance()->refreshAll();
+            SimpleActuators::getInstance()->refreshAll();
             buttonTimer.reset();
         }
         if(lockButtons) ImGui::EndDisabled();
@@ -38,7 +38,7 @@ namespace LRI::RCI {
 
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImU32 statusColor = !state->stale ? (state->open ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;
-            const char* tooltip = !state->stale ? (state->open ? "Solenoid ON" : "Solenoid OFF") : "Stale Data";
+            const char* tooltip = !state->stale ? (state->open ? "ON" : "OFF") : "Stale Data";
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
@@ -49,7 +49,8 @@ namespace LRI::RCI {
 
             if(lockButtons || !state->stale) ImGui::BeginDisabled();
             if(ImGui::Button(!state->open ? "ON" : "OFF")) {
-                Solenoids::getInstance()->setSolenoidState(id, state->open ? RCP_SOLENOID_OFF : RCP_SOLENOID_ON);
+                SimpleActuators::getInstance()->setActuatorState(
+                    id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
                 buttonTimer.reset();
             }
             if(lockButtons || !state->stale) ImGui::EndDisabled();

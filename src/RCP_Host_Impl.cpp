@@ -4,7 +4,7 @@
 #include "hardware/Prompt.h"
 #include "hardware/RawData.h"
 #include "hardware/Sensors.h"
-#include "hardware/Solenoids.h"
+#include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
 #include "hardware/TestState.h"
 
@@ -16,7 +16,7 @@ namespace LRI::RCI {
         .sendData = sendData,
         .readData = readData,
         .processTestUpdate = processTestUpdate,
-        .processSolenoidData = processSolenoidData,
+        .processSimpleActuatorData = processSimpleActuatorData,
         .processPromptInput = processPromptInput,
         .processSerialData = processSerialData,
         .processOneFloat = processOneFloat,
@@ -38,8 +38,9 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int processSolenoidData(const RCP_SolenoidData data) {
-        Solenoids::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SOLENOID, data.ID}, data.state == RCP_SOLENOID_ON);
+    int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
+        SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID},
+                                                   data.state == RCP_SIMPLE_ACTUATOR_ON);
         return 0;
     }
 

@@ -172,7 +172,7 @@ namespace LRI::RCI {
     // the name of the line, as well as the offset into the Sensors::DataPoint::Data array. It looks messy, but
     // this system is significantly cleaner than the previous implementation. As in half the number of LOC cleaner.
     // clang-format off
-    const std::map<RCP_DeviceClass_t, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
+    const std::map<RCP_DeviceClass, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_AM_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},
         {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure",                "Pressure (psi)",                 {{"Pressure", 0}}}}},

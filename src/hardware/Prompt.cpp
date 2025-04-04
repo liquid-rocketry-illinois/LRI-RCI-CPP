@@ -15,11 +15,11 @@ namespace LRI::RCI {
         return prompt;
     }
 
-    RCP_PromptDataType_t Prompt::getType() const {
+    RCP_PromptDataType Prompt::getType() const {
         return type;
     }
 
-    bool* Prompt::getGNGPointer() {
+    RCP_GONOGO* Prompt::getGNGPointer() {
         return &gng;
     }
 

@@ -25,15 +25,15 @@ namespace LRI::RCI {
         ImGui::PopTextWrapPos();
 
         if(Prompt::getInstance()->getType() == RCP_PromptDataType_GONOGO) {
-            bool* gng = Prompt::getInstance()->getGNGPointer();
+            RCP_GONOGO* gng = Prompt::getInstance()->getGNGPointer();
             bool prev = *gng;
             if(prev) ImGui::BeginDisabled();
-            if(ImGui::Button("NO GO")) *gng = false;
+            if(ImGui::Button("NO GO")) *gng = RCP_GONOGO_NOGO;
             if(prev) ImGui::EndDisabled();
 
             if(!prev) ImGui::BeginDisabled();
             ImGui::SameLine();
-            if(ImGui::Button("GO")) *gng = true;
+            if(ImGui::Button("GO")) *gng = RCP_GONOGO_GO;
             if(!prev) ImGui::EndDisabled();
 
             ImGui::SameLine();

@@ -7,10 +7,10 @@
 
 namespace LRI::RCI {
     class TestState {
-        RCP_TestRunningState_t state{};
-        uint8_t testNum{};
-        uint8_t heartbeatTime{};
-        bool dataStreaming{};
+        RCP_TestRunningState state;
+        uint8_t testNum;
+        uint8_t heartbeatTime;
+        bool dataStreaming;
 
         StopWatch heartbeat;
 
@@ -21,7 +21,7 @@ namespace LRI::RCI {
         static TestState* getInstance();
 
         [[nodiscard]] int getTestNum() const;
-        [[nodiscard]] RCP_TestRunningState_t getState() const;
+        [[nodiscard]] RCP_TestRunningState getState() const;
         [[nodiscard]] uint8_t getHeartbeatTime() const;
         [[nodiscard]] bool getDataStreaming() const;
 

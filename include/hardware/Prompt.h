@@ -12,17 +12,17 @@ namespace LRI::RCI {
 
         bool activePrompt;
         std::string prompt;
-        bool gng;
+        RCP_GONOGO gng;
         float val;
-        RCP_PromptDataType_t type;
+        RCP_PromptDataType type;
 
     public:
         static Prompt* getInstance();
 
         [[nodiscard]] bool is_active_prompt() const;
         [[nodiscard]] const std::string& get_prompt() const;
-        [[nodiscard]] RCP_PromptDataType_t getType() const;
-        [[nodiscard]] bool* getGNGPointer();
+        [[nodiscard]] RCP_PromptDataType getType() const;
+        [[nodiscard]] RCP_GONOGO* getGNGPointer();
         [[nodiscard]] float* getValPointer();
 
         bool submitPrompt();

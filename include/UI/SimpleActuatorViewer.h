@@ -5,25 +5,25 @@
 #include <set>
 #include "WModule.h"
 #include "hardware/HardwareQualifier.h"
-#include "hardware/Solenoids.h"
+#include "hardware/SimpleActuators.h"
 
 namespace LRI::RCI {
     // A window for showing and controlling solenoid status
-    class SolenoidViewer : public WModule {
+    class SimpleActuatorViewer : public WModule {
         static int CLASSID;
 
         const int classid;
         const bool refreshButton;
         // Maps human identifiable names to solenoid ID
-        std::map<HardwareQualifier, const Solenoids::SolenoidState*> sols;
+        std::map<HardwareQualifier, const SimpleActuators::ActuatorState*> sols;
 
     public:
-        explicit SolenoidViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton = true);
+        explicit SimpleActuatorViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton = true);
 
         // Overridden render function
         void render() override;
 
-        ~SolenoidViewer() override = default;
+        ~SimpleActuatorViewer() override = default;
     };
 }
 

@@ -1,7 +1,7 @@
 #include <ranges>
 
 #include "hardware/Steppers.h"
-#include "hardware/Solenoids.h"
+#include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
     Steppers* Steppers::getInstance() {
@@ -41,7 +41,7 @@ namespace LRI::RCI {
         }
     }
 
-    void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode_t controlMode, float value) {
+    void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
         RCP_sendStepperWrite(qual.id, controlMode, &value);
         motors[qual]->stale = true;
     }

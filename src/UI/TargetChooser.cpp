@@ -13,7 +13,7 @@
 #include "interfaces/COMPort.h"
 #include "interfaces/TCPSocket.h"
 
-#include "hardware/Solenoids.h"
+#include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
 #include "hardware/Sensors.h"
 
@@ -21,7 +21,7 @@
 #include "UI/PromptViewer.h"
 #include "UI/RawViewer.h"
 #include "UI/SensorViewer.h"
-#include "UI/SolenoidViewer.h"
+#include "UI/SimpleActuatorViewer.h"
 #include "UI/StepperViewer.h"
 #include "UI/TestStateViewer.h"
 
@@ -179,7 +179,7 @@ namespace LRI::RCI {
         std::set<HardwareQualifier> sensors;
 
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
-            auto devclass = static_cast<RCP_DeviceClass_t>(targetconfig["devices"][i]["devclass"].get<int>());
+            auto devclass = static_cast<RCP_DeviceClass>(targetconfig["devices"][i]["devclass"].get<int>());
             std::vector<uint8_t> ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
             std::vector<std::string> names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
             if(ids.empty() || ids.size() != names.size()) continue;
@@ -192,8 +192,8 @@ namespace LRI::RCI {
                 Steppers::getInstance()->setHardwareConfig(quals);
                 break;
 
-            case RCP_DEVCLASS_SOLENOID:
-                Solenoids::getInstance()->setHardwareConfig(quals);
+            case RCP_DEVCLASS_SIMPLE_ACTUATOR:
+                SimpleActuators::getInstance()->setHardwareConfig(quals);
 
             case RCP_DEVCLASS_AM_PRESSURE:
             case RCP_DEVCLASS_AM_TEMPERATURE:
@@ -230,16 +230,16 @@ namespace LRI::RCI {
                     modules.push_back(new TestStateViewer());
                     break;
 
-                case RCP_DEVCLASS_SOLENOID:
+                case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 case RCP_DEVCLASS_STEPPER: {
                     bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
                     std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
                     auto filtered = allquals | std::views::filter([&ids](const HardwareQualifier& q) {
-                        return q.devclass == RCP_DEVCLASS_SOLENOID && ids.contains(q.id);
+                        return q.devclass == RCP_DEVCLASS_SIMPLE_ACTUATOR && ids.contains(q.id);
                     });
                     if(type == 1)
                         modules.push_back(
-                            new SolenoidViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                            new SimpleActuatorViewer(std::set(filtered.begin(), filtered.end()), refresh));
                     else modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;

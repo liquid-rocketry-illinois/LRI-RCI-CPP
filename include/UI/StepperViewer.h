@@ -14,13 +14,13 @@ namespace LRI::RCI {
     // A window for showing and controlling states of stepper motors
     class StepperViewer : public WModule {
         // Maps control modes to UI button names
-        static const std::map<RCP_StepperControlMode_t, std::vector<const char*>> BTN_NAMES;
+        static const std::map<RCP_StepperControlMode, std::vector<const char*>> BTN_NAMES;
 
         static int CLASSID;
 
         struct Input {
             float val;
-            RCP_StepperControlMode_t mode;
+            RCP_StepperControlMode mode;
         };
 
         const int classid;

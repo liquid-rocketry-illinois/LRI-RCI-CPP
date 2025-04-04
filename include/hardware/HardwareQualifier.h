@@ -6,7 +6,7 @@
 
 namespace LRI::RCI {
     struct HardwareQualifier {
-        RCP_DeviceClass_t devclass = 0;
+        RCP_DeviceClass devclass;
         uint8_t id = 0;
         std::string name;
 

@@ -22,7 +22,7 @@ namespace LRI::RCI {
         if(lockButtons) ImGui::BeginDisabled();
 
         // Display controls for starting, stopping, pausing, estopping, and selecting a test
-        RCP_TestRunningState_t state = TestState::getInstance()->getState();
+        RCP_TestRunningState state = TestState::getInstance()->getState();
 
         bool lock = state != RCP_TEST_STOPPED;
         if(lock) ImGui::BeginDisabled();
