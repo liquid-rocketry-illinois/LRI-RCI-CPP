@@ -1,10 +1,16 @@
 #include "hardware/TestState.h"
 
 namespace LRI::RCI {
+    std::atomic_bool TestState::inited = false;
+
     TestState* TestState::getInstance() {
         static TestState* instance = nullptr;
         if(instance == nullptr) instance = new TestState();
         return instance;
+    }
+
+    bool TestState::getInited() {
+        return inited.load();
     }
 
     bool TestState::startTest(uint8_t number) {
@@ -71,5 +77,6 @@ namespace LRI::RCI {
         heartbeatTime = testState.heartbeatTime;
         dataStreaming = testState.dataStreaming;
         state = testState.state;
+        inited = testState.isInited;
     }
 }

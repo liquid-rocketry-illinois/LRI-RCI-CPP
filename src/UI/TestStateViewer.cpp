@@ -15,6 +15,7 @@ namespace LRI::RCI {
     void TestStateViewer::render() {
         ImGui::PushID("TestStateViewer");
         ImGui::PushID(classid);
+        if(!TestState::getInited()) ImGui::BeginDisabled();
 
         ImGui::Text("Test Control");
 
@@ -125,6 +126,7 @@ namespace LRI::RCI {
             if(lockButtons) ImGui::EndDisabled();
         }
 
+        if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }

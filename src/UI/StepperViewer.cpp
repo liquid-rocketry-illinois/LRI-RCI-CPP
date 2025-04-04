@@ -1,5 +1,6 @@
 #include "UI/StepperViewer.h"
 #include "utils.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     int StepperViewer::CLASSID = 0;
@@ -15,6 +16,7 @@ namespace LRI::RCI {
     void StepperViewer::render() {
         ImGui::PushID("StepperViewer");
         ImGui::PushID(classid);
+        if(!TestState::getInited()) ImGui::BeginDisabled();
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
@@ -88,6 +90,7 @@ namespace LRI::RCI {
             ImGui::PopID();
         }
 
+        if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }

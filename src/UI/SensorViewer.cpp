@@ -17,36 +17,36 @@ namespace LRI::RCI {
                                                          const Sensors::DataPoint& data) {
         switch(qual.devclass) {
         case RCP_DEVCLASS_AM_PRESSURE:
-            return std::format("Pressure: %.3f mbar", data.data[0]);
+            return std::format("Pressure: {:.3f} mbar", data.data[0]);
 
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            return std::format("Pressure: %.3f psi", data.data[0]);
+            return std::format("Pressure: {:.3f} psi", data.data[0]);
 
         case RCP_DEVCLASS_AM_TEMPERATURE:
-            return std::format("Temperature: %.3f C", data.data[0]);
+            return std::format("Temperature: {:.3f} C", data.data[0]);
 
         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-            return std::format("Humidity: %.3f %%", data.data[0]);
+            return std::format("Humidity: {:.3f} %", data.data[0]);
 
         case RCP_DEVCLASS_LOAD_CELL:
-            return std::format("Mass: %.3f kg", data.data[0]);
+            return std::format("Mass: {:.3f} kg", data.data[0]);
 
         case RCP_DEVCLASS_POWERMON:
-            return std::format("Voltage: %.3f V | Power: %.3f W", data.data[0], data.data[1]);
+            return std::format("Voltage: {:.3f} V | Power: {:.3f} W", data.data[0], data.data[1]);
 
         case RCP_DEVCLASS_ACCELEROMETER:
-            return std::format("X: %.3f m/s/s | Y: %.3f m/s/s | Z: %.3f m/s/s", data.data[0], data.data[1],
+            return std::format("X: {:.3f} m/s/s | Y: {:.3f} m/s/s | Z: {:.3f} m/s/s", data.data[0], data.data[1],
                                data.data[2]);
 
         case RCP_DEVCLASS_GYROSCOPE:
-            return std::format("X: %.3f d/s/s | Y: %.3f d/s/s | Z: %.3f d/s/s", data.data[0], data.data[1],
+            return std::format("X: {:.3f} d/s/s | Y: {:.3f} d/s/s | Z: {:.3f} d/s/s", data.data[0], data.data[1],
                                data.data[2]);
 
         case RCP_DEVCLASS_MAGNETOMETER:
-            return std::format("X: %.3f G | Y: %.3f G | Z: %.3f G", data.data[0], data.data[1], data.data[2]);
+            return std::format("X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", data.data[0], data.data[1], data.data[2]);
 
         case RCP_DEVCLASS_GPS:
-            return std::format("Latitude: %.3f d | Longitude: %.3f d | Altitude: %.3f m | Ground Speed: %.3f m/s",
+            return std::format("Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
                                data.data[0], data.data[1], data.data[2], data.data[3]);
 
         default:

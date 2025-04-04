@@ -1,6 +1,7 @@
 #include "UI/RawViewer.h"
 #include "utils.h"
 #include "hardware/RawData.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     int RawViewer::CLASSID = 0;
@@ -11,6 +12,7 @@ namespace LRI::RCI {
     void RawViewer::render() {
         ImGui::PushID("RawViewer");
         ImGui::PushID(classid);
+        if(!TestState::getInited()) ImGui::BeginDisabled();
 
         if(ImGui::Button("Clear")) {
             RawData::getInstance()->reset();
@@ -29,6 +31,7 @@ namespace LRI::RCI {
         ImGui::EndChild();
         ImGui::Separator();
 
+        if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }

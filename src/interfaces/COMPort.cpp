@@ -6,6 +6,7 @@
 #include <SetupAPI.h>
 #include <devguid.h>
 #include "UI/WModule.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     // Quite an awful looking constructor if I do say so myself
@@ -209,6 +210,7 @@ namespace LRI::RCI {
             else {
                 // Write cycle
                 r_nw = true;
+                if(!TestState::getInited()) continue;
 
                 // If the output buffer is empty return
                 outlock.lock();

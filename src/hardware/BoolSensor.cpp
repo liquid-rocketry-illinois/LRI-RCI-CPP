@@ -40,5 +40,7 @@ namespace LRI::RCI {
         for(const auto& qual : ids) {
             state[qual] = new BoolSensorState();
         }
+
+        refreshAll();
     }
 }

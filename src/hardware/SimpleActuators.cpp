@@ -24,6 +24,8 @@ namespace LRI::RCI {
         for(const auto& qual : solIds) {
             state[qual] = new ActuatorState();
         }
+
+        refreshAll();
     }
 
     void SimpleActuators::reset() {

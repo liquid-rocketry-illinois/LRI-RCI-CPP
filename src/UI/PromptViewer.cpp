@@ -1,6 +1,7 @@
 #include "UI/PromptViewer.h"
 
 #include "hardware/Prompt.h"
+#include "hardware/TestState.h"
 #include "utils.h"
 
 namespace LRI::RCI {
@@ -13,8 +14,11 @@ namespace LRI::RCI {
         ImGui::PushID("PromptViewer");
         ImGui::PushID(classid);
 
+        if(!TestState::getInited()) ImGui::BeginDisabled();
+
         if(!Prompt::getInstance()->is_active_prompt()) {
             ImGui::Text("No Active Prompt");
+            if(!TestState::getInited()) ImGui::EndDisabled();
             ImGui::PopID();
             ImGui::PopID();
             return;
@@ -52,6 +56,7 @@ namespace LRI::RCI {
             Prompt::getInstance()->submitPrompt();
         }
 
+        if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }

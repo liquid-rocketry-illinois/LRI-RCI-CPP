@@ -2,8 +2,6 @@
 
 #include <fstream>
 #include <set>
-#include <UI/BoolSensorViewer.h>
-#include <hardware/BoolSensor.h>
 
 #include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
@@ -18,7 +16,9 @@
 #include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
 #include "hardware/Sensors.h"
+#include "hardware/BoolSensor.h"
 
+#include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/PromptViewer.h"
 #include "UI/RawViewer.h"

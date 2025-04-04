@@ -33,12 +33,18 @@ namespace LRI::RCI {
     }
 
     void Steppers::setHardwareConfig(const std::set<HardwareQualifier>& motorlist) {
-        for(const Stepper* s : motors | std::views::values) delete s;
-        motors.clear();
+        reset();
 
         for(const auto& qual : motorlist) {
             motors[qual] = new Stepper();
         }
+
+        refreshAll();
+    }
+
+    void Steppers::reset() {
+        for(const Stepper* s : motors | std::views::values) delete s;
+        motors.clear();
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {

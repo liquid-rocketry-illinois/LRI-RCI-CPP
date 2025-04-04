@@ -1,6 +1,5 @@
 #include "interfaces/TCPSocket.h"
-
-#include <utility>
+#include "hardware/TestState.h"
 #include "UI/TargetChooser.h"
 #include "improgress.h"
 #include <iostream>
@@ -180,6 +179,7 @@ namespace LRI::RCI {
 
             else {
                 r_nw = true;
+                if(!TestState::getInited()) continue;
 
                 outlock.lock();
                 bool skip = outbuffer->isEmpty();

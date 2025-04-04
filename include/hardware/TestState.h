@@ -1,12 +1,16 @@
 #ifndef TESTSTATE_H
 #define TESTSTATE_H
 
+#include <atomic>
+
 #include "RCP_Host/RCP_Host.h"
 
 #include "utils.h"
 
 namespace LRI::RCI {
     class TestState {
+        static std::atomic_bool inited;
+
         RCP_TestRunningState state;
         uint8_t testNum;
         uint8_t heartbeatTime;
@@ -19,6 +23,7 @@ namespace LRI::RCI {
 
     public:
         static TestState* getInstance();
+        [[nodiscard]] static bool getInited();
 
         [[nodiscard]] int getTestNum() const;
         [[nodiscard]] RCP_TestRunningState getState() const;

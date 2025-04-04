@@ -2,8 +2,8 @@
 
 #include "imgui.h"
 
-#include "utils.h"
 #include "hardware/EStop.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     int EStopViewer::CLASSID = 0;
@@ -15,6 +15,8 @@ namespace LRI::RCI {
         ImGui::PushID("EStopViewer");
         ImGui::PushID(classid);
 
+        if(!TestState::getInited()) ImGui::BeginDisabled();
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
@@ -25,6 +27,8 @@ namespace LRI::RCI {
         }
 
         ImGui::PopStyleColor(3);
+
+        if(!TestState::getInited()) ImGui::EndDisabled();
 
         ImGui::PopID();
         ImGui::PopID();
