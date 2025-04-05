@@ -1,4 +1,5 @@
 #include "hardware/EStop.h"
+#include "hardware/TestState.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
@@ -9,6 +10,7 @@ namespace LRI::RCI {
     }
 
     void EStop::ESTOP() {
+        if(!TestState::getInited()) return;
         RCP_sendEStop();
         isStopped = true;
     }

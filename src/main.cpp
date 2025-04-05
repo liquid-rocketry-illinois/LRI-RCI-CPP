@@ -13,6 +13,7 @@
 
 #include "hardware/Sensors.h"
 #include "hardware/TestState.h"
+#include "hardware/BoolSensor.h"
 #include "UI/Windowlet.h"
 
 // A very small main function :)
@@ -41,6 +42,7 @@ int main() {
         // Update hardware that needs updating
         LRI::RCI::TestState::getInstance()->update(); // heartbeats
         LRI::RCI::Sensors::getInstance()->update(); // Serialization threads
+        LRI::RCI::BoolSensors::getInstance()->update(); // Auto updates
     }
 
     // Once the window should close, then terminate libraries

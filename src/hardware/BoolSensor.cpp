@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include "hardware/BoolSensor.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     BoolSensors::~BoolSensors() {
@@ -24,6 +25,7 @@ namespace LRI::RCI {
     }
 
     void BoolSensors::refreshAll() const {
+        if(!TestState::getInited()) return;
         for(const auto& qual : state | std::views::keys) {
             RCP_requestDeviceReadID(qual.devclass, qual.id);
             state.at(qual)->stale = true;
@@ -42,5 +44,14 @@ namespace LRI::RCI {
         }
 
         refreshAll();
+        refreshTimer.reset();
     }
+
+    void BoolSensors::update() {
+        if(refreshTimer.timeSince() > REFRESH_TIME) {
+            refreshAll();
+            refreshTimer.reset();
+        }
+    }
+
 }

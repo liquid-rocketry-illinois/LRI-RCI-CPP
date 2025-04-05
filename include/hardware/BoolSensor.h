@@ -4,15 +4,17 @@
 #include <map>
 #include <set>
 
-#include "RCP_Host/RCP_Host.h"
-
+#include "utils.h"
 #include "HardwareQualifier.h"
 
 namespace LRI::RCI {
     class BoolSensors {
+        static constexpr int REFRESH_TIME = 5;
+
         struct BoolSensorState;
 
         std::map<HardwareQualifier, BoolSensorState*> state;
+        StopWatch refreshTimer;
 
         BoolSensors() = default;
         ~BoolSensors();
@@ -30,8 +32,7 @@ namespace LRI::RCI {
         void reset();
         [[nodiscard]] const BoolSensorState* getState(const HardwareQualifier& qual) const;
         void refreshAll() const;
-
-
+        void update();
     };
 }
 
