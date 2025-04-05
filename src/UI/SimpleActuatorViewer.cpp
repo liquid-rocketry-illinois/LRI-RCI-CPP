@@ -49,13 +49,14 @@ namespace LRI::RCI {
 
             ImGui::SameLine();
 
-            if(lockButtons || !state->stale) ImGui::BeginDisabled();
+            bool prevstale = state->stale;
+            if(lockButtons || prevstale) ImGui::BeginDisabled();
             if(ImGui::Button(!state->open ? "ON" : "OFF")) {
                 SimpleActuators::getInstance()->setActuatorState(
                     id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
                 buttonTimer.reset();
             }
-            if(lockButtons || !state->stale) ImGui::EndDisabled();
+            if(lockButtons || prevstale) ImGui::EndDisabled();
 
             ImGui::PopID();
         }

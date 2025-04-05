@@ -3,8 +3,8 @@
   "devices": [
     {
       "devclass": 1,
-      "ids": [0, 1, 2, 3, 4, 5, 6],
-      "names": ["SV7-F-V", "SV2-F-PRS", "SV1-OX-PRS", "SV3-OX-ACT", "SV4-F-ACT", "SV9-OX-ACT", "SV10-OX-ACT"]
+      "ids": [1, 2, 3, 4, 5, 6, 7],
+      "names": ["SV2-F-PRS", "SV1-OX-PRS", "SV7-F-V", "SV9-OX-ACT", "SV4-F-ACT", "SV3-OX-ACT", "SV10-OX-ACT"]
     },
     {
       "devclass": 146,

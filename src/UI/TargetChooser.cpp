@@ -17,6 +17,8 @@
 #include "hardware/Steppers.h"
 #include "hardware/Sensors.h"
 #include "hardware/BoolSensor.h"
+#include "hardware/RawData.h"
+#include "hardware/Prompt.h"
 
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
@@ -179,6 +181,9 @@ namespace LRI::RCI {
         interfName = interf->interfaceType();
         std::set<HardwareQualifier> allquals;
         std::set<HardwareQualifier> sensors;
+
+        RawData::getInstance()->reset();
+        Prompt::getInstance()->reset();
 
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
             auto devclass = static_cast<RCP_DeviceClass>(targetconfig["devices"][i]["devclass"].get<int>());

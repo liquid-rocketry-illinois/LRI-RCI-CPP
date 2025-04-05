@@ -27,6 +27,11 @@ namespace LRI::RCI {
         return &val;
     }
 
+    void Prompt::reset() {
+        activePrompt = false;
+        prompt = "";
+    }
+
     void Prompt::receiveRCPUpdate(const RCP_PromptInputRequest& req) {
         type = req.type;
         prompt = req.prompt;

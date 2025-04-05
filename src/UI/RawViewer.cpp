@@ -12,12 +12,12 @@ namespace LRI::RCI {
     void RawViewer::render() {
         ImGui::PushID("RawViewer");
         ImGui::PushID(classid);
-        if(!TestState::getInited()) ImGui::BeginDisabled();
 
         if(ImGui::Button("Clear")) {
             RawData::getInstance()->reset();
         }
 
+        if(!TestState::getInited()) ImGui::BeginDisabled();
         ImGui::Separator();
 
         // An imgui child to contain the text

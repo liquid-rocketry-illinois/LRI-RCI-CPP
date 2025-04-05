@@ -24,6 +24,7 @@ namespace LRI::RCI {
         [[nodiscard]] RCP_PromptDataType getType() const;
         [[nodiscard]] RCP_GONOGO* getGNGPointer();
         [[nodiscard]] float* getValPointer();
+        void reset();
 
         bool submitPrompt();
 
