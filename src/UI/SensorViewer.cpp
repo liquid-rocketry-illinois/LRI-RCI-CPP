@@ -46,8 +46,9 @@ namespace LRI::RCI {
             return std::format("X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", data.data[0], data.data[1], data.data[2]);
 
         case RCP_DEVCLASS_GPS:
-            return std::format("Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
-                               data.data[0], data.data[1], data.data[2], data.data[3]);
+            return std::format(
+                "Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
+                data.data[0], data.data[1], data.data[2], data.data[3]);
 
         default:
             return "Unrecognized sensor";
@@ -123,6 +124,8 @@ namespace LRI::RCI {
             ImGui::Text(" | ");
             ImGui::SameLine();
             if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
+            ImGui::SameLine();
+            ImGui::Text(" | Data Points: %d", data->size());
 
             renderGraphs(qual, data, plotsize);
 
