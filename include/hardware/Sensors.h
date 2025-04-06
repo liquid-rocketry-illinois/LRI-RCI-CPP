@@ -21,6 +21,7 @@ namespace LRI::RCI {
 
         // Holds the data vectors mapped to their qualifiers
         std::map<HardwareQualifier, std::vector<DataPoint>*> sensors;
+        std::map<HardwareQualifier, double> tares;
 
         // Holds the file writing threads mapped to sensor qualifiers
         std::map<std::thread::id, std::thread*> activeThreads;
@@ -50,6 +51,7 @@ namespace LRI::RCI {
 
         [[nodiscard]] const std::vector<DataPoint>* getState(const HardwareQualifier& qual) const;
         void writeCSV(const HardwareQualifier& qual);
+        void tare(const HardwareQualifier& qual);
     };
 }
 

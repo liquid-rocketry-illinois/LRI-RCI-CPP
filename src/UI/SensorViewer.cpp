@@ -127,6 +127,21 @@ namespace LRI::RCI {
             if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %d", data->size());
+            ImGui::SameLine();
+            ImGui::Text(" | ");
+            ImGui::SameLine();
+            if(tarestuff[qual] == 0 && ImGui::Button("Tare")) {
+                tarestuff[qual] = 1;
+            }
+
+            else if(tarestuff[qual] == 1) {
+                ImGui::Text("     ");
+                ImGui::SameLine();
+                if(ImGui::Button("Confirm")) {
+                    tarestuff[qual] = 0;
+                    Sensors::getInstance()->tare(qual);
+                }
+            }
 
             renderGraphs(qual, data, plotsize);
 

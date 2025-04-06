@@ -87,7 +87,7 @@ namespace LRI::RCI {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
         DataPoint d = {
             .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-            .data = {static_cast<double>(data.data)}
+            .data = {static_cast<double>(data.data) - tares[qual]}
         };
 
         sensors[qual]->push_back(d);
@@ -188,4 +188,28 @@ namespace LRI::RCI {
         activeThreads[thread->get_id()] = thread;
         threadSetMux.unlock();
     }
+
+    void Sensors::tare(const HardwareQualifier& qual) {
+        if(sensors[qual]->empty()) return;
+        auto& data = sensors[qual];
+        DataPoint d = data->at(data->size() - 1);
+        double prevtime = d.timestamp - 1;
+        double total = 0;
+        double prevtare = tares[qual];
+        int numElems = 0;
+        auto filtered = *data | std::views::filter(
+                        [&prevtime](const DataPoint& d) { return d.timestamp > prevtime; });
+        std::ranges::for_each(filtered, [&total, &numElems, &prevtare](const DataPoint& d) {
+            numElems++;
+            total += d.data[0] + prevtare;
+        });
+
+        total /= numElems;
+        std::ranges::for_each(data->begin(), data->end(), [&total, &prevtare](DataPoint& d) {
+            d.data[0] -= total - prevtare;
+        });
+
+        tares[qual] = total;
+    }
+
 }
