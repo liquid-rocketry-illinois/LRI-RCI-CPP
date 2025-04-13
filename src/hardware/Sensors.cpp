@@ -203,7 +203,6 @@ namespace LRI::RCI {
             }
         });
 
-        total /= numElems;
         float ftotal = static_cast<float>(total / numElems);
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, &ftotal, 4);
     }
