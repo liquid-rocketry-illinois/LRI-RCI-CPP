@@ -51,6 +51,7 @@ namespace LRI::RCI {
         [[nodiscard]] const std::vector<DataPoint>* getState(const HardwareQualifier& qual) const;
         void writeCSV(const HardwareQualifier& qual);
         void tare(const HardwareQualifier& qual, uint8_t dataChannel);
+        void clearGraph(const HardwareQualifier& qual);
     };
 }
 

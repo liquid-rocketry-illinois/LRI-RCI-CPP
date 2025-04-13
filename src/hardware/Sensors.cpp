@@ -207,4 +207,9 @@ namespace LRI::RCI {
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, &ftotal, 4);
     }
 
+    void Sensors::clearGraph(const HardwareQualifier& qual) {
+        sensors[qual]->clear();
+    }
+
+
 }

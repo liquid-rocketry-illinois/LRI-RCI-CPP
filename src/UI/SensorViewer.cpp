@@ -151,6 +151,15 @@ namespace LRI::RCI {
                 tarestate[qual] = -1;
             }
 
+            if(!clearState[qual] && ImGui::Button("Clear Graphs")) {
+                clearState[qual] = true;
+            }
+
+            else if(clearState[qual] && ImGui::Button("Confirm")) {
+                clearState[qual] = false;
+                Sensors::getInstance()->clearGraph(qual);
+            }
+
             renderGraphs(qual, data, plotsize);
 
             ImGui::Separator();
