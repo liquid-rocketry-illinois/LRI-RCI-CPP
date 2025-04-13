@@ -48,7 +48,7 @@ namespace LRI::RCI {
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
-        RCP_sendStepperWrite(qual.id, controlMode, &value);
+        RCP_sendStepperWrite(qual.id, controlMode, &value, 4);
         motors[qual]->stale = true;
     }
 }

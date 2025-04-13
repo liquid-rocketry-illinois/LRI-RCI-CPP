@@ -27,7 +27,6 @@ namespace LRI::RCI {
         static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 
         static const std::map<RCP_DeviceClass, std::vector<Graph>> GRAPHINFO;
-        static const std::map<RCP_DeviceClass, std::vector<Graph>> test;
 
         const int classid;
         const bool abridged;
@@ -37,7 +36,7 @@ namespace LRI::RCI {
         static void renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
                                  const ImVec2& plotsize);
 
-        std::map<HardwareQualifier, int> tarestuff;
+        std::map<HardwareQualifier, int> tarestate;
 
     public:
         explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false);

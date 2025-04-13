@@ -128,19 +128,27 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %d", data->size());
             ImGui::SameLine();
-            ImGui::Text(" | ");
-            ImGui::SameLine();
-            if(tarestuff[qual] == 0 && ImGui::Button("Tare")) {
-                tarestuff[qual] = 1;
+            ImGui::Text(
+                " | %s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
+            if(!tarestate.contains(qual)) tarestate[qual] = -1;
+            ImGui::Text("Tare: ");
+            if(tarestate[qual] == -1) {
+                int i = 0;
+                for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+                    for(const auto& line : graph.lines) {
+                        ImGui::PushID(i++);
+                        ImGui::SameLine();
+                        if(ImGui::Button(line.name)) {
+                            tarestate[qual] = line.datanum;
+                        }
+                        ImGui::PopID();
+                    }
+                }
             }
 
-            else if(tarestuff[qual] == 1) {
-                ImGui::Text("     ");
-                ImGui::SameLine();
-                if(ImGui::Button("Confirm")) {
-                    tarestuff[qual] = 0;
-                    Sensors::getInstance()->tare(qual);
-                }
+            else if(ImGui::SameLine(), ImGui::Button("Confirm")) {
+                Sensors::getInstance()->tare(qual, tarestate[qual]);
+                tarestate[qual] = -1;
             }
 
             renderGraphs(qual, data, plotsize);
