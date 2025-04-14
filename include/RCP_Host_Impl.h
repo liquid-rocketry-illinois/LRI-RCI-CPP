@@ -9,7 +9,7 @@ namespace LRI::RCI {
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);
     int processTestUpdate(RCP_TestData data);
-    int processSolenoidData(RCP_SolenoidData data);
+    int processSimpleActuatorData(RCP_SimpleActuatorData data);
     int processPromptInput(RCP_PromptInputRequest request);
     int processSerialData(RCP_CustomData data);
     int processOneFloat(RCP_OneFloat data);

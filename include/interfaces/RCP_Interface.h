@@ -4,7 +4,6 @@
 #include <string>
 
 namespace LRI::RCI {
-
     // An interface representing an interface RCP can use to communicate
     class RCP_Interface {
     public:

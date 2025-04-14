@@ -1,14 +1,14 @@
 #include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
 
-#include <UI/Steppers.h>
+#include "hardware/Prompt.h"
+#include "hardware/RawData.h"
+#include "hardware/Sensors.h"
+#include "hardware/SimpleActuators.h"
+#include "hardware/Steppers.h"
+#include "hardware/TestState.h"
 
-#include "UI/TargetChooser.h"
-#include "UI/Solenoids.h"
-#include "UI/TestControl.h"
-#include "UI/SensorReadings.h"
-#include "UI/CustomData.h"
-#include "UI/Prompt.h"
+#include "UI/Windowlet.h"
 
 namespace LRI::RCI {
     // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
@@ -16,7 +16,7 @@ namespace LRI::RCI {
         .sendData = sendData,
         .readData = readData,
         .processTestUpdate = processTestUpdate,
-        .processSolenoidData = processSolenoidData,
+        .processSimpleActuatorData = processSimpleActuatorData,
         .processPromptInput = processPromptInput,
         .processSerialData = processSerialData,
         .processOneFloat = processOneFloat,
@@ -26,51 +26,54 @@ namespace LRI::RCI {
     };
 
     size_t sendData(const void* data, size_t length) {
-        return TargetChooser::getInstance()->getInterface()->sendData(data, length);
+        return ControlWindowlet::getInstance()->getInterf()->sendData(data, length);
     }
 
     size_t readData(void* data, size_t bufferSize) {
-        return TargetChooser::getInstance()->getInterface()->readData(data, bufferSize);
+        return ControlWindowlet::getInstance()->getInterf()->readData(data, bufferSize);
     }
 
     int processTestUpdate(const RCP_TestData data) {
-        TestControl::getInstance()->receiveRCPUpdate(data);
+        TestState::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
-    int processSolenoidData(const RCP_SolenoidData data) {
-        Solenoids::getInstance()->receiveRCPUpdate(data);
+    int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
+        SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID},
+                                                   data.state == RCP_SIMPLE_ACTUATOR_ON);
         return 0;
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {
-        Prompt::getInstance()->setPrompt(request);
+        Prompt::getInstance()->receiveRCPUpdate(request);
         return 0;
     }
 
     int processSerialData(const RCP_CustomData data) {
-        CustomData::getInstance()->recevieRCPUpdate(data);
+        RawData::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processOneFloat(RCP_OneFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER) Steppers::getInstance()->receiveRCPUpdate(data);
-        else SensorReadings::getInstance()->receiveRCPUpdate(data);
+        if(data.devclass == RCP_DEVCLASS_STEPPER)
+            Steppers::getInstance()->receiveRCPUpdate(
+                {RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
+        else Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processThreeFloat(RCP_ThreeFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 
     int processFourFloat(RCP_FourFloat data) {
-        SensorReadings::getInstance()->receiveRCPUpdate(data);
+        Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
 }

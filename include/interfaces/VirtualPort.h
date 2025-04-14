@@ -7,7 +7,6 @@
 #include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
-
     // A testing interface. The send and receive functions are stubs and do not function
     class VirtualPort : public RCP_Interface {
     public:

@@ -34,17 +34,27 @@ add_executable(LRI_control_panel
         src/interfaces/COMPort.cpp
         src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp
-        src/UI/BaseUI.cpp
         src/UI/TargetChooser.cpp
-        src/UI/EStop.cpp
-        src/UI/Solenoids.cpp
+        src/UI/EStopViewer.cpp
+        src/UI/SimpleActuatorViewer.cpp
         src/interfaces/VirtualPort.cpp
-        src/UI/TestControl.cpp
-        src/UI/Steppers.cpp
-        src/UI/SensorReadings.cpp
-        src/UI/CustomData.cpp
+        src/UI/TestStateViewer.cpp
+        src/UI/StepperViewer.cpp
+        src/UI/SensorViewer.cpp
+        src/UI/RawViewer.cpp
         src/interfaces/TCPSocket.cpp
-        src/UI/Prompt.cpp
+        src/UI/PromptViewer.cpp
+        src/hardware/SimpleActuators.cpp
+        src/hardware/HardwareQualifier.cpp
+        src/hardware/Steppers.cpp
+        src/hardware/Sensors.cpp
+        src/hardware/RawData.cpp
+        src/hardware/EStop.cpp
+        src/hardware/TestState.cpp
+        src/hardware/Prompt.cpp
+        src/UI/Windowlet.cpp
+        src/hardware/BoolSensor.cpp
+        src/UI/BoolSensorViewer.cpp
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host

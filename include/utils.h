@@ -16,10 +16,19 @@ namespace LRI::RCI {
     // Pointers to the regular and bold fonts
     extern ImFont* font_regular;
     extern ImFont* font_bold;
+    extern ImFont* font_italic;
 
     // Scaling factor for hi-dpi screens
     extern float scaling_factor;
+    class IniFilePath {
+        friend class TargetChooser;
+        std::string path;
+    public:
+        std::string getPath();
+        [[nodiscard]] bool empty() const;
+    };
 
+    extern IniFilePath iniFilePath;
 
     // Helpers for scaling floats and ImVec2's by scaling_factor
     ImVec2 scale(const ImVec2& vec);
@@ -49,7 +58,7 @@ namespace LRI::RCI {
 
 
     // Small helper
-    std::string devclassToString(RCP_DeviceClass_t devclass);
+    std::string devclassToString(RCP_DeviceClass devclass);
 
     // ImVec2 operators
     ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
@@ -81,7 +90,6 @@ namespace LRI::RCI {
         void push(T value);
         void clear();
     };
-
 }
 
 #include "RingBuffer.inl"

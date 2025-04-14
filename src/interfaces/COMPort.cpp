@@ -5,16 +5,17 @@
 #include "improgress.h"
 #include <SetupAPI.h>
 #include <devguid.h>
-#include "UI/BaseUI.h"
+#include "UI/WModule.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     // Quite an awful looking constructor if I do say so myself
-    COMPort::COMPort(const char* _portname, const DWORD& _baudrate)
-            : portname(new char[strlen(_portname)]), baudrate(_baudrate),
-              port(CreateFile(
-                      _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-                      OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
-              lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
+    COMPort::COMPort(const char* _portname, const DWORD& _baudrate) :
+        portname(new char[strlen(_portname)]), baudrate(_baudrate),
+        port(CreateFile(
+            _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
+        lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
         strcpy(portname, _portname); // Windows says this is deprecated because it likes to be special
 
         // If the port is invalid exit constructor
@@ -203,12 +204,13 @@ namespace LRI::RCI {
                 inlock.lock();
                 inbuffer->push(byte);
                 inlock.unlock();
-//                std::cout << "rcv: " << std::hex << (int) byte << std::endl;
+                // std::cout << "rcv: " << std::hex << (int) byte << std::endl;
             }
 
             else {
                 // Write cycle
                 r_nw = true;
+                if(!TestState::getInited()) continue;
 
                 // If the output buffer is empty return
                 outlock.lock();
@@ -234,15 +236,14 @@ namespace LRI::RCI {
                 outlock.lock();
                 outbuffer->pop();
                 outlock.unlock();
-//                std::cout << "snd: " << std::hex << (int) byte << std::endl;
+                // std::cout << "snd: " << std::hex << (int) byte << std::endl;
             }
         }
     }
 
     // The COMPort chooser will enumerate all available serial devices to be picked from
-    COMPortChooser::COMPortChooser()
-            :
-            portlist(), selectedPort(0), error(false), baud(115200), port(nullptr) {
+    COMPortChooser::COMPortChooser() :
+        portlist(), selectedPort(0), error(false), baud(115200), port(nullptr) {
         enumSerialDevs();
     }
 
@@ -293,8 +294,7 @@ namespace LRI::RCI {
         else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].c_str())) {
             for(size_t i = 0; i < portlist.size(); i++) {
                 bool selected = i == selectedPort;
-                if(ImGui::Selectable((portlist[i] + "##portselectcombo").c_str(), &selected))
-                    selectedPort = i;
+                if(ImGui::Selectable((portlist[i] + "##portselectcombo").c_str(), &selected)) selectedPort = i;
                 if(selected) ImGui::SetItemDefaultFocus();
             }
 
@@ -318,7 +318,7 @@ namespace LRI::RCI {
         if(ImGui::Button("Connect")) {
             // If connect, then create the COMPort
             port = new COMPort(
-                    portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), baud);
+                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), baud);
         }
         if(portlist.empty()) ImGui::EndDisabled();
         if(disable) ImGui::EndDisabled();
@@ -339,10 +339,10 @@ namespace LRI::RCI {
             }
         }
 
-            // While the port is readying, don't return it just yet and display a loading spinner
+        // While the port is readying, don't return it just yet and display a loading spinner
         else if(!port->isReady()) {
             ImGui::SameLine();
-            ImGui::Spinner("##comportchooserspinner", 8, 1, BaseUI::REBECCA_PURPLE);
+            ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
         }
 
         else return port;
