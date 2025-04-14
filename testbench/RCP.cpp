@@ -4,19 +4,19 @@
 
 namespace RCP {
 
-RCP_Channel_t channel;
+RCP_Channel channel;
 LRI::RingBuf<uint8_t, SERIAL_BUFFER_SIZE> inbuffer;
 
 bool dataStreaming;
 uint8_t testNum;
-RCP_TestRunningState_t testState;
+RCP_TestRunningState testState;
 bool ready;
 
 bool firstTestRun;
 bool initDone = false;
 
 uint8_t pval[4];
-RCP_PromptDataType_t lastType;
+RCP_PromptDataType lastType;
 PromptAcceptor pacceptor;
 
 void init() {
@@ -62,7 +62,7 @@ void ESTOP() {
   }
 }
 
-void setPrompt(const char* str, RCP_PromptDataType_t gng, PromptAcceptor acceptor) {
+void setPrompt(const char* str, RCP_PromptDataType gng, PromptAcceptor acceptor) {
   size_t len = strlen(str);
   if(len > 63) return;
   pacceptor = acceptor;
