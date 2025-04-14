@@ -59,7 +59,7 @@ namespace LRI::RCI {
     }
 
     void ControlWindowlet::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(50, 50)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(scale(ImVec2(37.5, 50)), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowSize(scale(ImVec2(550, 225)), ImGuiCond_FirstUseEver);
 
         size_t size = modules.size() - 1;
