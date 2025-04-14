@@ -1,0 +1,46 @@
+{
+  "name": "Overture Box",
+  "devices": [
+    {
+      "devclass": 146,
+      "ids": [0, 1, 2, 3],
+      "names": ["PT1", "PT2", "PT3", "PT4"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
+    {
+      "title": "Detailed Sensor Info",
+      "modules": [
+        {
+          "type": 146,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 146,
+              "ids": [0, 1, 2, 3]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
