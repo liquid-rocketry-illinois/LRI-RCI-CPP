@@ -34,8 +34,8 @@ namespace LRI::RCI {
 
     void Prompt::receiveRCPUpdate(const RCP_PromptInputRequest& req) {
         type = req.type;
-        prompt = req.prompt;
-        activePrompt = true;
+        if(type != RCP_PromptDataType_RESET) prompt = req.prompt;
+        activePrompt = type != RCP_PromptDataType_RESET;
     }
 
     bool Prompt::submitPrompt() {

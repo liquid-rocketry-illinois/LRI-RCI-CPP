@@ -42,10 +42,10 @@ namespace LRI::RCI {
         }
         if(lock) ImGui::EndDisabled();
 
-        lock = state != RCP_TEST_RUNNING || state != RCP_TEST_PAUSED;
+        lock = state == RCP_TEST_ESTOP || state == RCP_TEST_STOPPED;
         if(lock) ImGui::BeginDisabled();
         ImGui::SameLine();
-        if(ImGui::Button(state == RCP_TEST_PAUSE ? "Resume" : "Pause")) {
+        if(ImGui::Button(state == RCP_TEST_PAUSED ? "Resume" : "Pause")) {
             TestState::getInstance()->pause();
             buttonTimer.reset();
         }
@@ -125,6 +125,14 @@ namespace LRI::RCI {
 
             if(lockButtons) ImGui::EndDisabled();
         }
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
+        if(ImGui::Button("Hardware Reset")) {
+            TestState::getInstance()->deviceReset();
+        }
+        ImGui::PopStyleColor(3);
 
         if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();

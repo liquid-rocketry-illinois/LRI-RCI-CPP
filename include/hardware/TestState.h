@@ -35,6 +35,7 @@ namespace LRI::RCI {
         bool pause();
         bool setHeartbeatTime(uint8_t time);
         bool setDataStreaming(bool stream);
+        bool deviceReset();
 
         void update();
 
