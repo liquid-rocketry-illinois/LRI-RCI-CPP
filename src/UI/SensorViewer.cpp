@@ -75,7 +75,7 @@ namespace LRI::RCI {
         // Get the drawlist, and calculate the size of the plots
         ImDrawList* draw = ImGui::GetWindowDrawList();
         const float xsize = ImGui::GetWindowWidth() - scale(50);
-        const ImVec2 plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
+        const auto plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
                                                    ImGui::GetWindowHeight() - scale(75)));
 
         // If in abridged mode, render the simpler stuff and exit early

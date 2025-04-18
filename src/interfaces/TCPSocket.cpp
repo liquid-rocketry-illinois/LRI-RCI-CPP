@@ -8,7 +8,7 @@ namespace LRI::RCI {
     // An RCP interface over TCP
 
     // For comparisons in the constructor to determine if the interface should be a server or client
-    const sf::IpAddress DEFAULT_IP = sf::IpAddress(0, 0, 0, 0);
+    const auto DEFAULT_IP = sf::IpAddress(0, 0, 0, 0);
 
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :

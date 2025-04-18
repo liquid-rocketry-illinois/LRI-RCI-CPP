@@ -6,7 +6,7 @@
 
 #include "interfaces/RCP_Interface.h"
 #include "WModule.h"
-#include "TargetChooser.h" // Linters will complain this is unused but it actually is needed. Header stuff
+#include "TargetChooser.h" // Linters will complain this is unused, but it actually is needed. Header stuff
 
 namespace LRI::RCI {
     /*

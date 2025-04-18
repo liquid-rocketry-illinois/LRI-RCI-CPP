@@ -240,8 +240,8 @@ namespace LRI::RCI {
             auto devclass = static_cast<RCP_DeviceClass>(targetconfig["devices"][i]["devclass"].get<int>());
 
             // Get the name and id arrays
-            std::vector<uint8_t> ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
-            std::vector<std::string> names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+            auto ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
+            auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
 
             // If the lengths dont match then drop this section
             if(ids.empty() || ids.size() != names.size()) continue;
@@ -311,7 +311,7 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_BOOL_SENSOR:
                 case RCP_DEVCLASS_STEPPER: {
                     bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
-                    std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
+                    auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
 
                     // Filter out any qualifiers that havent been configured in the devices section
                     auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
@@ -354,7 +354,7 @@ namespace LRI::RCI {
                     for(int k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
                         int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
-                        std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"]
+                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"]
                             .get<std::set<int>>();
 
                         // Filter out any qualifiers not configured in the devices section

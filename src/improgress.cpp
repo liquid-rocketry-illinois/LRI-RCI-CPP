@@ -59,7 +59,7 @@ namespace ImGui {
         const float a_min = IM_PI * 2.0f * ((float) start) / (float) num_segments;
         const float a_max = IM_PI * 2.0f * ((float) num_segments - 3) / (float) num_segments;
 
-        const ImVec2 centre = ImVec2(pos.x + radius, pos.y + radius + style.FramePadding.y);
+        const auto centre = ImVec2(pos.x + radius, pos.y + radius + style.FramePadding.y);
 
         for(int i = 0; i < num_segments; i++) {
             const float a = a_min + ((float) i / (float) num_segments) * (a_max - a_min);
