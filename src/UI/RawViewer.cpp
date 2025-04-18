@@ -3,6 +3,7 @@
 #include "hardware/RawData.h"
 #include "hardware/TestState.h"
 
+// Module for viewing latest debug output
 namespace LRI::RCI {
     int RawViewer::CLASSID = 0;
 
@@ -13,6 +14,7 @@ namespace LRI::RCI {
         ImGui::PushID("RawViewer");
         ImGui::PushID(classid);
 
+        // Provide an easy way to clear the output
         if(ImGui::Button("Clear")) {
             RawData::getInstance()->reset();
         }

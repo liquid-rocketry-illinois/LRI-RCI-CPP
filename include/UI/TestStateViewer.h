@@ -4,12 +4,12 @@
 #include "WModule.h"
 
 namespace LRI::RCI {
-    // A window for controlling the test state of the target
+    // A window module for controlling the test state of the target
     class TestStateViewer : public WModule {
         static int CLASSID;
-
         const int classid;
-        // The modified hearbeat rate
+
+        // The in-modification values for test state
         int inputHeartbeatRate;
         int inputTestNum;
         bool dstream;

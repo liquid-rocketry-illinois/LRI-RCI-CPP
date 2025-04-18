@@ -7,10 +7,12 @@
 #include "RCP_Host/RCP_Host.h"
 #include "HardwareQualifier.h"
 
+// Singleton for all stepper motors
 namespace LRI::RCI {
     class Steppers {
         struct Stepper;
 
+        // Storage container for steppers
         std::map<HardwareQualifier, Stepper*> motors;
 
         Steppers() = default;
@@ -18,19 +20,30 @@ namespace LRI::RCI {
 
     public:
         struct Stepper {
-            float position{};
-            float speed{};
-            bool stale{};
+            float position;
+            float speed;
+            bool stale;
         };
 
+        // Get singleton instance
         static Steppers* getInstance();
 
+        // Receive updates from RCP
         void receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
+
+        // Set which qualifiers are in use
         void setHardwareConfig(const std::set<HardwareQualifier>& motorlist);
+
+        // Reset class state
         void reset();
 
+        // Request refresh of all steppers
         void refreshAll() const;
+
+        // Get pointer viewer classes can use to track a stepper
         [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;
+
+        // Request a write to a stepper
         void setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value);
     };
 }

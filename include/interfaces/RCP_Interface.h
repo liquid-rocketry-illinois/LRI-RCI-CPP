@@ -7,6 +7,7 @@ namespace LRI::RCI {
     // An interface representing an interface RCP can use to communicate
     class RCP_Interface {
     public:
+        // Send and receive functions
         virtual size_t sendData(const void* data, size_t length) const = 0;
         virtual size_t readData(void* data, size_t bufferSize) const = 0;
 

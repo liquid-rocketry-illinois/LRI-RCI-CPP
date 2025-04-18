@@ -8,13 +8,15 @@
 #include "hardware/SimpleActuators.h"
 
 namespace LRI::RCI {
-    // A window for showing and controlling solenoid status
+    // A window module for showing and controlling simple actuator status
     class SimpleActuatorViewer : public WModule {
         static int CLASSID;
-
         const int classid;
+
+        // If a refresh button should be shown at the top
         const bool refreshButton;
-        // Maps human identifiable names to solenoid ID
+
+        // Maps pointers to actuator states updated by SimpleActuators to their qualifiers
         std::map<HardwareQualifier, const SimpleActuators::ActuatorState*> sols;
 
     public:

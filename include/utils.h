@@ -13,13 +13,16 @@ namespace LRI::RCI {
     // Background purple color. CSS Rebecca Purple
     static constexpr ImVec4 BACKGROUND_COLOR{0.4f, 0.2f, 0.6f, 1.0f};
 
-    // Pointers to the regular and bold fonts
+    // Pointers to the regular, bold, and italic fonts
     extern ImFont* font_regular;
     extern ImFont* font_bold;
     extern ImFont* font_italic;
 
-    // Scaling factor for hi-dpi screens
+    // Scaling factor for hi-dpi screens. Not perfect but its good enough
     extern float scaling_factor;
+
+    // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
+    // outside the WModule/Windowlet abstraction tree
     class IniFilePath {
         friend class TargetChooser;
         std::string path;

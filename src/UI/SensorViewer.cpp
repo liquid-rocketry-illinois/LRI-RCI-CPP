@@ -5,6 +5,7 @@
 #include "implot.h"
 #include "utils.h"
 
+// Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
     int SensorViewer::CLASSID = 0;
 
@@ -13,6 +14,7 @@ namespace LRI::RCI {
         return min(a, min(b, c));
     }
 
+    // Format the latest datapoint as a string with the appropriate units
     std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
                                                          const Sensors::DataPoint& data) {
         switch(qual.devclass) {
@@ -56,6 +58,8 @@ namespace LRI::RCI {
         }
     }
 
+    // Store the abridged state
+    // Add the qualifiers to track and their associated state pointer to the map
     SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) :
         classid(CLASSID++),
         abridged(abridged) {
@@ -68,13 +72,16 @@ namespace LRI::RCI {
         ImGui::PushID("SensorViewer");
         ImGui::PushID(classid);
 
+        // Get the drawlist, and calculate the size of the plots
         ImDrawList* draw = ImGui::GetWindowDrawList();
         const float xsize = ImGui::GetWindowWidth() - scale(50);
         const ImVec2 plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
                                                    ImGui::GetWindowHeight() - scale(75)));
 
+        // If in abridged mode, render the simpler stuff and exit early
         if(abridged) {
             float currentLineWidth = 0;
+            // A lot of this math is just for text wrapping, so that numbers dont get wrapped in the middle
             const float width = ImGui::GetWindowWidth();
             const float spacerWidth = ImGui::CalcTextSize(" | ").x;
             for(const auto& [qual, data] : sensors) {
@@ -98,6 +105,7 @@ namespace LRI::RCI {
             return;
         }
 
+        // If not in abridged mode...
         if(!ImGui::BeginChild("##child", ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
             ImGui::EndChild();
             ImGui::PopID();
@@ -105,14 +113,17 @@ namespace LRI::RCI {
             return;
         }
 
+        // Iterate through each qualifier and render its data
         for(const auto& [qual, data] : sensors) {
             ImGui::PushID(qual.asString().c_str());
 
+            // Put them all in the little dropdown things
             if(!ImGui::TreeNode(qual.name.c_str())) {
                 ImGui::PopID();
                 continue;
             }
 
+            // Status Square
             ImGui::Text("Sensor Status: ");
             ImGui::SameLine();
             ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -121,6 +132,7 @@ namespace LRI::RCI {
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(data->empty() ? "No data received" : "Receiving data");
 
+            // Render the csv button, the current data point count, the current data point
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();
@@ -131,6 +143,10 @@ namespace LRI::RCI {
             ImGui::Text(
                 " | %s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
             if(!tarestate.contains(qual)) tarestate[qual] = -1;
+
+            // Handle the tares. If the tarestate == -1, then no tare has been activated. If
+            // the tare state is 0, 1, 2, or 3 then the first click to tare a data channel has been done,
+            // and we're just waiting on the confirm
             ImGui::Text("Tare: ");
             if(tarestate[qual] == -1) {
                 int i = 0;
@@ -146,11 +162,13 @@ namespace LRI::RCI {
                 }
             }
 
+            // Render confirm button
             else if(ImGui::SameLine(), ImGui::Button("Confirm")) {
                 Sensors::getInstance()->tare(qual, tarestate[qual]);
                 tarestate[qual] = -1;
             }
 
+            // Similar kind of thing for the clear buttons
             if(!clearState[qual] && ImGui::Button("Clear Graphs")) {
                 clearState[qual] = true;
             }
@@ -160,6 +178,7 @@ namespace LRI::RCI {
                 Sensors::getInstance()->clearGraph(qual);
             }
 
+            // Render the graph itself
             renderGraphs(qual, data, plotsize);
 
             ImGui::Separator();
@@ -174,9 +193,12 @@ namespace LRI::RCI {
         ImGui::PopID();
     }
 
+    // Helper for rendering graphs
     void SensorViewer::renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
                                     const ImVec2& plotsize) {
+        // See SensorViewer.h for details on the structure of GRAPHINFO
         for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+            // Iterate through each graph, set up its axis, blah blah
             ImGui::PushID(graph.name);
             if(!ImPlot::BeginPlot(graph.name, plotsize)) {
                 ImGui::PopID();
@@ -190,6 +212,7 @@ namespace LRI::RCI {
                 continue;
             }
 
+            // Iterate through each line and render it
             for(const auto& line : graph.lines) {
                 ImPlot::PlotLine(line.name, &data->at(0).timestamp, (data->at(0).data + line.datanum),
                                  static_cast<int>(data->size()), 0, 0, sizeof(Sensors::DataPoint));
@@ -200,13 +223,10 @@ namespace LRI::RCI {
         }
     }
 
-    // This map contains how each sensor should be rendered. It is quite a mess. clang-format is turned off
-    // here since it looks neater this way than the way the formatter would make it
 
-    // The map maps each sensor device class to a vector of graphs. Each graph contains the name of the graph,
-    // what its Y axis should be (all X axes are time), and a vector of lines to be plotted. Each line contains
-    // the name of the line, as well as the offset into the Sensors::DataPoint::Data array. It looks messy, but
-    // this system is significantly cleaner than the previous implementation. As in half the number of LOC cleaner.
+    // See SensorViewer.h. Clang format is turned off since it makes this look more like a mess than manually
+    // formatting it
+
     // clang-format off
     const std::map<RCP_DeviceClass, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},

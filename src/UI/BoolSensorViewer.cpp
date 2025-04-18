@@ -2,9 +2,11 @@
 
 #include "hardware/BoolSensor.h"
 
+// Module for viewing the BoolSensor states
 namespace LRI::RCI {
     int BoolSensorViewer::CLASSID = 0;
 
+    // Add the qualifiers to track and their associated state pointer to the map
     BoolSensorViewer::BoolSensorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& qual : quals) {
@@ -16,9 +18,11 @@ namespace LRI::RCI {
         ImGui::PushID("BoolSensorViewer");
         ImGui::PushID(classid);
 
+        // If an action has been taken in the last 1 second, lock buttons so users cant spam
         bool lockbutton = buttonTimer.timeSince() < BUTTON_DELAY;
         if(lockbutton) ImGui::BeginDisabled();
 
+        // Request refresh of all sensors
         if(refreshButton && ImGui::Button("Refresh")) {
             BoolSensors::getInstance()->refreshAll();
             buttonTimer.reset();
@@ -28,15 +32,19 @@ namespace LRI::RCI {
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
+        // For each sensor, draw its little display thing
         for(const auto& [qual, state] : sensors) {
             ImGui::PushID(qual.asString().c_str());
 
+            // Draw the little status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
             ImU32 statusColor = !state->stale ? (state->open ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;
             const char* tooltip = !state->stale ? (state->open ? "TRUE" : "FALSE") : "Stale Data";
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
+
+            // Display the name of the sensor and its value
             ImGui::SameLine();
             ImGui::Text("Sensor %s (%d): ", qual.name.c_str(), qual.id);
             ImGui::SameLine();

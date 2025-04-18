@@ -27,7 +27,8 @@ namespace LRI::RCI {
         [[nodiscard]] std::string interfaceType() const override;
     };
 
-    // A testing interface for debugging. See interfaces/VirtualPort.h
+    // The virtual chooser just immediately returns an interface, since
+    // the whole class is just stubs
     class VirtualPortChooser final : public InterfaceChooser {
     public:
         VirtualPortChooser() = default;

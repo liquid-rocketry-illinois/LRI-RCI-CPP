@@ -3,10 +3,10 @@
 
 #include "WModule.h"
 
+// Window module for showing prompts
 namespace LRI::RCI {
     class PromptViewer : public WModule {
         static int CLASSID;
-
         const int classid;
 
     public:

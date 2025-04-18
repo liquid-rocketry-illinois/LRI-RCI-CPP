@@ -28,8 +28,8 @@ namespace LRI::RCI {
         std::atomic_ulong lastErrorVal;
 
         // Buffers to store input and output bytes
-        RCI::RingBuffer<uint8_t>* inbuffer;
-        RCI::RingBuffer<uint8_t>* outbuffer;
+        RingBuffer<uint8_t>* inbuffer;
+        RingBuffer<uint8_t>* outbuffer;
 
         // Locks for those buffers
         mutable std::mutex inlock;
@@ -41,6 +41,7 @@ namespace LRI::RCI {
         // Set to true to stop the IO thread
         std::atomic_bool doComm;
 
+        // The function that actually gets threaded
         void threadRead();
 
     public:
@@ -69,8 +70,8 @@ namespace LRI::RCI {
         size_t readData(void* bytes, size_t bufferlength) const override;
     };
 
-    // This is the only actual interface available at the moment. This chooser is for connecting to serial devices
-    // (e.g. COM1, COM2, so on). It allows selecting a device and choosing the baud rate
+    // This chooser is for connecting to serial devices (e.g. COM1, COM2, so on). It allows selecting a device
+    // and choosing the baud rate
     class COMPortChooser final : public InterfaceChooser {
         // Helper function to enumerate available serial devices and store their names in portlist
         bool enumSerialDevs();
@@ -93,6 +94,9 @@ namespace LRI::RCI {
 
     public:
         explicit COMPortChooser();
+
+        // Renders the UI for the chooser, and returns a pointer to a valid and open interface once an interface
+        // has been successfully created
         RCP_Interface* render() override;
     };
 }

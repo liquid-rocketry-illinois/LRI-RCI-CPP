@@ -11,7 +11,7 @@
 #include "UI/Windowlet.h"
 
 namespace LRI::RCI {
-    // This file contains all the callbacks needed for RCP. They simply forward data to the respective window
+    // This file contains all the callbacks needed for RCP. They simply forward data to the respective singletons
     RCP_LibInitData callbacks = {
         .sendData = sendData,
         .readData = readData,

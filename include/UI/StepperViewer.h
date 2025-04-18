@@ -11,22 +11,26 @@
 #include "hardware/Steppers.h"
 
 namespace LRI::RCI {
-    // A window for showing and controlling states of stepper motors
+    // A window module for showing and controlling states of stepper motors
     class StepperViewer : public WModule {
         // Maps control modes to UI button names
         static const std::map<RCP_StepperControlMode, std::vector<const char*>> BTN_NAMES;
 
         static int CLASSID;
+        const int classid;
 
         struct Input {
             float val;
             RCP_StepperControlMode mode;
         };
 
-        const int classid;
+        // If a refresh button should be shown at the top
         const bool refreshButton;
-        // Maps stepper IDs to their structure
+
+        // Maps stepper IDs to structure pointers which are updated by Steppers
         std::map<HardwareQualifier, const Steppers::Stepper*> steppers;
+
+        // For storing which input mode each stepper is in
         std::map<HardwareQualifier, Input> inputs;
 
     public:

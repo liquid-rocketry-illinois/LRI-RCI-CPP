@@ -1,6 +1,7 @@
 #ifndef RINGBUFFER_INL
 #define RINGBUFFER_INL
 
+// Linters will complain this isnt needed but it really is for the class definition
 #include "utils.h"
 
 namespace LRI::RCI {

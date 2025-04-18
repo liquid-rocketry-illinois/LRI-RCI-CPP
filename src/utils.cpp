@@ -23,6 +23,7 @@ namespace LRI::RCI {
     float scaling_factor;
     IniFilePath iniFilePath;
 
+    // Implementation for IniFilePath
     bool IniFilePath::empty() const {
         return path.empty();
     }
@@ -80,6 +81,8 @@ namespace LRI::RCI {
 
     // Is called to set up each frame before rendering
     void imgui_prerender(GLFWwindow* window) {
+        // If a configuration has been loaded and requests to load a window layout, do that here
+        // before the new frame.
         if(!iniFilePath.empty()) {
             ImGui::LoadIniSettingsFromDisk(iniFilePath.getPath().c_str());
         }

@@ -5,6 +5,7 @@
 #include "hardware/EStop.h"
 #include "hardware/TestState.h"
 
+// Module for viewing ESTOP state
 namespace LRI::RCI {
     int EStopViewer::CLASSID = 0;
 
@@ -17,6 +18,7 @@ namespace LRI::RCI {
 
         if(!TestState::getInited()) ImGui::BeginDisabled();
 
+        // Draw a big button that takes up all available room, and its red
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));

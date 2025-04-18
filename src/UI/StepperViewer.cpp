@@ -2,9 +2,11 @@
 #include "utils.h"
 #include "hardware/TestState.h"
 
+// Module for viewing steppers
 namespace LRI::RCI {
     int StepperViewer::CLASSID = 0;
 
+    // Add the qualifiers to track and their associated state pointer to the map
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton) :
         classid(CLASSID++), refreshButton(refreshButton) {
         for(const auto& qual : quals) {
@@ -16,6 +18,8 @@ namespace LRI::RCI {
     void StepperViewer::render() {
         ImGui::PushID("StepperViewer");
         ImGui::PushID(classid);
+
+        // If a test is running, lock controls
         if(!TestState::getInited() || TestState::getInstance()->getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
 
         ImDrawList* draw = ImGui::GetWindowDrawList();

@@ -10,10 +10,18 @@
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
-    // In order to easily allow for expansions in the types of interfaces needed, the exact logic for connecting to
-    // interfaces is left as another abstraction tree. InterfaceChooser is to interface choosing UI children as
-    // BaseUI is to the window classes. The major difference is that in the render/update function, the chooser
-    // indicates success by returning a pointer to an open interface
+    /*
+     * In order to easily allow for expansions in the types of interfaces needed, the exact logic for connecting to
+     * interfaces is left as another abstraction tree. InterfaceChooser is to interface choosing UI children as
+     * WModule is to the window modules. The major difference is that in the render/update function, the chooser
+     * indicates success by returning a pointer to an open interface.
+     *
+     * For exaxmple, the COMPortChooser will implement this class. While the user is choosing the settings and
+     * while waiting for a connection, the render function will return a nullptr, indicating the chooser is still
+     * active. However, once the connection has been established, the pointer to the interface will be returned,
+     * indicating the program can start showing the actual window modules and can move into normal operation.
+     */
+
     class InterfaceChooser {
     public:
         explicit InterfaceChooser() = default;
@@ -26,11 +34,13 @@ namespace LRI::RCI {
 
     // The most important window. Responsible for initializing and coordinating RCP, the windows, and the interface
     class TargetChooser final : public WModule {
+        // See Windowlet files for details
         friend class ControlWindowlet;
 
+        // The Control window which owns the target chooser
         ControlWindowlet* const control;
 
-        // The current interface
+        // The current interface and the names
         RCP_Interface* interf;
         std::string configName;
         std::string interfName;

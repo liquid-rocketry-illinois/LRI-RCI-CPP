@@ -8,7 +8,10 @@
 #include <iostream>
 
 namespace LRI::RCI {
+    // The global windowlet set
     std::set<Windowlet*> Windowlet::windows;
+
+    // The anti-spam button timer
     StopWatch WModule::buttonTimer = StopWatch();
 
     void Windowlet::renderWindowlets() {

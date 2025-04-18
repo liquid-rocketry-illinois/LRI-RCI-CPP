@@ -4,10 +4,9 @@
 #include "WModule.h"
 
 namespace LRI::RCI {
-    // Window which shows the output to the custom device class from RCP
+    // Window module which shows the output to the custom device class from RCP
     class RawViewer : public WModule {
         static int CLASSID;
-
         const int classid;
 
     public:

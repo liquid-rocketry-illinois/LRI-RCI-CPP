@@ -5,12 +5,17 @@
 #include <iostream>
 
 namespace LRI::RCI {
+    // An RCP interface over TCP
+
+    // For comparisons in the constructor to determine if the interface should be a server or client
     const sf::IpAddress DEFAULT_IP = sf::IpAddress(0, 0, 0, 0);
 
+    // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
         port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP), thread(nullptr),
         inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false),
         lastErrorVal(0) {
+        // If the interface is the server, it should start listening for connections
         if(isServer) {
             sf::Socket::Status listenStat = listensock.listen(port);
             if(listenStat != sf::Socket::Status::Done) {
@@ -22,6 +27,7 @@ namespace LRI::RCI {
             listensel.add(listensock);
         }
 
+        // Initialize everything else
         inbuffer = new RingBuffer<uint8_t>(BUFFER_SIZE);
         outbuffer = new RingBuffer<uint8_t>(BUFFER_SIZE);
         threadRun = true;
@@ -29,9 +35,12 @@ namespace LRI::RCI {
         thread = new std::thread(&TCPSocket::runner, this);
     }
 
+    // Destructor just calls close
     TCPSocket::~TCPSocket() {
         close();
     }
+
+    // The next 3 functions are the exact same as in COMPort. Literally directly copied
 
     bool TCPSocket::pktAvailable() const {
         inlock.lock();
@@ -75,12 +84,14 @@ namespace LRI::RCI {
         return bytesread;
     }
 
+    // Return a human readable string describing the interface
     std::string TCPSocket::interfaceType() const {
         return std::string("TCP ") + (isServer
             ? "Client: " + serverAddress.toString() + ": "
             : "Server: ") + std::to_string(port);
     }
 
+    // Return the last error stage and code
     TCPSocket::Error TCPSocket::lastError() {
         return {errorStage.load(), lastErrorVal.load()};
     }
@@ -93,11 +104,15 @@ namespace LRI::RCI {
         return ready.load();
     }
 
+    // The actual threaded function
     void TCPSocket::runner() {
         bool r_nw = false;
 
+        // This is used to wait for incoming connections or for the connection to the server to be established
         while(!ready && threadRun) {
+            // If the interface is a server, wait for a connection request
             if(isServer && listensel.wait(sf::seconds(0.25f))) {
+                // If a connection request has been received, accept the socket and move on to data transfer
                 if(listensock.accept(targetsock) != sf::Socket::Status::Done) {
                     errorStage = 3;
                     lastErrorVal = -1;
@@ -112,6 +127,7 @@ namespace LRI::RCI {
                 targetsel.add(targetsock);
             }
 
+            // If the interface is not a server, connect to a server
             else {
                 auto stat = targetsock.connect(serverAddress, port, sf::seconds(5));
                 if(stat != sf::Socket::Status::Done) {
@@ -122,7 +138,7 @@ namespace LRI::RCI {
                     return;
                 }
                 using namespace std::chrono_literals;
-                std::this_thread::sleep_for(3000ms);
+                std::this_thread::sleep_for(3000ms); // Seems to help with stuff
 
                 uint8_t tempdata[33];
                 size_t temp;
@@ -145,7 +161,9 @@ namespace LRI::RCI {
             }
         }
 
+        // Now that a connection has been established, start transferring data
         while(threadRun) {
+            // On the read cycle...
             if(r_nw) {
                 r_nw = false;
                 inlock.lock();
@@ -153,6 +171,7 @@ namespace LRI::RCI {
                 inlock.unlock();
                 if(skip) continue;
 
+                // If data is available, read it and push it into the buffer
                 if(targetsel.wait(sf::seconds(0.25f))) {
                     uint8_t data[128];
                     size_t received;
@@ -177,6 +196,7 @@ namespace LRI::RCI {
                 }
             }
 
+            // On the write cycle...
             else {
                 r_nw = true;
                 if(!TestState::getInited()) continue;
@@ -197,6 +217,7 @@ namespace LRI::RCI {
                 }
                 outlock.unlock();
 
+                // Pop bytes from the buffer and send over the socket
                 sf::Socket::Status status = targetsock.send(bytes, toSend);
 
                 if(status != sf::Socket::Status::Done) {
@@ -212,6 +233,7 @@ namespace LRI::RCI {
         }
     }
 
+    // Cleanup the interface
     void TCPSocket::close() {
         threadRun = false;
         if(thread) thread->join();
@@ -228,6 +250,7 @@ namespace LRI::RCI {
         outbuffer = nullptr;
     }
 
+    // Chooser for the interface. Just needs port, client/server, and server ip address if client
     RCP_Interface* TCPInterfaceChooser::render() {
         bool isnull = interf == nullptr;
         if(!isnull) ImGui::BeginDisabled();
@@ -235,6 +258,7 @@ namespace LRI::RCI {
         ImGui::Text("Make sure to set the computer's static IP in control panel!");
         ImGui::PopStyleColor();
 
+        // Buttons to pick between client or server
         bool tempserver = server;
         if(tempserver) ImGui::BeginDisabled();
         if(ImGui::Button("Server")) server = true;
@@ -245,6 +269,7 @@ namespace LRI::RCI {
         if(ImGui::Button("Client")) server = false;
         if(!tempserver) ImGui::EndDisabled();
 
+        // If in client mode, ask for ip address
         if(!tempserver) {
             ImGui::Text("Server Address: ");
             ImGui::SameLine();
@@ -256,6 +281,7 @@ namespace LRI::RCI {
             }
         }
 
+        // Port input
         ImGui::Text("Port: ");
         ImGui::SameLine();
         ImGui::SetNextItemWidth(scale(48));
@@ -263,6 +289,7 @@ namespace LRI::RCI {
         if(port < 0) port = 0;
         else if(port > 65535) port = 65535;
 
+        // Once confirm is pushed, create the interface and begin waiting for a connection
         if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
             interf = new TCPSocket(port, tempserver
                                    ? sf::IpAddress(0, 0, 0, 0)
@@ -270,8 +297,10 @@ namespace LRI::RCI {
         }
         if(!isnull) ImGui::EndDisabled();
 
+        // If the interface is null, keep rendering
         if(interf == nullptr) return nullptr;
 
+        // If the interface has been created but did not open properly, display error and continue rendering
         if(!interf->isOpen()) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
             TCPSocket::Error error = interf->lastError();
@@ -287,6 +316,7 @@ namespace LRI::RCI {
             return nullptr;
         }
 
+        // While the interface is open but not ready, keep waiting for the connection to be established
         if(!interf->isReady()) {
             ImGui::SameLine();
             ImGui::Text("Waiting for connection");
@@ -300,6 +330,7 @@ namespace LRI::RCI {
             return nullptr;
         }
 
+        // Once the interface is ready to go, return it to the TargetChooser
         return interf;
     }
 }

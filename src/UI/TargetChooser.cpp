@@ -29,8 +29,8 @@
 #include "UI/StepperViewer.h"
 #include "UI/TestStateViewer.h"
 
+// The important one. Module for controlling the program as a whole
 namespace LRI::RCI {
-    // This window always exists and is used to control the rest of the program
     TargetChooser::TargetChooser(ControlWindowlet* control) :
         control(control), interf(nullptr), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
@@ -129,6 +129,7 @@ namespace LRI::RCI {
                 ImGui::EndCombo();
             }
 
+            // If a new chooser has been chosen:
             if(choosermod) {
                 delete chooser;
                 switch(chosenInterface) {
@@ -156,17 +157,23 @@ namespace LRI::RCI {
             if(chooser != nullptr) {
                 RCP_Interface* _interf = chooser->render();
                 if(_interf != nullptr) {
+                    // If the chooser indicates success:
                     delete chooser;
                     chooser = nullptr;
                     interf = _interf;
                     RCP_init(callbacks);
                     RCP_setChannel(RCP_CH_ZERO);
+
+                    // Parse the selected config file
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
                     control->interf = interf;
                     control->inipath = targetpaths[chosenConfig] + ".ini";
+
+                    // Tell the main loop to load the new ini file before the next frame
                     if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) iniFilePath.path = control->inipath;
 
+                    // Call initializer of the rest of the windows
                     initWindows();
                 }
             }
@@ -175,25 +182,78 @@ namespace LRI::RCI {
         ImGui::PopID();
     }
 
-    // Helper function that resets and initializes all windows
+    // Helper function that resets and initializes everything based on the configuration file
     void TargetChooser::initWindows() {
         configName = targetconfig["name"].get<std::string>();
         interfName = interf->interfaceType();
+
+        // Create a master set of all qualifiers
         std::set<HardwareQualifier> allquals;
+
+        // Create a set of all sensors, besides the bool sensor
         std::set<HardwareQualifier> sensors;
 
+        // Reset the debug log and prompts
         RawData::getInstance()->reset();
         Prompt::getInstance()->reset();
 
+        /*
+         * This is the json parser. The json schema is a little weird so it is described here. Each
+         * field is given, what data type it has, and so on:
+         *  - name: string: The name of the configuraion. Used only for display purposes
+         *  - devices: an array of objects. Used to configure the singletons with what devices
+         *    are present and should be loaded. Two objects in this array cannot share the same
+         *    device class. Each object contains the fields:
+         *    - devclass: int: the RCP device class associated with the device. Classes 0 and 0x80
+         *      do not need to be specified for them to function
+         *    - ids: array of ints: indicates the IDs to load. Even if there is only one of a particular
+         *      device class this still needs to be an array of ints
+         *    - names: array of strings: matches human readably names to the IDs of the devices. Must be in
+         *      the same order as the IDs array and must be the same size. At least one name is required to
+         *      match the one required ID
+         *  - windows: an array of objects. Used to configure the windowlets and which modules they contain.
+         *    Each object contians the fields:
+         *    - title: string: title of the windowlet
+         *    - modules: an array of objects: gives an ordered list of what modules should appear in that
+         *      windowlet. Each object has the fields:
+         *      - type: int: indicates the type of module, typically following RCP device classes. Depending
+         *        on the type, the remaining keys are different:
+         *        - type -1: ESTOP. No additional fields
+         *        - type 0: Test control module. No additional fields
+         *        - type 1: Simple actuator controls. Takes in two additional fields:
+         *          - refresh: bool: whether to render a refresh button
+         *          - ids: array of ints: which simple actuator IDs to track
+         *        - type 2: Stepper motor controls. Takes in the same arguments as type 1
+         *        - type 3: Prompt display. No additional fields
+         *        - type 128: Custom data display/log display: Takes no additional fields
+         *        - types 0x90 - 0xC0: Sensor display. Any device class in this range can be used
+         *          to create a sensor display module. This takes two fields:
+         *          - abridged: bool: whether to display the sensors in abridged mode
+         *          - ids: array of objects: which sensors to track. Each object has the format:
+         *            - class: int: device class of sensor
+         *            - ids: array of ints: which ids of the device class to track. At least 1 ID is required
+         */
+
+        // Iterate through all devices
         for(int i = 0; i < targetconfig["devices"].size(); i++) {
+            // Get the device class of this object
             auto devclass = static_cast<RCP_DeviceClass>(targetconfig["devices"][i]["devclass"].get<int>());
+
+            // Get the name and id arrays
             std::vector<uint8_t> ids = targetconfig["devices"][i]["ids"].get<std::vector<uint8_t>>();
             std::vector<std::string> names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
+
+            // If the lengths dont match then drop this section
             if(ids.empty() || ids.size() != names.size()) continue;
+
+            // Construct the qualifiers in this section
             std::set<HardwareQualifier> quals;
             for(size_t j = 0; j < ids.size(); j++) quals.insert(HardwareQualifier{devclass, ids[j], names[j]});
+
+            // Insert the constructed qualifiers into the master qualifier list
             allquals.insert(quals.begin(), quals.end());
 
+            // Switch on the device class and configure the appropriate singleton
             switch(devclass) {
             case RCP_DEVCLASS_STEPPER:
                 Steppers::getInstance()->setHardwareConfig(quals);
@@ -225,14 +285,19 @@ namespace LRI::RCI {
             }
         }
 
+        // Load the sensors singleton with all the sensor qualifiers
         Sensors::getInstance()->setHardwareConfig(sensors);
 
+        // Iterate over the windowlets and configure their modules
         for(int i = 0; i < targetconfig["windows"].size(); i++) {
             std::vector<WModule*> modules;
 
+            // Iterate over the modules array
             for(int j = 0; j < targetconfig["windows"][i]["modules"].size(); j++) {
+                // get the module type
                 int type = targetconfig["windows"][i]["modules"][j]["type"].get<int>();
 
+                // Switch on the type and parse the correct parameters
                 switch(type) {
                 case -1:
                     modules.push_back(new EStopViewer());
@@ -247,9 +312,13 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_STEPPER: {
                     bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
                     std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
+
+                    // Filter out any qualifiers that havent been configured in the devices section
                     auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
                         return q.devclass == type && ids.contains(q.id);
                     });
+
+                    // Determine correct module type and construct it
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(
                             new SimpleActuatorViewer(std::set(filtered.begin(), filtered.end()), refresh));
@@ -277,14 +346,18 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_GYROSCOPE:
                 case RCP_DEVCLASS_MAGNETOMETER:
                 case RCP_DEVCLASS_GPS: {
+                    // Get abridged setting
                     bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
                     std::set<HardwareQualifier> quals;
 
+                    // Parse which qualifiers to add
                     for(int k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
                         int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
                         std::set<int> ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"]
                             .get<std::set<int>>();
+
+                        // Filter out any qualifiers not configured in the devices section
                         auto filtered = allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
                             return q.devclass == devclass && ids.contains(q.id);
                         });
@@ -300,6 +373,8 @@ namespace LRI::RCI {
                 }
             }
 
+            // The pointer to windowlet does not need to be saved, since the windowlet constructor automatically
+            // adds itself to the global set
             new Windowlet(targetconfig["windows"][i]["title"].get<std::string>(), modules);
         }
     }

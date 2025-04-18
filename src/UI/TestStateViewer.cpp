@@ -4,6 +4,7 @@
 #include "hardware/TestState.h"
 #include "utils.h"
 
+// Module for viewing and controlling test state
 namespace LRI::RCI {
     int TestStateViewer::CLASSID = 0;
 
@@ -25,6 +26,7 @@ namespace LRI::RCI {
         // Display controls for starting, stopping, pausing, estopping, and selecting a test
         RCP_TestRunningState state = TestState::getInstance()->getState();
 
+        // For each type of button, they can only be pushed in certain states. The lock variable is reused
         bool lock = state != RCP_TEST_STOPPED;
         if(lock) ImGui::BeginDisabled();
         if(ImGui::Button("Start")) {
@@ -62,6 +64,7 @@ namespace LRI::RCI {
 
         ImGui::PopStyleColor(3);
 
+        // Display all the test number choosing stuff
         ImGui::Text("Test Number: ");
         ImGui::SameLine();
         ImGui::SetNextItemWidth(scale(75));
@@ -98,6 +101,7 @@ namespace LRI::RCI {
             }
         }
 
+        // Only show this part if heartbeats are enabled
         if(doHeartbeats) {
             ImGui::Text("Time between heartbeats (seconds): ");
             ImGui::SameLine();
