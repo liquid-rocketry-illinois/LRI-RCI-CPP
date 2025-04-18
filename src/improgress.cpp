@@ -25,8 +25,6 @@ namespace ImGui {
 
         // Render
         const float circleStart = size.x * 0.7f;
-        const float circleEnd = size.x;
-        const float circleWidth = circleEnd - circleStart;
 
         window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart, bb.Max.y), bg_col);
         window->DrawList->AddRectFilled(bb.Min, ImVec2(pos.x + circleStart * value, bb.Max.y), fg_col);

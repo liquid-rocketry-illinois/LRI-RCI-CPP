@@ -25,7 +25,7 @@ namespace LRI::RCI {
         }
 
         // Setup serial parameters, such as parity, flow control, and baud rate
-        DCB params = {0};
+        DCB params;
         params.DCBlength = sizeof(DCB);
 
         if(!GetCommState(port, &params)) {
@@ -45,7 +45,7 @@ namespace LRI::RCI {
         }
 
         // Timeouts for IO operations
-        COMMTIMEOUTS timeouts = {0};
+        COMMTIMEOUTS timeouts;
         timeouts.ReadIntervalTimeout = 50;
         timeouts.ReadTotalTimeoutConstant = 50;
         timeouts.ReadTotalTimeoutMultiplier = 10;
@@ -62,8 +62,8 @@ namespace LRI::RCI {
         lastErrorVal = 0;
 
         // Create in and out buffers
-        inbuffer = new RCI::RingBuffer<uint8_t>(bufferSize);
-        outbuffer = new RCI::RingBuffer<uint8_t>(bufferSize);
+        inbuffer = new RingBuffer<uint8_t>(bufferSize);
+        outbuffer = new RingBuffer<uint8_t>(bufferSize);
 
         // Start IO thread
         doComm = true;
@@ -243,7 +243,7 @@ namespace LRI::RCI {
 
     // The COMPort chooser will enumerate all available serial devices to be picked from
     COMPortChooser::COMPortChooser() :
-        portlist(), selectedPort(0), error(false), baud(115200), port(nullptr) {
+        selectedPort(0), error(false), baud(115200), port(nullptr) {
         enumSerialDevs();
     }
 
@@ -264,7 +264,7 @@ namespace LRI::RCI {
                 return false;
             }
 
-            char comname[16] = {0};
+            char comname[16];
             DWORD len = 16;
 
             RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);

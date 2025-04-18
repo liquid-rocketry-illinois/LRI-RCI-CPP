@@ -196,14 +196,14 @@ namespace LRI::RCI {
         double prevtime = d.timestamp - 1;
         double total = 0;
         int numElems = 0;
-        std::ranges::for_each(*data, [&] (const DataPoint& d) {
-            if(d.timestamp >= prevtime) {
-                total += d.data[dataChannel];
+        std::ranges::for_each(*data, [&] (const DataPoint& dp) {
+            if(dp.timestamp >= prevtime) {
+                total += dp.data[dataChannel];
                 numElems++;
             }
         });
 
-        float ftotal = static_cast<float>(total / numElems);
+        auto ftotal = static_cast<float>(total / numElems);
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, &ftotal, 4);
     }
 

@@ -28,7 +28,7 @@ namespace LRI::RCI {
     }
 
     Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules) :
-        Windowlet(title, modules, true) {}
+        Windowlet(std::move(title), modules, true) {}
 
     Windowlet::~Windowlet() {
         windows.erase(this);
