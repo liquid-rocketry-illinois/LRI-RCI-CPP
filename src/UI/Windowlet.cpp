@@ -27,6 +27,9 @@ namespace LRI::RCI {
         if(addToSet) windows.insert(this);
     }
 
+    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules) :
+        Windowlet(title, modules, true) {}
+
     Windowlet::~Windowlet() {
         windows.erase(this);
         for(const auto* mod : modules) delete mod;
@@ -36,10 +39,11 @@ namespace LRI::RCI {
         size_t size = modules.size() - 1;
         size_t i = 0;
 
-        if(ImGui::Begin(title.c_str())) for(auto* mod : modules) {
-            mod->render();
-            if(i++ != size) ImGui::Separator();
-        }
+        if(ImGui::Begin(title.c_str()))
+            for(auto* mod : modules) {
+                mod->render();
+                if(i++ != size) ImGui::Separator();
+            }
         ImGui::End();
     }
 

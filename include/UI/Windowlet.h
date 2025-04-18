@@ -29,10 +29,13 @@ namespace LRI::RCI {
         const std::string title;
         const std::vector<WModule*> modules;
 
+        // This constructor is protected since a regular user shouldn't be able to control the value of addToSet,
+        // this parameter is present purely for the control window
+        explicit Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet);
+
     public:
-        // Not all windowlets should be added to the rendering set (like the control windowlet), so addToSet
-        // is a parameter
-        explicit Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet = true);
+        // Windowlet constructor. Takes the windowlet title and its modules
+        explicit Windowlet(std::string title, const std::vector<WModule*>& modules);
         virtual ~Windowlet();
 
         // The global windowlets renderer
