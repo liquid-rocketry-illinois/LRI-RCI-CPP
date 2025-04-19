@@ -1,5 +1,15 @@
 {
   "name": "Test Stand",
+  "tests": [
+    {
+      "id": 0,
+      "name": "Solenoid Verification"
+    },
+    {
+      "id": 1,
+      "name": "HOTFIRE"
+    }
+  ],
   "devices": [
     {
       "devclass": 1,

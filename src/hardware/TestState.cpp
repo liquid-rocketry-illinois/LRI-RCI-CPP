@@ -15,9 +15,9 @@ namespace LRI::RCI {
 
     bool TestState::startTest(uint8_t number) {
         if(state != RCP_TEST_STOPPED) return false;
-        testNum = number;
         state = RCP_TEST_RUNNING;
-        RCP_startTest(testNum);
+        RCP_startTest(number);
+        activeTest = number;
         return true;
     }
 
@@ -35,9 +35,18 @@ namespace LRI::RCI {
         return true;
     }
 
-    int TestState::getTestNum() const {
-        return testNum;
+    uint8_t TestState::getActiveTest() const {
+        return activeTest;
     }
+
+    void TestState::setTests(const std::map<uint8_t, std::string>& testlist) {
+        tests = testlist;
+    }
+
+    const std::map<uint8_t, std::string>* TestState::getTestOptions() const {
+        return &tests;
+    }
+
 
     RCP_TestRunningState TestState::getState() const {
         return state;

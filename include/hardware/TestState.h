@@ -2,6 +2,7 @@
 #define TESTSTATE_H
 
 #include <atomic>
+#include <map>
 
 #include "RCP_Host/RCP_Host.h"
 
@@ -15,7 +16,8 @@ namespace LRI::RCI {
 
         // Current test state storage
         RCP_TestRunningState state;
-        uint8_t testNum;
+        std::map<uint8_t, std::string> tests;
+        uint8_t activeTest;
         uint8_t heartbeatTime;
         bool dataStreaming;
 
@@ -30,8 +32,11 @@ namespace LRI::RCI {
         static TestState* getInstance();
         [[nodiscard]] static bool getInited();
 
+        void setTests(const std::map<uint8_t, std::string>& testlist);
+        [[nodiscard]] const std::map<uint8_t, std::string>* getTestOptions() const;
+
         // Getters for class members
-        [[nodiscard]] int getTestNum() const;
+        [[nodiscard]] uint8_t getActiveTest() const;
         [[nodiscard]] RCP_TestRunningState getState() const;
         [[nodiscard]] uint8_t getHeartbeatTime() const;
         [[nodiscard]] bool getDataStreaming() const;

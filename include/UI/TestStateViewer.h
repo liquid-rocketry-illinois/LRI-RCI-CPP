@@ -11,7 +11,7 @@ namespace LRI::RCI {
 
         // The in-modification values for test state
         int inputHeartbeatRate;
-        int inputTestNum;
+        uint8_t activeTest;
         bool dstream;
         bool doHeartbeats;
 

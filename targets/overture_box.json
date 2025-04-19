@@ -1,5 +1,6 @@
 {
   "name": "Overture Box",
+  "tests": [],
   "devices": [
     {
       "devclass": 146,

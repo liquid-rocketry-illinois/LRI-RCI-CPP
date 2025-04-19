@@ -1,5 +1,7 @@
 #include "UI/TestStateViewer.h"
 
+#include <ranges>
+
 #include "hardware/EStop.h"
 #include "hardware/TestState.h"
 #include "utils.h"
@@ -9,7 +11,7 @@ namespace LRI::RCI {
     int TestStateViewer::CLASSID = 0;
 
     TestStateViewer::TestStateViewer() :
-        classid(CLASSID++), inputHeartbeatRate(0), inputTestNum(0), dstream(false),
+        classid(CLASSID++), inputHeartbeatRate(0), activeTest(0), dstream(false),
         doHeartbeats(false) {}
 
 
@@ -30,7 +32,7 @@ namespace LRI::RCI {
         bool lock = state != RCP_TEST_STOPPED;
         if(lock) ImGui::BeginDisabled();
         if(ImGui::Button("Start")) {
-            TestState::getInstance()->startTest(inputTestNum);
+            TestState::getInstance()->startTest(activeTest);
             buttonTimer.reset();
         }
         if(lock) ImGui::EndDisabled();
@@ -64,20 +66,29 @@ namespace LRI::RCI {
 
         ImGui::PopStyleColor(3);
 
-        // Display all the test number choosing stuff
-        ImGui::Text("Test Number: ");
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(scale(75));
-        ImGui::InputInt("##testinput", &inputTestNum, 0);
-        if(inputTestNum < 0) inputTestNum = 0;
-        if(inputTestNum > 15) inputTestNum = 15;
-        int curTest = TestState::getInstance()->getTestNum();
-        if(inputTestNum != curTest) {
+        // Display the test number chooser. If there are tests defined in the target
+        // json, display a dropdown chooser, otherwise display text saying no tests available
+        const std::map<uint8_t, std::string>* tests = TestState::getInstance()->getTestOptions();
+        ImGui::Text("Select Test: ");
+        ImGui::PushID("testselectcombo");
+        if(tests->empty()) {
             ImGui::SameLine();
             ImGui::PushFont(font_italic);
-            ImGui::Text("Current: %d", curTest);
+            ImGui::Text("No Available Tests");
             ImGui::PopFont();
         }
+        else if(ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.95f),
+            ImGui::BeginCombo("##testselect", tests->at(activeTest).c_str())) {
+            for(const auto& tn : *tests | std::views::keys) {
+                bool selected = tn == activeTest;
+                ImGui::PushID(tn);
+                if(ImGui::Selectable(tests->at(tn).c_str(), &selected)) activeTest = tn;
+                ImGui::PopID();
+                if(selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopID();
 
         // Enabling data streaming means that sensor values are streamed back to the host. It is not necessary for
         // a test to be running for this to occur
