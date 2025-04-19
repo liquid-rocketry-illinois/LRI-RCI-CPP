@@ -3,14 +3,18 @@
 
 #include <string>
 
+#include "utils.h"
+
 #include "RCP_Interface.h"
 #include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
     // A testing interface. The send and receive functions are stubs and do not function
     class VirtualPort : public RCP_Interface {
+        mutable RingBuffer<uint8_t> initpacket;
+
     public:
-        explicit VirtualPort() = default;
+        explicit VirtualPort();
         ~VirtualPort() override = default;
 
         // isOpen always returns true, and pktAvailable always returns false
