@@ -11,7 +11,8 @@
 // Singleton for containing all test state information
 namespace LRI::RCI {
     class TestState {
-        // A global variable for indicating if the target has sent an init packet
+        // A global variable for indicating if the target has sent an init packet. This is an atomic so that
+        // the interfaces can determine if they can start sending data from the buffers
         static std::atomic_bool inited;
 
         // Current test state storage

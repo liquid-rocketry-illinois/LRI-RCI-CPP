@@ -1,5 +1,6 @@
 #include "hardware/TestState.h"
 
+// Hardware singleton representing test state. Most of these functions are self explanatory
 namespace LRI::RCI {
     std::atomic_bool TestState::inited = false;
 

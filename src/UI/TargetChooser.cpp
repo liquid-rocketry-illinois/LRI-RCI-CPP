@@ -183,47 +183,6 @@ namespace LRI::RCI {
         ImGui::PopID();
     }
 
-    /*
-             * This is the json parser. The json schema is a little weird so it is described here. Each
-             * field is given, what data type it has, and so on:
-             *  - name: string: The name of the configuraion. Used only for display purposes
-             *  - tests: array of objects: Used to configure the available autosequenced tests and what their
-             *    RCP id [0, 15] is. Each object contains the fields:
-             *    - id: The numeric ID of the test
-             *    - name: Human readable name of the test
-             *  - devices: an array of objects. Used to configure the singletons with what devices
-             *    are present and should be loaded. Two objects in this array cannot share the same
-             *    device class. Each object contains the fields:
-             *    - devclass: int: the RCP device class associated with the device. Classes 0 and 0x80
-             *      do not need to be specified for them to function
-             *    - ids: array of ints: indicates the IDs to load. Even if there is only one of a particular
-             *      device class this still needs to be an array of ints
-             *    - names: array of strings: matches human readably names to the IDs of the devices. Must be in
-             *      the same order as the IDs array and must be the same size. At least one name is required to
-             *      match the one required ID
-             *  - windows: an array of objects. Used to configure the windowlets and which modules they contain.
-             *    Each object contians the fields:
-             *    - title: string: title of the windowlet
-             *    - modules: an array of objects: gives an ordered list of what modules should appear in that
-             *      windowlet. Each object has the fields:
-             *      - type: int: indicates the type of module, typically following RCP device classes. Depending
-             *        on the type, the remaining keys are different:
-             *        - type -1: ESTOP. No additional fields
-             *        - type 0: Test control module. No additional fields
-             *        - type 1: Simple actuator controls. Takes in two additional fields:
-             *          - refresh: bool: whether to render a refresh button
-             *          - ids: array of ints: which simple actuator IDs to track
-             *        - type 2: Stepper motor controls. Takes in the same arguments as type 1
-             *        - type 3: Prompt display. No additional fields
-             *        - type 128: Custom data display/log display: Takes no additional fields
-             *        - types 0x90 - 0xC0: Sensor display. Any device class in this range can be used
-             *          to create a sensor display module. This takes two fields:
-             *          - abridged: bool: whether to display the sensors in abridged mode
-             *          - ids: array of objects: which sensors to track. Each object has the format:
-             *            - class: int: device class of sensor
-             *            - ids: array of ints: which ids of the device class to track. At least 1 ID is required
-             */
-
     // Helper function that resets and initializes everything based on the configuration file
     void TargetChooser::initWindows() {
         configName = targetconfig["name"].get<std::string>();
