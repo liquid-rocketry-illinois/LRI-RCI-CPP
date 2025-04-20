@@ -11,7 +11,6 @@
 namespace LRI::RCI {
     class BoolSensors {
         // How frequently to request refreshes from the target
-        static constexpr int REFRESH_TIME = 5;
 
         struct BoolSensorState;
 
@@ -20,6 +19,7 @@ namespace LRI::RCI {
 
         // Timer for refreshing
         StopWatch refreshTimer;
+        int refreshTime = 5;
 
         BoolSensors() = default;
         ~BoolSensors();
@@ -36,8 +36,8 @@ namespace LRI::RCI {
         // Receive updates from RCP
         void receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
 
-        // Set which qualifiers are tracked by the singleton
-        void setHardwareConfig(const std::set<HardwareQualifier>& ids);
+        // Set which qualifiers are tracked by the singleton, and the interval for refreshes
+        void setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime = 5);
 
         // Clears storage and resets class to defaults
         void reset();

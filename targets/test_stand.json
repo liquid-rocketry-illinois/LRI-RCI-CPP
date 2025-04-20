@@ -29,7 +29,8 @@
     {
       "devclass": 149,
       "ids": [0],
-      "names": ["Burn Wire"]
+      "names": ["Burn Wire"],
+      "refreshTime": 3
     }
   ],
   "windows": [

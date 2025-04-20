@@ -235,7 +235,8 @@ namespace LRI::RCI {
                 break;
 
             case RCP_DEVCLASS_BOOL_SENSOR:
-                BoolSensors::getInstance()->setHardwareConfig(quals);
+                BoolSensors::getInstance()->setHardwareConfig(
+                    quals, targetconfig["devices"][i]["refreshTime"].get<int>());
                 break;
 
             case RCP_DEVCLASS_AM_PRESSURE:

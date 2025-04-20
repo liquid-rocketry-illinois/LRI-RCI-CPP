@@ -27,6 +27,9 @@ is invalid, and program behavior is indeterminate (likely a crash).
 | ids        |   Array of Int   | Indicates the IDs to load. Even if there is only one of a particular device class this still needs to be an array of ints                                                                |
 | names      | Array of Strings | Matches human readably names to the IDs of the devices. Must be in the same order as the IDs array and must be the same size. At least one name is required to match the one required ID |
 
+The Boolean Sensor device (0x95) has one additional field, `refreshTime`. This field is an integer that sets the 
+interval, in seconds to refresh sensors. If set to zero, use the default.
+
 ## Table 4: Windowlet object array fields
 
 | Field Name |       Type       | Description                                                                                                                                                                                                    |
@@ -49,10 +52,10 @@ is invalid, and program behavior is indeterminate (likely a crash).
 
 ## Table 6: Simple Actautor, Stepper Motor Control, Boolean Sensor Fields
 
-| Field Name |     Type      | Description                                                                                                      |
-|:-----------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
-| refresh    |     bool      | Whether or not to display a refresh button at the top                                                            |
-| ids        | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
+| Field Name  |     Type      | Description                                                                                                      |
+|:------------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
+| refresh     |     bool      | Whether or not to display a refresh button at the top                                                            |
+| ids         | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
 
 ## Table 7: Sensor Value Field Viewer
 
