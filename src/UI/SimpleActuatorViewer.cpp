@@ -52,7 +52,7 @@ namespace LRI::RCI {
 
             // Solenoid name and ID
             ImGui::SameLine();
-            ImGui::Text("Solenoid %s (%d)", id.name.c_str(), id.id);
+            ImGui::Text("%s (%d)", id.name.c_str(), id.id);
 
             ImGui::SameLine();
 
