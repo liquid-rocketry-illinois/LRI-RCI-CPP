@@ -13,8 +13,8 @@
   "devices": [
     {
       "devclass": 1,
-      "ids": [1, 2, 3, 4, 5, 6, 7],
-      "names": ["SV2-F-PRS", "SV1-OX-PRS", "SV7-F-V", "SV9-OX-ACT", "SV4-F-ACT", "SV3-OX-ACT", "SV10-OX-ACT"]
+      "ids": [0, 1, 2, 3, 4, 5, 6, 7],
+      "names": ["EMatch", "SV2-F-PRS", "SV1-OX-PRS", "SV7-F-V", "SV9-OX-ACT", "SV4-F-ACT", "SV3-OX-ACT", "SV10-OX-ACT"]
     },
     {
       "devclass": 146,
@@ -25,16 +25,26 @@
       "devclass": 148,
       "ids": [0],
       "names": ["Load Cell"]
+    },
+    {
+      "devclass": 149,
+      "ids": [0],
+      "names": ["Burn Wire"]
     }
   ],
   "windows": [
     {
-      "title": "Solenoid Control",
+      "title": "Actuator Control",
       "modules": [
         {
           "type": 1,
           "refresh": true,
-          "ids": [0, 1, 2, 3, 4, 5, 6, 7]
+          "ids": [1, 2, 3, 4, 5, 6, 7, 0]
+        },
+        {
+          "type": 149,
+          "refresh": true,
+          "ids": [0]
         }
       ]
     },

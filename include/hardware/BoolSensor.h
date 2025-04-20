@@ -26,8 +26,8 @@ namespace LRI::RCI {
 
     public:
         struct BoolSensorState {
-            bool open;
-            bool stale;
+            bool open = false;
+            bool stale = true;
         };
 
         // Get the singleton

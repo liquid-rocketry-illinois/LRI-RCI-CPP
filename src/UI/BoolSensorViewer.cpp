@@ -23,9 +23,12 @@ namespace LRI::RCI {
         if(lockbutton) ImGui::BeginDisabled();
 
         // Request refresh of all sensors
-        if(refreshButton && ImGui::Button("Refresh")) {
-            BoolSensors::getInstance()->refreshAll();
-            buttonTimer.reset();
+        if(refreshButton) {
+            if(ImGui::Button("Refresh")) {
+                BoolSensors::getInstance()->refreshAll();
+                buttonTimer.reset();
+            }
+            ImGui::Separator();
         }
 
         if(lockbutton) ImGui::EndDisabled();
@@ -46,7 +49,7 @@ namespace LRI::RCI {
 
             // Display the name of the sensor and its value
             ImGui::SameLine();
-            ImGui::Text("Sensor %s (%d): ", qual.name.c_str(), qual.id);
+            ImGui::Text("%s (%d):", qual.name.c_str(), qual.id);
             ImGui::SameLine();
             if(state->open) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ENABLED_COLOR);
