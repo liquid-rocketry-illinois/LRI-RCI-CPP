@@ -7,6 +7,7 @@
 #include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
 #include "hardware/TestState.h"
+#include "hardware/BoolSensor.h"
 
 #include "UI/Windowlet.h"
 
@@ -16,6 +17,7 @@ namespace LRI::RCI {
         .sendData = sendData,
         .readData = readData,
         .processTestUpdate = processTestUpdate,
+        .processBoolData = processBoolData,
         .processSimpleActuatorData = processSimpleActuatorData,
         .processPromptInput = processPromptInput,
         .processSerialData = processSerialData,
@@ -37,6 +39,12 @@ namespace LRI::RCI {
         TestState::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
+
+    int processBoolData(RCP_BoolData data) {
+        BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID}, data.data);
+        return 0;
+    }
+
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
         SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID},
