@@ -8,6 +8,10 @@
     {
       "id": 1,
       "name": "HOTFIRE"
+    },
+    {
+      "id": 2,
+      "name": "SV3/4 ON"
     }
   ],
   "devices": [
