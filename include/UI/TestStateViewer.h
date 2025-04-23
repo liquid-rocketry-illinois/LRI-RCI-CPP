@@ -15,7 +15,8 @@ namespace LRI::RCI {
         bool dstream;
         bool doHeartbeats;
 
-        ImGui::TimedButton start;
+        // Timer for start button
+        StopWatch startTimer;
 
     public:
         TestStateViewer();

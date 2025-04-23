@@ -29,6 +29,7 @@ namespace LRI::RCI {
     class IniFilePath {
         friend class TargetChooser;
         std::string path;
+
     public:
         std::string getPath();
         [[nodiscard]] bool empty() const;
@@ -99,6 +100,10 @@ namespace LRI::RCI {
 }
 
 namespace ImGui {
+    // A more "imgui"ish way of doing the class below
+    bool TimedButton(const char* label, LRI::RCI::StopWatch& sw, const ImVec2& size = ImVec2(0, 0));
+
+    // A button that tracks how long it has been held down for
     class TimedButton {
         const char* label;
 
@@ -106,10 +111,14 @@ namespace ImGui {
         bool clicked;
 
     public:
+        // Constructor just takes the button label
         explicit TimedButton(const char* label);
-        bool render();
-        float getHoldTime() const;
 
+        // Render the button, and return if the button is held
+        bool render();
+
+        // Return the duration the button has been held for
+        [[nodiscard]] float getHoldTime() const;
     };
 }
 

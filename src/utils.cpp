@@ -220,14 +220,20 @@ namespace LRI::RCI {
 }
 
 namespace ImGui {
+    // See utils.h
+    bool TimedButton(const char* label, LRI::RCI::StopWatch& sw, const ImVec2& size) {
+        Button(label, size);
+        if(IsItemActivated()) sw.reset();
+        return IsItemActive();
+    }
+
     TimedButton::TimedButton(const char* label) : label(label), clicked(false) {}
 
     bool TimedButton::render() {
         Button(label);
-        bool ret = IsItemActive();
-        clicked = ret;
+        clicked = IsItemActive();
         if(IsItemActivated()) timer.reset();
-        return ret;
+        return clicked;
     }
 
     float TimedButton::getHoldTime() const {
