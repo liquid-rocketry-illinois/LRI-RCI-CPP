@@ -133,18 +133,16 @@ namespace LRI::RCI {
     }
 
     // Stopwatch class implementation
-    StopWatch::StopWatch() {
-        time(&lastClock);
+    StopWatch::StopWatch() : lastClock(std::chrono::system_clock::now()) {
     }
 
     void StopWatch::reset() {
-        time(&lastClock);
+        lastClock = std::chrono::system_clock::now();
     }
 
-    time_t StopWatch::timeSince() const {
-        time_t now;
-        time(&now);
-        return now - lastClock;
+    float StopWatch::timeSince() const {
+        const std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - lastClock;
+        return elapsed.count();
     }
 
     std::string devclassToString(RCP_DeviceClass devclass) {
@@ -232,7 +230,7 @@ namespace ImGui {
         return ret;
     }
 
-    long long TimedButton::getHoldTime() const {
+    float TimedButton::getHoldTime() const {
         return clicked ? timer.timeSince() : 0;
     }
 }

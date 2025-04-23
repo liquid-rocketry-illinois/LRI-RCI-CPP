@@ -15,8 +15,8 @@ namespace LRI::RCI {
 
     public:
         // Delay after actions in the UI to prevent spam
-        static constexpr long long BUTTON_DELAY = 1; // Seconds
-        static constexpr long long CONFIRM_HOLD_TIME = 3;
+        static constexpr float BUTTON_DELAY = 1; // Seconds
+        static constexpr float CONFIRM_HOLD_TIME = 3;
 
         static constexpr ImVec2 STATUS_SQUARE_SIZE = {15, 15};
 

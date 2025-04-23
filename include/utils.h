@@ -2,9 +2,12 @@
 #define UTILS_H
 
 #include <Windows.h>
+
+#include <chrono>
 #include <string>
-#include "GLFW/glfw3.h"
+
 #include "imgui.h"
+#include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
 
 // A mish-mash of various helper functions and stuff
@@ -46,7 +49,7 @@ namespace LRI::RCI {
     // Stopwatch class for time tracking
     class StopWatch final {
         // The last time the stopwatch was reset
-        time_t lastClock{};
+        std::chrono::time_point<std::chrono::system_clock> lastClock;
 
     public:
         StopWatch();
@@ -56,7 +59,7 @@ namespace LRI::RCI {
         void reset();
 
         // Gets time since last reset
-        [[nodiscard]] time_t timeSince() const;
+        [[nodiscard]] float timeSince() const;
     };
 
 
@@ -105,7 +108,7 @@ namespace ImGui {
     public:
         explicit TimedButton(const char* label);
         bool render();
-        long long getHoldTime() const;
+        float getHoldTime() const;
 
     };
 }
