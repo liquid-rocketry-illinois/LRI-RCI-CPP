@@ -95,6 +95,21 @@ namespace LRI::RCI {
     };
 }
 
+namespace ImGui {
+    class TimedButton {
+        const char* label;
+
+        LRI::RCI::StopWatch timer;
+        bool clicked;
+
+    public:
+        explicit TimedButton(const char* label);
+        bool render();
+        long long getHoldTime() const;
+
+    };
+}
+
 #include "RingBuffer.inl"
 
 #endif //UTILS_H

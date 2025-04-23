@@ -15,6 +15,8 @@ namespace LRI::RCI {
         bool dstream;
         bool doHeartbeats;
 
+        ImGui::TimedButton start;
+
     public:
         TestStateViewer();
         ~TestStateViewer() override = default;

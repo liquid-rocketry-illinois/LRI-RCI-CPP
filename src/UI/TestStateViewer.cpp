@@ -2,9 +2,10 @@
 
 #include <ranges>
 
+#include "improgress.h"
+#include "utils.h"
 #include "hardware/EStop.h"
 #include "hardware/TestState.h"
-#include "utils.h"
 
 // Module for viewing and controlling test state
 namespace LRI::RCI {
@@ -12,7 +13,7 @@ namespace LRI::RCI {
 
     TestStateViewer::TestStateViewer() :
         classid(CLASSID++), inputHeartbeatRate(0), activeTest(0), dstream(false),
-        doHeartbeats(false) {}
+        doHeartbeats(false), start("Start") {}
 
 
     void TestStateViewer::render() {
@@ -31,10 +32,14 @@ namespace LRI::RCI {
         // For each type of button, they can only be pushed in certain states. The lock variable is reused
         bool lock = state != RCP_TEST_STOPPED;
         if(lock) ImGui::BeginDisabled();
-        if(ImGui::Button("Start")) {
-            TestState::getInstance()->startTest(activeTest);
-            buttonTimer.reset();
+        if(start.render()) {
+            if(start.getHoldTime() > CONFIRM_HOLD_TIME) {
+                TestState::getInstance()->startTest(activeTest);
+                buttonTimer.reset();
+            }
         }
+
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Hold to confirm");
         if(lock) ImGui::EndDisabled();
 
         lock = state != RCP_TEST_RUNNING && state != RCP_TEST_PAUSED;
@@ -65,6 +70,9 @@ namespace LRI::RCI {
         if(ImGui::Button("E-STOP")) EStop::getInstance()->ESTOP();
 
         ImGui::PopStyleColor(3);
+
+        ImGui::SameLine();
+        ImGui::CircleProgressBar("##startlabel", 10, 3, WHITE_COLOR, static_cast<float>(start.getHoldTime()) / CONFIRM_HOLD_TIME);
 
         // Display the test number chooser. If there are tests defined in the target
         // json, display a dropdown chooser, otherwise display text saying no tests available

@@ -70,4 +70,26 @@ namespace ImGui {
         return true;
     }
 
+    bool CircleProgressBar(const char* label, float radius, float thickness, const ImU32& color, float progress) {
+        ImGuiWindow* window = GetCurrentWindow();
+        if(window->SkipItems) return false;
+
+        ImGuiContext& g = *GImGui;
+        const ImGuiStyle& style = g.Style;
+        const ImGuiID id = window->GetID(label);
+
+        ImVec2 pos = window->DC.CursorPos;
+        ImVec2 size((radius) * 2, (radius + style.FramePadding.y) * 2);
+        ImVec2 center = {pos.x + radius, pos.y + radius};
+
+        const ImRect bb(pos, ImVec2(pos.x + size.x, pos.y + size.y));
+        ItemSize(bb, style.FramePadding.y);
+        if(!ItemAdd(bb, id)) return false;
+
+        window->DrawList->PathClear();
+        window->DrawList->PathArcTo(center, radius, 0, 2 * IM_PI * progress);
+        window->DrawList->PathStroke(color, false, thickness);
+
+        return true;
+    }
 }

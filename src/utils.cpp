@@ -220,3 +220,19 @@ namespace LRI::RCI {
         return {v1.x / constant, v1.y / constant};
     }
 }
+
+namespace ImGui {
+    TimedButton::TimedButton(const char* label) : label(label), clicked(false) {}
+
+    bool TimedButton::render() {
+        Button(label);
+        bool ret = IsItemActive();
+        clicked = ret;
+        if(IsItemActivated()) timer.reset();
+        return ret;
+    }
+
+    long long TimedButton::getHoldTime() const {
+        return clicked ? timer.timeSince() : 0;
+    }
+}
