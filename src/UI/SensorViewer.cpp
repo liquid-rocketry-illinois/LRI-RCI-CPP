@@ -3,6 +3,7 @@
 
 #include "UI/SensorViewer.h"
 #include "implot.h"
+#include "improgress.h"
 #include "utils.h"
 
 // Module for displaying sensor values. Most complicated viewer class
@@ -76,7 +77,7 @@ namespace LRI::RCI {
         ImDrawList* draw = ImGui::GetWindowDrawList();
         const float xsize = ImGui::GetWindowWidth() - scale(50);
         const auto plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
-                                                   ImGui::GetWindowHeight() - scale(75)));
+                                                 ImGui::GetWindowHeight() - scale(75)));
 
         // If in abridged mode, render the simpler stuff and exit early
         if(abridged) {
@@ -142,40 +143,47 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(
                 " | %s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
-            if(!tarestate.contains(qual)) tarestate[qual] = -1;
+            if(!tarestate.contains(qual)) {
+                tarestate[qual][0] = StopWatch();
+                tarestate[qual][1] = StopWatch();
+                tarestate[qual][2] = StopWatch();
+                tarestate[qual][3] = StopWatch();
+            }
 
             // Handle the tares. If the tarestate == -1, then no tare has been activated. If
             // the tare state is 0, 1, 2, or 3 then the first click to tare a data channel has been done,
             // and we're just waiting on the confirm
             ImGui::Text("Tare: ");
-            if(tarestate[qual] == -1) {
+            float percent = 0.0f;
+            for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+                ImGui::PushID(graph.name);
                 int i = 0;
-                for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
-                    for(const auto& line : graph.lines) {
-                        ImGui::PushID(i++);
-                        ImGui::SameLine();
-                        if(ImGui::Button(line.name)) {
-                            tarestate[qual] = line.datanum;
+                for(const auto& line : graph.lines) {
+                    ImGui::PushID(i++);
+                    ImGui::SameLine();
+                    if(ImGui::TimedButton(line.name, tarestate[qual][line.datanum])) {
+                        percent = tarestate[qual][line.datanum].timeSince() / CONFIRM_HOLD_TIME;
+                        if(percent >= 1.0f) {
+                            Sensors::getInstance()->tare(qual, line.datanum);
+                            tarestate[qual][line.datanum].reset();
                         }
-                        ImGui::PopID();
                     }
+                    ImGui::PopID();
                 }
+                ImGui::PopID();
             }
 
-            // Render confirm button
-            else if(ImGui::SameLine(), ImGui::Button("Confirm")) {
-                Sensors::getInstance()->tare(qual, tarestate[qual]);
-                tarestate[qual] = -1;
-            }
+            ImGui::SameLine();
+            ImGui::CircleProgressBar("##tareprogressspinner", 10, 3, WHITE_COLOR, percent);
 
-            // Similar kind of thing for the clear buttons
-            if(!clearState[qual] && ImGui::Button("Clear Graphs")) {
-                clearState[qual] = true;
-            }
-
-            else if(clearState[qual] && ImGui::Button("Confirm")) {
-                clearState[qual] = false;
-                Sensors::getInstance()->clearGraph(qual);
+            if(ImGui::TimedButton("Clear Graphs", clearState[qual])) {
+                ImGui::SameLine();
+                ImGui::CircleProgressBar("##clearprogressspinner", 10, 3, WHITE_COLOR,
+                                         clearState[qual].timeSince() / CONFIRM_HOLD_TIME);
+                if(clearState[qual].timeSince() > CONFIRM_HOLD_TIME) {
+                    Sensors::getInstance()->clearGraph(qual);
+                    clearState[qual].reset();
+                }
             }
 
             // Render the graph itself

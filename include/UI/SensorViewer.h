@@ -67,8 +67,8 @@ namespace LRI::RCI {
                                  const ImVec2& plotsize);
 
         // The tare and clear states for each sensor
-        std::map<HardwareQualifier, int> tarestate;
-        std::map<HardwareQualifier, bool> clearState;
+        std::map<HardwareQualifier, StopWatch[4]> tarestate;
+        std::map<HardwareQualifier, StopWatch> clearState;
 
     public:
         explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false);
