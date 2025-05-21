@@ -6,11 +6,9 @@
 namespace LRI::RCI {
     // Window module which shows the output to the custom device class from RCP
     class RawViewer : public WModule {
-        static int CLASSID;
-        const int classid;
 
     public:
-        explicit RawViewer();
+        explicit RawViewer() = default;
         ~RawViewer() override = default;
 
         // Overridden render function

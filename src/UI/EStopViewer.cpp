@@ -7,11 +7,6 @@
 
 // Module for viewing ESTOP state
 namespace LRI::RCI {
-    int EStopViewer::CLASSID = 0;
-
-    EStopViewer::EStopViewer() :
-        classid(CLASSID++) {}
-
     void EStopViewer::render() {
         ImGui::PushID("EStopViewer");
         ImGui::PushID(classid);

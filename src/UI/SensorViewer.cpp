@@ -8,8 +8,6 @@
 
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
-    int SensorViewer::CLASSID = 0;
-
     // Helper
     float min3(float a, float b, float c) {
         return min(a, min(b, c));
@@ -62,7 +60,6 @@ namespace LRI::RCI {
     // Store the abridged state
     // Add the qualifiers to track and their associated state pointer to the map
     SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) :
-        classid(CLASSID++),
         abridged(abridged) {
         for(const auto& qual : quals) {
             sensors[qual] = Sensors::getInstance()->getState(qual);

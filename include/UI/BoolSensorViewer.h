@@ -11,9 +11,6 @@
 // Viewer class for Bool Sensors
 namespace LRI::RCI {
     class BoolSensorViewer : public WModule {
-        static int CLASSID;
-        const int classid;
-
         // If a refresh button should be rendered at the top of this module
         const bool refreshButton;
 

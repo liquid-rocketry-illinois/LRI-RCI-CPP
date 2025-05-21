@@ -6,9 +6,6 @@
 namespace LRI::RCI {
     // A window module for controlling the test state of the target
     class TestStateViewer : public WModule {
-        static int CLASSID;
-        const int classid;
-
         // The in-modification values for test state
         int inputHeartbeatRate;
         uint8_t activeTest;

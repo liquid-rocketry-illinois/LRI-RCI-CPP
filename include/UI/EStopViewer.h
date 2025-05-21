@@ -6,13 +6,8 @@
 namespace LRI::RCI {
     // A simple window module which will send an E-STOP packet when pushed
     class EStopViewer : public WModule {
-        static int CLASSID;
-        const int classid;
-
-        const ImVec2 size;
-
     public:
-        explicit EStopViewer();
+        explicit EStopViewer() = default;
         ~EStopViewer() override = default;
 
         // Overridden render

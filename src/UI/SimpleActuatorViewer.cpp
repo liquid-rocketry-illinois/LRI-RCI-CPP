@@ -7,11 +7,9 @@
 
 // Module for viewing and controlling simple actuators
 namespace LRI::RCI {
-    int SimpleActuatorViewer::CLASSID = 0;
-
     // Add the qualifiers to track and their associated state pointer to the map
     SimpleActuatorViewer::SimpleActuatorViewer(const std::set<HardwareQualifier>&& quals, const bool refreshButton) :
-        classid(CLASSID++), refreshButton(refreshButton) {
+        refreshButton(refreshButton) {
         for(const auto& sol : quals) {
             sols[sol] = SimpleActuators::getInstance()->getState(sol);
         }

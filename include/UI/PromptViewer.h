@@ -6,11 +6,8 @@
 // Window module for showing prompts
 namespace LRI::RCI {
     class PromptViewer : public WModule {
-        static int CLASSID;
-        const int classid;
-
     public:
-        explicit PromptViewer();
+        explicit PromptViewer() = default;
         ~PromptViewer() override = default;
 
         void render() override;

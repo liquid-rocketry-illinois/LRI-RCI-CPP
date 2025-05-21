@@ -13,6 +13,10 @@ namespace LRI::RCI {
 
     // The anti-spam button timer
     StopWatch WModule::buttonTimer = StopWatch();
+    int WModule::CLASSID = 0;
+
+    WModule::WModule() : classid(CLASSID++) {
+    }
 
     void Windowlet::renderWindowlets() {
         // Important that this line is first, since the Control Window can modify the list of

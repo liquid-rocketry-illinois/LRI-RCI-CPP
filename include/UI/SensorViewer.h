@@ -49,10 +49,6 @@ namespace LRI::RCI {
         // Takes a qualifier and a datapoint and renders it to a string with the correct units
         static std::string renderLatestReadingsString(const HardwareQualifier& qual, const Sensors::DataPoint& data);
 
-
-        static int CLASSID;
-        const int classid;
-
         // An ampty data point
         static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
 

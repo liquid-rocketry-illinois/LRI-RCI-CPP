@@ -6,11 +6,6 @@
 
 // Module for viewing latest prompt state
 namespace LRI::RCI {
-    int PromptViewer::CLASSID = 0;
-
-    PromptViewer::PromptViewer() :
-        classid(CLASSID++) {}
-
     void PromptViewer::render() {
         ImGui::PushID("PromptViewer");
         ImGui::PushID(classid);

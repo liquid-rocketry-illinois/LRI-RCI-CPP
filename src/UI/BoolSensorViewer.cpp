@@ -4,11 +4,9 @@
 
 // Module for viewing the BoolSensor states
 namespace LRI::RCI {
-    int BoolSensorViewer::CLASSID = 0;
-
     // Add the qualifiers to track and their associated state pointer to the map
     BoolSensorViewer::BoolSensorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
-        classid(CLASSID++), refreshButton(refreshButton) {
+        refreshButton(refreshButton) {
         for(const auto& qual : quals) {
             sensors[qual] = BoolSensors::getInstance()->getState(qual);
         }

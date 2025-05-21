@@ -5,11 +5,6 @@
 
 // Module for viewing latest debug output
 namespace LRI::RCI {
-    int RawViewer::CLASSID = 0;
-
-    RawViewer::RawViewer() :
-        classid(CLASSID++) {}
-
     void RawViewer::render() {
         ImGui::PushID("RawViewer");
         ImGui::PushID(classid);

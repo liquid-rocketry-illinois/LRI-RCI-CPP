@@ -10,8 +10,12 @@ namespace LRI::RCI {
     // incremented and assigned to each instantiated class in the const int classid. This is used to track
     // individual instances of modules so that that can uniquely identify themselves to imgui.
     class WModule {
+        static int CLASSID;
+
     protected:
         static StopWatch buttonTimer;
+
+        const int classid;
 
     public:
         // Delay after actions in the UI to prevent spam
@@ -27,7 +31,7 @@ namespace LRI::RCI {
         static constexpr ImU32 REBECCA_PURPLE = 0xFF993366;
         static constexpr ImU32 WHITE_COLOR = 0xFFFFFFFF;
 
-        WModule() = default;
+        WModule();
         virtual ~WModule() = default;
         virtual void render() = 0;
     };

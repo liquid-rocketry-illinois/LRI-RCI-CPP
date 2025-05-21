@@ -16,9 +16,6 @@ namespace LRI::RCI {
         // Maps control modes to UI button names
         static const std::map<RCP_StepperControlMode, std::vector<const char*>> BTN_NAMES;
 
-        static int CLASSID;
-        const int classid;
-
         struct Input {
             float val;
             RCP_StepperControlMode mode;

@@ -10,9 +10,6 @@
 namespace LRI::RCI {
     // A window module for showing and controlling simple actuator status
     class SimpleActuatorViewer : public WModule {
-        static int CLASSID;
-        const int classid;
-
         // If a refresh button should be shown at the top
         const bool refreshButton;
 

@@ -9,12 +9,8 @@
 
 // Module for viewing and controlling test state
 namespace LRI::RCI {
-    int TestStateViewer::CLASSID = 0;
-
     TestStateViewer::TestStateViewer() :
-        classid(CLASSID++), inputHeartbeatRate(0), activeTest(0), dstream(false),
-        doHeartbeats(false) {}
-
+        inputHeartbeatRate(0), activeTest(0), dstream(false), doHeartbeats(false) {}
 
     void TestStateViewer::render() {
         ImGui::PushID("TestStateViewer");
