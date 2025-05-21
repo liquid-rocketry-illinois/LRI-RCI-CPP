@@ -23,8 +23,13 @@ namespace LRI::RCI {
      */
 
     class InterfaceChooser {
+        static int CLASSID;
+
+    protected:
+        const int classid;
+
     public:
-        explicit InterfaceChooser() = default;
+        explicit InterfaceChooser();
 
         // The render and update funcion to be overridden
         virtual RCP_Interface* render() = 0;

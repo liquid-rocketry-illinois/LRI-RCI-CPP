@@ -275,7 +275,7 @@ namespace LRI::RCI {
 
             // Somehow we end up with the name we need to open the port, and a more user friendly display string.
             // These get appended to this vector for later
-            portlist.push_back(std::string(comname) + ": " + std::string(s));
+            portlist.push_back(std::make_pair(std::string(comname), std::string(comname) + " : " + std::string(s)));
         }
 
         SetupDiDestroyDeviceInfoList(devs);
@@ -284,6 +284,9 @@ namespace LRI::RCI {
 
     // The COMPort chooser rendering function
     RCP_Interface* COMPortChooser::render() {
+        ImGui::PushID("COMPortChooser");
+        ImGui::PushID(classid);
+
         bool disable = port;
         if(disable) ImGui::BeginDisabled();
 
@@ -291,11 +294,13 @@ namespace LRI::RCI {
         ImGui::Text("Choose Serial Port: ");
         ImGui::SameLine();
         if(portlist.empty()) ImGui::Text("No Ports Detected");
-        else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].c_str())) {
+        else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].second.c_str())) {
             for(size_t i = 0; i < portlist.size(); i++) {
+                ImGui::PushID(i);
                 bool selected = i == selectedPort;
-                if(ImGui::Selectable((portlist[i] + "##portselectcombo").c_str(), &selected)) selectedPort = i;
+                if(ImGui::Selectable((portlist[i]).second.c_str(), &selected)) selectedPort = i;
                 if(selected) ImGui::SetItemDefaultFocus();
+                ImGui::PopID();
             }
 
             ImGui::EndCombo();
@@ -317,14 +322,17 @@ namespace LRI::RCI {
         if(portlist.empty()) ImGui::BeginDisabled();
         if(ImGui::Button("Connect")) {
             // If connect, then create the COMPort
-            port = new COMPort(
-                portlist[selectedPort].substr(0, portlist[selectedPort].find_first_of(':')).c_str(), baud);
+            port = new COMPort((R"(\\.\)" + portlist[selectedPort].first).c_str(), baud);
         }
         if(portlist.empty()) ImGui::EndDisabled();
         if(disable) ImGui::EndDisabled();
 
         // If the port failed to allocate then return
-        if(!port) return nullptr;
+        if(!port) {
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
 
         // If the port allocated but did not open then show an error
         if(!port->isOpen()) {
@@ -335,6 +343,8 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Button("OK##comportchoosererror")) {
                 delete port;
+                ImGui::PopID();
+                ImGui::PopID();
                 port = nullptr;
             }
         }
@@ -345,7 +355,14 @@ namespace LRI::RCI {
             ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
         }
 
-        else return port;
+        else {
+            ImGui::PopID();
+            ImGui::PopID();
+            return port;
+        }
+
+        ImGui::PopID();
+        ImGui::PopID();
         return nullptr;
     }
 }

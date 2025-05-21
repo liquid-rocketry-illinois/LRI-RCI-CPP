@@ -352,4 +352,9 @@ namespace LRI::RCI {
             new Windowlet(targetconfig["windows"][i]["title"].get<std::string>(), modules);
         }
     }
+
+    int InterfaceChooser::CLASSID = 0;
+
+    InterfaceChooser::InterfaceChooser() : classid(CLASSID++) {
+    }
 }

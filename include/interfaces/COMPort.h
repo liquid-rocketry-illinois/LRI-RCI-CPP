@@ -78,7 +78,7 @@ namespace LRI::RCI {
 
         // Storage for available ports. Ports will be in the format of their handle name, a colon, and the windows
         // display name (ex. COM1:Arduino Serial Device)
-        std::vector<std::string> portlist;
+        std::vector<std::pair<std::string, std::string>> portlist;
 
         // The index of the selected port
         size_t selectedPort;
