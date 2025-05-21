@@ -2,6 +2,7 @@
 
 namespace LRI::RCI {
     VirtualPort::VirtualPort() : initpacket(7) {
+        // Push the "target ready" packet so the UI can be interacted with
         initpacket.push(0x05);
         initpacket.push(RCP_DEVCLASS_TEST_STATE);
         initpacket.push(0x00);

@@ -252,6 +252,9 @@ namespace LRI::RCI {
 
     // Chooser for the interface. Just needs port, client/server, and server ip address if client
     RCP_Interface* TCPInterfaceChooser::render() {
+        ImGui::PushID("TCPSocketChooser");
+        ImGui::PushID(classid);
+
         bool isnull = interf == nullptr;
         if(!isnull) ImGui::BeginDisabled();
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
@@ -298,7 +301,11 @@ namespace LRI::RCI {
         if(!isnull) ImGui::EndDisabled();
 
         // If the interface is null, keep rendering
-        if(interf == nullptr) return nullptr;
+        if(interf == nullptr) {
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
 
         // If the interface has been created but did not open properly, display error and continue rendering
         if(!interf->isOpen()) {
@@ -308,11 +315,15 @@ namespace LRI::RCI {
             ImGui::PopStyleColor();
 
             ImGui::SameLine();
-            if(ImGui::Button("OK##tcperrorok")) {
+            if(ImGui::Button("OK")) {
                 delete interf;
+                ImGui::PopID();
+                ImGui::PopID();
                 interf = nullptr;
             }
 
+            ImGui::PopID();
+            ImGui::PopID();
             return nullptr;
         }
 
@@ -323,13 +334,20 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Spinner("##tcpwaitspinner", 8, 1, WModule::REBECCA_PURPLE);
 
-            if(ImGui::Button("Cancel##tcpcancel")) {
+            if(ImGui::Button("Cancel")) {
                 delete interf;
+                ImGui::PopID();
+                ImGui::PopID();
                 interf = nullptr;
             }
+
+            ImGui::PopID();
+            ImGui::PopID();
             return nullptr;
         }
 
+        ImGui::PopID();
+        ImGui::PopID();
         // Once the interface is ready to go, return it to the TargetChooser
         return interf;
     }
