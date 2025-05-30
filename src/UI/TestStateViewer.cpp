@@ -158,13 +158,31 @@ namespace LRI::RCI {
         if(ImGui::Checkbox("##resettimebox", &resetTimeOnTestStart))
             TestState::getInstance()->setResetTimeOnTestStart(resetTimeOnTestStart);
 
+        if(lockButtons) ImGui::BeginDisabled();
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
-        if(ImGui::Button("Hardware Reset")) {
-            TestState::getInstance()->deviceReset();
+
+        pushed = false;
+        if(ImGui::TimedButton("Hardware Reset", dResetTimer)) {
+            pushed = true;
+            if(dResetTimer.timeSince() > CONFIRM_HOLD_TIME) {
+                TestState::getInstance()->deviceReset();
+                buttonTimer.reset();
+            }
         }
+
+        if(ImGui::IsItemHovered()) ImGui::SetTooltip("Hold to confirm");
         ImGui::PopStyleColor(3);
+
+        if(lockButtons) ImGui::EndDisabled();
+
+        if(pushed) {
+            ImGui::SameLine();
+            ImGui::CircleProgressBar("##dresetspinnny", 10, 3, WHITE_COLOR,
+                                     dResetTimer.timeSince() / CONFIRM_HOLD_TIME);
+        }
 
         if(!TestState::getInited()) ImGui::EndDisabled();
         ImGui::PopID();

@@ -15,6 +15,7 @@ namespace LRI::RCI {
 
         // Timer for start button
         StopWatch startTimer;
+        StopWatch dResetTimer;
 
     public:
         TestStateViewer();
