@@ -74,6 +74,7 @@ namespace LRI::RCI {
 
         // Request to clear the data vector of a particular sensor
         void clearGraph(const HardwareQualifier& qual);
+        void clearAll();
     };
 }
 

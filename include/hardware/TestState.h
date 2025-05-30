@@ -21,6 +21,7 @@ namespace LRI::RCI {
         uint8_t activeTest;
         uint8_t heartbeatTime;
         bool dataStreaming;
+        bool resetTimeOnStart;
 
         // Timer for heartbeats
         StopWatch heartbeat;
@@ -48,6 +49,7 @@ namespace LRI::RCI {
         bool pause();
         bool setHeartbeatTime(uint8_t time);
         bool setDataStreaming(bool stream);
+        void setResetTimeOnTestStart(bool reset);
         bool deviceReset();
 
         // To be called from main. Handles heartbeats

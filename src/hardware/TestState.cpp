@@ -1,5 +1,7 @@
 #include "hardware/TestState.h"
 
+#include "hardware/Sensors.h"
+
 // Hardware singleton representing test state. Most of these functions are self explanatory
 namespace LRI::RCI {
     std::atomic_bool TestState::inited = false;
@@ -18,6 +20,11 @@ namespace LRI::RCI {
         if(state != RCP_TEST_STOPPED) return false;
         state = RCP_TEST_RUNNING;
         RCP_startTest(number);
+        if(resetTimeOnStart) {
+            RCP_deviceTimeReset();
+            Sensors::getInstance()->clearAll();
+        }
+
         activeTest = number;
         return true;
     }
@@ -72,6 +79,10 @@ namespace LRI::RCI {
         bool complete = !RCP_setDataStreaming(stream);
         if(complete) dataStreaming = stream;
         return complete;
+    }
+
+    void TestState::setResetTimeOnTestStart(bool reset) {
+        resetTimeOnStart = reset;
     }
 
     bool TestState::deviceReset() {

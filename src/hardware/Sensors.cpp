@@ -211,5 +211,7 @@ namespace LRI::RCI {
         sensors[qual]->clear();
     }
 
-
+    void Sensors::clearAll() {
+        for(const auto& graph : sensors | std::views::values) graph->clear();
+    }
 }

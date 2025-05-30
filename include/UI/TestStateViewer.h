@@ -11,6 +11,7 @@ namespace LRI::RCI {
         uint8_t activeTest;
         bool dstream;
         bool doHeartbeats;
+        bool resetTimeOnTestStart;
 
         // Timer for start button
         StopWatch startTimer;

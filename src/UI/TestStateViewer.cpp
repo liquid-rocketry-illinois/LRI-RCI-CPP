@@ -2,15 +2,15 @@
 
 #include <ranges>
 
-#include "improgress.h"
-#include "utils.h"
 #include "hardware/EStop.h"
 #include "hardware/TestState.h"
+#include "improgress.h"
+#include "utils.h"
 
 // Module for viewing and controlling test state
 namespace LRI::RCI {
     TestStateViewer::TestStateViewer() :
-        inputHeartbeatRate(0), activeTest(0), dstream(false), doHeartbeats(false) {}
+        inputHeartbeatRate(0), activeTest(0), dstream(false), doHeartbeats(false), resetTimeOnTestStart(false) {}
 
     void TestStateViewer::render() {
         ImGui::PushID("TestStateViewer");
@@ -90,7 +90,7 @@ namespace LRI::RCI {
             ImGui::PopFont();
         }
         else if(ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.95f),
-            ImGui::BeginCombo("##testselect", tests->at(activeTest).c_str())) {
+                ImGui::BeginCombo("##testselect", tests->at(activeTest).c_str())) {
             for(const auto& tn : *tests | std::views::keys) {
                 bool selected = tn == activeTest;
                 ImGui::PushID(tn);
@@ -153,6 +153,11 @@ namespace LRI::RCI {
             if(lockButtons) ImGui::EndDisabled();
         }
 
+        ImGui::Text("Reset sensor time base on start: ");
+        ImGui::SameLine();
+        if(ImGui::Checkbox("##resettimebox", &resetTimeOnTestStart))
+            TestState::getInstance()->setResetTimeOnTestStart(resetTimeOnTestStart);
+
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
@@ -165,4 +170,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
-}
+} // namespace LRI::RCI
