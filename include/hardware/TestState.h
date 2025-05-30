@@ -5,7 +5,6 @@
 #include <map>
 
 #include "RCP_Host/RCP_Host.h"
-
 #include "utils.h"
 
 // Singleton for containing all test state information
@@ -58,6 +57,6 @@ namespace LRI::RCI {
         // Receive updates from rcp
         void receiveRCPUpdate(const RCP_TestData& testState);
     };
-}
+} // namespace LRI::RCI
 
-#endif //TESTSTATE_H
+#endif // TESTSTATE_H

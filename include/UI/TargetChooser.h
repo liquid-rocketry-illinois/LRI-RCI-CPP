@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "nlohmann/json.hpp"
+
 #include "WModule.h"
 #include "Windowlet.h"
 #include "interfaces/RCP_Interface.h"
@@ -81,6 +82,6 @@ namespace LRI::RCI {
         // TargetChooser render function
         void render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //TARGETCHOOSER_H
+#endif // TARGETCHOOSER_H

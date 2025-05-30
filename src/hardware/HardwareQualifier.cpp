@@ -10,4 +10,4 @@ namespace LRI::RCI {
     std::string HardwareQualifier::asString() const {
         return std::to_string(devclass) + "-" + std::to_string(id) + "-" + name;
     }
-}
+} // namespace LRI::RCI

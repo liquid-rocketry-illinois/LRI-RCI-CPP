@@ -1,20 +1,21 @@
 #include "interfaces/COMPort.h"
+
 #include <RCP_Host/RCP_Host.h>
-#include <iostream>
-#include "utils.h"
-#include "improgress.h"
 #include <SetupAPI.h>
 #include <devguid.h>
+#include <iostream>
+
 #include "UI/WModule.h"
 #include "hardware/TestState.h"
+#include "improgress.h"
+#include "utils.h"
 
 namespace LRI::RCI {
     // Quite an awful looking constructor if I do say so myself
     COMPort::COMPort(const char* _portname, const DWORD& _baudrate) :
         portname(new char[strlen(_portname)]), baudrate(_baudrate),
-        port(CreateFile(
-            _portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
-            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr)),
+        port(CreateFile(_portname, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL,
+                        nullptr)),
         lastErrorVal(0), inbuffer(nullptr), outbuffer(nullptr), thread(nullptr), doComm(false) {
         strcpy(portname, _portname); // Windows says this is deprecated because it likes to be special
 
@@ -71,9 +72,7 @@ namespace LRI::RCI {
     }
 
     // Destructor just needs to close
-    COMPort::~COMPort() {
-        close();
-    }
+    COMPort::~COMPort() { close(); }
 
     // Closes and cleans up port
     bool COMPort::close() {
@@ -99,17 +98,11 @@ namespace LRI::RCI {
         return !CloseHandle(port);
     }
 
-    bool COMPort::isOpen() const {
-        return open;
-    }
+    bool COMPort::isOpen() const { return open; }
 
-    bool COMPort::isReady() const {
-        return ready;
-    }
+    bool COMPort::isReady() const { return ready; }
 
-    DWORD COMPort::lastError() const {
-        return lastErrorVal;
-    }
+    DWORD COMPort::lastError() const { return lastErrorVal; }
 
     // SendData doesn't actually write to the handle. It writes to the intermediary buffers and the IO thread does the
     // writing
@@ -242,10 +235,7 @@ namespace LRI::RCI {
     }
 
     // The COMPort chooser will enumerate all available serial devices to be picked from
-    COMPortChooser::COMPortChooser() :
-        selectedPort(0), error(false), baud(115200), port(nullptr) {
-        enumSerialDevs();
-    }
+    COMPortChooser::COMPortChooser() : selectedPort(0), error(false), baud(115200), port(nullptr) { enumSerialDevs(); }
 
     // Honestly I dont know what this does its some Windows spaghetti I stole from SO but it works so yay
     // https://stackoverflow.com/a/77752863
@@ -365,4 +355,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         return nullptr;
     }
-}
+} // namespace LRI::RCI

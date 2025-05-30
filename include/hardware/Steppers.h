@@ -4,8 +4,8 @@
 #include <map>
 #include <set>
 
-#include "RCP_Host/RCP_Host.h"
 #include "HardwareQualifier.h"
+#include "RCP_Host/RCP_Host.h"
 
 // Singleton for all stepper motors
 namespace LRI::RCI {
@@ -46,6 +46,6 @@ namespace LRI::RCI {
         // Request a write to a stepper
         void setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value);
     };
-}
+} // namespace LRI::RCI
 
-#endif //STEPPERS_H
+#endif // STEPPERS_H

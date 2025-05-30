@@ -3,10 +3,9 @@
 
 #include <string>
 
-#include "utils.h"
-
 #include "RCP_Interface.h"
 #include "UI/TargetChooser.h"
+#include "utils.h"
 
 namespace LRI::RCI {
     // A testing interface. The send and receive functions are stubs and do not function
@@ -38,6 +37,6 @@ namespace LRI::RCI {
         VirtualPortChooser() = default;
         RCP_Interface* render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //VIRTUAL_H
+#endif // VIRTUAL_H

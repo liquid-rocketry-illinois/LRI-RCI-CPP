@@ -22,6 +22,6 @@ namespace LRI::RCI {
 
         virtual ~RCP_Interface() = default;
     };
-}
+} // namespace LRI::RCI
 
-#endif //RCP_INTERFACE_H
+#endif // RCP_INTERFACE_H

@@ -4,8 +4,8 @@
 #include <map>
 #include <set>
 
-#include "RCP_Host/RCP_Host.h"
 #include "HardwareQualifier.h"
+#include "RCP_Host/RCP_Host.h"
 
 // Singleton for representing the state of all simple actuators
 namespace LRI::RCI {
@@ -45,7 +45,7 @@ namespace LRI::RCI {
         // Request a write to an actuator
         void setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState);
     };
-}
+} // namespace LRI::RCI
 
 
 #endif // HARDWARE_SOLENOIDS_H

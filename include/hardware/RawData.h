@@ -29,6 +29,6 @@ namespace LRI::RCI {
         // Return stream for display
         [[nodiscard]] const std::stringstream& getData() const;
     };
-}
+} // namespace LRI::RCI
 
-#endif //RAWDATA_H
+#endif // RAWDATA_H

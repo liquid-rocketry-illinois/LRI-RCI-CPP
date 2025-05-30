@@ -4,9 +4,7 @@
 #include "hardware/TestState.h"
 
 namespace LRI::RCI {
-    BoolSensors::~BoolSensors() {
-        reset();
-    }
+    BoolSensors::~BoolSensors() { reset(); }
 
     BoolSensors* BoolSensors::getInstance() {
         static BoolSensors* instance = nullptr;
@@ -56,4 +54,4 @@ namespace LRI::RCI {
         }
     }
 
-}
+} // namespace LRI::RCI

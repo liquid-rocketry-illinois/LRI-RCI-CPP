@@ -9,9 +9,7 @@
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
     // Helper
-    float min3(float a, float b, float c) {
-        return min(a, min(b, c));
-    }
+    float min3(float a, float b, float c) { return min(a, min(b, c)); }
 
     // Format the latest datapoint as a string with the appropriate units
     std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
@@ -44,8 +42,8 @@ namespace LRI::RCI {
                                data.data[1], data.data[2]);
 
         case RCP_DEVCLASS_MAGNETOMETER:
-            return std::format("{}: X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", qual.name, data.data[0],
-                               data.data[1], data.data[2]);
+            return std::format("{}: X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", qual.name, data.data[0], data.data[1],
+                               data.data[2]);
 
         case RCP_DEVCLASS_GPS:
             return std::format(
@@ -59,8 +57,7 @@ namespace LRI::RCI {
 
     // Store the abridged state
     // Add the qualifiers to track and their associated state pointer to the map
-    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) :
-        abridged(abridged) {
+    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : abridged(abridged) {
         for(const auto& qual : quals) {
             sensors[qual] = Sensors::getInstance()->getState(qual);
         }
@@ -73,8 +70,8 @@ namespace LRI::RCI {
         // Get the drawlist, and calculate the size of the plots
         ImDrawList* draw = ImGui::GetWindowDrawList();
         const float xsize = ImGui::GetWindowWidth() - scale(50);
-        const auto plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500),
-                                                 ImGui::GetWindowHeight() - scale(75)));
+        const auto plotsize =
+            ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
 
         // If in abridged mode, render the simpler stuff and exit early
         if(abridged) {
@@ -125,8 +122,7 @@ namespace LRI::RCI {
             ImGui::Text("Sensor Status: ");
             ImGui::SameLine();
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE),
-                                data->empty() ? STALE_COLOR : ENABLED_COLOR);
+            draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), data->empty() ? STALE_COLOR : ENABLED_COLOR);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(data->empty() ? "No data received" : "Receiving data");
 
@@ -138,8 +134,8 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %d", data->size());
             ImGui::SameLine();
-            ImGui::Text(
-                " | %s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
+            ImGui::Text(" | %s",
+                        renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
             if(!tarestate.contains(qual)) {
                 tarestate[qual][0] = StopWatch();
                 tarestate[qual][1] = StopWatch();
@@ -246,4 +242,4 @@ namespace LRI::RCI {
         {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
     };
     // clang-format on
-}
+} // namespace LRI::RCI

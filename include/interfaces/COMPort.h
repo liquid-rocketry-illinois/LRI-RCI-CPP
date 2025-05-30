@@ -1,15 +1,15 @@
 #ifndef COMPORT_H
 #define COMPORT_H
 
-#include <string>
 #include <Windows.h>
 #include <atomic>
-#include <thread>
 #include <mutex>
+#include <string>
+#include <thread>
 
-#include "utils.h"
 #include "RCP_Interface.h"
 #include "UI/TargetChooser.h"
+#include "utils.h"
 
 namespace LRI::RCI {
     class COMPort : public RCP_Interface {
@@ -99,5 +99,5 @@ namespace LRI::RCI {
         // has been successfully created
         RCP_Interface* render() override;
     };
-}
-#endif //COMPORT_H
+} // namespace LRI::RCI
+#endif // COMPORT_H

@@ -5,8 +5,8 @@
 #include "RCP_Host/RCP_Host.h"
 
 #include "imgui.h"
-#include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include "WindowsResource.h"
 
@@ -24,9 +24,7 @@ namespace LRI::RCI {
     IniFilePath iniFilePath;
 
     // Implementation for IniFilePath
-    bool IniFilePath::empty() const {
-        return path.empty();
-    }
+    bool IniFilePath::empty() const { return path.empty(); }
 
     std::string IniFilePath::getPath() {
         std::string copy = path;
@@ -124,21 +122,14 @@ namespace LRI::RCI {
         glfwTerminate();
     }
 
-    ImVec2 scale(const ImVec2& vec) {
-        return vec * scaling_factor;
-    }
+    ImVec2 scale(const ImVec2& vec) { return vec * scaling_factor; }
 
-    float scale(float val) {
-        return val * scaling_factor;
-    }
+    float scale(float val) { return val * scaling_factor; }
 
     // Stopwatch class implementation
-    StopWatch::StopWatch() : lastClock(std::chrono::system_clock::now()) {
-    }
+    StopWatch::StopWatch() : lastClock(std::chrono::system_clock::now()) {}
 
-    void StopWatch::reset() {
-        lastClock = std::chrono::system_clock::now();
-    }
+    void StopWatch::reset() { lastClock = std::chrono::system_clock::now(); }
 
     float StopWatch::timeSince() const {
         const std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - lastClock;
@@ -194,30 +185,18 @@ namespace LRI::RCI {
         }
     }
 
-    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) {
-        return {v1.x + v2.x, v1.y + v2.y};
-    }
+    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x + v2.x, v1.y + v2.y}; }
 
-    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) {
-        return {v1.x - v2.x, v1.y - v2.y};
-    }
+    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x - v2.x, v1.y - v2.y}; }
 
-    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2) {
-        return {v1.x * v2.x, v1.y * v2.y};
-    }
+    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x * v2.x, v1.y * v2.y}; }
 
-    ImVec2 operator*(ImVec2 const& v1, const float constant) {
-        return {v1.x * constant, v1.y * constant};
-    }
+    ImVec2 operator*(ImVec2 const& v1, const float constant) { return {v1.x * constant, v1.y * constant}; }
 
-    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) {
-        return {v1.x / v2.x, v1.y / v2.y};
-    }
+    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x / v2.x, v1.y / v2.y}; }
 
-    ImVec2 operator/(ImVec2 const& v1, const float constant) {
-        return {v1.x / constant, v1.y / constant};
-    }
-}
+    ImVec2 operator/(ImVec2 const& v1, const float constant) { return {v1.x / constant, v1.y / constant}; }
+} // namespace LRI::RCI
 
 namespace ImGui {
     // See utils.h
@@ -236,7 +215,5 @@ namespace ImGui {
         return clicked;
     }
 
-    float TimedButton::getHoldTime() const {
-        return clicked ? timer.timeSince() : 0;
-    }
-}
+    float TimedButton::getHoldTime() const { return clicked ? timer.timeSince() : 0; }
+} // namespace ImGui

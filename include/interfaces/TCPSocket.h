@@ -1,12 +1,13 @@
 #ifndef LRI_CONTROL_PANEL_TCPSOCKET_H
 #define LRI_CONTROL_PANEL_TCPSOCKET_H
 
-#include "interfaces/RCP_Interface.h"
-#include "SFML/Network.hpp"
-#include <thread>
 #include <mutex>
-#include "utils.h"
+#include <thread>
+
+#include "SFML/Network.hpp"
 #include "UI/TargetChooser.h"
+#include "interfaces/RCP_Interface.h"
+#include "utils.h"
 
 // An interface for communicating over a TCP socket. Uses the sfml network module
 namespace LRI::RCI {
@@ -96,6 +97,6 @@ namespace LRI::RCI {
         // Rendering function
         RCP_Interface* render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //LRI_CONTROL_PANEL_TCPSOCKET_H
+#endif // LRI_CONTROL_PANEL_TCPSOCKET_H

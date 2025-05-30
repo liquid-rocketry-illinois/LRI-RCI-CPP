@@ -14,6 +14,6 @@ namespace LRI::RCI {
         // Overridden render function
         void render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //RAWVIEWER_H
+#endif // RAWVIEWER_H

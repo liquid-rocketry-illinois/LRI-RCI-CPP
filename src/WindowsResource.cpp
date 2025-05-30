@@ -14,11 +14,7 @@ namespace LRI::RCI {
         FreeResource(resource);
     }
 
-    LPCSTR WindowsResource::getData() const {
-        return bdata;
-    }
+    LPCSTR WindowsResource::getData() const { return bdata; }
 
-    DWORD WindowsResource::getSize() const {
-        return size;
-    }
-}
+    DWORD WindowsResource::getSize() const { return size; }
+} // namespace LRI::RCI

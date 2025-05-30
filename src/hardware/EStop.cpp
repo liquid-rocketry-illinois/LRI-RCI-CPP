@@ -1,6 +1,6 @@
 #include "hardware/EStop.h"
-#include "hardware/TestState.h"
 #include "RCP_Host/RCP_Host.h"
+#include "hardware/TestState.h"
 
 namespace LRI::RCI {
     EStop* EStop::getInstance() {
@@ -15,11 +15,7 @@ namespace LRI::RCI {
         isStopped = true;
     }
 
-    bool EStop::isEstopped() const {
-        return isStopped;
-    }
+    bool EStop::isEstopped() const { return isStopped; }
 
-    void EStop::receiveRCPUpdate(bool _isEStopped) {
-        isStopped = _isEStopped;
-    }
-}
+    void EStop::receiveRCPUpdate(bool _isEStopped) { isStopped = _isEStopped; }
+} // namespace LRI::RCI

@@ -35,6 +35,6 @@ namespace LRI::RCI {
         virtual ~WModule() = default;
         virtual void render() = 0;
     };
-}
+} // namespace LRI::RCI
 
-#endif //WMODULE_H
+#endif // WMODULE_H

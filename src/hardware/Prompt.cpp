@@ -7,25 +7,15 @@ namespace LRI::RCI {
         return instance;
     }
 
-    bool Prompt::is_active_prompt() const {
-        return activePrompt;
-    }
+    bool Prompt::is_active_prompt() const { return activePrompt; }
 
-    const std::string& Prompt::get_prompt() const {
-        return prompt;
-    }
+    const std::string& Prompt::get_prompt() const { return prompt; }
 
-    RCP_PromptDataType Prompt::getType() const {
-        return type;
-    }
+    RCP_PromptDataType Prompt::getType() const { return type; }
 
-    RCP_GONOGO* Prompt::getGNGPointer() {
-        return &gng;
-    }
+    RCP_GONOGO* Prompt::getGNGPointer() { return &gng; }
 
-    float* Prompt::getValPointer() {
-        return &val;
-    }
+    float* Prompt::getValPointer() { return &val; }
 
     void Prompt::reset() {
         activePrompt = false;
@@ -45,4 +35,4 @@ namespace LRI::RCI {
         if(complete) activePrompt = false;
         return complete;
     }
-}
+} // namespace LRI::RCI

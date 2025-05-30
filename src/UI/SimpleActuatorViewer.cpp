@@ -1,9 +1,9 @@
 #include "UI/SimpleActuatorViewer.h"
 
-#include "imgui.h"
-#include "utils.h"
 #include "RCP_Host/RCP_Host.h"
 #include "hardware/TestState.h"
+#include "imgui.h"
+#include "utils.h"
 
 // Module for viewing and controlling simple actuators
 namespace LRI::RCI {
@@ -72,4 +72,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
-}
+} // namespace LRI::RCI

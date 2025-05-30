@@ -13,6 +13,6 @@ namespace LRI::RCI {
         // Overridden render
         void render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //ESTOPVIEWER_H
+#endif // ESTOPVIEWER_H

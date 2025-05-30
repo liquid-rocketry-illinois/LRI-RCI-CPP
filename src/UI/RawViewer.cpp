@@ -1,7 +1,7 @@
 #include "UI/RawViewer.h"
-#include "utils.h"
 #include "hardware/RawData.h"
 #include "hardware/TestState.h"
+#include "utils.h"
 
 // Module for viewing latest debug output
 namespace LRI::RCI {
@@ -32,4 +32,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
-}
+} // namespace LRI::RCI

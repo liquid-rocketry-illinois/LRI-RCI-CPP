@@ -9,16 +9,16 @@ namespace LRI::RCI {
 
     // New buffer constructor. Takes in a size for the buffer. Initializes all variables and allocates memory
     template<typename T, T ret>
-    RingBuffer<T, ret>::RingBuffer(uint32_t _buffersize) : buffersize(_buffersize + 1), datastart(0), dataend(0),
-                                                           data(nullptr) {
+    RingBuffer<T, ret>::RingBuffer(uint32_t _buffersize) :
+        buffersize(_buffersize + 1), datastart(0), dataend(0), data(nullptr) {
         data = new T[buffersize];
         memset(data, ret, buffersize);
     }
 
     // Copy constructor. Performs a deep copy of memory segment with data.
     template<typename T, T ret>
-    RingBuffer<T, ret>::RingBuffer(RingBuffer& other) : buffersize(other.buffersize), datastart(other.datastart),
-                                                        dataend(other.dataend), data(nullptr) {
+    RingBuffer<T, ret>::RingBuffer(RingBuffer& other) :
+        buffersize(other.buffersize), datastart(other.datastart), dataend(other.dataend), data(nullptr) {
         data = new T[buffersize];
         memcpy(data, other.data, buffersize);
     }
@@ -81,6 +81,6 @@ namespace LRI::RCI {
         datastart = 0;
         dataend = 0;
     }
-}
+} // namespace LRI::RCI
 
 #endif

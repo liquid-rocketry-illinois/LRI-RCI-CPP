@@ -17,6 +17,6 @@ namespace LRI::RCI {
     int processTwoFloat(RCP_TwoFloat data);
     int processThreeFloat(RCP_ThreeFloat data);
     int processFourFloat(RCP_FourFloat data);
-}
+} // namespace LRI::RCI
 
-#endif //RCP_HOST_IMPL_H
+#endif // RCP_HOST_IMPL_H

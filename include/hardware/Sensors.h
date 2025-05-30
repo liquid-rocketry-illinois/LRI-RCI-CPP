@@ -1,13 +1,14 @@
 #ifndef SENSORS_H
 #define SENSORS_H
 
-#include "HardwareQualifier.h"
-#include <vector>
-#include <map>
-#include <set>
 #include <atomic>
-#include <thread>
+#include <map>
 #include <mutex>
+#include <set>
+#include <thread>
+#include <vector>
+
+#include "HardwareQualifier.h"
 
 // Singleton for representing sensors. This is a much more complex class due
 // to all the different devices it handles
@@ -18,7 +19,8 @@ namespace LRI::RCI {
         // Initial size for the vectors storing the sensor data
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 5'000;
 
-        // Helper function that is ran in a thread to write sensor data to a CSV file. The vector pointer is de-allocated!
+        // Helper function that is ran in a thread to write sensor data to a CSV file. The vector pointer is
+        // de-allocated!
         void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data);
 
         // Holds the data vectors mapped to their qualifiers
@@ -76,6 +78,6 @@ namespace LRI::RCI {
         void clearGraph(const HardwareQualifier& qual);
         void clearAll();
     };
-}
+} // namespace LRI::RCI
 
-#endif //SENSORS_H
+#endif // SENSORS_H

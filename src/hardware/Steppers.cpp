@@ -1,7 +1,7 @@
 #include <ranges>
 
-#include "hardware/Steppers.h"
 #include "RCP_Host/RCP_Host.h"
+#include "hardware/Steppers.h"
 
 namespace LRI::RCI {
     Steppers* Steppers::getInstance() {
@@ -15,9 +15,7 @@ namespace LRI::RCI {
         motors.clear();
     }
 
-    const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
-        return motors.at(qual);
-    }
+    const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const { return motors.at(qual); }
 
     void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
         motors[qual]->position = pos;
@@ -51,4 +49,4 @@ namespace LRI::RCI {
         RCP_sendStepperWrite(qual.id, controlMode, &value, 4);
         motors[qual]->stale = true;
     }
-}
+} // namespace LRI::RCI

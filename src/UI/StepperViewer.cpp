@@ -1,6 +1,7 @@
 #include "UI/StepperViewer.h"
-#include "utils.h"
+
 #include "hardware/TestState.h"
+#include "utils.h"
 
 // Module for viewing steppers
 namespace LRI::RCI {
@@ -102,4 +103,4 @@ namespace LRI::RCI {
         {RCP_STEPPER_RELATIVE_POS_CONTROL, {"Relative Positioning##", " degrees###input"}},
         {RCP_STEPPER_SPEED_CONTROL, {"Velocity Control##", " degrees/s###input"}},
     };
-}
+} // namespace LRI::RCI

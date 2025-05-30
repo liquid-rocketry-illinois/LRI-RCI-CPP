@@ -47,6 +47,6 @@ namespace LRI::RCI {
         // Receive prompt requests from RCP
         void receiveRCPUpdate(const RCP_PromptInputRequest& req);
     };
-}
+} // namespace LRI::RCI
 
-#endif //PROMPT_H
+#endif // PROMPT_H

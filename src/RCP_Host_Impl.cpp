@@ -1,13 +1,13 @@
-#include "RCP_Host/RCP_Host.h"
 #include "RCP_Host_Impl.h"
+#include "RCP_Host/RCP_Host.h"
 
+#include "hardware/BoolSensor.h"
 #include "hardware/Prompt.h"
 #include "hardware/RawData.h"
 #include "hardware/Sensors.h"
 #include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
 #include "hardware/TestState.h"
-#include "hardware/BoolSensor.h"
 
 #include "UI/Windowlet.h"
 
@@ -48,7 +48,7 @@ namespace LRI::RCI {
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
         SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID},
-                                                   data.state == RCP_SIMPLE_ACTUATOR_ON);
+                                                         data.state == RCP_SIMPLE_ACTUATOR_ON);
         return 0;
     }
 
@@ -69,8 +69,7 @@ namespace LRI::RCI {
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
-            Steppers::getInstance()->receiveRCPUpdate(
-                {RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
+            Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
         else Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
@@ -84,4 +83,4 @@ namespace LRI::RCI {
         Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }
-}
+} // namespace LRI::RCI

@@ -12,6 +12,6 @@ namespace LRI::RCI {
 
         void render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //PROMPTVIEWER_H
+#endif // PROMPTVIEWER_H

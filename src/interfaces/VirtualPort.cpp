@@ -13,17 +13,13 @@ namespace LRI::RCI {
     }
 
     // Everything here is basically just stubs
-    bool VirtualPort::isOpen() const {
-        return true;
-    }
+    bool VirtualPort::isOpen() const { return true; }
 
     bool VirtualPort::pktAvailable() const {
         return initpacket.size() >= (initpacket.peek() & (~RCP_CHANNEL_MASK)) + 2;
     }
 
-    size_t VirtualPort::sendData(const void* data, size_t length) const {
-        return length;
-    }
+    size_t VirtualPort::sendData(const void* data, size_t length) const { return length; }
 
     size_t VirtualPort::readData(void* data, size_t bufferSize) const {
         size_t written = 0;
@@ -35,13 +31,11 @@ namespace LRI::RCI {
         return written;
     }
 
-    std::string VirtualPort::interfaceType() const {
-        return "Virtual Interface";
-    }
+    std::string VirtualPort::interfaceType() const { return "Virtual Interface"; }
 
     // Virtual port is easy
     RCP_Interface* VirtualPortChooser::render() {
         if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
         return nullptr;
     }
-}
+} // namespace LRI::RCI

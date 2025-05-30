@@ -23,6 +23,6 @@ namespace LRI::RCI {
         // Receive confirmation of estop
         void receiveRCPUpdate(bool isStopped);
     };
-}
+} // namespace LRI::RCI
 
-#endif //ESTOP_H
+#endif // ESTOP_H

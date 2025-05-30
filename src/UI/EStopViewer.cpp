@@ -30,4 +30,4 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
     }
-}
+} // namespace LRI::RCI

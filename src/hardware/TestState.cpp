@@ -12,9 +12,7 @@ namespace LRI::RCI {
         return instance;
     }
 
-    bool TestState::getInited() {
-        return inited.load();
-    }
+    bool TestState::getInited() { return inited.load(); }
 
     bool TestState::startTest(uint8_t number) {
         if(state != RCP_TEST_STOPPED) return false;
@@ -43,26 +41,16 @@ namespace LRI::RCI {
         return true;
     }
 
-    uint8_t TestState::getActiveTest() const {
-        return activeTest;
-    }
+    uint8_t TestState::getActiveTest() const { return activeTest; }
 
-    void TestState::setTests(const std::map<uint8_t, std::string>& testlist) {
-        tests = testlist;
-    }
+    void TestState::setTests(const std::map<uint8_t, std::string>& testlist) { tests = testlist; }
 
-    const std::map<uint8_t, std::string>* TestState::getTestOptions() const {
-        return &tests;
-    }
+    const std::map<uint8_t, std::string>* TestState::getTestOptions() const { return &tests; }
 
 
-    RCP_TestRunningState TestState::getState() const {
-        return state;
-    }
+    RCP_TestRunningState TestState::getState() const { return state; }
 
-    uint8_t TestState::getHeartbeatTime() const {
-        return heartbeatTime;
-    }
+    uint8_t TestState::getHeartbeatTime() const { return heartbeatTime; }
 
     bool TestState::setHeartbeatTime(uint8_t time) {
         if(time > 14) return false;
@@ -71,9 +59,7 @@ namespace LRI::RCI {
         return complete;
     }
 
-    bool TestState::getDataStreaming() const {
-        return dataStreaming;
-    }
+    bool TestState::getDataStreaming() const { return dataStreaming; }
 
     bool TestState::setDataStreaming(bool stream) {
         bool complete = !RCP_setDataStreaming(stream);
@@ -81,13 +67,9 @@ namespace LRI::RCI {
         return complete;
     }
 
-    void TestState::setResetTimeOnTestStart(bool reset) {
-        resetTimeOnStart = reset;
-    }
+    void TestState::setResetTimeOnTestStart(bool reset) { resetTimeOnStart = reset; }
 
-    bool TestState::deviceReset() {
-        return !RCP_deviceReset();
-    }
+    bool TestState::deviceReset() { return !RCP_deviceReset(); }
 
     void TestState::update() {
         if(heartbeatTime == 0) return;
@@ -104,4 +86,4 @@ namespace LRI::RCI {
         state = testState.state;
         inited = testState.isInited;
     }
-}
+} // namespace LRI::RCI

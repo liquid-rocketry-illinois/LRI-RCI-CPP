@@ -37,6 +37,6 @@ namespace LRI::RCI {
         // Overridden render function
         void render() override;
     };
-}
+} // namespace LRI::RCI
 
-#endif //STEPPERVIEWER_H
+#endif // STEPPERVIEWER_H

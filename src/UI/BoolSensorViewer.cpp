@@ -69,4 +69,4 @@ namespace LRI::RCI {
     }
 
 
-}
+} // namespace LRI::RCI

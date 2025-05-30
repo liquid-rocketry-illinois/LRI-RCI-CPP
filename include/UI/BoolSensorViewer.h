@@ -4,9 +4,8 @@
 #include <set>
 
 #include "WModule.h"
-
-#include "hardware/HardwareQualifier.h"
 #include "hardware/BoolSensor.h"
+#include "hardware/HardwareQualifier.h"
 
 // Viewer class for Bool Sensors
 namespace LRI::RCI {
@@ -26,6 +25,6 @@ namespace LRI::RCI {
 
         ~BoolSensorViewer() override = default;
     };
-}
+} // namespace LRI::RCI
 
-#endif //BOOLSENSORVIEWER_H
+#endif // BOOLSENSORVIEWER_H

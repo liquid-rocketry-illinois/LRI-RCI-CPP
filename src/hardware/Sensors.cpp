@@ -42,9 +42,8 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_GPS:
             file << "relmillis,latitude,longitude,altitude,groundspeed\n";
             for(const auto& point : *data) {
-                file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0],
-                                    point.data[1],
-                                    point.data[2], point.data[3]);
+                file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2],
+                                    point.data[3]);
             }
             break;
 
@@ -53,9 +52,7 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_GYROSCOPE:
             file << "relmillis,x,y,z\n";
             for(const auto& point : *data) {
-                file << std::format("{},{},{},{}\n", point.timestamp, point.data[0],
-                                    point.data[1],
-                                    point.data[2]);
+                file << std::format("{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2]);
             }
             break;
 
@@ -78,17 +75,13 @@ namespace LRI::RCI {
         mapStuff();
     }
 
-    Sensors::~Sensors() {
-        reset();
-    }
+    Sensors::~Sensors() { reset(); }
 
 
     void Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
-        DataPoint d = {
-            .timestamp = static_cast<double>(data.timestamp) / 1'000.0,
-            .data = {static_cast<double>(data.data)}
-        };
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0,
+                       .data = {static_cast<double>(data.data)}};
 
         sensors[qual]->push_back(d);
     }
@@ -196,7 +189,7 @@ namespace LRI::RCI {
         double prevtime = d.timestamp - 1;
         double total = 0;
         int numElems = 0;
-        std::ranges::for_each(*data, [&] (const DataPoint& dp) {
+        std::ranges::for_each(*data, [&](const DataPoint& dp) {
             if(dp.timestamp >= prevtime) {
                 total += dp.data[dataChannel];
                 numElems++;
@@ -207,11 +200,9 @@ namespace LRI::RCI {
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, &ftotal, 4);
     }
 
-    void Sensors::clearGraph(const HardwareQualifier& qual) {
-        sensors[qual]->clear();
-    }
+    void Sensors::clearGraph(const HardwareQualifier& qual) { sensors[qual]->clear(); }
 
     void Sensors::clearAll() {
         for(const auto& graph : sensors | std::views::values) graph->clear();
     }
-}
+} // namespace LRI::RCI

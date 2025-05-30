@@ -20,6 +20,6 @@ namespace LRI::RCI {
         // Helper for packing data as a string. Not for display, use the name field instead
         [[nodiscard]] std::string asString() const;
     };
-}
+} // namespace LRI::RCI
 
-#endif //HARDWAREQUALIFIER_H
+#endif // HARDWAREQUALIFIER_H

@@ -4,8 +4,8 @@
 #include <map>
 #include <set>
 
-#include "utils.h"
 #include "HardwareQualifier.h"
+#include "utils.h"
 
 // Hardware singleton for the BoolSensors
 namespace LRI::RCI {
@@ -51,6 +51,6 @@ namespace LRI::RCI {
         // Called from main to check timer and refresh state
         void update();
     };
-}
+} // namespace LRI::RCI
 
-#endif //BOOLSENSOR_H
+#endif // BOOLSENSOR_H

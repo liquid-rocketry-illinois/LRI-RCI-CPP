@@ -4,9 +4,9 @@
 #include <set>
 #include <string>
 
-#include "interfaces/RCP_Interface.h"
-#include "WModule.h"
 #include "TargetChooser.h" // Linters will complain this is unused, but it actually is needed. Header stuff
+#include "WModule.h"
+#include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
     /*
@@ -72,6 +72,6 @@ namespace LRI::RCI {
         void cleanup();
         RCP_Interface* getInterf() const;
     };
-}
+} // namespace LRI::RCI
 
-#endif //WINDOWLET_H
+#endif // WINDOWLET_H

@@ -25,6 +25,6 @@ namespace LRI::RCI {
         [[nodiscard]] LPCSTR getData() const;
         [[nodiscard]] DWORD getSize() const;
     };
-}
+} // namespace LRI::RCI
 
-#endif //RESOURCE_H
+#endif // RESOURCE_H

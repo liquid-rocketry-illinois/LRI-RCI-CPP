@@ -16,11 +16,7 @@ namespace LRI::RCI {
         chars << temp.str();
     }
 
-    void RawData::reset() {
-        chars.str("");
-    }
+    void RawData::reset() { chars.str(""); }
 
-    const std::stringstream& RawData::getData() const {
-        return chars;
-    }
-}
+    const std::stringstream& RawData::getData() const { return chars; }
+} // namespace LRI::RCI

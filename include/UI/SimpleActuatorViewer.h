@@ -24,6 +24,6 @@ namespace LRI::RCI {
 
         ~SimpleActuatorViewer() override = default;
     };
-}
+} // namespace LRI::RCI
 
-#endif //SOLENOIDSVIEWER_H
+#endif // SOLENOIDSVIEWER_H

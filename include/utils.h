@@ -2,13 +2,12 @@
 #define UTILS_H
 
 #include <Windows.h>
-
 #include <chrono>
 #include <string>
 
-#include "imgui.h"
 #include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
+#include "imgui.h"
 
 // A mish-mash of various helper functions and stuff
 
@@ -97,7 +96,7 @@ namespace LRI::RCI {
         void push(T value);
         void clear();
     };
-}
+} // namespace LRI::RCI
 
 namespace ImGui {
     // A more "imgui"ish way of doing the class below
@@ -120,8 +119,8 @@ namespace ImGui {
         // Return the duration the button has been held for
         [[nodiscard]] float getHoldTime() const;
     };
-}
+} // namespace ImGui
 
 #include "RingBuffer.inl"
 
-#endif //UTILS_H
+#endif // UTILS_H

@@ -3,8 +3,8 @@
 #include <fstream>
 #include <set>
 
-#include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
+#include "imgui.h"
 
 #include "RCP_Host_Impl.h"
 #include "utils.h"
@@ -235,8 +235,8 @@ namespace LRI::RCI {
                 break;
 
             case RCP_DEVCLASS_BOOL_SENSOR:
-                BoolSensors::getInstance()->setHardwareConfig(
-                    quals, targetconfig["devices"][i]["refreshTime"].get<int>());
+                BoolSensors::getInstance()->setHardwareConfig(quals,
+                                                              targetconfig["devices"][i]["refreshTime"].get<int>());
                 break;
 
             case RCP_DEVCLASS_AM_PRESSURE:
@@ -287,16 +287,15 @@ namespace LRI::RCI {
 
                     // Filter out any qualifiers that havent been configured in the devices section
                     auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
-                        return q.devclass == type && ids.contains(q.id);
-                    });
+                                        return q.devclass == type && ids.contains(q.id);
+                                    });
 
                     // Determine correct module type and construct it
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(
                             new SimpleActuatorViewer(std::set(filtered.begin(), filtered.end()), refresh));
                     else if(type == RCP_DEVCLASS_STEPPER)
-                        modules.push_back(
-                            new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                        modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
                     else modules.push_back(new BoolSensorViewer(std::set(filtered.begin(), filtered.end()), refresh));
 
                     break;
@@ -328,13 +327,12 @@ namespace LRI::RCI {
                     for(int k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
                         int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
-                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"]
-                            .get<std::set<int>>();
+                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<int>>();
 
                         // Filter out any qualifiers not configured in the devices section
                         auto filtered = allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
-                            return q.devclass == devclass && ids.contains(q.id);
-                        });
+                                            return q.devclass == devclass && ids.contains(q.id);
+                                        });
                         quals.insert(filtered.begin(), filtered.end());
                     }
 
@@ -355,6 +353,5 @@ namespace LRI::RCI {
 
     int InterfaceChooser::CLASSID = 0;
 
-    InterfaceChooser::InterfaceChooser() : classid(CLASSID++) {
-    }
-}
+    InterfaceChooser::InterfaceChooser() : classid(CLASSID++) {}
+} // namespace LRI::RCI

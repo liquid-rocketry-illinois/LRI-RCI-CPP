@@ -4,8 +4,8 @@
 
 #include <utility>
 
-#include "UI/TestStateViewer.h"
 #include <iostream>
+#include "UI/TestStateViewer.h"
 
 namespace LRI::RCI {
     // The global windowlet set
@@ -15,8 +15,7 @@ namespace LRI::RCI {
     StopWatch WModule::buttonTimer = StopWatch();
     int WModule::CLASSID = 0;
 
-    WModule::WModule() : classid(CLASSID++) {
-    }
+    WModule::WModule() : classid(CLASSID++) {}
 
     void Windowlet::renderWindowlets() {
         // Important that this line is first, since the Control Window can modify the list of
@@ -26,8 +25,7 @@ namespace LRI::RCI {
     }
 
     Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :
-        title(std::move(title)),
-        modules(modules) {
+        title(std::move(title)), modules(modules) {
         if(addToSet) windows.insert(this);
     }
 
@@ -83,7 +81,5 @@ namespace LRI::RCI {
         ImGui::End();
     }
 
-    RCP_Interface* ControlWindowlet::getInterf() const {
-        return interf;
-    }
-}
+    RCP_Interface* ControlWindowlet::getInterf() const { return interf; }
+} // namespace LRI::RCI

@@ -1,8 +1,8 @@
 #include "interfaces/TCPSocket.h"
-#include "hardware/TestState.h"
-#include "UI/TargetChooser.h"
-#include "improgress.h"
 #include <iostream>
+#include "UI/TargetChooser.h"
+#include "hardware/TestState.h"
+#include "improgress.h"
 
 namespace LRI::RCI {
     // An RCP interface over TCP
@@ -13,8 +13,7 @@ namespace LRI::RCI {
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
         port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP), thread(nullptr),
-        inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false),
-        lastErrorVal(0) {
+        inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false), lastErrorVal(0) {
         // If the interface is the server, it should start listening for connections
         if(isServer) {
             sf::Socket::Status listenStat = listensock.listen(port);
@@ -36,9 +35,7 @@ namespace LRI::RCI {
     }
 
     // Destructor just calls close
-    TCPSocket::~TCPSocket() {
-        close();
-    }
+    TCPSocket::~TCPSocket() { close(); }
 
     // The next 3 functions are the exact same as in COMPort. Literally directly copied
 
@@ -86,23 +83,16 @@ namespace LRI::RCI {
 
     // Return a human readable string describing the interface
     std::string TCPSocket::interfaceType() const {
-        return std::string("TCP ") + (isServer
-            ? "Client: " + serverAddress.toString() + ": "
-            : "Server: ") + std::to_string(port);
+        return std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
+            std::to_string(port);
     }
 
     // Return the last error stage and code
-    TCPSocket::Error TCPSocket::lastError() {
-        return {errorStage.load(), lastErrorVal.load()};
-    }
+    TCPSocket::Error TCPSocket::lastError() { return {errorStage.load(), lastErrorVal.load()}; }
 
-    bool TCPSocket::isOpen() const {
-        return open.load();
-    }
+    bool TCPSocket::isOpen() const { return open.load(); }
 
-    bool TCPSocket::isReady() const {
-        return ready.load();
-    }
+    bool TCPSocket::isReady() const { return ready.load(); }
 
     // The actual threaded function
     void TCPSocket::runner() {
@@ -294,9 +284,8 @@ namespace LRI::RCI {
 
         // Once confirm is pushed, create the interface and begin waiting for a connection
         if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
-            interf = new TCPSocket(port, tempserver
-                                   ? sf::IpAddress(0, 0, 0, 0)
-                                   : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
+            interf =
+                new TCPSocket(port, tempserver ? sf::IpAddress(0, 0, 0, 0) : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
         }
         if(!isnull) ImGui::EndDisabled();
 
@@ -351,4 +340,4 @@ namespace LRI::RCI {
         // Once the interface is ready to go, return it to the TargetChooser
         return interf;
     }
-}
+} // namespace LRI::RCI
