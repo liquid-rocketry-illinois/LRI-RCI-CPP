@@ -174,6 +174,7 @@ namespace LRI::RCI {
     }
 
     const std::vector<Sensors::DataPoint>* Sensors::getState(const HardwareQualifier& qual) const {
+        if(!sensors.contains(qual)) return nullptr;
         return sensors.at(qual);
     }
 
