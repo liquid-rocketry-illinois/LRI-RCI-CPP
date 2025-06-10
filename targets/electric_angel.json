@@ -1,0 +1,98 @@
+{
+  "name": "Electric Angel",
+  "tests": [],
+  "devices": [
+    {
+      "devclass": 144,
+      "ids": [0],
+      "names": ["Atmospheric Pressure"]
+    },
+    {
+      "devclass": 145,
+      "ids": [0],
+      "names": ["Ambient Temperature"]
+    },
+    {
+      "devclass": 147,
+      "ids": [0],
+      "names": ["Relative Hygrometer"]
+    },
+    {
+      "devclass": 176,
+      "ids": [0, 1],
+      "names": ["Primary Accelerometer", "Secondary Accelerometer"]
+    },
+    {
+      "devclass": 177,
+      "ids": [0, 1],
+      "names": ["Primary Gyroscope", "Secondary Gyroscope"]
+    },
+    {
+      "devclass": 178,
+      "ids": [0],
+      "names": ["Magnetometer"]
+    },
+    {
+      "devclass": 192,
+      "ids": [0],
+      "names": ["GPS"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "ESTOP",
+      "modules": [
+        {
+          "type": -1
+        }
+      ]
+    },
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "Detailed Sensor Info",
+      "modules": [
+        {
+          "type": 144,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 144,
+              "ids": [0]
+            },
+            {
+              "class": 145,
+              "ids": [0]
+            },
+            {
+              "class": 147,
+              "ids": [0]
+            },
+            {
+              "class": 176,
+              "ids": [0, 1]
+            },
+            {
+              "class": 177,
+              "ids": [0, 1]
+            },
+            {
+              "class": 178,
+              "ids": [0]
+            },
+            {
+              "class": 192,
+              "ids": [0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
