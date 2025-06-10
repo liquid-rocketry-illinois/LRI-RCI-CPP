@@ -76,7 +76,12 @@ namespace LRI::RCI {
 
         // Request to clear the data vector of a particular sensor
         void clearGraph(const HardwareQualifier& qual);
+
+        // Clear all graphs
         void clearAll();
+
+        // Remove a qualifier from the sensor tracking list and delete all its data
+        void removeSensor(const HardwareQualifier& qual);
     };
 } // namespace LRI::RCI
 

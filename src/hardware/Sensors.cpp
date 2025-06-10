@@ -209,4 +209,11 @@ namespace LRI::RCI {
     void Sensors::clearAll() {
         for(const auto& graph : sensors | std::views::values) graph->clear();
     }
+
+    void Sensors::removeSensor(const HardwareQualifier& qual) {
+        if(!sensors.contains(qual)) return;
+        delete sensors[qual];
+        sensors.erase(qual);
+    }
+
 } // namespace LRI::RCI
