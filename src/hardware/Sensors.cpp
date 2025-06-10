@@ -115,8 +115,7 @@ namespace LRI::RCI {
         reset();
 
         for(const auto& qual : sensids) {
-            sensors[qual] = new std::vector<DataPoint>();
-            sensors[qual]->reserve(DATA_VECTOR_INITIAL_SIZE);
+            addSensor(qual);
         }
     }
 
@@ -215,5 +214,11 @@ namespace LRI::RCI {
         delete sensors[qual];
         sensors.erase(qual);
     }
+
+    void Sensors::addSensor(const HardwareQualifier& qual) {
+        sensors[qual] = new std::vector<DataPoint>();
+        sensors[qual]->reserve(DATA_VECTOR_INITIAL_SIZE);
+    }
+
 
 } // namespace LRI::RCI

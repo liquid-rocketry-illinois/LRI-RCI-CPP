@@ -82,6 +82,9 @@ namespace LRI::RCI {
 
         // Remove a qualifier from the sensor tracking list and delete all its data
         void removeSensor(const HardwareQualifier& qual);
+
+        // Adds a single qualifier
+        void addSensor(const HardwareQualifier& qual);
     };
 } // namespace LRI::RCI
 
