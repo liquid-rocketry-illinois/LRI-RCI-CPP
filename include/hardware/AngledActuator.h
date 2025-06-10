@@ -10,7 +10,7 @@
 
 namespace LRI::RCI {
   class AngledActuators {
-    std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> actuators;
+    std::set<HardwareQualifier> actuators;
 
     AngledActuators() = default;
     ~AngledActuators() = default;
