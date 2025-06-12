@@ -6,7 +6,7 @@
 // Module for viewing steppers
 namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
-    StepperViewer::StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton) :
+    StepperViewer::StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
             steppers[qual] = Steppers::getInstance()->getState(qual);

@@ -17,7 +17,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, const SimpleActuators::ActuatorState*> sols;
 
     public:
-        explicit SimpleActuatorViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton = true);
+        explicit SimpleActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton = true);
 
         // Overridden render function
         void render() override;

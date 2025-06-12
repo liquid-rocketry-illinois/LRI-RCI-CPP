@@ -46,16 +46,19 @@ interval, in seconds to refresh sensors. If set to zero, use the default.
 |      1      | Simple Actuator Controls | See Table 6  |
 |      2      |  Stepper Motor Controls  | See Table 6  |
 |      3      |      Prompt Display      | None         |
+|      4      | Angled Actuator Display  | See Table 6  |
 |  128/0x80   |     Data Log display     | None         |
 |    0x95     |  Boolean Sensor Display  | See Table 6  |
 | 0x90 - 0xC0 |   Sensor Value Viewer    | See Table 7  |
 
-## Table 6: Simple Actautor, Stepper Motor Control, Boolean Sensor Fields
+## Table 6: Simple Actuator, Stepper Motor Control, Boolean Sensor Fields
 
 | Field Name  |     Type      | Description                                                                                                      |
 |:------------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
 | refresh     |     bool      | Whether or not to display a refresh button at the top                                                            |
 | ids         | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
+
+The Angled Actuator module does not contain the refresh field.
 
 ## Table 7: Sensor Value Field Viewer
 

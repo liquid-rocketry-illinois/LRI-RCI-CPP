@@ -31,7 +31,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, Input> inputs;
 
     public:
-        explicit StepperViewer(const std::set<HardwareQualifier>&& quals, bool refreshButton = false);
+        explicit StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton = false);
         ~StepperViewer() override = default;
 
         // Overridden render function

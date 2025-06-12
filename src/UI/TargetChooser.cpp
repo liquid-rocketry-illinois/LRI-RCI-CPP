@@ -13,6 +13,7 @@
 #include "interfaces/TCPSocket.h"
 #include "interfaces/VirtualPort.h"
 
+#include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/Prompt.h"
 #include "hardware/RawData.h"
@@ -21,6 +22,7 @@
 #include "hardware/Steppers.h"
 #include "hardware/TestState.h"
 
+#include "UI/AngledActuatorViewer.h"
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/PromptViewer.h"
@@ -239,6 +241,10 @@ namespace LRI::RCI {
                                                               targetconfig["devices"][i]["refreshTime"].get<int>());
                 break;
 
+            case RCP_DEVCLASS_ANGLED_ACTUATOR:
+                // Intentional case fallthrough
+                AngledActuators::getInstance()->setHardwareConfig(quals);
+
             case RCP_DEVCLASS_AM_PRESSURE:
             case RCP_DEVCLASS_AM_TEMPERATURE:
             case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
@@ -281,8 +287,11 @@ namespace LRI::RCI {
 
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 case RCP_DEVCLASS_BOOL_SENSOR:
-                case RCP_DEVCLASS_STEPPER: {
-                    bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
+                case RCP_DEVCLASS_STEPPER:
+                case RCP_DEVCLASS_ANGLED_ACTUATOR: {
+                    bool refresh = false;
+                    if(type != RCP_DEVCLASS_ANGLED_ACTUATOR)
+                        refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
                     auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
 
                     // Filter out any qualifiers that havent been configured in the devices section
@@ -290,13 +299,14 @@ namespace LRI::RCI {
                                         return q.devclass == type && ids.contains(q.id);
                                     });
 
+                    const auto qualSet = std::set(filtered.begin(), filtered.end());
+
                     // Determine correct module type and construct it
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
-                        modules.push_back(
-                            new SimpleActuatorViewer(std::set(filtered.begin(), filtered.end()), refresh));
-                    else if(type == RCP_DEVCLASS_STEPPER)
-                        modules.push_back(new StepperViewer(std::set(filtered.begin(), filtered.end()), refresh));
-                    else modules.push_back(new BoolSensorViewer(std::set(filtered.begin(), filtered.end()), refresh));
+                        modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR) modules.push_back(new AngledActuatorViewer(qualSet));
+                    else modules.push_back(new BoolSensorViewer(qualSet, refresh));
 
                     break;
                 }
