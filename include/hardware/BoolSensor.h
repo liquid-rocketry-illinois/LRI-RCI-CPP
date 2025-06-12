@@ -19,7 +19,7 @@ namespace LRI::RCI {
 
         // Timer for refreshing
         StopWatch refreshTimer;
-        int refreshTime = 5;
+        float refreshTime = 5.0f;
 
         BoolSensors() = default;
         ~BoolSensors();

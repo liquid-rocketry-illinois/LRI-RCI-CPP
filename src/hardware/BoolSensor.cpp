@@ -23,7 +23,6 @@ namespace LRI::RCI {
     }
 
     void BoolSensors::refreshAll() const {
-        if(!TestState::getInited()) return;
         for(const auto& qual : state | std::views::keys) {
             RCP_requestSensorDeviceRead(qual.devclass, qual.id);
             state.at(qual)->stale = true;
@@ -48,6 +47,7 @@ namespace LRI::RCI {
     }
 
     void BoolSensors::update() {
+        if(!TestState::getInited()) return;
         if(refreshTimer.timeSince() > refreshTime) {
             refreshAll();
             refreshTimer.reset();
