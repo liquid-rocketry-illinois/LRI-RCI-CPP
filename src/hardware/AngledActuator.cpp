@@ -20,7 +20,7 @@ namespace LRI::RCI {
         RCP_requestAngledActuatorWrite(qual.id, degrees);
     }
 
-    const std::vector<Sensors::DataPoint>* AngledActuators::getState(const HardwareQualifier& qual) {
+    const std::vector<Sensors::DataPoint>* AngledActuators::getState(const HardwareQualifier& qual) const {
         return Sensors::getInstance()->getState(qual);
     }
 
@@ -29,6 +29,4 @@ namespace LRI::RCI {
             RCP_requestSensorDeviceRead(qual.devclass, qual.id);
         }
     }
-
-
 } // namespace LRI::RCI

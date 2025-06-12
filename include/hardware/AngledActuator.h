@@ -20,7 +20,7 @@ namespace LRI::RCI {
 
         void setHardwareConfig(std::set<HardwareQualifier>& quals);
         void setActuatorPos(const HardwareQualifier& qual, float degrees);
-        [[nodiscard]] const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual);
+        [[nodiscard]] const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual) const;
         void refreshAll();
     };
 } // namespace LRI::RCI
