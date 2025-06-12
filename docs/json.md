@@ -58,8 +58,6 @@ interval, in seconds to refresh sensors. If set to zero, use the default.
 | refresh     |     bool      | Whether or not to display a refresh button at the top                                                            |
 | ids         | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
 
-The Angled Actuator module does not contain the refresh field.
-
 ## Table 7: Sensor Value Field Viewer
 
 | Field Name |       Type       | Description                                                                                                            |

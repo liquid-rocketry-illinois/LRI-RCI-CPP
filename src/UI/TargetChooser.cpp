@@ -289,9 +289,7 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_BOOL_SENSOR:
                 case RCP_DEVCLASS_STEPPER:
                 case RCP_DEVCLASS_ANGLED_ACTUATOR: {
-                    bool refresh = false;
-                    if(type != RCP_DEVCLASS_ANGLED_ACTUATOR)
-                        refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
+                    bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
                     auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
 
                     // Filter out any qualifiers that havent been configured in the devices section
@@ -305,9 +303,8 @@ namespace LRI::RCI {
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
                     else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
-                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR) modules.push_back(new AngledActuatorViewer(qualSet));
+                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR) modules.push_back(new AngledActuatorViewer(qualSet, refresh));
                     else modules.push_back(new BoolSensorViewer(qualSet, refresh));
-
                     break;
                 }
 

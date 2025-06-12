@@ -24,4 +24,11 @@ namespace LRI::RCI {
         return Sensors::getInstance()->getState(qual);
     }
 
+    void AngledActuators::refreshAll() {
+        for(const auto& qual : actuators) {
+            RCP_requestSensorDeviceRead(qual.devclass, qual.id);
+        }
+    }
+
+
 } // namespace LRI::RCI

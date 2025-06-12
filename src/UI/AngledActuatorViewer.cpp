@@ -3,7 +3,8 @@
 #include "imgui.h"
 
 namespace LRI::RCI {
-    AngledActuatorViewer::AngledActuatorViewer(const std::set<HardwareQualifier>& quals) {
+    AngledActuatorViewer::AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
+        refreshButton(refreshButton) {
         for(const auto& qual : quals) actuators[qual] = AngledActuators::getInstance()->getState(qual);
     }
 
@@ -12,13 +13,20 @@ namespace LRI::RCI {
         ImGui::PushID(classid);
 
         // If an action has been taken in the last 1 second, lock buttons so users cant spam
-        bool lockButton = buttonTimer.timeSince() < BUTTON_DELAY;
+        const bool lockButton = buttonTimer.timeSince() < BUTTON_DELAY;
+
+        if(lockButton) ImGui::BeginDisabled();
+        if(refreshButton && ImGui::Button("Refresh All")) {
+            AngledActuators::getInstance()->refreshAll();
+            buttonTimer.reset();
+        }
+        if(lockButton) ImGui::EndDisabled();
 
         // Iterate over each item being tracked
         for(const auto& [qual, data] : actuators) {
             // Display the name, current angle
             ImGui::Text("Actuator %s", qual.name.c_str());
-            if(data != nullptr && data->size() > 0)
+            if(data != nullptr && !data->empty())
                 ImGui::Text("Current angle: %.03f", data->at(data->size() - 1).data[0]);
             else ImGui::Text("Current angle: data not available");
 

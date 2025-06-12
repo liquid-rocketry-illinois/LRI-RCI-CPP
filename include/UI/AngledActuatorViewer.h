@@ -15,6 +15,8 @@ namespace LRI::RCI {
 
     // Viewer class for Angled Actuators
     class AngledActuatorViewer : public WModule {
+        // Whether to render a refresh button
+        const bool refreshButton;
 
         // Pointers to latest actuator positions
         std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> actuators;
@@ -23,7 +25,7 @@ namespace LRI::RCI {
         std::map<HardwareQualifier, float> setpoints;
 
     public:
-        explicit AngledActuatorViewer(const std::set<HardwareQualifier>& quals);
+        explicit AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton = false);
 
         void render() override;
 
