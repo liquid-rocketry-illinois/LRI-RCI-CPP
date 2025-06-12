@@ -2,14 +2,17 @@
 
 void setup() {
     Serial.begin(115200);
-    while(!Serial);
+    while(!Serial) {
+        yield();
+        delay(10);
+    }
 
-    RCPDebug("setup");
+    RCP::init();
     RCP::setReady(true);
+    RCPDebug("[RCP] Initialization Complete");
 }
 
 void loop() {
-    // delay(500);
     RCP::yield();
     RCP::runTest();   
 }

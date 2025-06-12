@@ -6,7 +6,7 @@
 namespace Test {
 class Procedure;
 
-extern Procedure tests[16];
+extern Procedure* tests[16];
 
 typedef void (*Runnable)();
 typedef bool (*BoolSupplier)();
@@ -28,6 +28,22 @@ class Procedure {
   virtual bool isFinished();
 
   virtual ~Procedure() = default;
+};
+
+class EStopSetterWrapper : public Procedure {
+  Procedure* const proc;
+  Procedure* const seqestop;
+  Procedure* const endestop;
+
+ public:
+  EStopSetterWrapper(Procedure* proc, Procedure* seqestop, Procedure* endestop);
+
+  virtual void initialize() override;
+  virtual void execute() override;
+  virtual void end(bool interrupted) override;
+  virtual bool isFinished() override;
+
+  virtual ~EStopSetterWrapper();
 };
 
 class OneShot : public Procedure {
@@ -60,13 +76,13 @@ class BoolWaiter : public Procedure {
 };
 
 class SequentialProcedure : public Procedure {
-  Procedure* const procedures;
+  Procedure** const procedures;
   const int numProcedures;
   int current;
 
  public:
-  template<typename... Procs>
-  SequentialProcedure(Procs... procs);
+  template<typename... Procs> SequentialProcedure(Procs... procs);
+  virtual ~SequentialProcedure() override;
 
   virtual void initialize() override;
   virtual void execute() override;
@@ -75,13 +91,14 @@ class SequentialProcedure : public Procedure {
 };
 
 class ParallelProcedure : public Procedure {
-  Procedure* const procedures;
+ protected:
+  Procedure** const procedures;
   const unsigned int numProcedures;
   bool* const running;
 
  public:
-  template<typename... Procs>
-  ParallelProcedure(Procs... procs);
+  template<typename... Procs> ParallelProcedure(Procs... procs);
+  virtual ~ParallelProcedure() override;
 
   virtual void initialize() override;
   virtual void execute() override;
@@ -90,28 +107,39 @@ class ParallelProcedure : public Procedure {
 };
 
 class ParallelRaceProcedure : public ParallelProcedure {
-  Procedure* const procedures;
-  const unsigned int numProcedures;
-  bool* const running;
-
  public:
-  template<typename... Procs>
-  ParallelRaceProcedure(Procs... procs);
+  template<typename... Procs> ParallelRaceProcedure(Procs... procs);
 
   virtual void end(bool interrupted) override;
   virtual bool isFinished() override;
 };
 
 class ParallelDeadlineProcedure : public Procedure {
-  Procedure* const procedures;
+  Procedure** const procedures;
   const unsigned int numProcedures;
   bool* const running;
-  const Procedure deadline;
+  Procedure* const deadline;
   bool deadlineRunning;
 
  public:
- template<typename... Procs>
-  ParallelDeadlineProcedure(Procedure deadline, Procs... procs);
+  template<typename... Procs> ParallelDeadlineProcedure(Procedure* deadline, Procs... procs);
+  virtual ~ParallelDeadlineProcedure() override;
+
+  virtual void initialize() override;
+  virtual void execute() override;
+  virtual void end(bool interrupted) override;
+  virtual bool isFinished() override;
+};
+
+class SelectorProcedure : public Procedure {
+  Procedure* const yes;
+  Procedure* const no;
+  const BoolSupplier chooser;
+  bool choice;
+
+ public:
+  SelectorProcedure(Procedure* yes, Procedure* no, BoolSupplier chooser);
+  virtual ~SelectorProcedure() override;
 
   virtual void initialize() override;
   virtual void execute() override;
