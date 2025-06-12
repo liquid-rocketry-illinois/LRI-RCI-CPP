@@ -29,7 +29,7 @@ namespace LRI::RCI {
             ImGui::SetNextItemWidth(scale(75));
             ImGui::InputFloat("##setpoint", &setpoints[qual]);
             ImGui::SameLine();
-            ImGui::Text("degrees");
+            ImGui::Text("degrees ");
             ImGui::SameLine();
 
             // If we push the set button, communicate this over RCP
@@ -42,6 +42,7 @@ namespace LRI::RCI {
             if(lockButton) ImGui::EndDisabled();
 
             ImGui::PopID();
+            ImGui::Separator();
         }
 
         ImGui::PopID();

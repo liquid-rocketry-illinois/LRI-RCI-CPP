@@ -3,6 +3,11 @@
   "tests": [],
   "devices": [
     {
+      "devclass": 4,
+      "ids": [0, 1, 2, 3],
+      "names": ["Servo1", "Servo2", "Servo3", "Servo4"]
+    },
+    {
       "devclass": 144,
       "ids": [0],
       "names": ["Atmospheric Pressure"]
@@ -39,6 +44,26 @@
     }
   ],
   "windows": [
+    {
+      "title": "Servos",
+      "modules": [
+        {
+          "type": 4,
+          "ids": [0, 1, 2, 3]
+        }
+      ]
+    },
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
     {
       "title": "ESTOP",
       "modules": [
