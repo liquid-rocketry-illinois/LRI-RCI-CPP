@@ -19,7 +19,8 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
 
         // If button pushed, send E-STOP packet
-        if(ImGui::Button("EMERGENCY STOP", {ImGui::GetWindowWidth(), ImGui::GetWindowWidth()})) {
+        if(ImGui::Button("EMERGENCY STOP",
+                         {ImGui::GetWindowWidth() - scale(10), ImGui::GetWindowHeight() - scale(30)})) {
             EStop::getInstance()->ESTOP();
         }
 
