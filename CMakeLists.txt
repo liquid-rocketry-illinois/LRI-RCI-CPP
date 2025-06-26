@@ -16,8 +16,7 @@ set(BUILD_SHARED_LIBS OFF)
 set(SFML_INSTALL_PKGCONFIG_FILES OFF)
 add_subdirectory(libs/sfml)
 
-add_executable(LRI_control_panel
-        resources/resources.rc
+add_library(imgui OBJECT
         libs/imgui/imgui.cpp
         libs/imgui/imgui_draw.cpp
         libs/imgui/imgui_tables.cpp
@@ -25,44 +24,56 @@ add_executable(LRI_control_panel
         libs/imgui/imgui_demo.cpp
         libs/imgui/backends/imgui_impl_glfw.cpp
         libs/imgui/backends/imgui_impl_opengl3.cpp
+)
+
+target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/glfw/include)
+target_link_libraries(imgui PUBLIC glfw)
+
+add_library(implot OBJECT
         libs/implot/implot.cpp
         libs/implot/implot_items.cpp
         libs/implot/implot_demo.cpp
+)
+
+target_include_directories(implot PUBLIC libs/implot)
+target_link_libraries(implot PUBLIC imgui)
+
+add_executable(LRI_control_panel
         src/main.cpp
         src/utils.cpp
         src/improgress.cpp
-        src/interfaces/COMPort.cpp
-        src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp
-        src/UI/TargetChooser.cpp
-        src/UI/EStopViewer.cpp
-        src/UI/SimpleActuatorViewer.cpp
-        src/interfaces/VirtualPort.cpp
-        src/UI/TestStateViewer.cpp
-        src/UI/StepperViewer.cpp
-        src/UI/SensorViewer.cpp
-        src/UI/RawViewer.cpp
+        src/WindowsResource.cpp
+        resources/resources.rc
+        src/interfaces/COMPort.cpp
         src/interfaces/TCPSocket.cpp
-        src/UI/PromptViewer.cpp
-        src/hardware/SimpleActuators.cpp
-        src/hardware/HardwareQualifier.cpp
-        src/hardware/Steppers.cpp
-        src/hardware/Sensors.cpp
-        src/hardware/RawData.cpp
-        src/hardware/EStop.cpp
-        src/hardware/TestState.cpp
-        src/hardware/Prompt.cpp
-        src/UI/Windowlet.cpp
-        src/hardware/BoolSensor.cpp
-        src/UI/BoolSensorViewer.cpp
+        src/interfaces/VirtualPort.cpp
         src/hardware/AngledActuator.cpp
+        src/hardware/BoolSensor.cpp
+        src/hardware/EStop.cpp
+        src/hardware/HardwareQualifier.cpp
+        src/hardware/Prompt.cpp
+        src/hardware/RawData.cpp
+        src/hardware/Sensors.cpp
+        src/hardware/SimpleActuators.cpp
+        src/hardware/Steppers.cpp
+        src/hardware/TestState.cpp
         src/UI/AngledActuatorViewer.cpp
+        src/UI/BoolSensorViewer.cpp
+        src/UI/EStopViewer.cpp
+        src/UI/PromptViewer.cpp
+        src/UI/RawViewer.cpp
+        src/UI/SensorViewer.cpp
+        src/UI/SimpleActuatorViewer.cpp
+        src/UI/StepperViewer.cpp
+        src/UI/TargetChooser.cpp
+        src/UI/TestStateViewer.cpp
+        src/UI/Windowlet.cpp
 )
 
-target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
-        nlohmann_json SFML::Network)
-target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui libs/imgui/backends libs/json/include
-        libs/implot include)
+target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
+        nlohmann_json imgui implot SFML::Network)
+target_include_directories(LRI_control_panel PRIVATE libs/json/include include)
 
 set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
