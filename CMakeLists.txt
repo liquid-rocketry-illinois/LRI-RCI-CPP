@@ -75,11 +75,18 @@ target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 adva
         nlohmann_json imgui implot SFML::Network)
 target_include_directories(LRI_control_panel PRIVATE libs/json/include include)
 
+add_custom_target(copy_target_jsons ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        ${CMAKE_SOURCE_DIR}/targets
+        ${CMAKE_BINARY_DIR}/targets
+)
+
+add_dependencies(LRI_control_panel copy_target_jsons)
+
 set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
 
 get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
-file(COPY targets/ DESTINATION ${CMAKE_BINARY_DIR}/targets)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_custom_target(LRI_control_panel_GithubRelease
