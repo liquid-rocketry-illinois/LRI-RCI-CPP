@@ -62,6 +62,7 @@ namespace LRI::RCI {
         fontConfig.FontDataOwnedByAtlas = false;
 
         // Load the fonts and add them to imgui. Ubuntu mono my beloved
+#ifdef _WIN32
         WindowsResource fonts("font-regular.ttf", "TTFFONT");
         font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                       16 * scaling_factor, &fontConfig);
@@ -72,6 +73,9 @@ namespace LRI::RCI {
         fonts = WindowsResource("font-italic.ttf", "TTFFONT");
         font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                      16 * scaling_factor, &fontConfig);
+#else // _WIN32
+
+#endif
 
         // Start the TargetChooser window
         ControlWindowlet::getInstance();

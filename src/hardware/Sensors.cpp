@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <fstream>
 #include <ranges>
+#include <format>
+#include <algorithm>
 
 namespace LRI::RCI {
     Sensors* Sensors::getInstance() {

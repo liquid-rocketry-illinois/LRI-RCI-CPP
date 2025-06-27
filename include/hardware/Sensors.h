@@ -14,8 +14,10 @@
 // to all the different devices it handles
 namespace LRI::RCI {
     class Sensors {
+    public:
         struct DataPoint;
 
+    private:
         // Initial size for the vectors storing the sensor data
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 5'000;
 

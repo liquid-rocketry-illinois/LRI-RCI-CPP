@@ -10,8 +10,10 @@
 // Singleton for all stepper motors
 namespace LRI::RCI {
     class Steppers {
+    public:
         struct Stepper;
 
+    private:
         // Storage container for steppers
         std::map<HardwareQualifier, Stepper*> motors;
 

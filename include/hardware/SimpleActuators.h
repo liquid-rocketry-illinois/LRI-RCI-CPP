@@ -10,8 +10,10 @@
 // Singleton for representing the state of all simple actuators
 namespace LRI::RCI {
     class SimpleActuators {
+    public:
         struct ActuatorState;
 
+    private:
         // Maps qualifiers to state pointers
         std::map<HardwareQualifier, ActuatorState*> state;
 

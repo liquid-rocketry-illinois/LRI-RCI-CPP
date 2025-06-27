@@ -43,9 +43,10 @@ add_executable(LRI_control_panel
         src/utils.cpp
         src/improgress.cpp
         src/RCP_Host_Impl.cpp
-        src/WindowsResource.cpp
-        resources/resources.rc
-        src/interfaces/COMPort.cpp
+        $<$<BOOL:${WIN32}>:src/WindowsResource.cpp>
+        $<$<BOOL:${WIN32}>:resources/resources.rc>
+        $<$<BOOL:${WIN32}>:src/interfaces/WindowsCOMPort.cpp>
+        src/interfaces/ICOMPort.cpp
         src/interfaces/TCPSocket.cpp
         src/interfaces/VirtualPort.cpp
         src/hardware/AngledActuator.cpp
@@ -71,9 +72,13 @@ add_executable(LRI_control_panel
         src/UI/Windowlet.cpp
 )
 
-target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
-        nlohmann_json imgui implot SFML::Network)
-target_include_directories(LRI_control_panel PRIVATE libs/json/include include)
+target_link_libraries(LRI_control_panel PRIVATE
+        $<$<BOOL:${WIN32}>:opengl32 gdi32 imm32 user32 advapi32 Setupapi>
+        $<$<NOT:$<BOOL:${WIN32}>>:GL>
+        RCP-Host nlohmann_json imgui implot SFML::Network
+)
+
+target_include_directories(LRI_control_panel PRIVATE include)
 
 add_custom_target(copy_target_jsons ALL
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
@@ -83,12 +88,16 @@ add_custom_target(copy_target_jsons ALL
 
 add_dependencies(LRI_control_panel copy_target_jsons)
 
-set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+IF(WIN32)
+    set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    add_compile_definitions(-DNOMINMAX)
+ENDIF()
+
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
 
-get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
     add_custom_target(LRI_control_panel_GithubRelease
             COMMAND ${CMAKE_SOURCE_DIR}/GithubRelease.sh ${CMAKE_BINARY_DIR} ${EXENAME})
     add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)

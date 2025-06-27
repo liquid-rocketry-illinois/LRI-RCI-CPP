@@ -1,7 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif // _WIN32
+
 #include <chrono>
 #include <string>
 

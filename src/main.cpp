@@ -1,5 +1,7 @@
 // Make sure Windows doesn't allocate a console window, since we have the UI
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+
+#ifdef _WIN32
 /*
  * Even though Windows.h is not explicitly used in this file, one of the macros it defines is not checked if it has
  * already been defined (silly windows) so it conflicts with when GLFW also defines it. However, glfw is smart and
@@ -7,6 +9,7 @@
  * people avoid redefining a macro and raising a compiler warning and the dumb people can do what they want.
  */
 #include <Windows.h>
+#endif // _WIN32
 
 #include "GLFW/glfw3.h"
 

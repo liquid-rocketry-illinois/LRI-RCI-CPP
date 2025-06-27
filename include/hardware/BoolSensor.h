@@ -11,9 +11,10 @@
 namespace LRI::RCI {
     class BoolSensors {
         // How frequently to request refreshes from the target
-
+    public:
         struct BoolSensorState;
 
+    private:
         // Storage for sensor states, mapped to their qualifiers
         std::map<HardwareQualifier, BoolSensorState*> state;
 

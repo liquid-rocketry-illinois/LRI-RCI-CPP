@@ -1,5 +1,6 @@
 #ifndef RESOURCE_H
 #define RESOURCE_H
+#ifdef _WIN32
 
 #include <Windows.h>
 #include <string>
@@ -27,4 +28,5 @@ namespace LRI::RCI {
     };
 } // namespace LRI::RCI
 
+#endif // _WIN32
 #endif // RESOURCE_H
