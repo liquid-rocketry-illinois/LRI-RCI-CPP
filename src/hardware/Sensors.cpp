@@ -5,6 +5,7 @@
 #include <fstream>
 #include <ranges>
 #include <format>
+#include <chrono>
 #include <algorithm>
 
 namespace LRI::RCI {

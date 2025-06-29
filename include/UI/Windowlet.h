@@ -4,7 +4,7 @@
 #include <set>
 #include <string>
 
-#include "TargetChooser.h" // Linters will complain this is unused, but it actually is needed. Header stuff
+// #include "TargetChooser.h" // Linters will complain this is unused, but it actually is needed. Header stuff
 #include "WModule.h"
 #include "interfaces/RCP_Interface.h"
 
@@ -50,6 +50,8 @@ namespace LRI::RCI {
      * is special because it always needs to be visible and active, it cant be merged with other windowlets, and
      * it controls the entire rest of the program.
      */
+
+    class TargetChooser;
 
     class ControlWindowlet final : public Windowlet {
         friend class TargetChooser;

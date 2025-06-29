@@ -9,7 +9,7 @@
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
     // Helper
-    float min3(float a, float b, float c) { return min(a, min(b, c)); }
+    float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
 
     // Format the latest datapoint as a string with the appropriate units
     std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
@@ -132,7 +132,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
             ImGui::SameLine();
-            ImGui::Text(" | Data Points: %d", data->size());
+            ImGui::Text(" | Data Points: %ld", data->size());
             ImGui::SameLine();
             ImGui::Text(" | %s",
                         renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());

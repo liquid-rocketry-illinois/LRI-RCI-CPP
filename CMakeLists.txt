@@ -46,6 +46,7 @@ add_executable(LRI_control_panel
         $<$<BOOL:${WIN32}>:src/WindowsResource.cpp>
         $<$<BOOL:${WIN32}>:resources/resources.rc>
         $<$<BOOL:${WIN32}>:src/interfaces/WindowsCOMPort.cpp>
+        $<$<NOT:$<BOOL:${WIN32}>>:src/interfaces/LinuxCOMPort.cpp>
         src/interfaces/ICOMPort.cpp
         src/interfaces/TCPSocket.cpp
         src/interfaces/VirtualPort.cpp
