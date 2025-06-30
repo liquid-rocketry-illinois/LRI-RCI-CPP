@@ -333,8 +333,6 @@ namespace LRI::RCI {
             ImGui::SameLine();
             if(ImGui::Button("OK##comportchoosererror")) {
                 delete port;
-                ImGui::PopID();
-                ImGui::PopID();
                 port = nullptr;
             }
         }
