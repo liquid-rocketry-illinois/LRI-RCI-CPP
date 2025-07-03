@@ -13,6 +13,7 @@ namespace LRI::RCI {
     }
 
     void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+        if(!state.contains(qual)) return;
         state[qual]->open = newstate;
         state[qual]->stale = false;
     }
@@ -30,6 +31,7 @@ namespace LRI::RCI {
     }
 
     const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
+        if(!state.contains(qual)) return nullptr;
         return state.at(qual);
     }
 

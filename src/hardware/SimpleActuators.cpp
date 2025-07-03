@@ -12,6 +12,7 @@ namespace LRI::RCI {
     SimpleActuators::~SimpleActuators() { reset(); }
 
     void SimpleActuators::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
+        if(!state.contains(qual)) return;
         state[qual]->stale = false;
         state[qual]->open = newState;
     }
@@ -32,6 +33,7 @@ namespace LRI::RCI {
     }
 
     const SimpleActuators::ActuatorState* SimpleActuators::getState(const HardwareQualifier& qual) const {
+        if(!state.contains(qual)) return nullptr;
         return state.at(qual);
     }
 
@@ -43,6 +45,7 @@ namespace LRI::RCI {
     }
 
     void SimpleActuators::setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState) {
+        if(!state.contains(qual)) return;
         state[qual]->stale = true;
         RCP_sendSimpleActuatorWrite(qual.id, newState);
     }

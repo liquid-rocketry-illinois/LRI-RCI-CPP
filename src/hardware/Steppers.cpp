@@ -15,9 +15,13 @@ namespace LRI::RCI {
         motors.clear();
     }
 
-    const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const { return motors.at(qual); }
+    const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
+        if(!motors.contains(qual)) return nullptr;
+        return motors.at(qual);
+    }
 
     void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
+        if(!motors.contains(qual)) return;
         motors[qual]->position = pos;
         motors[qual]->speed = speed;
         motors[qual]->stale = true;
@@ -46,6 +50,7 @@ namespace LRI::RCI {
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
+        if(!motors.contains(qual)) return;
         RCP_sendStepperWrite(qual.id, controlMode, &value, 4);
         motors[qual]->stale = true;
     }
