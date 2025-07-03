@@ -133,8 +133,7 @@ namespace LRI::RCI {
             if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %d", data->size());
-            ImGui::SameLine();
-            ImGui::Text(" | %s",
+            ImGui::TextWrapped("%s",
                         renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
             if(!tarestate.contains(qual)) {
                 tarestate[qual][0] = StopWatch();
