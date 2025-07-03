@@ -80,6 +80,11 @@ namespace LRI::RCI {
         }
     }
 
+    void TestState::reset() {
+        inited = false;
+    }
+
+
     void TestState::receiveRCPUpdate(const RCP_TestData& testState) {
         heartbeatTime = testState.heartbeatTime;
         dataStreaming = testState.dataStreaming;

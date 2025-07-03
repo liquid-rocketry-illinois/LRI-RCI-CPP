@@ -90,6 +90,7 @@ namespace LRI::RCI {
                 delete interf;
                 interf = nullptr;
                 control->cleanup();
+                TestState::getInstance()->reset();
             }
         }
 
