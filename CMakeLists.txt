@@ -72,6 +72,6 @@ file(COPY targets/ DESTINATION ${CMAKE_BINARY_DIR}/targets)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_custom_target(LRI_control_panel_GithubRelease
-            COMMAND ${CMAKE_SOURCE_DIR}/GithubRelease.sh ${CMAKE_BINARY_DIR} ${EXENAME})
+            COMMAND ${CMAKE_SOURCE_DIR}/GithubRelease.sh ${CMAKE_BINARY_DIR} ${EXENAME} ${CMAKE_SOURCE_DIR})
     add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
 endif()

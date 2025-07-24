@@ -1,5 +1,4 @@
-cd $1
-cd ..
+cd $3
 
 which gh > /dev/null
 if [ $? -ne 0 ]; then
@@ -14,12 +13,19 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $1
-rm -f env.zip
-/c/Windows/System32/tar.exe acf env.zip $2.exe targets
 
 mkdir -p releaseNotes
 read -p "Enter tag name/release name: " tagname
 echo tagname > releaseNotes/tagname
+
+portablename=RCI-$tagname-win32-x64-portable.zip
+
+rm -f env.zip
+/c/Windows/System32/tar.exe acf $portablename $2.exe targets
+
+msiname=RCI-$tagname-win32-x64.msi
+
+wix build -src $3/wix/RCI_installer.xml -o $1/$msiname -d VERSION="$tagname" -b $1
 
 echo "Complete Release Notes"
 echo "# Release Notes" > releaseNotes/notes
@@ -28,4 +34,4 @@ notepad releaseNotes/notes
 git tag $tagname -s -m "$tagname"
 git push --tags
 
-gh release create $tagname env.zip $2.exe --notes-file releaseNotes/notes
+gh release create $tagname $portablename $2.exe $msiname --notes-file releaseNotes/notes

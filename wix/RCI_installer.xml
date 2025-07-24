@@ -1,0 +1,48 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package
+            Manufacturer="LRI Electronics"
+            Name="Rocket Control Interface (RCI)"
+            Version="$(VERSION)"
+            UpgradeCode="883d0f26-06aa-4a06-a6e9-15bdf01931f0">
+        <MajorUpgrade DowngradeErrorMessage="To downgrade, please uninstall the newer version first!"/>
+        <MediaTemplate EmbedCab="yes"/>
+        <Feature Id="RCI">
+            <ComponentGroupRef Id="TARGETS"/>
+            <ComponentGroupRef Id="EXECUTABLES"/>
+            <Feature Id="SHORTCUT">
+                <ComponentGroupRef Id="SHORTCUTCOMPONENT"/>
+            </Feature>
+        </Feature>
+    </Package>
+    <Fragment>
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="LRIFOLDER"
+                       Name="!(bind.Property.Manufacturer)">
+                <Directory Id="INSTALLFOLDER" Name="!(bind.Property.ProductName)">
+                    <Directory Id="TARGETSFOLDER" Name="targets"/>
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+        <ComponentGroup Id="EXECUTABLES" Directory="INSTALLFOLDER">
+            <File Source="LRIRCI.exe" Id="MainExecutable"/>
+        </ComponentGroup>
+        <ComponentGroup Id="TARGETS" Directory="TARGETSFOLDER">
+            <Files Include="targets/**"/>
+        </ComponentGroup>
+    </Fragment>
+    <Fragment>
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="SHORTCUTFOLDER" Name="LRI Electronics"/>
+        </StandardDirectory>
+        <ComponentGroup Id="SHORTCUTCOMPONENT" Directory="SHORTCUTFOLDER">
+            <Component Id="SHORTCUTCOMPONENTTHING" Guid="8302159c-66d1-4578-b2fe-4cff08283031">
+                <Shortcut Name="RCI"
+                          Description="LRI Rocket Control Interface"
+                          Target="[#MainExecutable]"
+                          WorkingDirectory="INSTALLFOLDER"
+                          Directory="SHORTCUTFOLDER"/>
+                <RemoveFolder On="uninstall" Directory="SHORTCUTFOLDER"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
