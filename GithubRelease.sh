@@ -15,8 +15,9 @@ fi
 cd $1
 
 mkdir -p releaseNotes
-read -p "Enter tag name/release name: " tagname
-echo tagname > releaseNotes/tagname
+tagname=$(cat $3/VERSION)
+echo "Using version $tagname"
+echo $tagname > releaseNotes/tagname
 
 portablename=RCI-$tagname-win32-x64-portable.zip
 
