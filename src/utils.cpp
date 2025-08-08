@@ -1,6 +1,5 @@
 #include "utils.h"
 
-#include <ctime>
 #include <implot.h>
 #include "RCP_Host/RCP_Host.h"
 
@@ -8,9 +7,9 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
-#include "WindowsResource.h"
-
 #include "UI/Windowlet.h"
+#include "VERSION.h"
+#include "WindowsResource.h"
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
@@ -23,6 +22,8 @@ namespace LRI::RCI {
     float scaling_factor;
     IniFilePath iniFilePath;
 
+    static std::string VERSION_STRING;
+
     // Implementation for IniFilePath
     bool IniFilePath::empty() const { return path.empty(); }
 
@@ -34,6 +35,9 @@ namespace LRI::RCI {
 
     // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
+        VERSION_STRING = "RCI ";
+        VERSION_STRING += std::string(RCI_VERSION, RCI_VERSION_END);
+
         // Set window as current context, enable vsync, give it a title.
         // TODO: window icon
         glfwMakeContextCurrent(window);
@@ -94,9 +98,15 @@ namespace LRI::RCI {
 
     // Is called after each frame to draw the framebuffer and swap it to the screen
     void imgui_postrender(GLFWwindow* window) {
-        ImGui::Render();
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
+
+        // Draw version string on bottom left of window
+        ImGui::GetBackgroundDrawList()->AddText(
+            ImGui::GetMainViewport()->Pos + ImVec2(scale(5), ImGui::GetMainViewport()->Size.y - scale(20)), 0x33FFFFFF,
+            VERSION_STRING.c_str(), VERSION_STRING.c_str() + VERSION_STRING.length());
+
+        ImGui::Render();
         glViewport(0, 0, display_w, display_h);
         glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
         glClear(GL_COLOR_BUFFER_BIT);
