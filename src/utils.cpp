@@ -36,7 +36,8 @@ namespace LRI::RCI {
     // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
         VERSION_STRING = "RCI ";
-        VERSION_STRING += std::string(RCI_VERSION, RCI_VERSION_END);
+        VERSION_STRING += std::string(RCI_VERSION, RCI_VERSION_END) +=
+            "\nRCP " + std::string(RCP_VERSION, RCP_VERSION_END);
 
         // Set window as current context, enable vsync, give it a title.
         // TODO: window icon
@@ -103,7 +104,7 @@ namespace LRI::RCI {
 
         // Draw version string on bottom left of window
         ImGui::GetBackgroundDrawList()->AddText(
-            ImGui::GetMainViewport()->Pos + ImVec2(scale(5), ImGui::GetMainViewport()->Size.y - scale(20)), 0x33FFFFFF,
+            ImGui::GetMainViewport()->Pos + ImVec2(scale(5), ImGui::GetMainViewport()->Size.y - scale(40)), 0x33FFFFFF,
             VERSION_STRING.c_str(), VERSION_STRING.c_str() + VERSION_STRING.length());
 
         ImGui::Render();
