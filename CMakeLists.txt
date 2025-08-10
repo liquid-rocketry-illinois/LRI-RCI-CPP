@@ -5,10 +5,10 @@ set(CMAKE_CXX_STANDARD 23)
 set(EXE_NAME "LRIRCI")
 
 add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/RCIVERSION.cpp
-        DEPENDS ${CMAKE_SOURCE_DIR}/VERSION
-        COMMAND ${CMAKE_COMMAND} -DSOURCE:STRING=${CMAKE_SOURCE_DIR} -DBIN:STRING=${CMAKE_BINARY_DIR}
-        -DBTYPE:STRING=${CMAKE_BUILD_TYPE} -P ${CMAKE_SOURCE_DIR}/cmake/gen_version.cmake
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/RCIVERSION.cpp
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
+        COMMAND ${CMAKE_COMMAND} -DSOURCE:STRING=${CMAKE_CURRENT_SOURCE_DIR} -DBIN:STRING=${CMAKE_CURRENT_BINARY_DIR}
+        -DBTYPE:STRING=${CMAKE_BUILD_TYPE} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/gen_version.cmake
 )
 
 add_subdirectory(libs/glfw)
@@ -24,7 +24,7 @@ set(SFML_INSTALL_PKGCONFIG_FILES OFF)
 add_subdirectory(libs/sfml)
 
 add_executable(LRI_control_panel
-        ${CMAKE_BINARY_DIR}/RCIVERSION.cpp
+        ${CMAKE_CURRENT_BINARY_DIR}/RCIVERSION.cpp
         resources/resources.rc
         libs/imgui/imgui.cpp
         libs/imgui/imgui_draw.cpp
@@ -76,10 +76,10 @@ set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRAR
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
 
 get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
-file(COPY targets/ DESTINATION ${CMAKE_BINARY_DIR}/targets)
+file(COPY targets/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/targets)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_custom_target(LRI_control_panel_GithubRelease
-            COMMAND ${CMAKE_SOURCE_DIR}/GithubRelease.sh ${CMAKE_BINARY_DIR} ${EXENAME} ${CMAKE_SOURCE_DIR})
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
     add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
 endif()
