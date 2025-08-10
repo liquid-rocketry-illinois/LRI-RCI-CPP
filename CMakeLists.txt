@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(EXE_NAME "LRIRCI")
 
 add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/VERSION.cpp
+        OUTPUT ${CMAKE_BINARY_DIR}/RCIVERSION.cpp
         DEPENDS ${CMAKE_SOURCE_DIR}/VERSION
         COMMAND ${CMAKE_COMMAND} -DSOURCE:STRING=${CMAKE_SOURCE_DIR} -DBIN:STRING=${CMAKE_BINARY_DIR}
         -DBTYPE:STRING=${CMAKE_BUILD_TYPE} -P ${CMAKE_SOURCE_DIR}/cmake/gen_version.cmake
@@ -24,7 +24,7 @@ set(SFML_INSTALL_PKGCONFIG_FILES OFF)
 add_subdirectory(libs/sfml)
 
 add_executable(LRI_control_panel
-        ${CMAKE_BINARY_DIR}/VERSION.cpp
+        ${CMAKE_BINARY_DIR}/RCIVERSION.cpp
         resources/resources.rc
         libs/imgui/imgui.cpp
         libs/imgui/imgui_draw.cpp
