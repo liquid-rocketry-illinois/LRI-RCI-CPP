@@ -25,7 +25,7 @@ namespace LRI::RCI {
 
     void BoolSensors::refreshAll() const {
         for(const auto& qual : state | std::views::keys) {
-            RCP_requestSensorDeviceRead(qual.devclass, qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_BOOL_SENSOR, qual.id);
             state.at(qual)->stale = true;
         }
     }

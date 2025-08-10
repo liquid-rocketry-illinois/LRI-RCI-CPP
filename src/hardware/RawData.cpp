@@ -10,7 +10,7 @@ namespace LRI::RCI {
     void RawData::receiveRCPUpdate(const RCP_CustomData& data) {
         std::stringstream temp;
         for(int i = 0; i < data.length; i++) {
-            temp << static_cast<char*>(data.data)[i];
+            temp << static_cast<const char*>(data.data)[i];
         }
 
         chars << temp.str();

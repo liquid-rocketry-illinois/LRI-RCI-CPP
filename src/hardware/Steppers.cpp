@@ -29,7 +29,7 @@ namespace LRI::RCI {
 
     void Steppers::refreshAll() const {
         for(const auto& qual : motors | std::views::keys) {
-            RCP_requestStepperRead(qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_STEPPER, qual.id);
             motors.at(qual)->stale = true;
         }
     }
@@ -51,7 +51,7 @@ namespace LRI::RCI {
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
         if(!motors.contains(qual)) return;
-        RCP_sendStepperWrite(qual.id, controlMode, &value, 4);
+        RCP_sendStepperWrite(qual.id, controlMode, value);
         motors[qual]->stale = true;
     }
 } // namespace LRI::RCI

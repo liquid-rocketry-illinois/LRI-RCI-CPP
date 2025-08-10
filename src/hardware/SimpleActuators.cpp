@@ -39,7 +39,7 @@ namespace LRI::RCI {
 
     void SimpleActuators::refreshAll() const {
         for(const auto& qual : state | std::views::keys) {
-            RCP_requestSimpleActuatorRead(qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_SIMPLE_ACTUATOR, qual.id);
             state.at(qual)->stale = true;
         }
     }

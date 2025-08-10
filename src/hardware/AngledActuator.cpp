@@ -17,7 +17,7 @@ namespace LRI::RCI {
     }
 
     void AngledActuators::setActuatorPos(const HardwareQualifier& qual, float degrees) {
-        RCP_requestAngledActuatorWrite(qual.id, degrees);
+        RCP_sendAngledActuatorWrite(qual.id, degrees);
     }
 
     const std::vector<Sensors::DataPoint>* AngledActuators::getState(const HardwareQualifier& qual) const {
@@ -26,7 +26,7 @@ namespace LRI::RCI {
 
     void AngledActuators::refreshAll() {
         for(const auto& qual : actuators) {
-            RCP_requestSensorDeviceRead(qual.devclass, qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_ANGLED_ACTUATOR, qual.id);
         }
     }
 } // namespace LRI::RCI

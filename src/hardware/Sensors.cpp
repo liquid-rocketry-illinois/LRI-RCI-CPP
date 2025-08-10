@@ -201,7 +201,7 @@ namespace LRI::RCI {
         });
 
         auto ftotal = static_cast<float>(total / numElems);
-        RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, &ftotal, 4);
+        RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, ftotal);
     }
 
     void Sensors::clearGraph(const HardwareQualifier& qual) { sensors[qual]->clear(); }
