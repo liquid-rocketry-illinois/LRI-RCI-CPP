@@ -12,6 +12,11 @@
 
 #include "UI/Windowlet.h"
 
+#ifndef _WIN32
+extern const char font_regular_start[];
+extern const char font_regular_size[];
+#endif // _WIN32
+
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
     // Fonts
@@ -63,18 +68,19 @@ namespace LRI::RCI {
 
         // Load the fonts and add them to imgui. Ubuntu mono my beloved
 #ifdef _WIN32
-        WindowsResource fonts("font-regular.ttf", "TTFFONT");
+        WindowsResource fonts("font_regular.ttf", "TTFFONT");
         font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                       16 * scaling_factor, &fontConfig);
-        fonts = WindowsResource("font-bold.ttf", "TTFFONT");
+        fonts = WindowsResource("font_bold.ttf", "TTFFONT");
         font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                    16 * scaling_factor, &fontConfig);
 
-        fonts = WindowsResource("font-italic.ttf", "TTFFONT");
+        fonts = WindowsResource("font_italic.ttf", "TTFFONT");
         font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                      16 * scaling_factor, &fontConfig);
 #else // _WIN32
 
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) font_regular_start, (size_t) *font_regular_size, 16 * scaling_factor, &fontConfig);
 #endif
 
         // Start the TargetChooser window
