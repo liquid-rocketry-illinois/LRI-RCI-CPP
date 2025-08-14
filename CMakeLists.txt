@@ -39,7 +39,6 @@ add_executable(LRI_control_panel
         src/main.cpp
         src/utils.cpp
         src/improgress.cpp
-        src/interfaces/COMPort.cpp
         src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp
         src/UI/TargetChooser.cpp
@@ -51,6 +50,9 @@ add_executable(LRI_control_panel
         src/UI/SensorViewer.cpp
         src/UI/RawViewer.cpp
         src/interfaces/TCPSocket.cpp
+        src/interfaces/IOInterface.cpp
+        src/interfaces/COMPort.cpp
+        src/interfaces/WindowsCOMPort.cpp
         src/UI/PromptViewer.cpp
         src/hardware/SimpleActuators.cpp
         src/hardware/HardwareQualifier.cpp

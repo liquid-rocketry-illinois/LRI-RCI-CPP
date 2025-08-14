@@ -12,73 +12,8 @@ namespace LRI::RCI {
 
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
-        port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP), thread(nullptr),
-        inbuffer(nullptr), outbuffer(nullptr), threadRun(false), open(false), ready(false), lastErrorVal(0) {
-        // If the interface is the server, it should start listening for connections
-        if(isServer) {
-            sf::Socket::Status listenStat = listensock.listen(port);
-            if(listenStat != sf::Socket::Status::Done) {
-                errorStage = 2;
-                lastErrorVal = -1;
-                return;
-            }
-
-            listensel.add(listensock);
-        }
-
-        // Initialize everything else
-        inbuffer = new RingBuffer<uint8_t>(BUFFER_SIZE);
-        outbuffer = new RingBuffer<uint8_t>(BUFFER_SIZE);
-        threadRun = true;
-        open = true;
-        thread = new std::thread(&TCPSocket::runner, this);
-    }
-
-    // Destructor just calls close
-    TCPSocket::~TCPSocket() { close(); }
-
-    // The next 3 functions are the exact same as in COMPort. Literally directly copied
-
-    bool TCPSocket::pktAvailable() const {
-        inlock.lock();
-        bool hasData;
-        if(inbuffer->size() == 0) hasData = false;
-        else hasData = inbuffer->size() >= (inbuffer->peek() & (~RCP_CHANNEL_MASK)) + 2;
-        inlock.unlock();
-        return hasData;
-    }
-
-    size_t TCPSocket::sendData(const void* data, size_t length) const {
-        // Lock the output buffer, and check if there is space to insert the data. If not, return
-        outlock.lock();
-        if(outbuffer->size() + length > outbuffer->capacity()) {
-            outlock.unlock();
-            return 0;
-        }
-
-        // Push new bytes to the buffer
-        const auto _bytes = static_cast<const uint8_t*>(data);
-        for(size_t i = 0; i < length; i++) {
-            outbuffer->push(_bytes[i]);
-        }
-
-        // Return
-        outlock.unlock();
-        return length;
-    }
-
-    size_t TCPSocket::readData(void* data, size_t bufferSize) const {
-        int bytesread;
-        const auto _bytes = static_cast<uint8_t*>(data);
-
-        // Lock the input buffer and pop bytes from the buffer and place them into the output buffer
-        inlock.lock();
-        for(bytesread = 0; inbuffer->size() > 0 && bytesread < bufferSize; bytesread++) {
-            _bytes[bytesread] = inbuffer->pop();
-        }
-
-        inlock.unlock();
-        return bytesread;
+        port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP) {
+        ioUnlock();
     }
 
     // Return a human readable string describing the interface
@@ -87,46 +22,52 @@ namespace LRI::RCI {
             std::to_string(port);
     }
 
-    // Return the last error stage and code
-    TCPSocket::Error TCPSocket::lastError() { return {errorStage.load(), lastErrorVal.load()}; }
+    void TCPSocket::ioInit() {
+        // If the interface is the server, it should start listening for connections
+        if(isServer) {
+            sf::Socket::Status listenStat = listensock.listen(port);
+            if(listenStat != sf::Socket::Status::Done) {
+                lastErrorStage = 2;
+                lastErrorCode = -1;
+                portOpenFail = true;
+                return;
+            }
 
-    bool TCPSocket::isOpen() const { return open.load(); }
+            listensel.add(listensock);
+        }
 
-    bool TCPSocket::isReady() const { return ready.load(); }
+        targetsock.setBlocking(false);
 
-    // The actual threaded function
-    void TCPSocket::runner() {
-        bool r_nw = false;
-
-        // This is used to wait for incoming connections or for the connection to the server to be established
-        while(!ready && threadRun) {
+        while(!isPortOpen && getDoComm()) {
             // If the interface is a server, wait for a connection request
             if(isServer && listensel.wait(sf::seconds(0.25f))) {
                 // If a connection request has been received, accept the socket and move on to data transfer
                 if(listensock.accept(targetsock) != sf::Socket::Status::Done) {
-                    errorStage = 3;
-                    lastErrorVal = -1;
-                    threadRun = false;
-                    open = false;
+                    lastErrorStage = 3;
+                    lastErrorCode = -1;
+                    portOpenFail = true;
                     return;
                 }
 
-                ready = true;
-                errorStage = 0;
-                lastErrorVal = 0;
+                isPortOpen = true;
+                lastErrorStage = 0;
+                lastErrorCode = 0;
                 targetsel.add(targetsock);
             }
 
             // If the interface is not a server, connect to a server
             else {
-                auto stat = targetsock.connect(serverAddress, port, sf::seconds(5));
+                auto stat = targetsock.connect(serverAddress, port);
+
+                if(stat == sf::Socket::Status::NotReady) continue;
+
                 if(stat != sf::Socket::Status::Done) {
-                    errorStage = 3;
-                    lastErrorVal = -1;
-                    threadRun = false;
-                    open = false;
+                    lastErrorStage = 3;
+                    lastErrorCode = -1;
+                    portOpenFail = true;
                     return;
                 }
+
                 using namespace std::chrono_literals;
                 std::this_thread::sleep_for(3000ms); // Seems to help with stuff
 
@@ -136,108 +77,50 @@ namespace LRI::RCI {
                 // For some reason ser2net sends 33 junk bytes when connected
 
                 if(stat != sf::Socket::Status::Done) {
-                    errorStage = 3;
-                    lastErrorVal = -2;
-                    threadRun = false;
-                    open = false;
+                    lastErrorStage = 3;
+                    lastErrorCode = -2;
+                    portOpenFail = true;
                     targetsock.disconnect();
                     return;
                 }
 
-                ready = true;
-                errorStage = 0;
-                lastErrorVal = 0;
+                isPortOpen = true;
+                lastErrorStage = 0;
+                lastErrorCode = 0;
                 targetsel.add(targetsock);
             }
         }
 
-        // Now that a connection has been established, start transferring data
-        while(threadRun) {
-            // On the read cycle...
-            if(r_nw) {
-                r_nw = false;
-                inlock.lock();
-                bool skip = inbuffer->size() + 128 > inbuffer->capacity();
-                inlock.unlock();
-                if(skip) continue;
-
-                // If data is available, read it and push it into the buffer
-                if(targetsel.wait(sf::seconds(0.25f))) {
-                    uint8_t data[128];
-                    size_t received;
-                    sf::Socket::Status status;
-                    if((status = targetsock.receive(data, 128, received)) != sf::Socket::Status::Done) {
-                        targetsock.disconnect();
-                        open = false;
-                        ready = false;
-                        threadRun = false;
-                        errorStage = 4;
-                        lastErrorVal = status == sf::Socket::Status::Disconnected ? -1 : -2;
-                        return;
-                    }
-
-                    inlock.lock();
-                    for(int i = 0; i < received; i++) {
-                        inbuffer->push(data[i]);
-                        // std::cout << "rcv: " << std::hex << (int)data[i] << std::endl;
-                    }
-
-                    inlock.unlock();
-                }
-            }
-
-            // On the write cycle...
-            else {
-                r_nw = true;
-                if(!TestState::getInited()) continue;
-
-                outlock.lock();
-                bool skip = outbuffer->isEmpty();
-                if(skip) {
-                    outlock.unlock();
-                    continue;
-                }
-
-                uint8_t bytes[128];
-                size_t toSend;
-
-                for(toSend = 0; !outbuffer->isEmpty() && toSend < 128; toSend++) {
-                    bytes[toSend] = outbuffer->pop();
-                    // std::cout << "send: " << std::hex << (int)bytes[toSend] << std::endl;
-                }
-                outlock.unlock();
-
-                // Pop bytes from the buffer and send over the socket
-                sf::Socket::Status status = targetsock.send(bytes, toSend);
-
-                if(status != sf::Socket::Status::Done) {
-                    errorStage = 5;
-                    lastErrorVal = status == sf::Socket::Status::Disconnected ? -1 : -2;
-                    targetsock.disconnect();
-                    open = false;
-                    ready = false;
-                    threadRun = false;
-                    return;
-                }
-            }
-        }
+        targetsock.setBlocking(true);
     }
 
-    // Cleanup the interface
-    void TCPSocket::close() {
-        threadRun = false;
-        if(thread) thread->join();
-        delete thread;
-        thread = nullptr;
+    bool TCPSocket::writeBytes(const uint8_t* bytes, size_t length) {
+        sf::Socket::Status stat = targetsock.send(bytes, length);
+        if(stat != sf::Socket::Status::Done) {
+            lastErrorStage = 5;
+            lastErrorCode = stat == sf::Socket::Status::Disconnected ? 1 : 2;
+            return false;
+        }
 
+        return true;
+    }
+
+    bool TCPSocket::readBytes(uint8_t* bytes, size_t bufLength, size_t& written) {
+        if(targetsel.wait(sf::milliseconds(100))) {
+            sf::Socket::Status stat = targetsock.receive(bytes, bufLength, written);
+            if(stat != sf::Socket::Status::Done) {
+                lastErrorStage = 6;
+                lastErrorCode = stat == sf::Socket::Status::Disconnected ? 1 : 2;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void TCPSocket::ioDeinit() {
         if(isServer) listensock.close();
         targetsock.disconnect();
-
-        delete inbuffer;
-        inbuffer = nullptr;
-
-        delete outbuffer;
-        outbuffer = nullptr;
     }
 
     // Chooser for the interface. Just needs port, client/server, and server ip address if client
@@ -297,10 +180,10 @@ namespace LRI::RCI {
         }
 
         // If the interface has been created but did not open properly, display error and continue rendering
-        if(!interf->isOpen()) {
+        if(interf->didPortOpenFail()) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
             TCPSocket::Error error = interf->lastError();
-            ImGui::Text("Error opening TCP socket: stage %lu, code %lu", error.stage, error.value);
+            ImGui::Text("Error opening TCP socket: stage %lu, code %lu", error.stage, error.code);
             ImGui::PopStyleColor();
 
             ImGui::SameLine();
@@ -317,7 +200,7 @@ namespace LRI::RCI {
         }
 
         // While the interface is open but not ready, keep waiting for the connection to be established
-        if(!interf->isReady()) {
+        if(!interf->isOpen()) {
             ImGui::SameLine();
             ImGui::Text("Waiting for connection");
             ImGui::SameLine();
