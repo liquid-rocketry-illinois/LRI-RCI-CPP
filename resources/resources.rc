@@ -1,3 +1,6 @@
+exeicon ICON "LRI_Logo.ico"
 font-bold.ttf TTFFONT "font-bold.ttf"
 font-regular.ttf TTFFONT "font-regular.ttf"
 font-italic.ttf TTFFONT "font-italic.ttf"
+logo PNGIMG "LRI_Logo.png"
+logobig PNGIMG "LRI_Logo_big.png"

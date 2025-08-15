@@ -2,6 +2,10 @@
 
 #include <implot.h>
 #include "RCP_Host/RCP_Host.h"
+#include "glfw/glfw3.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -23,6 +27,7 @@ namespace LRI::RCI {
     IniFilePath iniFilePath;
 
     static std::string VERSION_STRING;
+    static GLuint iconTex;
 
     // Implementation for IniFilePath
     bool IniFilePath::empty() const { return path.empty(); }
@@ -78,6 +83,31 @@ namespace LRI::RCI {
         font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
                                                      16 * scaling_factor, &fontConfig);
 
+        {
+            WindowsResource im("logo", "PNGIMG");
+            GLFWimage image;
+            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), im.getSize(), &image.width,
+                                                 &image.height, nullptr, 4);
+            glfwSetWindowIcon(window, 1, &image);
+            stbi_image_free(image.pixels);
+        }
+
+        {
+            WindowsResource im("logobig", "PNGIMG");
+            int imw, imh;
+            unsigned char* imaged =
+                stbi_load_from_memory((unsigned char*) im.getData(), im.getSize(), &imw, &imh, nullptr, 4);
+
+            glGenTextures(1, &iconTex);
+            glBindTexture(GL_TEXTURE_2D, iconTex);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imw, imh, 0, GL_RGBA, GL_UNSIGNED_BYTE, imaged);
+            stbi_image_free(imaged);
+        }
+
+
         // Start the TargetChooser window
         ControlWindowlet::getInstance();
     }
@@ -111,6 +141,23 @@ namespace LRI::RCI {
         glViewport(0, 0, display_w, display_h);
         glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        float largestSquare = std::min(display_w, display_h);
+        float coordX = largestSquare / display_w / 1.0f;
+        float coordY = largestSquare / display_h / 1.0f;
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, iconTex);
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(0, 0); glVertex2f(-coordX, coordY);
+        glTexCoord2f(1, 0); glVertex2f(coordX, coordY);
+        glTexCoord2f(1, 1); glVertex2f(coordX, -coordY);
+        glTexCoord2f(0, 1); glVertex2f(-coordX, -coordY);
+        glEnd();
+
+        glDisable(GL_TEXTURE_2D);
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         GLFWwindow* backup_current_context = glfwGetCurrentContext();

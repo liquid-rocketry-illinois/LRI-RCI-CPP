@@ -13,7 +13,7 @@
 
 namespace LRI::RCI {
     // Background purple color. CSS Rebecca Purple
-    static constexpr ImVec4 BACKGROUND_COLOR{0.4f, 0.2f, 0.6f, 1.0f};
+    static constexpr ImVec4 BACKGROUND_COLOR{0.f, 0.f, 0.f, 0.f};
 
     // Pointers to the regular, bold, and italic fonts
     extern ImFont* font_regular;
