@@ -9,7 +9,7 @@
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
     // Helper
-    float min3(float a, float b, float c) { return min(a, min(b, c)); }
+    float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
 
     // Format the latest datapoint as a string with the appropriate units
     std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,

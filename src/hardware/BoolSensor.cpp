@@ -38,7 +38,7 @@ namespace LRI::RCI {
     void BoolSensors::setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime) {
         reset();
 
-        refreshTime = max(_refreshTime, 1);
+        refreshTime = std::max(_refreshTime, 1);
 
         for(const auto& qual : ids) {
             state[qual] = new BoolSensorState();
