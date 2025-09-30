@@ -14,7 +14,7 @@ namespace LRI::RCI {
     static constexpr size_t TEMP_BUFFER_SIZE = 128;
 
     std::atomic_bool doComm;
-    std::atomic_bool ioStartLock;
+    std::mutex ioLock;
     std::thread* iothread;
 
     RingBuffer<uint8_t>* const inbuffer;

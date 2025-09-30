@@ -6,18 +6,19 @@
 
 namespace LRI::RCI {
     IOInterface::IOInterface() :
-        doComm(true), ioStartLock(true), iothread(nullptr), inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)),
+        doComm(true), iothread(nullptr), inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)),
         outbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)) {
+        ioLock.lock();
         iothread = new std::thread(&IOInterface::threadIO, this);
     }
 
     void IOInterface::threadIO() {
-        using namespace std::chrono_literals;
-        while(ioStartLock) std::this_thread::sleep_for(1us);
+        ioLock.lock();
         ioInit();
 
         if(!isPortOpen || portOpenFail) {
             doComm = false;
+            ioLock.unlock();
             return;
         }
 
@@ -65,9 +66,10 @@ namespace LRI::RCI {
         }
 
         ioDeinit();
+        ioLock.unlock();
     }
 
-    void IOInterface::ioUnlock() { ioStartLock = false; }
+    void IOInterface::ioUnlock() { ioLock.unlock(); }
 
     bool IOInterface::getDoComm() const { return doComm.load(); }
 
