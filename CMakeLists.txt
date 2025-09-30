@@ -25,7 +25,6 @@ add_subdirectory(libs/sfml)
 
 add_executable(LRI_control_panel
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp
-        resources/resources.rc
         libs/imgui/imgui.cpp
         libs/imgui/imgui_draw.cpp
         libs/imgui/imgui_tables.cpp
@@ -39,7 +38,6 @@ add_executable(LRI_control_panel
         src/main.cpp
         src/utils.cpp
         src/improgress.cpp
-        src/WindowsResource.cpp
         src/RCP_Host_Impl.cpp
         src/UI/TargetChooser.cpp
         src/UI/EStopViewer.cpp
@@ -67,6 +65,8 @@ add_executable(LRI_control_panel
         src/UI/BoolSensorViewer.cpp
         src/hardware/AngledActuator.cpp
         src/UI/AngledActuatorViewer.cpp
+        $<$<BOOL:${WIN32}>:src/WindowsEmbeddedResource.cpp>
+        $<$<BOOL:${WIN32}>:resources/resources.rc>
 )
 
 target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host

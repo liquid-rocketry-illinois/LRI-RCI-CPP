@@ -13,7 +13,7 @@
 
 #include "UI/Windowlet.h"
 #include "VERSION.h"
-#include "WindowsResource.h"
+#include "EmbeddedResource.h"
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
@@ -71,32 +71,34 @@ namespace LRI::RCI {
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
 
-        // Load the fonts and add them to imgui. Ubuntu mono my beloved
-        WindowsResource fonts("font-regular.ttf", "TTFFONT");
-        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
-                                                      16 * scaling_factor, &fontConfig);
-        fonts = WindowsResource("font-bold.ttf", "TTFFONT");
-        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
-                                                   16 * scaling_factor, &fontConfig);
+        {
+            // Load the fonts and add them to imgui. Ubuntu mono my beloved
+            EmbeddedResource fonts("font-regular.ttf");
+            font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                          16 * scaling_factor, &fontConfig);
+            fonts = EmbeddedResource("font-bold.ttf");
+            font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                       16 * scaling_factor, &fontConfig);
 
-        fonts = WindowsResource("font-italic.ttf", "TTFFONT");
-        font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getSize()),
-                                                     16 * scaling_factor, &fontConfig);
+            fonts = EmbeddedResource("font-italic.ttf");
+            font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                         16 * scaling_factor, &fontConfig);
+        }
 
         {
-            WindowsResource im("logo", "PNGIMG");
+            EmbeddedResource im("logo.png");
             GLFWimage image;
-            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), im.getSize(), &image.width,
+            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &image.width,
                                                  &image.height, nullptr, 4);
             glfwSetWindowIcon(window, 1, &image);
             stbi_image_free(image.pixels);
         }
 
         {
-            WindowsResource im("logobig", "PNGIMG");
+            EmbeddedResource im("logobig.png");
             int imw, imh;
             unsigned char* imaged =
-                stbi_load_from_memory((unsigned char*) im.getData(), im.getSize(), &imw, &imh, nullptr, 4);
+                stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &imw, &imh, nullptr, 4);
 
             glGenTextures(1, &iconTex);
             glBindTexture(GL_TEXTURE_2D, iconTex);
