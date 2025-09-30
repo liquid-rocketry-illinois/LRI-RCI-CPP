@@ -1,7 +1,21 @@
 {
   "name": "Electric Angel",
-  "tests": [],
+  "tests": [
+    {
+      "id": 0,
+      "name": "Launch Procedure"
+    },
+    {
+      "id": 1,
+      "name": "Pryo Channel Test"
+    }
+  ],
   "devices": [
+    {
+      "devclass": 1,
+      "ids": [0, 1],
+      "names": ["Pyro 1", "Pyro 2"]
+    },
     {
       "devclass": 4,
       "ids": [0, 1, 2, 3],
@@ -44,6 +58,16 @@
     }
   ],
   "windows": [
+    {
+      "title": "Pyros",
+      "modules": [
+        {
+          "type": 1,
+          "ids": [0, 1],
+          "refresh": true
+        }
+      ]
+    },
     {
       "title": "Servos",
       "modules": [
