@@ -2,23 +2,23 @@
 
 #include <chrono>
 
+#include <iostream>
 #include "hardware/TestState.h"
-
 namespace LRI::RCI {
     IOInterface::IOInterface() :
         doComm(true), iothread(nullptr), inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)),
         outbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)) {
-        ioLock.lock();
+        ioLockMux.lock();
         iothread = new std::thread(&IOInterface::threadIO, this);
     }
 
     void IOInterface::threadIO() {
-        ioLock.lock();
+        ioLockMux.lock();
         ioInit();
 
         if(!isPortOpen || portOpenFail) {
             doComm = false;
-            ioLock.unlock();
+            ioLockMux.unlock();
             return;
         }
 
@@ -35,7 +35,7 @@ namespace LRI::RCI {
                 if(res) continue;
 
                 uint8_t bytes[TEMP_BUFFER_SIZE];
-                size_t written;
+                size_t written = 5;
                 if(!readBytes(bytes, TEMP_BUFFER_SIZE, written)) continue;
 
                 inlock.lock();
@@ -66,10 +66,16 @@ namespace LRI::RCI {
         }
 
         ioDeinit();
-        ioLock.unlock();
+        ioLockMux.unlock();
     }
 
-    void IOInterface::ioUnlock() { ioLock.unlock(); }
+    void IOInterface::ioUnlock() { ioLockMux.unlock(); }
+
+    void IOInterface::ioLock() {
+        doComm = false;
+        ioLockMux.lock();
+    }
+
 
     bool IOInterface::getDoComm() const { return doComm.load(); }
 
@@ -122,7 +128,6 @@ namespace LRI::RCI {
     }
 
     IOInterface::~IOInterface() {
-        doComm = false;
         iothread->join();
         delete iothread;
         delete inbuffer;

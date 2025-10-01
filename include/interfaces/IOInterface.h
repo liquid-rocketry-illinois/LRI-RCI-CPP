@@ -10,11 +10,11 @@
 
 namespace LRI::RCI {
   class IOInterface : public RCP_Interface {
-    static constexpr uint8_t BUFFER_SIZE = 1'048'576;
+    static constexpr uint32_t BUFFER_SIZE = 1048576;
     static constexpr size_t TEMP_BUFFER_SIZE = 128;
 
     std::atomic_bool doComm;
-    std::mutex ioLock;
+    std::mutex ioLockMux;
     std::thread* iothread;
 
     RingBuffer<uint8_t>* const inbuffer;
@@ -37,6 +37,7 @@ namespace LRI::RCI {
     virtual void ioDeinit() = 0;
 
     void ioUnlock();
+    void ioLock();
 
     [[nodiscard]] bool getDoComm() const;
 

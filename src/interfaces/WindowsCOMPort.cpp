@@ -5,8 +5,12 @@
 
 namespace LRI::RCI {
     COMPort::COMPort(const std::string&& portname, unsigned long baudrate) :
-        portname(portname), baudrate(baudrate) {
+        portname(portname), baudrate(baudrate), port(nullptr) {
         ioUnlock();
+    }
+
+     COMPort::~COMPort() {
+        ioLock();
     }
 
     std::string COMPort::interfaceType() const {
@@ -50,11 +54,11 @@ namespace LRI::RCI {
 
         // Timeouts for IO operations
         COMMTIMEOUTS timeouts;
-        timeouts.ReadIntervalTimeout = 50;
-        timeouts.ReadTotalTimeoutConstant = 50;
-        timeouts.ReadTotalTimeoutMultiplier = 10;
-        timeouts.WriteTotalTimeoutConstant = 50;
-        timeouts.WriteTotalTimeoutMultiplier = 10;
+        timeouts.ReadIntervalTimeout = 1;
+        timeouts.ReadTotalTimeoutConstant = 1;
+        timeouts.ReadTotalTimeoutMultiplier = 1;
+        timeouts.WriteTotalTimeoutConstant = 1;
+        timeouts.WriteTotalTimeoutMultiplier = 1;
 
         if(!SetCommTimeouts(port, &timeouts)) {
             lastErrorStage = 4;
@@ -72,7 +76,7 @@ namespace LRI::RCI {
 
     bool COMPort::writeBytes(const uint8_t* bytes, size_t length) {
         DWORD _written = 0;
-        if(!WriteFile(port, &bytes, length, &_written, nullptr) || static_cast<size_t>(_written) != length) {
+        if(!WriteFile(port, bytes, length, &_written, nullptr) || static_cast<size_t>(_written) != length) {
             lastErrorStage = 5;
             lastErrorCode = GetLastError();
             return false;
@@ -83,7 +87,7 @@ namespace LRI::RCI {
 
     bool COMPort::readBytes(uint8_t* bytes, size_t bufLength, size_t& written) {
         DWORD _written = 0;
-        if(!ReadFile(port, &bytes, bufLength, &_written, nullptr)) {
+        if(!ReadFile(port, bytes, bufLength, &_written, nullptr)) {
             lastErrorStage = 6;
             lastErrorCode = GetLastError();
             return false;
