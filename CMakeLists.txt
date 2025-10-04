@@ -105,7 +105,15 @@ endif ()
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
 
 get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
-file(COPY targets/ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/targets)
+
+# Add target to copy all the target jsons to the build directory for debugging
+add_custom_target(copy_target_jsons ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+        ${CMAKE_SOURCE_DIR}/targets
+        ${CMAKE_BINARY_DIR}/targets
+)
+
+add_dependencies(LRI_control_panel copy_target_jsons)
 
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_custom_target(LRI_control_panel_GithubRelease
