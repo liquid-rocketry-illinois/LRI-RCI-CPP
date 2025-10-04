@@ -95,11 +95,11 @@ target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML
 
 target_include_directories(LRI_control_panel PRIVATE include)
 
-target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
 
 # Statically link C runtime if on windows
 if (WIN32)
     set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
 endif ()
 
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
