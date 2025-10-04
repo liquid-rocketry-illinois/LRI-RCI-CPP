@@ -2,7 +2,7 @@
 
 #include <implot.h>
 #include "RCP_Host/RCP_Host.h"
-#include "glfw/glfw3.h"
+#include "GLFW/glfw3.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

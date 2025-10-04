@@ -10,8 +10,13 @@
 // Singleton for representing the state of all simple actuators
 namespace LRI::RCI {
     class SimpleActuators {
-        struct ActuatorState;
+    public:
+        struct ActuatorState {
+            bool open;
+            bool stale;
+        };
 
+    private:
         // Maps qualifiers to state pointers
         std::map<HardwareQualifier, ActuatorState*> state;
 
@@ -19,11 +24,6 @@ namespace LRI::RCI {
         ~SimpleActuators();
 
     public:
-        struct ActuatorState {
-            bool open;
-            bool stale;
-        };
-
         // Get singleton instance
         static SimpleActuators* getInstance();
 

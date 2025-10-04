@@ -1,3 +1,4 @@
+#ifdef _WIN32
 // Make sure Windows doesn't allocate a console window, since we have the UI
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 /*
@@ -7,6 +8,7 @@
  * people avoid redefining a macro and raising a compiler warning and the dumb people can do what they want.
  */
 #include <Windows.h>
+#endif
 
 #include "GLFW/glfw3.h"
 

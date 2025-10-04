@@ -10,10 +10,13 @@
 // Hardware singleton for the BoolSensors
 namespace LRI::RCI {
     class BoolSensors {
-        // How frequently to request refreshes from the target
+    public:
+        struct BoolSensorState {
+            bool open = false;
+            bool stale = true;
+        };
 
-        struct BoolSensorState;
-
+    private:
         // Storage for sensor states, mapped to their qualifiers
         std::map<HardwareQualifier, BoolSensorState*> state;
 
@@ -25,11 +28,6 @@ namespace LRI::RCI {
         ~BoolSensors();
 
     public:
-        struct BoolSensorState {
-            bool open = false;
-            bool stale = true;
-        };
-
         // Get the singleton
         static BoolSensors* getInstance();
 

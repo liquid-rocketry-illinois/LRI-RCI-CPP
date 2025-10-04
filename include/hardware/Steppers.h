@@ -10,7 +10,14 @@
 // Singleton for all stepper motors
 namespace LRI::RCI {
     class Steppers {
-        struct Stepper;
+    public:
+        struct Stepper {
+            float position;
+            float speed;
+            bool stale;
+        };
+
+    private:
 
         // Storage container for steppers
         std::map<HardwareQualifier, Stepper*> motors;
@@ -19,12 +26,6 @@ namespace LRI::RCI {
         ~Steppers();
 
     public:
-        struct Stepper {
-            float position;
-            float speed;
-            bool stale;
-        };
-
         // Get singleton instance
         static Steppers* getInstance();
 

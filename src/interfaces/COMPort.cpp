@@ -1,12 +1,6 @@
 #include "interfaces/COMPort.h"
 
-#include <RCP_Host/RCP_Host.h>
-#include <SetupAPI.h>
-#include <devguid.h>
-#include <iostream>
-
 #include "UI/WModule.h"
-#include "hardware/TestState.h"
 #include "improgress.h"
 #include "utils.h"
 

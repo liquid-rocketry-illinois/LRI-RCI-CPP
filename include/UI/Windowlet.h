@@ -4,11 +4,13 @@
 #include <set>
 #include <string>
 
-#include "TargetChooser.h" // Linters will complain this is unused, but it actually is needed. Header stuff
 #include "WModule.h"
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
+    // Manual forward declaration needed to avoid circular header dependency with TargetChooser.h
+    class TargetChooser;
+
     /*
      * Windowlets are the basis of the whole program. These are the individual little windows that appear
      * inside the main window when you launch the program (hence the name "windowlets"). Each windowlet is

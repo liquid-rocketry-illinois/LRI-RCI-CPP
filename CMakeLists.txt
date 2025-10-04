@@ -50,7 +50,6 @@ add_executable(LRI_control_panel
         src/interfaces/TCPSocket.cpp
         src/interfaces/IOInterface.cpp
         src/interfaces/COMPort.cpp
-        src/interfaces/WindowsCOMPort.cpp
         src/UI/PromptViewer.cpp
         src/hardware/SimpleActuators.cpp
         src/hardware/HardwareQualifier.cpp
@@ -67,10 +66,19 @@ add_executable(LRI_control_panel
         src/UI/AngledActuatorViewer.cpp
         $<$<BOOL:${WIN32}>:src/WindowsEmbeddedResource.cpp>
         $<$<BOOL:${WIN32}>:resources/resources.rc>
+        $<$<BOOL:${WIN32}>:src/interfaces/WindowsCOMPort.cpp>
+        $<$<NOT:$<BOOL:${WIN32}>>:src/interfaces/LinuxSerialPort.cpp>
+        $<$<NOT:$<BOOL:${WIN32}>>:src/LinuxEmbeddedResource.cpp>
 )
 
-target_link_libraries(LRI_control_panel PUBLIC glfw opengl32 gdi32 imm32 user32 advapi32 Setupapi RCP-Host
-        nlohmann_json SFML::Network)
+target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML::Network)
+
+if(WIN32)
+    target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi)
+else()
+    target_link_libraries(LRI_control_panel PRIVATE GL)
+endif()
+
 target_include_directories(LRI_control_panel PUBLIC libs/glfw/include libs/imgui libs/imgui/backends libs/json/include
         libs/implot include)
 

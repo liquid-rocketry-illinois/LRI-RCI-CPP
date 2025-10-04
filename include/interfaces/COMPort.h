@@ -1,7 +1,10 @@
 #ifndef COMPORT_H
 #define COMPORT_H
 
+#ifdef _WIN32
 #include <Windows.h>
+#endif
+
 #include <string>
 
 #include "IOInterface.h"

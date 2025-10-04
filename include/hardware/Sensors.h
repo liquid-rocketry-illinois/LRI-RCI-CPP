@@ -14,8 +14,14 @@
 // to all the different devices it handles
 namespace LRI::RCI {
     class Sensors {
-        struct DataPoint;
+    public:
+        // A single point of sensor data. The data field is used differently depending on the devclass
+        struct DataPoint {
+            double timestamp;
+            double data[4];
+        };
 
+    private:
         // Initial size for the vectors storing the sensor data
         static constexpr int DATA_VECTOR_INITIAL_SIZE = 5'000;
 
@@ -41,12 +47,6 @@ namespace LRI::RCI {
         ~Sensors();
 
     public:
-        // A single point of sensor data. The data field is used differently depending on the devclass
-        struct DataPoint {
-            double timestamp;
-            double data[4];
-        };
-
         // Get singleton instance
         static Sensors* getInstance();
 
