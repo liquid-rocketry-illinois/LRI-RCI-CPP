@@ -73,20 +73,20 @@ namespace LRI::RCI {
 
         {
             // Load the fonts and add them to imgui. Ubuntu mono my beloved
-            EmbeddedResource fonts("font-regular.ttf");
+            EmbeddedResource fonts("font_regular.ttf");
             font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
                                                           16 * scaling_factor, &fontConfig);
-            fonts = EmbeddedResource("font-bold.ttf");
+            fonts = EmbeddedResource("font_bold.ttf");
             font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
                                                        16 * scaling_factor, &fontConfig);
 
-            fonts = EmbeddedResource("font-italic.ttf");
+            fonts = EmbeddedResource("font_italic.ttf");
             font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
                                                          16 * scaling_factor, &fontConfig);
         }
 
         {
-            EmbeddedResource im("logo.png");
+            EmbeddedResource im("LRI_Logo.png");
             GLFWimage image;
             image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &image.width,
                                                  &image.height, nullptr, 4);
@@ -95,7 +95,7 @@ namespace LRI::RCI {
         }
 
         {
-            EmbeddedResource im("logobig.png");
+            EmbeddedResource im("LRI_Logo_big.png");
             int imw, imh;
             unsigned char* imaged =
                 stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &imw, &imh, nullptr, 4);

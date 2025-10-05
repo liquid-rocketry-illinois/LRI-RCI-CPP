@@ -120,3 +120,5 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
     add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
 endif ()
+
+include(cmake/gen_resources.cmake)
