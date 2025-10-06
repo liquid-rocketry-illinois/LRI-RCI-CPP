@@ -75,14 +75,14 @@ namespace LRI::RCI {
             // Load the fonts and add them to imgui. Ubuntu mono my beloved
             EmbeddedResource fonts("font_regular.ttf");
             font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                          16 * scaling_factor, &fontConfig);
+                                                          scale(16), &fontConfig);
             fonts = EmbeddedResource("font_bold.ttf");
             font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                       16 * scaling_factor, &fontConfig);
+                                                       scale(16), &fontConfig);
 
             fonts = EmbeddedResource("font_italic.ttf");
             font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                         16 * scaling_factor, &fontConfig);
+                                                         scale(16), &fontConfig);
         }
 
         {
