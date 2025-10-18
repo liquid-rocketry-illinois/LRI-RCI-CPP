@@ -26,8 +26,8 @@ namespace LRI::RCI {
     // a client queries for a hardware qualifier that does not exist
     class HWNE : public std::runtime_error {
     public:
-        HWNE() = delete;
-        explicit HWNE(const std::string& str);
+        HardwareQualifier qual;
+        explicit HWNE(const std::string& what, const HardwareQualifier& qual) : runtime_error(what), qual(qual) {}
         ~HWNE() override = default;
     };
 } // namespace LRI::RCI

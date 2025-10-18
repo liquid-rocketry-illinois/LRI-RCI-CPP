@@ -5,7 +5,8 @@
 #include <utility>
 
 #include <iostream>
-#include "UI/TestStateViewer.h"
+
+#include "hardware/HardwareQualifier.h"
 
 namespace LRI::RCI {
     // The global windowlet set
@@ -21,7 +22,25 @@ namespace LRI::RCI {
         // Important that this line is first, since the Control Window can modify the list of
         // windows between frames. Not good.
         for(auto* w : windows) w->render();
-        ControlWindowlet::getInstance()->render();
+
+        try {
+            ControlWindowlet::getInstance()->render();
+        }
+        catch(const HWNE& err) {
+
+        }
+
+        catch(const RCPStreamException& err) {
+
+        }
+
+        catch(const ThreadStopException& err) {
+
+        }
+
+        catch(const std::invalid_argument& err) {
+
+        }
     }
 
     Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :

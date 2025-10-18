@@ -13,7 +13,7 @@ namespace LRI::RCI {
     }
 
     int BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
-        if(!state.contains(qual)) return 1;
+        if(!state.contains(qual)) return (qual.devclass << 8) | qual.id;
         state[qual].open = newstate;
         state[qual].stale = false;
         return 0;
@@ -31,7 +31,7 @@ namespace LRI::RCI {
     }
 
     const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
-        if(!state.contains(qual)) throw HWNE("Bool Sensor does not exist: " + qual.asString());
+        if(!state.contains(qual)) throw HWNE("Bool Sensor does not exist", qual);
         return &state.at(qual);
     }
 

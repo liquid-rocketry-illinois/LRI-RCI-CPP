@@ -12,7 +12,7 @@ namespace LRI::RCI {
     SimpleActuators::~SimpleActuators() { reset(); }
 
     int SimpleActuators::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
-        if(!state.contains(qual)) return 1;
+        if(!state.contains(qual)) return (qual.devclass << 8) | qual.id;
         state[qual].stale = false;
         state[qual].open = newState;
         return 0;
@@ -33,7 +33,7 @@ namespace LRI::RCI {
     }
 
     const SimpleActuators::ActuatorState* SimpleActuators::getState(const HardwareQualifier& qual) const {
-        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist", qual);
         return &state.at(qual);
     }
 
@@ -45,7 +45,7 @@ namespace LRI::RCI {
     }
 
     void SimpleActuators::setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState) {
-        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist: ", qual);
         state[qual].stale = true;
         RCP_sendSimpleActuatorWrite(qual.id, newState);
     }

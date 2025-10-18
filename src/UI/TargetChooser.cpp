@@ -53,6 +53,137 @@ namespace LRI::RCI {
         chooser = new COMPortChooser();
     }
 
+    void TargetChooser::renderActive() {
+        // When the interface is open, it shows the current target and interface configurations, as well as an
+        // option to change the polling rate of RCP, in addition to a close button.
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
+        ImGui::Text("Open");
+        ImGui::PopStyleColor();
+
+        ImGui::Text("Current Target Config: %s", configName.c_str());
+        ImGui::Text("Current Interface: %s", interfName.c_str());
+
+        ImGui::NewLine();
+        ImGui::Text("Polling Rate (polls/frame): ");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(75 * scaling_factor);
+        ImGui::InputInt("##pollinginput", &pollingRate, 1, 5);
+
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+        ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
+        ImGui::PopStyleColor();
+        ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
+
+        int rc = 0;
+        for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
+            rc = RCP_poll();
+            if(rc != 0) break;
+        }
+
+        if(ImGui::Button("Close Interface")) {
+            RCP_shutdown();
+            delete interf;
+            interf = nullptr;
+            control->cleanup();
+            TestState::getInstance()->reset();
+        }
+
+        if(rc == -2) throw RCPStreamException("Stream became mis-aligned");
+
+        // Throw error and extract hardware qualifier from error code
+        if(rc > 0)
+            throw HWNE("RCP received packet for non-existent hardware qualifier " + std::to_string((rc & 0xff00) >> 8) +
+                       ":" + std::to_string(rc & 0xff));
+    }
+
+    void TargetChooser::renderDeactive() {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+        ImGui::Text("Closed");
+        ImGui::PopStyleColor();
+
+        // First the user needs to select the target though
+        ImGui::Text("Choose Target Config: ");
+        ImGui::SameLine();
+        if(targetpaths.empty()) ImGui::Text("No Target configs available");
+        else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].c_str())) {
+            for(size_t i = 0; i < targetpaths.size(); i++) {
+                bool selected = i == chosenConfig;
+                if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected)) chosenConfig = i;
+                if(selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        // Afterward a dropdown with the available interfaces is shown, and if a different interface chooser is
+        // selected it is created
+        ImGui::Text("Interface Type: ");
+        ImGui::SameLine();
+        bool choosermod = !chooser;
+        if(interfaceoptions.empty()) ImGui::Text("No available interfaces");
+        else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].c_str())) {
+            for(size_t i = 0; i < interfaceoptions.size(); i++) {
+                bool selected = i == chosenInterface;
+                if(ImGui::Selectable((interfaceoptions[i] + "##interfacechooser").c_str(), &selected)) {
+                    chosenInterface = i;
+                    choosermod = true;
+                }
+
+                if(selected) ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+        }
+
+        // If a new chooser has been chosen:
+        if(choosermod) {
+            delete chooser;
+            switch(chosenInterface) {
+            case 0:
+                chooser = new COMPortChooser();
+                break;
+
+            case 1:
+                chooser = new VirtualPortChooser();
+                break;
+
+            case 2:
+                chooser = new TCPInterfaceChooser();
+                break;
+
+            default:
+                chooser = nullptr;
+            }
+        }
+
+        ImGui::NewLine();
+        ImGui::Separator();
+
+        // Render the chooser, and if it returns an open interface initialize RCP and the rest of the program
+        if(chooser != nullptr) {
+            RCP_Interface* _interf = chooser->render();
+            if(_interf != nullptr) {
+                // If the chooser indicates success:
+                delete chooser;
+                chooser = nullptr;
+                interf = _interf;
+                RCP_init(callbacks);
+                RCP_setChannel(RCP_CH_ZERO);
+
+                // Parse the selected config file
+                std::ifstream config(targetpaths[chosenConfig]);
+                targetconfig = nlohmann::json::parse(config);
+                control->interf = interf;
+                control->inipath = targetpaths[chosenConfig] + ".ini";
+
+                // Tell the main loop to load the new ini file before the next frame
+                if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) iniFilePath.path = control->inipath;
+
+                // Call initializer of the rest of the windows
+                initWindows();
+            }
+        }
+    }
+
     void TargetChooser::render() {
         ImGui::PushID("TargetChooser");
 
@@ -60,128 +191,10 @@ namespace LRI::RCI {
         ImGui::SameLine();
 
         // There are two different "modes" this window is in: when the interface is open and when it is not.
-        if(interf && interf->isOpen()) {
-            // When the interface is open, it shows the current target and interface configurations, as well as an
-            // option to change the polling rate of RCP, in addition to a close button.
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
-            ImGui::Text("Open");
-            ImGui::PopStyleColor();
-
-            ImGui::Text("Current Target Config: %s", configName.c_str());
-            ImGui::Text("Current Interface: %s", interfName.c_str());
-
-            ImGui::NewLine();
-            ImGui::Text("Polling Rate (polls/frame): ");
-            ImGui::SameLine();
-            ImGui::SetNextItemWidth(75 * scaling_factor);
-            ImGui::InputInt("##pollinginput", &pollingRate, 1, 5);
-
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
-            ImGui::PopStyleColor();
-            ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
-
-            for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
-                RCP_poll();
-            }
-
-            if(ImGui::Button("Close Interface")) {
-                RCP_shutdown();
-                delete interf;
-                interf = nullptr;
-                control->cleanup();
-                TestState::getInstance()->reset();
-            }
-        }
+        if(interf && interf->isOpen()) renderActive();
 
         // If an interface is not open, then a chooser should be rendered
-        else {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("Closed");
-            ImGui::PopStyleColor();
-
-            // First the user needs to select the target though
-            ImGui::Text("Choose Target Config: ");
-            ImGui::SameLine();
-            if(targetpaths.empty()) ImGui::Text("No Target configs available");
-            else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].c_str())) {
-                for(size_t i = 0; i < targetpaths.size(); i++) {
-                    bool selected = i == chosenConfig;
-                    if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected)) chosenConfig = i;
-                    if(selected) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            // Afterward a dropdown with the available interfaces is shown, and if a different interface chooser is
-            // selected it is created
-            ImGui::Text("Interface Type: ");
-            ImGui::SameLine();
-            bool choosermod = !chooser;
-            if(interfaceoptions.empty()) ImGui::Text("No available interfaces");
-            else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].c_str())) {
-                for(size_t i = 0; i < interfaceoptions.size(); i++) {
-                    bool selected = i == chosenInterface;
-                    if(ImGui::Selectable((interfaceoptions[i] + "##interfacechooser").c_str(), &selected)) {
-                        chosenInterface = i;
-                        choosermod = true;
-                    }
-
-                    if(selected) ImGui::SetItemDefaultFocus();
-                }
-
-                ImGui::EndCombo();
-            }
-
-            // If a new chooser has been chosen:
-            if(choosermod) {
-                delete chooser;
-                switch(chosenInterface) {
-                case 0:
-                    chooser = new COMPortChooser();
-                    break;
-
-                case 1:
-                    chooser = new VirtualPortChooser();
-                    break;
-
-                case 2:
-                    chooser = new TCPInterfaceChooser();
-                    break;
-
-                default:
-                    chooser = nullptr;
-                }
-            }
-
-            ImGui::NewLine();
-            ImGui::Separator();
-
-            // Render the chooser, and if it returns an open interface initialize RCP and the rest of the program
-            if(chooser != nullptr) {
-                RCP_Interface* _interf = chooser->render();
-                if(_interf != nullptr) {
-                    // If the chooser indicates success:
-                    delete chooser;
-                    chooser = nullptr;
-                    interf = _interf;
-                    RCP_init(callbacks);
-                    RCP_setChannel(RCP_CH_ZERO);
-
-                    // Parse the selected config file
-                    std::ifstream config(targetpaths[chosenConfig]);
-                    targetconfig = nlohmann::json::parse(config);
-                    control->interf = interf;
-                    control->inipath = targetpaths[chosenConfig] + ".ini";
-
-                    // Tell the main loop to load the new ini file before the next frame
-                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) iniFilePath.path = control->inipath;
-
-                    // Call initializer of the rest of the windows
-                    initWindows();
-                }
-            }
-        }
+        else renderDeactive();
 
         ImGui::PopID();
     }
@@ -218,7 +231,7 @@ namespace LRI::RCI {
             auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
 
             // If the lengths dont match then drop this section
-            if(ids.empty() || ids.size() != names.size()) throw HWNE("Hardware section is invalid");
+            if(ids.empty() || ids.size() != names.size()) throw std::invalid_argument("Hardware section is invalid");
 
             // Construct the qualifiers in this section
             std::set<HardwareQualifier> quals;
@@ -277,81 +290,91 @@ namespace LRI::RCI {
                 // get the module type
                 int type = targetconfig["windows"][i]["modules"][j]["type"].get<int>();
 
-                // Switch on the type and parse the correct parameters
-                switch(type) {
-                case -1:
-                    modules.push_back(new EStopViewer());
-                    break;
+                // Wrap in try-catch to catch any HWNE exceptions
+                try {
+                    // Switch on the type and parse the correct parameters
+                    switch(type) {
+                    case -1:
+                        modules.push_back(new EStopViewer());
+                        break;
 
-                case RCP_DEVCLASS_TEST_STATE:
-                    modules.push_back(new TestStateViewer());
-                    break;
+                    case RCP_DEVCLASS_TEST_STATE:
+                        modules.push_back(new TestStateViewer());
+                        break;
 
-                case RCP_DEVCLASS_SIMPLE_ACTUATOR:
-                case RCP_DEVCLASS_BOOL_SENSOR:
-                case RCP_DEVCLASS_STEPPER:
-                case RCP_DEVCLASS_ANGLED_ACTUATOR: {
-                    bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
-                    auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
+                    case RCP_DEVCLASS_SIMPLE_ACTUATOR:
+                    case RCP_DEVCLASS_BOOL_SENSOR:
+                    case RCP_DEVCLASS_STEPPER:
+                    case RCP_DEVCLASS_ANGLED_ACTUATOR: {
+                        bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
+                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
 
-                    // Filter out any qualifiers that havent been configured in the devices section
-                    auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
-                                        return q.devclass == type && ids.contains(q.id);
-                                    });
-
-                    const auto qualSet = std::set(filtered.begin(), filtered.end());
-
-                    // Determine correct module type and construct it
-                    if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
-                        modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
-                    else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
-                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
-                        modules.push_back(new AngledActuatorViewer(qualSet, refresh));
-                    else modules.push_back(new BoolSensorViewer(qualSet, refresh));
-                    break;
-                }
-
-                case RCP_DEVCLASS_PROMPT:
-                    modules.push_back(new PromptViewer());
-                    break;
-
-                case RCP_DEVCLASS_CUSTOM:
-                    modules.push_back(new RawViewer());
-                    break;
-
-                case RCP_DEVCLASS_AM_PRESSURE:
-                case RCP_DEVCLASS_AM_TEMPERATURE:
-                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                case RCP_DEVCLASS_LOAD_CELL:
-                case RCP_DEVCLASS_POWERMON:
-                case RCP_DEVCLASS_ACCELEROMETER:
-                case RCP_DEVCLASS_GYROSCOPE:
-                case RCP_DEVCLASS_MAGNETOMETER:
-                case RCP_DEVCLASS_GPS: {
-                    // Get abridged setting
-                    bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
-                    std::set<HardwareQualifier> quals;
-
-                    // Parse which qualifiers to add
-                    for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
-                        // Json's getting a little long lol
-                        int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
-                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<int>>();
-
-                        // Filter out any qualifiers not configured in the devices section
-                        auto filtered = allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
-                                            return q.devclass == devclass && ids.contains(q.id);
+                        // Filter out any qualifiers that havent been configured in the devices section
+                        auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
+                                            return q.devclass == type && ids.contains(q.id);
                                         });
-                        quals.insert(filtered.begin(), filtered.end());
+
+                        const auto qualSet = std::set(filtered.begin(), filtered.end());
+
+                        // Determine correct module type and construct it
+                        if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
+                            modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
+                        else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
+                        else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
+                            modules.push_back(new AngledActuatorViewer(qualSet, refresh));
+                        else modules.push_back(new BoolSensorViewer(qualSet, refresh));
+                        break;
                     }
 
-                    modules.push_back(new SensorViewer(quals, abridged));
-                    break;
-                }
+                    case RCP_DEVCLASS_PROMPT:
+                        modules.push_back(new PromptViewer());
+                        break;
 
-                default:
-                    break;
+                    case RCP_DEVCLASS_CUSTOM:
+                        modules.push_back(new RawViewer());
+                        break;
+
+                    case RCP_DEVCLASS_AM_PRESSURE:
+                    case RCP_DEVCLASS_AM_TEMPERATURE:
+                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                    case RCP_DEVCLASS_LOAD_CELL:
+                    case RCP_DEVCLASS_POWERMON:
+                    case RCP_DEVCLASS_ACCELEROMETER:
+                    case RCP_DEVCLASS_GYROSCOPE:
+                    case RCP_DEVCLASS_MAGNETOMETER:
+                    case RCP_DEVCLASS_GPS: {
+                        // Get abridged setting
+                        bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
+                        std::set<HardwareQualifier> quals;
+
+                        // Parse which qualifiers to add
+                        for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                            // Json's getting a little long lol
+                            int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+                            auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<int>>();
+
+                            // Filter out any qualifiers not configured in the devices section
+                            auto filtered =
+                                allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
+                                    return q.devclass == devclass && ids.contains(q.id);
+                                });
+                            quals.insert(filtered.begin(), filtered.end());
+                        }
+
+                        modules.push_back(new SensorViewer(quals, abridged));
+                        break;
+                    }
+
+                    default:
+                        break;
+                    }
+                }
+                catch([[maybe_unused]] const HWNE& err) {
+                    for(const auto mod : modules) delete mod;
+                    modules.clear();
+                    control->cleanup();
+                    throw;
                 }
             }
 

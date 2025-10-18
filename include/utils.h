@@ -103,8 +103,14 @@ namespace LRI::RCI {
 
     class ThreadStopException : public std::runtime_error {
     public:
-        explicit ThreadStopException(const std::string& what);
+        explicit ThreadStopException(const std::string& what) : runtime_error(what) {};
         ~ThreadStopException() override = default;
+    };
+
+    class RCPStreamException : public std::runtime_error {
+    public:
+        explicit RCPStreamException(const std::string& what) : runtime_error(what) {}
+        ~RCPStreamException() override = default;
     };
 } // namespace LRI::RCI
 

@@ -20,7 +20,7 @@ namespace LRI::RCI {
     }
 
     int Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
-        if(!motors.contains(qual)) return 1;
+        if(!motors.contains(qual)) return (qual.devclass << 8) | qual.id;
         motors[qual].position = pos;
         motors[qual].speed = speed;
         motors[qual].stale = true;
