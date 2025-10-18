@@ -261,6 +261,9 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x / v2.x, v1.y / v2.y}; }
 
     ImVec2 operator/(ImVec2 const& v1, const float constant) { return {v1.x / constant, v1.y / constant}; }
+
+     ThreadStopException::ThreadStopException(const std::string& what) : runtime_error(what) {  }
+
 } // namespace LRI::RCI
 
 namespace ImGui {

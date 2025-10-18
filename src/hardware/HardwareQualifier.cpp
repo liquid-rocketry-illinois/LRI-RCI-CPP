@@ -10,4 +10,6 @@ namespace LRI::RCI {
     std::string HardwareQualifier::asString() const {
         return std::to_string(devclass) + "-" + std::to_string(id) + "-" + name;
     }
+
+    HWNE::HWNE(const std::string& what) : runtime_error(what) {}
 } // namespace LRI::RCI

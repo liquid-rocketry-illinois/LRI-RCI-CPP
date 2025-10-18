@@ -50,7 +50,7 @@ namespace LRI::RCI {
         static std::string renderLatestReadingsString(const HardwareQualifier& qual, const Sensors::DataPoint& data);
 
         // An ampty data point
-        static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
+        static constexpr Sensors::DataPoint empty{0, {0, 0, 0, 0}};
 
         // If the sensors should be displayed in abridged mode
         const bool abridged;

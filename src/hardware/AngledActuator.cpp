@@ -18,6 +18,7 @@ namespace LRI::RCI {
     }
 
     void AngledActuators::setActuatorPos(const HardwareQualifier& qual, float degrees) {
+        if(!actuators.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
         RCP_sendAngledActuatorWrite(qual.id, degrees);
     }
 

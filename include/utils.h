@@ -100,6 +100,12 @@ namespace LRI::RCI {
         void push(T value);
         void clear();
     };
+
+    class ThreadStopException : public std::runtime_error {
+    public:
+        explicit ThreadStopException(const std::string& what);
+        ~ThreadStopException() override = default;
+    };
 } // namespace LRI::RCI
 
 namespace ImGui {
