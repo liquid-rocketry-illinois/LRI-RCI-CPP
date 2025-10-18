@@ -4,11 +4,15 @@ project(LRI_control_panel)
 set(CMAKE_CXX_STANDARD 23)
 set(EXE_NAME "LRIRCI")
 
-if (WIN32)
-    set(PLATFORM_LIBS "opengl32 gdi32 imm32 user32 advapi32 Setupapi")
-else ()
-    set(PLATFORM_LIBS "GL")
-endif ()
+if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message("Compiler ID is: ${CMAKE_CXX_COMPILER_ID}")
+    message(FATAL_ERROR "GCC compiler is requried!")
+endif()
+
+# This is really only needed on windows, since linux typically comes with gcc libc/libstdc++ readily available
+if(WIN32)
+    add_compile_options(-static-libstdc++)
+endif()
 
 add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp
@@ -91,16 +95,17 @@ add_executable(LRI_control_panel
         $<$<NOT:$<BOOL:${WIN32}>>:src/LinuxEmbeddedResource.cpp>
 )
 
-target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML::Network imgui ${PLATFORM_LIBS})
 
+target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML::Network imgui)
 target_include_directories(LRI_control_panel PRIVATE include)
 
-
-# Statically link C runtime if on windows
-if (WIN32)
-    set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(WIN32)
+    # Windows libraries and an extra compile flag
+    target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi)
     target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
-endif ()
+else()
+    target_link_libraries(LRI_control_panel PRIVATE GL)
+endif()
 
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
 
@@ -115,10 +120,10 @@ add_custom_target(copy_target_jsons ALL
 
 add_dependencies(LRI_control_panel copy_target_jsons)
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_custom_target(LRI_control_panel_GithubRelease
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
     add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
-endif ()
+endif()
 
 include(cmake/gen_resources.cmake)
