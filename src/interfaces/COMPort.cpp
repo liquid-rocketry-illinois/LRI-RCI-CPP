@@ -65,7 +65,7 @@ namespace LRI::RCI {
         // If the port allocated but did not open then show an error
         if(port->didPortOpenFail()) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-            ImGui::Text("Error Connecting to Serial Port (%u)", port->lastError());
+            ImGui::Text("Error Connecting to Serial Port stage %lu code %lu)", port->lastError().code, port->lastError().stage);
             ImGui::PopStyleColor();
 
             ImGui::SameLine();

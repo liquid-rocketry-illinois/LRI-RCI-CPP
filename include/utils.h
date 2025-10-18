@@ -46,7 +46,7 @@ namespace LRI::RCI {
 
     // Helpers to organize the various ImGui related calls
     void imgui_init(GLFWwindow* window);
-    void imgui_prerender(GLFWwindow* window);
+    void imgui_prerender();
     void imgui_postrender(GLFWwindow* window);
     void imgui_shutdown(GLFWwindow* window);
 

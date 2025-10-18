@@ -16,15 +16,15 @@ namespace LRI::RCI {
     bool VirtualPort::isOpen() const { return true; }
 
     bool VirtualPort::pktAvailable() const {
-        return initpacket.size() >= (initpacket.peek() & (~RCP_CHANNEL_MASK)) + 2;
+        return initpacket.size() >= static_cast<uint32_t>(initpacket.peek() & (~RCP_CHANNEL_MASK)) + 2;
     }
 
-    size_t VirtualPort::sendData(const void* data, size_t length) const { return length; }
+    size_t VirtualPort::sendData([[maybe_unused]] const void* data, size_t length) const { return length; }
 
     size_t VirtualPort::readData(void* data, size_t bufferSize) const {
         size_t written = 0;
         uint8_t* cdata = static_cast<uint8_t*>(data);
-        for(int i = 0; i < bufferSize && !initpacket.isEmpty(); written++, i++) {
+        for(size_t i = 0; i < bufferSize && !initpacket.isEmpty(); written++, i++) {
             cdata[i] = initpacket.pop();
         }
 

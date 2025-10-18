@@ -82,7 +82,7 @@ namespace LRI::RCI {
 
 
     void Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) return;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0,
                        .data = {static_cast<double>(data.data)}};
@@ -91,25 +91,25 @@ namespace LRI::RCI {
     }
 
     void Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) return;
-        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual]->push_back(d);
     }
 
     void Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) return;
-        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual]->push_back(d);
     }
 
     void Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID};
+        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) return;
-        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0};
+        DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual]->push_back(d);
     }

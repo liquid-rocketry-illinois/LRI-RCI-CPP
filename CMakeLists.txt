@@ -98,6 +98,7 @@ add_executable(LRI_control_panel
 
 target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML::Network imgui)
 target_include_directories(LRI_control_panel PRIVATE include)
+target_compile_options(LRI_control_panel PRIVATE -Wall -Wextra -pedantic -Werror)
 
 if(WIN32)
     # Windows libraries and an extra compile flag

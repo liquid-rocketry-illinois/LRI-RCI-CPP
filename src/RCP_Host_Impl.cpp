@@ -41,13 +41,13 @@ namespace LRI::RCI {
     }
 
     int processBoolData(RCP_BoolData data) {
-        BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID}, data.data);
+        BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
         return 0;
     }
 
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
-        SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID},
+        SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
                                                          data.state == RCP_SIMPLE_ACTUATOR_ON);
         return 0;
     }
@@ -69,7 +69,7 @@ namespace LRI::RCI {
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
-            Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID}, data.data[0], data.data[1]);
+            Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
         else Sensors::getInstance()->receiveRCPUpdate(data);
         return 0;
     }

@@ -105,7 +105,7 @@ namespace LRI::RCI {
     }
 
     size_t IOInterface::readData(void* data, size_t bufferSize) const {
-        int bytesread;
+        size_t bytesread;
         const auto _bytes = static_cast<uint8_t*>(data);
 
         // Lock the input buffer and pop bytes from the buffer and place them into the output buffer
@@ -122,7 +122,7 @@ namespace LRI::RCI {
         inlock.lock();
         bool hasData;
         if(inbuffer->size() == 0) hasData = false;
-        else hasData = inbuffer->size() >= (inbuffer->peek() & (~RCP_CHANNEL_MASK)) + 2;
+        else hasData = inbuffer->size() >= static_cast<uint32_t>(inbuffer->peek() & (~RCP_CHANNEL_MASK)) + 2;
         inlock.unlock();
         return hasData;
     }

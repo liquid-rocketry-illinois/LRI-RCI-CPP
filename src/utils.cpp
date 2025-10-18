@@ -120,7 +120,7 @@ namespace LRI::RCI {
     }
 
     // Is called to set up each frame before rendering
-    void imgui_prerender(GLFWwindow* window) {
+    void imgui_prerender() {
         // If a configuration has been loaded and requests to load a window layout, do that here
         // before the new frame.
         if(!iniFilePath.empty()) {

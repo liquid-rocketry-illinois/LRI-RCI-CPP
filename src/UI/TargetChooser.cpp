@@ -193,7 +193,7 @@ namespace LRI::RCI {
 
         // Parse test list and pass to TestState
         std::map<uint8_t, std::string> tests;
-        for(int i = 0; i < targetconfig["tests"].size(); i++) {
+        for(size_t i = 0; i < targetconfig["tests"].size(); i++) {
             tests[targetconfig["tests"][i]["id"].get<uint8_t>()] = targetconfig["tests"][i]["name"].get<std::string>();
         }
         TestState::getInstance()->setTests(tests);
@@ -209,7 +209,7 @@ namespace LRI::RCI {
         Prompt::getInstance()->reset();
 
         // Iterate through all devices
-        for(int i = 0; i < targetconfig["devices"].size(); i++) {
+        for(size_t i = 0; i < targetconfig["devices"].size(); i++) {
             // Get the device class of this object
             auto devclass = static_cast<RCP_DeviceClass>(targetconfig["devices"][i]["devclass"].get<int>());
 
@@ -245,6 +245,7 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_ANGLED_ACTUATOR:
                 // Intentional case fallthrough
                 AngledActuators::getInstance()->setHardwareConfig(quals);
+                [[fallthrough]];
 
             case RCP_DEVCLASS_AM_PRESSURE:
             case RCP_DEVCLASS_AM_TEMPERATURE:
@@ -268,11 +269,11 @@ namespace LRI::RCI {
         Sensors::getInstance()->setHardwareConfig(sensors);
 
         // Iterate over the windowlets and configure their modules
-        for(int i = 0; i < targetconfig["windows"].size(); i++) {
+        for(size_t i = 0; i < targetconfig["windows"].size(); i++) {
             std::vector<WModule*> modules;
 
             // Iterate over the modules array
-            for(int j = 0; j < targetconfig["windows"][i]["modules"].size(); j++) {
+            for(size_t j = 0; j < targetconfig["windows"][i]["modules"].size(); j++) {
                 // get the module type
                 int type = targetconfig["windows"][i]["modules"][j]["type"].get<int>();
 
@@ -304,7 +305,8 @@ namespace LRI::RCI {
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
                     else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
-                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR) modules.push_back(new AngledActuatorViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
+                        modules.push_back(new AngledActuatorViewer(qualSet, refresh));
                     else modules.push_back(new BoolSensorViewer(qualSet, refresh));
                     break;
                 }
@@ -332,7 +334,7 @@ namespace LRI::RCI {
                     std::set<HardwareQualifier> quals;
 
                     // Parse which qualifiers to add
-                    for(int k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                    for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
                         int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
                         auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<int>>();
