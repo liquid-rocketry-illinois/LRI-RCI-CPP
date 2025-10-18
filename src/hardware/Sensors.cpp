@@ -83,36 +83,40 @@ namespace LRI::RCI {
     Sensors::~Sensors() { reset(); }
 
 
-    void Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!sensors.contains(qual)) return 1;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0,
                        .data = {static_cast<double>(data.data)}};
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!sensors.contains(qual)) return 1;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!sensors.contains(qual)) return 1;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!sensors.contains(qual)) return 1;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
     void Sensors::setHardwareConfig(const std::set<HardwareQualifier>& sensids) {

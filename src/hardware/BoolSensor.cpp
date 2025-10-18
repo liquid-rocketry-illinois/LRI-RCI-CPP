@@ -12,10 +12,11 @@ namespace LRI::RCI {
         return instance;
     }
 
-    void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
-        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+    int BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+        if(!state.contains(qual)) return 1;
         state[qual].open = newstate;
         state[qual].stale = false;
+        return 0;
     }
 
     void BoolSensors::reset() {

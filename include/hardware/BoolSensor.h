@@ -32,7 +32,7 @@ namespace LRI::RCI {
         static BoolSensors* getInstance();
 
         // Receive updates from RCP
-        void receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
+        int receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
 
         // Set which qualifiers are tracked by the singleton, and the interval for refreshes
         void setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime = 5);

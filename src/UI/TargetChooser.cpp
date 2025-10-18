@@ -218,7 +218,7 @@ namespace LRI::RCI {
             auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
 
             // If the lengths dont match then drop this section
-            if(ids.empty() || ids.size() != names.size()) continue;
+            if(ids.empty() || ids.size() != names.size()) throw HWNE("Hardware section is invalid");
 
             // Construct the qualifiers in this section
             std::set<HardwareQualifier> quals;

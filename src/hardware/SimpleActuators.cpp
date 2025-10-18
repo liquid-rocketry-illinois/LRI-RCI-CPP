@@ -11,10 +11,11 @@ namespace LRI::RCI {
 
     SimpleActuators::~SimpleActuators() { reset(); }
 
-    void SimpleActuators::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
-        if(!state.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+    int SimpleActuators::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
+        if(!state.contains(qual)) return 1;
         state[qual].stale = false;
         state[qual].open = newState;
+        return 0;
     }
 
     void SimpleActuators::setHardwareConfig(const std::set<HardwareQualifier>& solIds) {

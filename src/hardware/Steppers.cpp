@@ -19,11 +19,12 @@ namespace LRI::RCI {
         return &motors.at(qual);
     }
 
-    void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
-        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+    int Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
+        if(!motors.contains(qual)) return 1;
         motors[qual].position = pos;
         motors[qual].speed = speed;
         motors[qual].stale = true;
+        return 0;
     }
 
     void Steppers::refreshAll() {

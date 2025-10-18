@@ -30,7 +30,7 @@ namespace LRI::RCI {
         static Steppers* getInstance();
 
         // Receive updates from RCP
-        void receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
+        int receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
 
         // Set which qualifiers are in use
         void setHardwareConfig(const std::set<HardwareQualifier>& motorlist);
