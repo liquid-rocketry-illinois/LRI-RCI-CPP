@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include "UI/ErrorWindow.h"
 #include "hardware/HardwareQualifier.h"
 
 namespace LRI::RCI {
@@ -27,19 +28,22 @@ namespace LRI::RCI {
             ControlWindowlet::getInstance()->render();
         }
         catch(const HWNE& err) {
-
+            std::stringstream ss;
+            ss << err.what();
+            ss << "\nProblematic Qualifier: " << err.qual.asString();
+            new Windowlet("ERROR!", {new ErrorWindow(ss.str())});
         }
 
-        catch(const RCPStreamException& err) {
-
+        catch([[maybe_unused]] const RCPStreamException& err) {
+            new Windowlet("ERROR!", {new ErrorWindow("RCP Stream has become misaligned!")});
         }
 
-        catch(const ThreadStopException& err) {
-
+        catch([[maybe_unused]] const ThreadStopException& err) {
+            new Windowlet("ERROR!", {new ErrorWindow("Sensor data file writing theads failed to stop!")});
         }
 
         catch(const std::invalid_argument& err) {
-
+            new Windowlet("ERROR!", {new ErrorWindow(std::string("Configuration error:\n") + err.what())});
         }
     }
 

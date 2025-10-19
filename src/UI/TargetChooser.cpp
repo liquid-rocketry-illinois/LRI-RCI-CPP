@@ -92,8 +92,8 @@ namespace LRI::RCI {
 
         // Throw error and extract hardware qualifier from error code
         if(rc > 0)
-            throw HWNE("RCP received packet for non-existent hardware qualifier " + std::to_string((rc & 0xff00) >> 8) +
-                       ":" + std::to_string(rc & 0xff));
+            throw HWNE("RCP received packet for non-existent hardware qualifier ",
+                       {static_cast<RCP_DeviceClass>((rc & 0xff00) >> 8), static_cast<uint8_t>(rc & 0xff), ""});
     }
 
     void TargetChooser::renderDeactive() {
@@ -231,7 +231,13 @@ namespace LRI::RCI {
             auto names = targetconfig["devices"][i]["names"].get<std::vector<std::string>>();
 
             // If the lengths dont match then drop this section
-            if(ids.empty() || ids.size() != names.size()) throw std::invalid_argument("Hardware section is invalid");
+            if(ids.empty() || ids.size() != names.size()) {
+                std::stringstream ss;
+                ss << "Hardware section is invalid: ";
+                ss << "\n\tID list size " << ids.size() << " does not match names size " << names.size();
+                ss << "\n\t in section devclass " << devclass;
+                throw std::invalid_argument(ss.str());
+            }
 
             // Construct the qualifiers in this section
             std::set<HardwareQualifier> quals;

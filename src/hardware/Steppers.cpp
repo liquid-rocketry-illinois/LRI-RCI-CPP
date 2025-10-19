@@ -15,7 +15,7 @@ namespace LRI::RCI {
     }
 
     const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
-        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: ", qual);
         return &motors.at(qual);
     }
 
@@ -49,7 +49,7 @@ namespace LRI::RCI {
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
-        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: " + qual.asString());
+        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: ", qual);
         RCP_sendStepperWrite(qual.id, controlMode, value);
         motors[qual].stale = true;
     }
