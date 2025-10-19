@@ -12,5 +12,8 @@ namespace LRI::RCI {
         ImGui::PopStyleColor();
 
         ImGui::TextUnformatted(errorMessage.c_str());
+
+        ImGui::PopID();
+        ImGui::PopID();
     }
 }

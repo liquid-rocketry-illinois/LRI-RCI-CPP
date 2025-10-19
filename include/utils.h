@@ -90,6 +90,24 @@ namespace LRI::RCI {
         explicit RCPStreamException(const std::string& what) : runtime_error(what) {}
         ~RCPStreamException() override = default;
     };
+
+    // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
+    // outside the WModule/Windowlet abstraction tree
+    class IniFilePath {
+        friend class TargetChooser;
+        std::string path;
+
+    public:
+        std::string getPath() {
+            std::string copy = path;
+            path = "";
+            return copy;
+        }
+
+        [[nodiscard]] bool empty() const { return path.empty(); }
+    };
+
+    extern IniFilePath iniFilePath;
 } // namespace LRI::RCI
 
 namespace ImGui {

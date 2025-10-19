@@ -18,21 +18,7 @@
 #include "utils.h"
 
 namespace LRI::RCI {
-    // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
-    // outside the WModule/Windowlet abstraction tree
-    class IniFilePath {
-        friend class TargetChooser;
-        std::string path;
-
-    public:
-        std::string getPath() {
-            std::string copy = path;
-            path = "";
-            return copy;
-        }
-
-        [[nodiscard]] bool empty() const { return path.empty(); }
-    } iniFilePath;
+    IniFilePath iniFilePath;
 
     static std::string VERSION_STRING;
     static GLuint iconTex;
