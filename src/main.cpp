@@ -16,12 +16,11 @@
 
 #include "GLFW/glfw3.h"
 
-#include "utils.h"
-
 #include "UI/Windowlet.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/Sensors.h"
 #include "hardware/TestState.h"
+#include "rendering.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure

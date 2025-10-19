@@ -4,12 +4,6 @@
 #include <chrono>
 #include <string>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
-
-#include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 
@@ -27,28 +21,17 @@ namespace LRI::RCI {
     // Scaling factor for hi-dpi screens. Not perfect but its good enough
     extern float scaling_factor;
 
-    // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
-    // outside the WModule/Windowlet abstraction tree
-    class IniFilePath {
-        friend class TargetChooser;
-        std::string path;
-
-    public:
-        std::string getPath();
-        [[nodiscard]] bool empty() const;
-    };
-
-    extern IniFilePath iniFilePath;
+    // ImVec2 operators
+    inline ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x + v2.x, v1.y + v2.y}; }
+    inline ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x - v2.x, v1.y - v2.y}; }
+    inline ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x * v2.x, v1.y * v2.y}; }
+    inline ImVec2 operator*(ImVec2 const& v1, float constant) { return {v1.x * constant, v1.y * constant}; }
+    inline ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x / v2.x, v1.y / v2.y}; }
+    inline ImVec2 operator/(ImVec2 const& v1, float constant) { return {v1.x / constant, v1.y / constant}; }
 
     // Helpers for scaling floats and ImVec2's by scaling_factor
-    ImVec2 scale(const ImVec2& vec);
-    float scale(float val);
-
-    // Helpers to organize the various ImGui related calls
-    void imgui_init(GLFWwindow* window);
-    void imgui_prerender();
-    void imgui_postrender(GLFWwindow* window);
-    void imgui_shutdown(GLFWwindow* window);
+    inline ImVec2 scale(const ImVec2& vec) { return vec * scaling_factor; }
+    inline float scale(float val) { return val * scaling_factor; }
 
     // Stopwatch class for time tracking
     class StopWatch final {
@@ -56,27 +39,22 @@ namespace LRI::RCI {
         std::chrono::time_point<std::chrono::system_clock> lastClock;
 
     public:
-        StopWatch();
+        StopWatch() : lastClock(std::chrono::system_clock::now()) {}
         ~StopWatch() = default;
 
         // Resets time to zero
-        void reset();
+        void reset() { lastClock = std::chrono::system_clock::now(); }
 
         // Gets time since last reset
-        [[nodiscard]] float timeSince() const;
+        [[nodiscard]] float timeSince() const {
+            const std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - lastClock;
+            return elapsed.count();
+        }
     };
-
 
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
 
-    // ImVec2 operators
-    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, float constant);
-    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator/(ImVec2 const& v1, float constant);
 
     // Class definition for RingBuffer. See RingBuffer.inl
     template<typename T, T ret = 0>
@@ -103,7 +81,7 @@ namespace LRI::RCI {
 
     class ThreadStopException : public std::runtime_error {
     public:
-        explicit ThreadStopException(const std::string& what) : runtime_error(what) {};
+        explicit ThreadStopException(const std::string& what) : runtime_error(what) {}
         ~ThreadStopException() override = default;
     };
 

@@ -55,6 +55,7 @@ add_executable(LRI_control_panel
         src/utils.cpp
         src/improgress.cpp
         src/RCP_Host_Impl.cpp
+        src/rendering.cpp
 
         # UI Elements
         src/UI/AngledActuatorViewer.cpp
