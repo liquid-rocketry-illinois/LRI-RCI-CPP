@@ -4,6 +4,12 @@
 #include <chrono>
 #include <string>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
+#include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 
@@ -52,9 +58,17 @@ namespace LRI::RCI {
         }
     };
 
+
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
 
+    // ImVec2 operators
+    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator*(ImVec2 const& v1, float constant);
+    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
+    ImVec2 operator/(ImVec2 const& v1, float constant);
 
     // Class definition for RingBuffer. See RingBuffer.inl
     template<typename T, T ret = 0>
@@ -77,18 +91,6 @@ namespace LRI::RCI {
         T peek() const;
         void push(T value);
         void clear();
-    };
-
-    class ThreadStopException : public std::runtime_error {
-    public:
-        explicit ThreadStopException(const std::string& what) : runtime_error(what) {}
-        ~ThreadStopException() override = default;
-    };
-
-    class RCPStreamException : public std::runtime_error {
-    public:
-        explicit RCPStreamException(const std::string& what) : runtime_error(what) {}
-        ~RCPStreamException() override = default;
     };
 
     // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate

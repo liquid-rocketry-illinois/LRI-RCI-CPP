@@ -77,8 +77,6 @@ namespace LRI::RCI {
 
         // Helper to initialize all windows with the correct configurations
         void initWindows();
-        void renderActive();
-        void renderDeactive();
 
     public:
         // TargetChooser render function

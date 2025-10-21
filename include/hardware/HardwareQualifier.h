@@ -2,7 +2,6 @@
 #define HARDWAREQUALIFIER_H
 
 #include <string>
-#include <stdexcept>
 #include "RCP_Host/RCP_Host.h"
 
 // Class that represents a device on the target. Each device can be
@@ -20,15 +19,6 @@ namespace LRI::RCI {
 
         // Helper for packing data as a string. Not for display, use the name field instead
         [[nodiscard]] std::string asString() const;
-    };
-
-    // Custom exception: Hardware Not Exists Exception. Can be thrown by hardware classes if
-    // a client queries for a hardware qualifier that does not exist
-    class HWNE : public std::runtime_error {
-    public:
-        HardwareQualifier qual;
-        explicit HWNE(const std::string& what, const HardwareQualifier& qual) : runtime_error(what), qual(qual) {}
-        ~HWNE() override = default;
     };
 } // namespace LRI::RCI
 

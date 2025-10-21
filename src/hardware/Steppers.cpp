@@ -11,26 +11,26 @@ namespace LRI::RCI {
     }
 
     Steppers::~Steppers() {
-        reset();
+        for(const Stepper* s : motors | std::views::values) delete s;
+        motors.clear();
     }
 
     const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
-        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: ", qual);
-        return &motors.at(qual);
+        if(!motors.contains(qual)) return nullptr;
+        return motors.at(qual);
     }
 
-    int Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
-        if(!motors.contains(qual)) return (qual.devclass << 8) | qual.id;
-        motors[qual].position = pos;
-        motors[qual].speed = speed;
-        motors[qual].stale = true;
-        return 0;
+    void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
+        if(!motors.contains(qual)) return;
+        motors[qual]->position = pos;
+        motors[qual]->speed = speed;
+        motors[qual]->stale = true;
     }
 
-    void Steppers::refreshAll() {
+    void Steppers::refreshAll() const {
         for(const auto& qual : motors | std::views::keys) {
             RCP_requestGeneralRead(RCP_DEVCLASS_STEPPER, qual.id);
-            motors.at(qual).stale = true;
+            motors.at(qual)->stale = true;
         }
     }
 
@@ -38,19 +38,20 @@ namespace LRI::RCI {
         reset();
 
         for(const auto& qual : motorlist) {
-            motors[qual] = Stepper();
+            motors[qual] = new Stepper();
         }
 
         refreshAll();
     }
 
     void Steppers::reset() {
+        for(const Stepper* s : motors | std::views::values) delete s;
         motors.clear();
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
-        if(!motors.contains(qual)) throw HWNE("Sensor qualifier does not exist: ", qual);
+        if(!motors.contains(qual)) return;
         RCP_sendStepperWrite(qual.id, controlMode, value);
-        motors[qual].stale = true;
+        motors[qual]->stale = true;
     }
 } // namespace LRI::RCI

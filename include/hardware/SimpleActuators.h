@@ -18,7 +18,7 @@ namespace LRI::RCI {
 
     private:
         // Maps qualifiers to state pointers
-        std::map<HardwareQualifier, ActuatorState> state;
+        std::map<HardwareQualifier, ActuatorState*> state;
 
         SimpleActuators() = default;
         ~SimpleActuators();
@@ -28,7 +28,7 @@ namespace LRI::RCI {
         static SimpleActuators* getInstance();
 
         // Receive updates from RCP
-        int receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
+        void receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
 
         // Sets which qualifiers are active solenoids
         void setHardwareConfig(const std::set<HardwareQualifier>& solIds);
@@ -40,7 +40,7 @@ namespace LRI::RCI {
         [[nodiscard]] const ActuatorState* getState(const HardwareQualifier& qual) const;
 
         // Request refresh of all actuators
-        void refreshAll();
+        void refreshAll() const;
 
         // Request a write to an actuator
         void setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState);

@@ -20,7 +20,7 @@ namespace LRI::RCI {
     private:
 
         // Storage container for steppers
-        std::map<HardwareQualifier, Stepper> motors;
+        std::map<HardwareQualifier, Stepper*> motors;
 
         Steppers() = default;
         ~Steppers();
@@ -30,7 +30,7 @@ namespace LRI::RCI {
         static Steppers* getInstance();
 
         // Receive updates from RCP
-        int receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
+        void receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
 
         // Set which qualifiers are in use
         void setHardwareConfig(const std::set<HardwareQualifier>& motorlist);
@@ -39,7 +39,7 @@ namespace LRI::RCI {
         void reset();
 
         // Request refresh of all steppers
-        void refreshAll();
+        void refreshAll() const;
 
         // Get pointer viewer classes can use to track a stepper
         [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;

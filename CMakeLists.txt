@@ -60,7 +60,6 @@ add_executable(LRI_control_panel
         # UI Elements
         src/UI/AngledActuatorViewer.cpp
         src/UI/BoolSensorViewer.cpp
-        src/UI/ErrorWindow.cpp
         src/UI/EStopViewer.cpp
         src/UI/PromptViewer.cpp
         src/UI/RawViewer.cpp

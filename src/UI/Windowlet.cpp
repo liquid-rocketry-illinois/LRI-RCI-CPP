@@ -5,9 +5,7 @@
 #include <utility>
 
 #include <iostream>
-
-#include "UI/ErrorWindow.h"
-#include "hardware/HardwareQualifier.h"
+#include "UI/TestStateViewer.h"
 
 namespace LRI::RCI {
     // The global windowlet set
@@ -23,28 +21,7 @@ namespace LRI::RCI {
         // Important that this line is first, since the Control Window can modify the list of
         // windows between frames. Not good.
         for(auto* w : windows) w->render();
-
-        try {
-            ControlWindowlet::getInstance()->render();
-        }
-        catch(const HWNE& err) {
-            std::stringstream ss;
-            ss << err.what();
-            ss << "\nProblematic Qualifier: " << err.qual.asString();
-            new Windowlet("ERROR!", {new ErrorWindow(ss.str())});
-        }
-
-        catch([[maybe_unused]] const RCPStreamException& err) {
-            new Windowlet("ERROR!", {new ErrorWindow("RCP Stream has become misaligned!")});
-        }
-
-        catch([[maybe_unused]] const ThreadStopException& err) {
-            new Windowlet("ERROR!", {new ErrorWindow("Sensor data file writing theads failed to stop!")});
-        }
-
-        catch(const std::invalid_argument& err) {
-            new Windowlet("ERROR!", {new ErrorWindow(std::string("Configuration error:\n") + err.what())});
-        }
+        ControlWindowlet::getInstance()->render();
     }
 
     Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :

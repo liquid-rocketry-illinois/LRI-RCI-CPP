@@ -12,27 +12,27 @@ namespace LRI::RCI {
         return instance;
     }
 
-    int BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
-        if(!state.contains(qual)) return (qual.devclass << 8) | qual.id;
-        state[qual].open = newstate;
-        state[qual].stale = false;
-        return 0;
+    void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+        if(!state.contains(qual)) return;
+        state[qual]->open = newstate;
+        state[qual]->stale = false;
     }
 
     void BoolSensors::reset() {
+        for(const BoolSensorState* s : state | std::views::values) delete s;
         state.clear();
     }
 
-    void BoolSensors::refreshAll() {
+    void BoolSensors::refreshAll() const {
         for(const auto& qual : state | std::views::keys) {
             RCP_requestGeneralRead(RCP_DEVCLASS_BOOL_SENSOR, qual.id);
-            state.at(qual).stale = true;
+            state.at(qual)->stale = true;
         }
     }
 
     const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
-        if(!state.contains(qual)) throw HWNE("Bool Sensor does not exist", qual);
-        return &state.at(qual);
+        if(!state.contains(qual)) return nullptr;
+        return state.at(qual);
     }
 
     void BoolSensors::setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime) {
@@ -41,7 +41,7 @@ namespace LRI::RCI {
         refreshTime = std::max(_refreshTime, 1);
 
         for(const auto& qual : ids) {
-            state[qual] = BoolSensorState();
+            state[qual] = new BoolSensorState();
         }
 
         refreshAll();

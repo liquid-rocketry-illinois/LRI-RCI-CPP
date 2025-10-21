@@ -18,7 +18,7 @@ namespace LRI::RCI {
 
     private:
         // Storage for sensor states, mapped to their qualifiers
-        std::map<HardwareQualifier, BoolSensorState> state;
+        std::map<HardwareQualifier, BoolSensorState*> state;
 
         // Timer for refreshing
         StopWatch refreshTimer;
@@ -32,7 +32,7 @@ namespace LRI::RCI {
         static BoolSensors* getInstance();
 
         // Receive updates from RCP
-        int receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
+        void receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
 
         // Set which qualifiers are tracked by the singleton, and the interval for refreshes
         void setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime = 5);
@@ -44,7 +44,7 @@ namespace LRI::RCI {
         [[nodiscard]] const BoolSensorState* getState(const HardwareQualifier& qual) const;
 
         // Request a refresh of all tracked qualifiers
-        void refreshAll();
+        void refreshAll() const;
 
         // Called from main to check timer and refresh state
         void update();

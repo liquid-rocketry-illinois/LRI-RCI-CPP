@@ -30,7 +30,7 @@ namespace LRI::RCI {
         void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data);
 
         // Holds the data vectors mapped to their qualifiers
-        std::map<HardwareQualifier, std::vector<DataPoint>> sensors;
+        std::map<HardwareQualifier, std::vector<DataPoint>*> sensors;
 
         // Threads are placed in a map that maps the thread ID to its pointer, so threads can move themselves
         // between these two structures
@@ -51,10 +51,10 @@ namespace LRI::RCI {
         static Sensors* getInstance();
 
         // Receivers for different data structures from RCP
-        int receiveRCPUpdate(const RCP_OneFloat& data);
-        int receiveRCPUpdate(const RCP_TwoFloat& data);
-        int receiveRCPUpdate(const RCP_ThreeFloat& data);
-        int receiveRCPUpdate(const RCP_FourFloat& data);
+        void receiveRCPUpdate(const RCP_OneFloat& data);
+        void receiveRCPUpdate(const RCP_TwoFloat& data);
+        void receiveRCPUpdate(const RCP_ThreeFloat& data);
+        void receiveRCPUpdate(const RCP_FourFloat& data);
 
         // Sets which sensors are active
         void setHardwareConfig(const std::set<HardwareQualifier>& sensids);
