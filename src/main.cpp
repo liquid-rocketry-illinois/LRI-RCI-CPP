@@ -17,9 +17,7 @@
 #include "GLFW/glfw3.h"
 
 #include "UI/Windowlet.h"
-#include "hardware/BoolSensor.h"
-#include "hardware/Sensors.h"
-#include "hardware/TestState.h"
+#include "hardware/HardwareControl.h"
 #include "rendering.h"
 
 /*
@@ -45,14 +43,11 @@ int main() {
     // A very simple loop :)
     // While the window should not close, render stuff
     while(!glfwWindowShouldClose(window)) {
+        LRI::RCI::HWCTRL::update();
+
         LRI::RCI::imgui_prerender();
         LRI::RCI::Windowlet::renderWindowlets();
         LRI::RCI::imgui_postrender(window);
-
-        // Update hardware that needs updating
-        LRI::RCI::TestState::getInstance()->update(); // heartbeats
-        LRI::RCI::Sensors::getInstance()->update(); // Serialization threads
-        LRI::RCI::BoolSensors::getInstance()->update(); // Auto updates
     }
 
     // Once the window should close, then terminate libraries

@@ -47,7 +47,6 @@ namespace LRI::RCI {
         ControlWindowlet* const control;
 
         // The current interface and the names
-        RCP_Interface* interf;
         std::string configName;
         std::string interfName;
 
@@ -71,6 +70,9 @@ namespace LRI::RCI {
 
         // Stores the parsed target config
         nlohmann::json targetconfig;
+
+        // If there is currently an active configuration
+        bool activeTarget;
 
         explicit TargetChooser(ControlWindowlet* control);
         ~TargetChooser() override = default;

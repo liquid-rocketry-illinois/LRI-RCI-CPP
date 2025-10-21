@@ -6,7 +6,6 @@
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 
-#include "RCP_Host_Impl.h"
 #include "utils.h"
 
 #include "interfaces/COMPort.h"
@@ -15,6 +14,7 @@
 
 #include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
+#include "hardware/HardwareControl.h"
 #include "hardware/Prompt.h"
 #include "hardware/RawData.h"
 #include "hardware/Sensors.h"
@@ -35,7 +35,7 @@
 // The important one. Module for controlling the program as a whole
 namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
-        control(control), interf(nullptr), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0) {
+        control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
         if(std::filesystem::exists("targets/")) {
             for(const auto& file : std::filesystem::directory_iterator("targets/")) {
@@ -60,7 +60,7 @@ namespace LRI::RCI {
         ImGui::SameLine();
 
         // There are two different "modes" this window is in: when the interface is open and when it is not.
-        if(interf && interf->isOpen()) {
+        if(activeTarget) {
             // When the interface is open, it shows the current target and interface configurations, as well as an
             // option to change the polling rate of RCP, in addition to a close button.
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
@@ -74,23 +74,18 @@ namespace LRI::RCI {
             ImGui::Text("Polling Rate (polls/frame): ");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(75 * scaling_factor);
-            ImGui::InputInt("##pollinginput", &pollingRate, 1, 5);
+            ImGui::InputInt("##pollinginput", &HWCTRL::POLLS_PER_UPDATE, 1, 5);
+            if(HWCTRL::POLLS_PER_UPDATE < 1) HWCTRL::POLLS_PER_UPDATE = 1;
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
             ImGui::Text("WARNING: Higher Polling Rates increase frame render time!");
             ImGui::PopStyleColor();
             ImGui::Text("Latest Frame Time (s): %f", ImGui::GetIO().DeltaTime);
 
-            for(int i = 0; i < pollingRate && interf->pktAvailable(); i++) {
-                RCP_poll();
-            }
-
             if(ImGui::Button("Close Interface")) {
-                RCP_shutdown();
-                delete interf;
-                interf = nullptr;
+                HWCTRL::end();
                 control->cleanup();
-                TestState::getInstance()->reset();
+                activeTarget = false;
             }
         }
 
@@ -159,26 +154,25 @@ namespace LRI::RCI {
 
             // Render the chooser, and if it returns an open interface initialize RCP and the rest of the program
             if(chooser != nullptr) {
-                RCP_Interface* _interf = chooser->render();
-                if(_interf != nullptr) {
+                RCP_Interface* interf = chooser->render();
+                if(interf != nullptr) {
                     // If the chooser indicates success:
                     delete chooser;
                     chooser = nullptr;
-                    interf = _interf;
-                    RCP_init(callbacks);
-                    RCP_setChannel(RCP_CH_ZERO);
+                    interfName = interf->interfaceType();
+                    HWCTRL::start(interf);
 
                     // Parse the selected config file
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
-                    control->interf = interf;
                     control->inipath = targetpaths[chosenConfig] + ".ini";
 
                     // Tell the main loop to load the new ini file before the next frame
-                    if(std::filesystem::exists(targetpaths[chosenConfig] + ".ini")) iniFilePath.path = control->inipath;
+                    if(std::filesystem::exists(control->inipath)) iniFilePath.path = control->inipath;
 
                     // Call initializer of the rest of the windows
                     initWindows();
+                    activeTarget = true;
                 }
             }
         }
@@ -189,7 +183,6 @@ namespace LRI::RCI {
     // Helper function that resets and initializes everything based on the configuration file
     void TargetChooser::initWindows() {
         configName = targetconfig["name"].get<std::string>();
-        interfName = interf->interfaceType();
 
         // Parse test list and pass to TestState
         std::map<uint8_t, std::string> tests;

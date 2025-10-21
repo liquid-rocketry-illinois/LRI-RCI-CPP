@@ -51,14 +51,12 @@ namespace LRI::RCI {
 
     // TODO: target chooser module here
     ControlWindowlet::ControlWindowlet() :
-        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this))}, false),
-        interf(nullptr) {}
+        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this))}, false) {}
 
     void ControlWindowlet::cleanup() {
         ImGui::SaveIniSettingsToDisk(inipath.c_str());
         std::set w(windows);
         for(const auto* win : w) delete win;
-        interf = nullptr;
     }
 
     ControlWindowlet* ControlWindowlet::getInstance() {
@@ -80,6 +78,4 @@ namespace LRI::RCI {
             }
         ImGui::End();
     }
-
-    RCP_Interface* ControlWindowlet::getInterf() const { return interf; }
 } // namespace LRI::RCI

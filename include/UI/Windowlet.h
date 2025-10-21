@@ -59,7 +59,6 @@ namespace LRI::RCI {
         ControlWindowlet();
         ~ControlWindowlet() override = default;
 
-        RCP_Interface* interf;
         std::string inipath;
 
     public:
@@ -72,7 +71,6 @@ namespace LRI::RCI {
         // that were open due to the active configuration. It also needs to be able to provide a pointer to the
         // interface RCP should use to communicate with the target.
         void cleanup();
-        RCP_Interface* getInterf() const;
     };
 } // namespace LRI::RCI
 

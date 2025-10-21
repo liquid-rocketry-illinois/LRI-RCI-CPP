@@ -54,7 +54,6 @@ add_executable(LRI_control_panel
         src/main.cpp
         src/utils.cpp
         src/improgress.cpp
-        src/RCP_Host_Impl.cpp
         src/rendering.cpp
 
         # UI Elements
@@ -80,6 +79,7 @@ add_executable(LRI_control_panel
         src/hardware/AngledActuator.cpp
         src/hardware/BoolSensor.cpp
         src/hardware/EStop.cpp
+        src/hardware/HardwareControl.cpp
         src/hardware/HardwareQualifier.cpp
         src/hardware/Prompt.cpp
         src/hardware/RawData.cpp
