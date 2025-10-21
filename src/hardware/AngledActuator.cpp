@@ -1,8 +1,8 @@
-#include <ranges>
+#include "hardware/AngledActuator.h"
 
 #include "RCP_Host/RCP_Host.h"
 
-#include "hardware/AngledActuator.h"
+#include "hardware/HardwareControl.h"
 
 namespace LRI::RCI {
     AngledActuators* AngledActuators::getInstance() {
@@ -21,10 +21,18 @@ namespace LRI::RCI {
     }
 
     void AngledActuators::setActuatorPos(const HardwareQualifier& qual, float degrees) {
+        if(!actuators.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
         RCP_sendAngledActuatorWrite(qual.id, degrees);
     }
 
     const std::vector<Sensors::DataPoint>* AngledActuators::getState(const HardwareQualifier& qual) const {
+        if(!actuators.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return nullptr;
+        }
         return Sensors::getInstance()->getState(qual);
     }
 

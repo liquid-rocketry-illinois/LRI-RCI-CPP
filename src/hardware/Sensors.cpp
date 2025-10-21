@@ -8,6 +8,8 @@
 #include <fstream>
 #include <ranges>
 
+#include "hardware/HardwareControl.h"
+
 namespace LRI::RCI {
     Sensors* Sensors::getInstance() {
         static Sensors instance;
@@ -80,37 +82,57 @@ namespace LRI::RCI {
     Sensors::~Sensors() { reset(); }
 
 
-    void Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) return;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0,
                        .data = {static_cast<double>(data.data)}};
 
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) return;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) return;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
-    void Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
+    int Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
-        if(!sensors.contains(qual)) return;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);
         sensors[qual].push_back(d);
+        return 0;
     }
 
     void Sensors::setHardwareConfig(const std::set<HardwareQualifier>& sensids) {
@@ -171,11 +193,20 @@ namespace LRI::RCI {
     }
 
     const std::vector<Sensors::DataPoint>* Sensors::getState(const HardwareQualifier& qual) const {
-        if(!sensors.contains(qual)) return nullptr;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return nullptr;
+        }
+
         return &sensors.at(qual);
     }
 
     void Sensors::writeCSV(const HardwareQualifier& qual) {
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
+
         auto* copy = new std::vector(sensors[qual]);
         threadSetMux.lock();
         auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
@@ -184,6 +215,11 @@ namespace LRI::RCI {
     }
 
     void Sensors::tare(const HardwareQualifier& qual, uint8_t dataChannel) {
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
+
         if(sensors[qual].empty()) return;
         auto& data = sensors[qual];
         DataPoint d = data.at(data.size() - 1);
@@ -201,14 +237,25 @@ namespace LRI::RCI {
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, ftotal);
     }
 
-    void Sensors::clearGraph(const HardwareQualifier& qual) { sensors[qual].clear(); }
+    void Sensors::clearGraph(const HardwareQualifier& qual) {
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
+
+        sensors[qual].clear();
+    }
 
     void Sensors::clearAll() {
         for(auto& graph : sensors | std::views::values) graph.clear();
     }
 
     void Sensors::removeSensor(const HardwareQualifier& qual) {
-        if(!sensors.contains(qual)) return;
+        if(!sensors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
+
         sensors.erase(qual);
     }
 

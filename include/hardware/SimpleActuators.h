@@ -28,7 +28,7 @@ namespace LRI::RCI {
         static SimpleActuators* getInstance();
 
         // Receive updates from RCP
-        void receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
+        int receiveRCPUpdate(const HardwareQualifier& qual, bool newState);
 
         // Sets which qualifiers are active solenoids
         void setHardwareConfig(const std::set<HardwareQualifier>& solIds);

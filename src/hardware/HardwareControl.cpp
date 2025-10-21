@@ -61,7 +61,11 @@ namespace LRI::RCI::HWCTRL {
         if(!doPoll) return;
         for(int i = 0; i < POLLS_PER_UPDATE; i++) {
             if(interf->pktAvailable()) {
-                if(RCP_poll() != 0) break;
+                int rc = RCP_poll();
+
+                if(rc == -1) addError({ErrorType::GENERAL_RCP, "RCP Not Initialized correctly"});
+                else if(rc == -2) addError({ErrorType::RCP_STREAM, "RCP target stream has become corrupted"});
+                else if(rc != 0 && rc != 1) addError({ErrorType::GENERAL_RCP, "Unknown RCP error encountered"});
             }
         }
     }
@@ -69,6 +73,7 @@ namespace LRI::RCI::HWCTRL {
     void pause() { doPoll = !doPoll; }
 
     static void resetHardware() {
+        // AngledActuators MUST be reset before Sensors
         AngledActuators::getInstance()->reset();
         BoolSensors::getInstance()->reset();
         Prompt::getInstance()->reset();
@@ -135,6 +140,26 @@ namespace LRI::RCI::HWCTRL {
         }
     }
 
+    static std::vector<Error> errors;
+    static bool newErrors = false;
+
+    void addError(const Error& e) {
+        errors.push_back(e);
+        newErrors = true;
+    }
+
+    const std::vector<Error>& getErrors() { return errors; }
+
+    bool UIHasNewErrors() {
+        if(newErrors) {
+            newErrors = false;
+            return true;
+        }
+
+        return false;
+    }
+
+
     // This section contains all the callbacks needed for RCP. They simply forward data to the respective singletons
     size_t sendData(const void* data, size_t length) { return interf->sendData(data, length); }
 
@@ -146,14 +171,12 @@ namespace LRI::RCI::HWCTRL {
     }
 
     int processBoolData(RCP_BoolData data) {
-        BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
-        return 0;
+        return BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
     }
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
-        SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
-                                                         data.state == RCP_SIMPLE_ACTUATOR_ON);
-        return 0;
+        return SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
+                                                                data.state == RCP_SIMPLE_ACTUATOR_ON);
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {
@@ -166,25 +189,16 @@ namespace LRI::RCI::HWCTRL {
         return 0;
     }
 
-    int processOneFloat(RCP_OneFloat data) {
-        Sensors::getInstance()->receiveRCPUpdate(data);
-        return 0;
-    }
+    int processOneFloat(RCP_OneFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
-            Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
-        else Sensors::getInstance()->receiveRCPUpdate(data);
-        return 0;
+            return Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0],
+                                                             data.data[1]);
+        return Sensors::getInstance()->receiveRCPUpdate(data);
     }
 
-    int processThreeFloat(RCP_ThreeFloat data) {
-        Sensors::getInstance()->receiveRCPUpdate(data);
-        return 0;
-    }
+    int processThreeFloat(RCP_ThreeFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
 
-    int processFourFloat(RCP_FourFloat data) {
-        Sensors::getInstance()->receiveRCPUpdate(data);
-        return 0;
-    }
+    int processFourFloat(RCP_FourFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
 } // namespace LRI::RCI::HWCTRL

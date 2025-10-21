@@ -1,6 +1,8 @@
+#include "hardware/BoolSensor.h"
+
 #include <ranges>
 
-#include "hardware/BoolSensor.h"
+#include "hardware/HardwareControl.h"
 #include "hardware/TestState.h"
 
 namespace LRI::RCI {
@@ -11,10 +13,15 @@ namespace LRI::RCI {
         return &instance;
     }
 
-    void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
-        if(!state.contains(qual)) return;
+    int BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+        if(!state.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         state[qual].open = newstate;
         state[qual].stale = false;
+        return 0;
     }
 
     void BoolSensors::reset() {
@@ -29,7 +36,10 @@ namespace LRI::RCI {
     }
 
     const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
-        if(!state.contains(qual)) return nullptr;
+        if(!state.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return nullptr;
+        }
         return &state.at(qual);
     }
 

@@ -1,7 +1,9 @@
-#include <ranges>
-
-#include "RCP_Host/RCP_Host.h"
 #include "hardware/Steppers.h"
+
+#include <ranges>
+#include "RCP_Host/RCP_Host.h"
+
+#include "hardware/HardwareControl.h"
 
 namespace LRI::RCI {
     Steppers* Steppers::getInstance() {
@@ -14,15 +16,24 @@ namespace LRI::RCI {
     }
 
     const Steppers::Stepper* Steppers::getState(const HardwareQualifier& qual) const {
-        if(!motors.contains(qual)) return nullptr;
+        if(!motors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return nullptr;
+        }
+
         return &motors.at(qual);
     }
 
-    void Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
-        if(!motors.contains(qual)) return;
+    int Steppers::receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed) {
+        if(!motors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
+            return 1;
+        }
+
         motors[qual].position = pos;
         motors[qual].speed = speed;
         motors[qual].stale = true;
+        return 0;
     }
 
     void Steppers::refreshAll() {
@@ -47,7 +58,11 @@ namespace LRI::RCI {
     }
 
     void Steppers::setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value) {
-        if(!motors.contains(qual)) return;
+        if(!motors.contains(qual)) {
+            HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+            return;
+        }
+
         RCP_sendStepperWrite(qual.id, controlMode, value);
         motors[qual].stale = true;
     }
