@@ -86,7 +86,7 @@ namespace LRI::RCI {
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0,
                        .data = {static_cast<double>(data.data)}};
 
-        sensors[qual]->push_back(d);
+        sensors[qual].push_back(d);
     }
 
     void Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
@@ -94,7 +94,7 @@ namespace LRI::RCI {
         if(!sensors.contains(qual)) return;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 2; i++) d.data[i] = static_cast<double>(data.data[i]);
-        sensors[qual]->push_back(d);
+        sensors[qual].push_back(d);
     }
 
     void Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
@@ -102,7 +102,7 @@ namespace LRI::RCI {
         if(!sensors.contains(qual)) return;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 3; i++) d.data[i] = static_cast<double>(data.data[i]);
-        sensors[qual]->push_back(d);
+        sensors[qual].push_back(d);
     }
 
     void Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
@@ -110,7 +110,7 @@ namespace LRI::RCI {
         if(!sensors.contains(qual)) return;
         DataPoint d = {.timestamp = static_cast<double>(data.timestamp) / 1'000.0, .data = {}};
         for(int i = 0; i < 4; i++) d.data[i] = static_cast<double>(data.data[i]);
-        sensors[qual]->push_back(d);
+        sensors[qual].push_back(d);
     }
 
     void Sensors::setHardwareConfig(const std::set<HardwareQualifier>& sensids) {
@@ -123,11 +123,6 @@ namespace LRI::RCI {
 
     void Sensors::reset() {
         destroy = true;
-
-        // Clear all sensors from the list
-        for(const auto* data : sensors | std::views::values) {
-            delete data;
-        }
 
         sensors.clear();
 
@@ -177,11 +172,11 @@ namespace LRI::RCI {
 
     const std::vector<Sensors::DataPoint>* Sensors::getState(const HardwareQualifier& qual) const {
         if(!sensors.contains(qual)) return nullptr;
-        return sensors.at(qual);
+        return &sensors.at(qual);
     }
 
     void Sensors::writeCSV(const HardwareQualifier& qual) {
-        auto* copy = new std::vector(*sensors[qual]);
+        auto* copy = new std::vector(sensors[qual]);
         threadSetMux.lock();
         auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
         activeThreads[thread->get_id()] = thread;
@@ -189,13 +184,13 @@ namespace LRI::RCI {
     }
 
     void Sensors::tare(const HardwareQualifier& qual, uint8_t dataChannel) {
-        if(sensors[qual]->empty()) return;
+        if(sensors[qual].empty()) return;
         auto& data = sensors[qual];
-        DataPoint d = data->at(data->size() - 1);
+        DataPoint d = data.at(data.size() - 1);
         double prevtime = d.timestamp - 1;
         double total = 0;
         int numElems = 0;
-        std::ranges::for_each(*data, [&](const DataPoint& dp) {
+        std::ranges::for_each(data, [&](const DataPoint& dp) {
             if(dp.timestamp >= prevtime) {
                 total += dp.data[dataChannel];
                 numElems++;
@@ -206,21 +201,20 @@ namespace LRI::RCI {
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, ftotal);
     }
 
-    void Sensors::clearGraph(const HardwareQualifier& qual) { sensors[qual]->clear(); }
+    void Sensors::clearGraph(const HardwareQualifier& qual) { sensors[qual].clear(); }
 
     void Sensors::clearAll() {
-        for(const auto& graph : sensors | std::views::values) graph->clear();
+        for(auto& graph : sensors | std::views::values) graph.clear();
     }
 
     void Sensors::removeSensor(const HardwareQualifier& qual) {
         if(!sensors.contains(qual)) return;
-        delete sensors[qual];
         sensors.erase(qual);
     }
 
     void Sensors::addSensor(const HardwareQualifier& qual) {
-        sensors[qual] = new std::vector<DataPoint>();
-        sensors[qual]->reserve(DATA_VECTOR_INITIAL_SIZE);
+        sensors[qual] = std::vector<DataPoint>();
+        sensors[qual].reserve(DATA_VECTOR_INITIAL_SIZE);
     }
 
 

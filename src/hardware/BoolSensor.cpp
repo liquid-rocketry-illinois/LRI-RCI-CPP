@@ -13,25 +13,24 @@ namespace LRI::RCI {
 
     void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
         if(!state.contains(qual)) return;
-        state[qual]->open = newstate;
-        state[qual]->stale = false;
+        state[qual].open = newstate;
+        state[qual].stale = false;
     }
 
     void BoolSensors::reset() {
-        for(const BoolSensorState* s : state | std::views::values) delete s;
         state.clear();
     }
 
-    void BoolSensors::refreshAll() const {
+    void BoolSensors::refreshAll() {
         for(const auto& qual : state | std::views::keys) {
             RCP_requestGeneralRead(RCP_DEVCLASS_BOOL_SENSOR, qual.id);
-            state.at(qual)->stale = true;
+            state.at(qual).stale = true;
         }
     }
 
     const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
         if(!state.contains(qual)) return nullptr;
-        return state.at(qual);
+        return &state.at(qual);
     }
 
     void BoolSensors::setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime) {
@@ -40,7 +39,7 @@ namespace LRI::RCI {
         refreshTime = std::max(_refreshTime, 1);
 
         for(const auto& qual : ids) {
-            state[qual] = new BoolSensorState();
+            state[qual] = BoolSensorState();
         }
 
         refreshAll();

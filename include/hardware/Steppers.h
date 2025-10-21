@@ -20,7 +20,7 @@ namespace LRI::RCI {
     private:
 
         // Storage container for steppers
-        std::map<HardwareQualifier, Stepper*> motors;
+        std::map<HardwareQualifier, Stepper> motors;
 
         Steppers() = default;
         ~Steppers();
@@ -39,7 +39,7 @@ namespace LRI::RCI {
         void reset();
 
         // Request refresh of all steppers
-        void refreshAll() const;
+        void refreshAll();
 
         // Get pointer viewer classes can use to track a stepper
         [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual) const;
