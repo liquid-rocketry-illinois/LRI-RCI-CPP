@@ -7,9 +7,8 @@ namespace LRI::RCI {
     BoolSensors::~BoolSensors() { reset(); }
 
     BoolSensors* BoolSensors::getInstance() {
-        static BoolSensors* instance = nullptr;
-        if(instance == nullptr) instance = new BoolSensors();
-        return instance;
+        static BoolSensors instance;
+        return &instance;
     }
 
     void BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {

@@ -4,9 +4,8 @@
 
 namespace LRI::RCI {
     EStop* EStop::getInstance() {
-        static EStop* instance = nullptr;
-        if(instance == nullptr) instance = new EStop();
-        return instance;
+        static EStop instance;
+        return &instance;
     }
 
     void EStop::ESTOP() {

@@ -6,9 +6,8 @@
 
 namespace LRI::RCI {
     AngledActuators* AngledActuators::getInstance() {
-        static AngledActuators* instance = nullptr;
-        if(instance == nullptr) instance = new AngledActuators();
-        return instance;
+        static AngledActuators instance;
+        return &instance;
     }
 
     void AngledActuators::setHardwareConfig(std::set<HardwareQualifier>& quals) {

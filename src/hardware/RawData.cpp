@@ -2,9 +2,8 @@
 
 namespace LRI::RCI {
     RawData* RawData::getInstance() {
-        static RawData* instance = nullptr;
-        if(instance == nullptr) instance = new RawData();
-        return instance;
+        static RawData instance;
+        return &instance;
     }
 
     void RawData::receiveRCPUpdate(const RCP_CustomData& data) {

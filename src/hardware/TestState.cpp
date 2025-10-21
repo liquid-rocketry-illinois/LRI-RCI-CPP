@@ -7,9 +7,8 @@ namespace LRI::RCI {
     std::atomic_bool TestState::inited = false;
 
     TestState* TestState::getInstance() {
-        static TestState* instance = nullptr;
-        if(instance == nullptr) instance = new TestState();
-        return instance;
+        static TestState instance;
+        return &instance;
     }
 
     bool TestState::getInited() { return inited.load(); }

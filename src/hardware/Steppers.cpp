@@ -5,9 +5,8 @@
 
 namespace LRI::RCI {
     Steppers* Steppers::getInstance() {
-        static Steppers* instance = nullptr;
-        if(instance == nullptr) instance = new Steppers();
-        return instance;
+        static Steppers instance;
+        return &instance;
     }
 
     Steppers::~Steppers() {

@@ -10,9 +10,8 @@
 
 namespace LRI::RCI {
     Sensors* Sensors::getInstance() {
-        static Sensors* instance = nullptr;
-        if(instance == nullptr) instance = new Sensors();
-        return instance;
+        static Sensors instance;
+        return &instance;
     }
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!

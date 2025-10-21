@@ -4,9 +4,8 @@
 
 namespace LRI::RCI {
     SimpleActuators* SimpleActuators::getInstance() {
-        static SimpleActuators* instance = nullptr;
-        if(instance == nullptr) instance = new SimpleActuators();
-        return instance;
+        static SimpleActuators instance;
+        return &instance;
     }
 
     SimpleActuators::~SimpleActuators() { reset(); }

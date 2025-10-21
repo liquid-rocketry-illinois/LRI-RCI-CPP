@@ -2,9 +2,8 @@
 
 namespace LRI::RCI {
     Prompt* Prompt::getInstance() {
-        static Prompt* instance = nullptr;
-        if(instance == nullptr) instance = new Prompt();
-        return instance;
+        static Prompt instance;
+        return &instance;
     }
 
     bool Prompt::is_active_prompt() const { return activePrompt; }
