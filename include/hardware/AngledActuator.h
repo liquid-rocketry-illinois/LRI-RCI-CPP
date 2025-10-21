@@ -18,6 +18,7 @@ namespace LRI::RCI {
     public:
         static AngledActuators* getInstance();
 
+        void reset();
         void setHardwareConfig(std::set<HardwareQualifier>& quals);
         void setActuatorPos(const HardwareQualifier& qual, float degrees);
         [[nodiscard]] const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual) const;

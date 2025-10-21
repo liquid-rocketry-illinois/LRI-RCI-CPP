@@ -10,9 +10,13 @@ namespace LRI::RCI {
         return &instance;
     }
 
-    void AngledActuators::setHardwareConfig(std::set<HardwareQualifier>& quals) {
+    void AngledActuators::reset() {
         for(const auto& qual : actuators) Sensors::getInstance()->removeSensor(qual);
         actuators.clear();
+    }
+
+    void AngledActuators::setHardwareConfig(std::set<HardwareQualifier>& quals) {
+        reset();
         actuators.insert(quals.cbegin(), quals.cend());
     }
 
