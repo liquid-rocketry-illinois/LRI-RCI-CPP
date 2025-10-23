@@ -1,24 +1,20 @@
 {
-  "name": "BangBang test",
+  "name": "Bang-Bang test",
   "tests": [
     {
       "id": 0,
-      "name": "Bang Bang"
+      "name": "Bang-Bang"
     },
     {
       "id": 1,
       "name": "Configure Hysteresis"
-    },
-    {
-      "id": 2,
-      "name": "Configure setpoint"
     }
   ],
   "devices": [
     {
       "devclass": 1,
-      "ids": [0],
-      "names": ["BangBanger"]
+      "ids": [0, 1],
+      "names": ["Bang-Banger", "Purge"]
     },
     {
       "devclass": 146,
@@ -75,7 +71,7 @@
         {
           "type": 1,
           "refresh": true,
-          "ids": [0]
+          "ids": [0, 1]
         }
       ]
     }
