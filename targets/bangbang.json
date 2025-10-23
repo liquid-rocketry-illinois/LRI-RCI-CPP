@@ -1,0 +1,83 @@
+{
+  "name": "BangBang test",
+  "tests": [
+    {
+      "id": 0,
+      "name": "Bang Bang"
+    },
+    {
+      "id": 1,
+      "name": "Configure Hysteresis"
+    },
+    {
+      "id": 2,
+      "name": "Configure setpoint"
+    }
+  ],
+  "devices": [
+    {
+      "devclass": 1,
+      "ids": [0],
+      "names": ["BangBanger"]
+    },
+    {
+      "devclass": 146,
+      "ids": [0],
+      "names": ["PT"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
+    {
+      "title": "ESTOP",
+      "modules": [
+        {
+          "type": -1
+        }
+      ]
+    },
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "PT",
+      "modules": [
+        {
+          "type": 146,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 146,
+              "ids": [0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Sol",
+      "modules": [
+        {
+          "type": 1,
+          "refresh": true,
+          "ids": [0]
+        }
+      ]
+    }
+  ]
+}
