@@ -1,9 +1,6 @@
 #if defined(_WIN32)
-
-#if defined(_MSC_VER)
 // Make sure Windows doesn't allocate a console window, since we have the UI
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
-#endif
 
 /*
  * Even though Windows.h is not explicitly used in this file, one of the macros it defines is not checked if it has

@@ -40,6 +40,7 @@ namespace LRI::RCI::HWCTRL {
 
     static RCP_Interface* interf;
     static bool doPoll = true;
+    static bool hasStarted = false;
 
     int POLLS_PER_UPDATE = 25;
 
@@ -51,9 +52,11 @@ namespace LRI::RCI::HWCTRL {
         interf = _interf;
         RCP_init(callbacks);
         RCP_setChannel(RCP_CH_ZERO);
+        hasStarted = true;
     }
 
     void update() {
+        if(!hasStarted) return;
         BoolSensors::getInstance()->update(); // Periodic updates
         TestState::getInstance()->update(); // Heartbeats
         Sensors::getInstance()->update(); // Serialization threads
@@ -85,6 +88,7 @@ namespace LRI::RCI::HWCTRL {
     }
 
     void end() {
+        hasStarted = false;
         RCP_shutdown();
         delete interf;
         interf = nullptr;

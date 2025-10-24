@@ -4,14 +4,17 @@ project(LRI_control_panel)
 set(CMAKE_CXX_STANDARD 23)
 set(EXE_NAME "LRIRCI")
 
-if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    message("Compiler ID is: ${CMAKE_CXX_COMPILER_ID}")
-    message(FATAL_ERROR "GCC compiler is requried!")
-endif()
-
 # This is really only needed on windows, since linux typically comes with gcc libc/libstdc++ readily available
 if(WIN32)
-    add_compile_options(-static-libstdc++)
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        message("Compiler ID is: ${CMAKE_CXX_COMPILER_ID}")
+        message(FATAL_ERROR "MSVC is required on windows")
+    endif()
+else()
+    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        message("Compiler ID is: ${CMAKE_CXX_COMPILER_ID}")
+        message(FATAL_ERROR "GCC is required on linux")
+    endif()
 endif()
 
 add_custom_command(
@@ -99,14 +102,16 @@ add_executable(LRI_control_panel
 
 target_link_libraries(LRI_control_panel PRIVATE glfw RCP-Host nlohmann_json SFML::Network imgui)
 target_include_directories(LRI_control_panel PRIVATE include)
-target_compile_options(LRI_control_panel PRIVATE -Wall -Wextra -pedantic -Werror)
 
 if(WIN32)
     # Windows libraries and an extra compile flag
     target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi)
     target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
+#    target_compile_options(LRI_control_panel PRIVATE /Wall /WX)
+    set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 else()
     target_link_libraries(LRI_control_panel PRIVATE GL)
+    target_compile_options(LRI_control_panel PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
