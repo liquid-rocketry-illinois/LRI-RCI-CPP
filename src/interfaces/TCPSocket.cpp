@@ -16,6 +16,10 @@ namespace LRI::RCI {
         ioUnlock();
     }
 
+     TCPSocket::~TCPSocket() {
+        ioLock();
+    }
+
     // Return a human readable string describing the interface
     std::string TCPSocket::interfaceType() const {
         return std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +

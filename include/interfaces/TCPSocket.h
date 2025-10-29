@@ -28,7 +28,7 @@ namespace LRI::RCI {
         // Construct a new socket interface. A port is required regardless, but if the interface is a client
         // you must also provide the IP address of the server
         explicit TCPSocket(uint16_t port, const sf::IpAddress& serverAddress = {0, 0, 0, 0});
-        ~TCPSocket() override = default;
+        ~TCPSocket() override;
 
         // Returns a human significant string of the interface
         [[nodiscard]] std::string interfaceType() const override;
