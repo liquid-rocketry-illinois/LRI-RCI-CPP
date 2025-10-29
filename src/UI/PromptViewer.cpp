@@ -13,7 +13,7 @@ namespace LRI::RCI {
         if(!TestState::getInited()) ImGui::BeginDisabled();
 
         // If there is no active prompt display that message and exit early
-        if(!Prompt::getInstance()->isActivePrompt()) {
+        if(!Prompt::isActivePrompt()) {
             ImGui::Text("No Active Prompt");
             if(!TestState::getInited()) ImGui::EndDisabled();
             ImGui::PopID();
@@ -22,15 +22,15 @@ namespace LRI::RCI {
         }
 
         ImGui::PushTextWrapPos();
-        ImGui::TextUnformatted(Prompt::getInstance()->get_prompt().c_str());
+        ImGui::TextUnformatted(Prompt::get_prompt().c_str());
         ImGui::PopTextWrapPos();
 
         // Draw different things based on the datatype of the prompt
 
         // If the prompt type is a GO/NO GO verification:
-        if(Prompt::getInstance()->getType() == RCP_PromptDataType_GONOGO) {
+        if(Prompt::getType() == RCP_PromptDataType_GONOGO) {
             // Get the pointer so if the user changes the state we can update the singleton
-            RCP_GONOGO* gng = Prompt::getInstance()->getGNGPointer();
+            RCP_GONOGO* gng = Prompt::getGNGPointer();
             bool prev = *gng;
 
             // If the current state is GO:
@@ -55,14 +55,14 @@ namespace LRI::RCI {
         else {
             ImGui::Text("Enter Value: ");
             ImGui::SameLine();
-            ImGui::InputFloat("##promptfloatval", Prompt::getInstance()->getValPointer());
+            ImGui::InputFloat("##promptfloatval", Prompt::getValPointer());
         }
 
         // Lock the confirm if the test isnt running
         bool lock = TestState::getInstance()->getState() != RCP_TEST_RUNNING;
         if(lock) ImGui::BeginDisabled();
         if(ImGui::Button("Confirm")) {
-            Prompt::getInstance()->submitPrompt();
+            Prompt::submitPrompt();
         }
         if(lock) ImGui::EndDisabled();
 

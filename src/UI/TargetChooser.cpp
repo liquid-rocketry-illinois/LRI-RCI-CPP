@@ -199,7 +199,7 @@ namespace LRI::RCI {
 
         // Reset the debug log and prompts
         RawData::getInstance()->reset();
-        Prompt::getInstance()->reset();
+        Prompt::reset();
 
         // Iterate through all devices
         for(size_t i = 0; i < targetconfig["devices"].size(); i++) {

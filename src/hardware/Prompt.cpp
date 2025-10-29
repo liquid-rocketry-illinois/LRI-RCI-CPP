@@ -1,37 +1,45 @@
 #include "hardware/Prompt.h"
 
-namespace LRI::RCI {
-    Prompt* Prompt::getInstance() {
-        static Prompt instance;
-        return &instance;
-    }
+namespace LRI::RCI::Prompt {
+    // Is there currently an active prompt
+    static bool activePrompt;
 
-    bool Prompt::isActivePrompt() const { return activePrompt; }
+    // Currently active prompt string
+    static std::string prompt;
 
-    const std::string& Prompt::get_prompt() const { return prompt; }
+    // Holding values for prompt responses
+    static RCP_GONOGO gng;
+    static float val;
 
-    RCP_PromptDataType Prompt::getType() const { return type; }
+    // The currently active prompt data type
+    static RCP_PromptDataType type;
 
-    RCP_GONOGO* Prompt::getGNGPointer() { return &gng; }
+    bool isActivePrompt() { return activePrompt; }
 
-    float* Prompt::getValPointer() { return &val; }
+    const std::string& get_prompt() { return prompt; }
 
-    void Prompt::reset() {
+    RCP_PromptDataType getType() { return type; }
+
+    RCP_GONOGO* getGNGPointer() { return &gng; }
+
+    float* getValPointer() { return &val; }
+
+    void reset() {
         activePrompt = false;
         prompt = "";
     }
 
-    void Prompt::receiveRCPUpdate(const RCP_PromptInputRequest& req) {
+    void receiveRCPUpdate(const RCP_PromptInputRequest& req) {
         type = req.type;
         if(type != RCP_PromptDataType_RESET) prompt = req.prompt;
         activePrompt = type != RCP_PromptDataType_RESET;
     }
 
-    bool Prompt::submitPrompt() {
+    bool submitPrompt() {
         bool complete;
         if(type == RCP_PromptDataType_GONOGO) complete = !RCP_promptRespondGONOGO(gng);
         else complete = !RCP_promptRespondFloat(val);
         if(complete) activePrompt = false;
         return complete;
     }
-} // namespace LRI::RCI
+} // namespace LRI::RCI::Prompt

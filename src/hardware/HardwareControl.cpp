@@ -81,7 +81,7 @@ namespace LRI::RCI::HWCTRL {
         // AngledActuators MUST be reset before Sensors
         AngledActuators::reset();
         BoolSensors::reset();
-        Prompt::getInstance()->reset();
+        Prompt::reset();
         RawData::getInstance()->reset();
         Sensors::getInstance()->reset();
         SimpleActuators::getInstance()->reset();
@@ -186,7 +186,7 @@ namespace LRI::RCI::HWCTRL {
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {
-        Prompt::getInstance()->receiveRCPUpdate(request);
+        Prompt::receiveRCPUpdate(request);
         return 0;
     }
 
