@@ -11,7 +11,7 @@ namespace LRI::RCI {
 
         // Provide an easy way to clear the output
         if(ImGui::Button("Clear")) {
-            RawData::getInstance()->reset();
+            RawData::reset();
         }
 
         if(!TestState::getInited()) ImGui::BeginDisabled();
@@ -21,7 +21,7 @@ namespace LRI::RCI {
         if(ImGui::BeginChild("##serialchild", {ImGui::GetWindowWidth(), scale(175)})) {
             // Displaying the text just by rendering the string stream
             ImGui::PushTextWrapPos();
-            ImGui::TextUnformatted(RawData::getInstance()->getData().str().c_str());
+            ImGui::TextUnformatted(RawData::getData().str().c_str());
             ImGui::PopTextWrapPos();
         }
 

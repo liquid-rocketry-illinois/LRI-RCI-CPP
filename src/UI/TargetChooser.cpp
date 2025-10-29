@@ -198,7 +198,7 @@ namespace LRI::RCI {
         std::set<HardwareQualifier> sensors;
 
         // Reset the debug log and prompts
-        RawData::getInstance()->reset();
+        RawData::reset();
         Prompt::reset();
 
         // Iterate through all devices

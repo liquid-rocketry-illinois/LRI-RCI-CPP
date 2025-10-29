@@ -82,7 +82,7 @@ namespace LRI::RCI::HWCTRL {
         AngledActuators::reset();
         BoolSensors::reset();
         Prompt::reset();
-        RawData::getInstance()->reset();
+        RawData::reset();
         Sensors::getInstance()->reset();
         SimpleActuators::getInstance()->reset();
         Steppers::getInstance()->reset();
@@ -191,7 +191,7 @@ namespace LRI::RCI::HWCTRL {
     }
 
     int processSerialData(const RCP_CustomData data) {
-        RawData::getInstance()->receiveRCPUpdate(data);
+        RawData::receiveRCPUpdate(data);
         return 0;
     }
 
