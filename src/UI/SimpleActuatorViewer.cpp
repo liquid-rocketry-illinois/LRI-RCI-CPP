@@ -11,7 +11,7 @@ namespace LRI::RCI {
     SimpleActuatorViewer::SimpleActuatorViewer(const std::set<HardwareQualifier>& quals, const bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& sol : quals) {
-            sols[sol] = SimpleActuators::getInstance()->getState(sol);
+            sols[sol] = SimpleActuators::getState(sol);
         }
     }
 
@@ -29,7 +29,7 @@ namespace LRI::RCI {
 
         // A button to manually refresh the states of each solenoid
         if(refreshButton && ImGui::Button("Refresh All")) {
-            SimpleActuators::getInstance()->refreshAll();
+            SimpleActuators::refreshAll();
             buttonTimer.reset();
         }
         if(lockButtons) ImGui::EndDisabled();
@@ -58,8 +58,7 @@ namespace LRI::RCI {
             bool prevstale = state->stale;
             if(lockButtons || prevstale) ImGui::BeginDisabled();
             if(ImGui::Button(!state->open ? "ON" : "OFF")) {
-                SimpleActuators::getInstance()->setActuatorState(
-                    id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
+                SimpleActuators::setActuatorState(id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
                 buttonTimer.reset();
             }
             if(lockButtons || prevstale) ImGui::EndDisabled();

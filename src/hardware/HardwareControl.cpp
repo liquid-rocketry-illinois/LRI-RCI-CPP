@@ -84,7 +84,7 @@ namespace LRI::RCI::HWCTRL {
         Prompt::reset();
         RawData::reset();
         Sensors::reset();
-        SimpleActuators::getInstance()->reset();
+        SimpleActuators::reset();
         Steppers::getInstance()->reset();
         TestState::getInstance()->reset();
     }
@@ -129,7 +129,7 @@ namespace LRI::RCI::HWCTRL {
 
             else switch(qual.devclass) {
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
-                    SimpleActuators::getInstance()->setHardwareConfig(asSet);
+                    SimpleActuators::setHardwareConfig(asSet);
                     break;
 
                 case RCP_DEVCLASS_STEPPER:
@@ -181,8 +181,8 @@ namespace LRI::RCI::HWCTRL {
     }
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
-        return SimpleActuators::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
-                                                                data.state == RCP_SIMPLE_ACTUATOR_ON);
+        return SimpleActuators::receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
+                                                 data.state == RCP_SIMPLE_ACTUATOR_ON);
     }
 
     int processPromptInput(RCP_PromptInputRequest request) {

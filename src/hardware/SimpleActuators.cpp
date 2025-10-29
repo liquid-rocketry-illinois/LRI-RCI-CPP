@@ -4,15 +4,11 @@
 
 #include "hardware/HardwareControl.h"
 
-namespace LRI::RCI {
-    SimpleActuators* SimpleActuators::getInstance() {
-        static SimpleActuators instance;
-        return &instance;
-    }
+namespace LRI::RCI::SimpleActuators {
+    // Maps qualifiers to state pointers
+    static std::map<HardwareQualifier, ActuatorState> state;
 
-    SimpleActuators::~SimpleActuators() { reset(); }
-
-    int SimpleActuators::receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
+    int receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
@@ -23,7 +19,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    void SimpleActuators::setHardwareConfig(const std::set<HardwareQualifier>& solIds) {
+    void setHardwareConfig(const std::set<HardwareQualifier>& solIds) {
         reset();
 
         for(const auto& qual : solIds) {
@@ -33,11 +29,9 @@ namespace LRI::RCI {
         refreshAll();
     }
 
-    void SimpleActuators::reset() {
-        state.clear();
-    }
+    void reset() { state.clear(); }
 
-    const SimpleActuators::ActuatorState* SimpleActuators::getState(const HardwareQualifier& qual) const {
+    const ActuatorState* getState(const HardwareQualifier& qual) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return nullptr;
@@ -46,14 +40,14 @@ namespace LRI::RCI {
         return &state.at(qual);
     }
 
-    void SimpleActuators::refreshAll() {
+    void refreshAll() {
         for(const auto& qual : state | std::views::keys) {
             RCP_requestGeneralRead(RCP_DEVCLASS_SIMPLE_ACTUATOR, qual.id);
             state.at(qual).stale = true;
         }
     }
 
-    void SimpleActuators::setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState) {
+    void setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
@@ -62,4 +56,4 @@ namespace LRI::RCI {
         state[qual].stale = true;
         RCP_sendSimpleActuatorWrite(qual.id, newState);
     }
-} // namespace LRI::RCI
+} // namespace LRI::RCI::SimpleActuators

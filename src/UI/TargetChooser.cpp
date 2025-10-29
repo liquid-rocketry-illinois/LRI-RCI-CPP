@@ -227,7 +227,7 @@ namespace LRI::RCI {
                 break;
 
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
-                SimpleActuators::getInstance()->setHardwareConfig(quals);
+                SimpleActuators::setHardwareConfig(quals);
                 break;
 
             case RCP_DEVCLASS_BOOL_SENSOR:
