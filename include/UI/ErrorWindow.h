@@ -1,8 +1,6 @@
 #ifndef LRI_CONTROL_PANEL_ERRORWINDOW_H
 #define LRI_CONTROL_PANEL_ERRORWINDOW_H
 
-#include <string>
-
 #include "WModule.h"
 
 namespace LRI::RCI {

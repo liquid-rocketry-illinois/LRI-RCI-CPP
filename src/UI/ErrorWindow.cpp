@@ -34,7 +34,7 @@ namespace LRI::RCI {
 
             case HWCTRL::ErrorType::RCP_STREAM:
                 ImGui::PushStyleColor(ImGuiCol_Text, DISABLED_COLOR);
-                str << "[RCP ERRPR] ";
+                str << "[RCP ERROR] ";
                 break;
             }
 

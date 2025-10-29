@@ -65,10 +65,12 @@ namespace LRI::RCI::HWCTRL {
         for(int i = 0; i < POLLS_PER_UPDATE; i++) {
             if(interf->pktAvailable()) {
                 int rc = RCP_poll();
+                if(rc == 0) return;
 
                 if(rc == -1) addError({ErrorType::GENERAL_RCP, "RCP Not Initialized correctly"});
                 else if(rc == -2) addError({ErrorType::RCP_STREAM, "RCP target stream has become corrupted"});
-                else if(rc != 0 && rc != 1) addError({ErrorType::GENERAL_RCP, "Unknown RCP error encountered"});
+                else if(rc != 1) addError({ErrorType::GENERAL_RCP, "Unknown RCP error encountered"});
+                pause();
             }
         }
     }
