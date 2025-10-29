@@ -68,7 +68,7 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
 
-        if(ImGui::Button("E-STOP")) EStop::getInstance()->ESTOP();
+        if(ImGui::Button("E-STOP")) EStop::ESTOP();
 
         ImGui::PopStyleColor(3);
 
