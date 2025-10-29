@@ -79,7 +79,7 @@ namespace LRI::RCI::HWCTRL {
 
     static void resetHardware() {
         // AngledActuators MUST be reset before Sensors
-        AngledActuators::getInstance()->reset();
+        AngledActuators::reset();
         BoolSensors::getInstance()->reset();
         Prompt::getInstance()->reset();
         RawData::getInstance()->reset();
@@ -137,7 +137,7 @@ namespace LRI::RCI::HWCTRL {
                     break;
 
                 case RCP_DEVCLASS_ANGLED_ACTUATOR:
-                    AngledActuators::getInstance()->setHardwareConfig(asSet);
+                    AngledActuators::setHardwareConfig(asSet);
                     break;
 
                 default:

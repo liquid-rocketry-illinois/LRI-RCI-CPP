@@ -237,7 +237,7 @@ namespace LRI::RCI {
 
             case RCP_DEVCLASS_ANGLED_ACTUATOR:
                 // Intentional case fallthrough
-                AngledActuators::getInstance()->setHardwareConfig(quals);
+                AngledActuators::setHardwareConfig(quals);
                 [[fallthrough]];
 
             case RCP_DEVCLASS_AM_PRESSURE:

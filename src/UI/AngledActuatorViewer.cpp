@@ -5,7 +5,7 @@
 namespace LRI::RCI {
     AngledActuatorViewer::AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
-        for(const auto& qual : quals) actuators[qual] = AngledActuators::getInstance()->getState(qual);
+        for(const auto& qual : quals) actuators[qual] = AngledActuators::getState(qual);
     }
 
     void AngledActuatorViewer::render() {
@@ -17,7 +17,7 @@ namespace LRI::RCI {
 
         if(lockButton) ImGui::BeginDisabled();
         if(refreshButton && ImGui::Button("Refresh All")) {
-            AngledActuators::getInstance()->refreshAll();
+            AngledActuators::refreshAll();
             buttonTimer.reset();
         }
         if(lockButton) ImGui::EndDisabled();
@@ -43,7 +43,7 @@ namespace LRI::RCI {
             // If we push the set button, communicate this over RCP
             if(lockButton) ImGui::BeginDisabled();
             if(ImGui::Button("Set")) {
-                AngledActuators::getInstance()->setActuatorPos(qual, setpoints[qual]);
+                AngledActuators::setActuatorPos(qual, setpoints[qual]);
                 buttonTimer.reset();
             }
 
