@@ -6,7 +6,7 @@ namespace LRI::RCI {
         return &instance;
     }
 
-    bool Prompt::is_active_prompt() const { return activePrompt; }
+    bool Prompt::isActivePrompt() const { return activePrompt; }
 
     const std::string& Prompt::get_prompt() const { return prompt; }
 

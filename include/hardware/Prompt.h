@@ -29,7 +29,7 @@ namespace LRI::RCI {
         static Prompt* getInstance();
 
         // Gettters for class members
-        [[nodiscard]] bool is_active_prompt() const;
+        [[nodiscard]] bool isActivePrompt() const;
         [[nodiscard]] const std::string& get_prompt() const;
         [[nodiscard]] RCP_PromptDataType getType() const;
 

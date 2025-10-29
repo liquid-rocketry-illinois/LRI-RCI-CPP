@@ -13,7 +13,7 @@ namespace LRI::RCI {
         if(!TestState::getInited()) ImGui::BeginDisabled();
 
         // If there is no active prompt display that message and exit early
-        if(!Prompt::getInstance()->is_active_prompt()) {
+        if(!Prompt::getInstance()->isActivePrompt()) {
             ImGui::Text("No Active Prompt");
             if(!TestState::getInited()) ImGui::EndDisabled();
             ImGui::PopID();
