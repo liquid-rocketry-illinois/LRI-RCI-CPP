@@ -9,7 +9,7 @@ namespace LRI::RCI {
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            steppers[qual] = Steppers::getInstance()->getState(qual);
+            steppers[qual] = Steppers::getState(qual);
             inputs[qual] = Input();
         }
     }
@@ -29,7 +29,7 @@ namespace LRI::RCI {
         if(refreshButton) {
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Button("Refresh All")) {
-                Steppers::getInstance()->refreshAll();
+                Steppers::refreshAll();
                 buttonTimer.reset();
             }
             if(lockButtons) ImGui::EndDisabled();
@@ -77,7 +77,7 @@ namespace LRI::RCI {
             if(lockButtons || step->stale) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button("Apply")) {
-                Steppers::getInstance()->setState(id, inputs[id].mode, inputs[id].val);
+                Steppers::setState(id, inputs[id].mode, inputs[id].val);
                 buttonTimer.reset();
             }
 

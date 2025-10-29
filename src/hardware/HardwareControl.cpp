@@ -85,7 +85,7 @@ namespace LRI::RCI::HWCTRL {
         RawData::reset();
         Sensors::reset();
         SimpleActuators::reset();
-        Steppers::getInstance()->reset();
+        Steppers::reset();
         TestState::getInstance()->reset();
     }
 
@@ -133,7 +133,7 @@ namespace LRI::RCI::HWCTRL {
                     break;
 
                 case RCP_DEVCLASS_STEPPER:
-                    Steppers::getInstance()->setHardwareConfig(asSet);
+                    Steppers::setHardwareConfig(asSet);
                     break;
 
                 case RCP_DEVCLASS_ANGLED_ACTUATOR:
@@ -199,8 +199,7 @@ namespace LRI::RCI::HWCTRL {
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
-            return Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0],
-                                                             data.data[1]);
+            return Steppers::receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
         return Sensors::receiveRCPUpdate(data);
     }
 

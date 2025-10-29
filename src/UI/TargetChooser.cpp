@@ -223,7 +223,7 @@ namespace LRI::RCI {
             // Switch on the device class and configure the appropriate singleton
             switch(devclass) {
             case RCP_DEVCLASS_STEPPER:
-                Steppers::getInstance()->setHardwareConfig(quals);
+                Steppers::setHardwareConfig(quals);
                 break;
 
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
