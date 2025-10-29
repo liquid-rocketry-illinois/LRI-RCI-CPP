@@ -8,7 +8,7 @@ namespace LRI::RCI {
     BoolSensorViewer::BoolSensorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            sensors[qual] = BoolSensors::getInstance()->getState(qual);
+            sensors[qual] = BoolSensors::getState(qual);
         }
     }
 
@@ -23,7 +23,7 @@ namespace LRI::RCI {
         // Request refresh of all sensors
         if(refreshButton) {
             if(ImGui::Button("Refresh")) {
-                BoolSensors::getInstance()->refreshAll();
+                BoolSensors::refreshAll();
                 buttonTimer.reset();
             }
             ImGui::Separator();

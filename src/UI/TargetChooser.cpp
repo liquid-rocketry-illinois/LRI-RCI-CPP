@@ -231,8 +231,7 @@ namespace LRI::RCI {
                 break;
 
             case RCP_DEVCLASS_BOOL_SENSOR:
-                BoolSensors::getInstance()->setHardwareConfig(quals,
-                                                              targetconfig["devices"][i]["refreshTime"].get<int>());
+                BoolSensors::setHardwareConfig(quals, targetconfig["devices"][i]["refreshTime"].get<int>());
                 break;
 
             case RCP_DEVCLASS_ANGLED_ACTUATOR:

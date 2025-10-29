@@ -57,7 +57,7 @@ namespace LRI::RCI::HWCTRL {
 
     void update() {
         if(!hasStarted) return;
-        BoolSensors::getInstance()->update(); // Periodic updates
+        BoolSensors::update(); // Periodic updates
         TestState::getInstance()->update(); // Heartbeats
         Sensors::getInstance()->update(); // Serialization threads
 
@@ -80,7 +80,7 @@ namespace LRI::RCI::HWCTRL {
     static void resetHardware() {
         // AngledActuators MUST be reset before Sensors
         AngledActuators::reset();
-        BoolSensors::getInstance()->reset();
+        BoolSensors::reset();
         Prompt::getInstance()->reset();
         RawData::getInstance()->reset();
         Sensors::getInstance()->reset();
@@ -177,7 +177,7 @@ namespace LRI::RCI::HWCTRL {
     }
 
     int processBoolData(RCP_BoolData data) {
-        return BoolSensors::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
+        return BoolSensors::receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
     }
 
     int processSimpleActuatorData(const RCP_SimpleActuatorData data) {

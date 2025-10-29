@@ -5,15 +5,15 @@
 #include "hardware/HardwareControl.h"
 #include "hardware/TestState.h"
 
-namespace LRI::RCI {
-    BoolSensors::~BoolSensors() { reset(); }
+namespace LRI::RCI::BoolSensors {
+    // Storage for sensor states, mapped to their qualifiers
+    static std::map<HardwareQualifier, BoolSensorState> state;
 
-    BoolSensors* BoolSensors::getInstance() {
-        static BoolSensors instance;
-        return &instance;
-    }
+    // Timer for refreshing
+    static StopWatch refreshTimer;
+    static float refreshTime = 5.0f;
 
-    int BoolSensors::receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+    int receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
@@ -24,18 +24,16 @@ namespace LRI::RCI {
         return 0;
     }
 
-    void BoolSensors::reset() {
-        state.clear();
-    }
+    void reset() { state.clear(); }
 
-    void BoolSensors::refreshAll() {
+    void refreshAll() {
         for(const auto& qual : state | std::views::keys) {
             RCP_requestGeneralRead(RCP_DEVCLASS_BOOL_SENSOR, qual.id);
             state.at(qual).stale = true;
         }
     }
 
-    const BoolSensors::BoolSensorState* BoolSensors::getState(const HardwareQualifier& qual) const {
+    const BoolSensorState* getState(const HardwareQualifier& qual) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return nullptr;
@@ -43,7 +41,7 @@ namespace LRI::RCI {
         return &state.at(qual);
     }
 
-    void BoolSensors::setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime) {
+    void setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime) {
         reset();
 
         refreshTime = static_cast<float>(std::max(_refreshTime, 1));
@@ -56,7 +54,7 @@ namespace LRI::RCI {
         refreshTimer.reset();
     }
 
-    void BoolSensors::update() {
+    void update() {
         if(!TestState::getInited()) return;
         if(refreshTimer.timeSince() > refreshTime) {
             refreshAll();
@@ -64,4 +62,4 @@ namespace LRI::RCI {
         }
     }
 
-} // namespace LRI::RCI
+} // namespace LRI::RCI::BoolSensors
