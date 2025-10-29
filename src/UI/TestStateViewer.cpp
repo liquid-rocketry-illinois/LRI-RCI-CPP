@@ -23,7 +23,7 @@ namespace LRI::RCI {
         if(lockButtons) ImGui::BeginDisabled();
 
         // Display controls for starting, stopping, pausing, estopping, and selecting a test
-        RCP_TestRunningState state = TestState::getInstance()->getState();
+        RCP_TestRunningState state = TestState::getState();
 
         // For each type of button, they can only be pushed in certain states. The lock variable is reused
         bool lock = state != RCP_TEST_STOPPED;
@@ -35,7 +35,7 @@ namespace LRI::RCI {
         if(ImGui::TimedButton("Start", startTimer)) {
             pushed = true;
             if(startTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                TestState::getInstance()->startTest(activeTest);
+                TestState::startTest(activeTest);
                 buttonTimer.reset();
             }
         }
@@ -47,7 +47,7 @@ namespace LRI::RCI {
         if(lock) ImGui::BeginDisabled();
         ImGui::SameLine();
         if(ImGui::Button("End")) {
-            TestState::getInstance()->stopTest();
+            TestState::stopTest();
             buttonTimer.reset();
         }
         if(lock) ImGui::EndDisabled();
@@ -56,7 +56,7 @@ namespace LRI::RCI {
         if(lock) ImGui::BeginDisabled();
         ImGui::SameLine();
         if(ImGui::Button(state == RCP_TEST_PAUSED ? "Resume" : "Pause")) {
-            TestState::getInstance()->pause();
+            TestState::pause();
             buttonTimer.reset();
         }
         if(lock) ImGui::EndDisabled();
@@ -80,7 +80,7 @@ namespace LRI::RCI {
 
         // Display the test number chooser. If there are tests defined in the target
         // json, display a dropdown chooser, otherwise display text saying no tests available
-        const std::map<uint8_t, std::string>* tests = TestState::getInstance()->getTestOptions();
+        const std::map<uint8_t, std::string>* tests = TestState::getTestOptions();
         ImGui::Text("Select Test: ");
         ImGui::PushID("testselectcombo");
         if(tests->empty()) {
@@ -107,9 +107,9 @@ namespace LRI::RCI {
         ImGui::Text("Enable Data Streaming: ");
         ImGui::SameLine();
         if(lockButtons) ImGui::BeginDisabled();
-        dstream = TestState::getInstance()->getDataStreaming();
+        dstream = TestState::getDataStreaming();
         if(ImGui::Checkbox("##datastreamingcheckbox", &dstream)) {
-            TestState::getInstance()->setDataStreaming(dstream);
+            TestState::setDataStreaming(dstream);
             buttonTimer.reset();
         }
         if(lockButtons) ImGui::EndDisabled();
@@ -119,7 +119,7 @@ namespace LRI::RCI {
         if(ImGui::Checkbox("##doheartbeats", &doHeartbeats)) {
             if(doHeartbeats) inputHeartbeatRate = 0;
             else {
-                TestState::getInstance()->setHeartbeatTime(0);
+                TestState::setHeartbeatTime(0);
                 buttonTimer.reset();
             }
         }
@@ -135,7 +135,7 @@ namespace LRI::RCI {
 
             if(lockButtons) ImGui::BeginDisabled();
 
-            int curHeart = TestState::getInstance()->getHeartbeatTime();
+            int curHeart = TestState::getHeartbeatTime();
             bool restyle = inputHeartbeatRate != curHeart;
             if(restyle) {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
@@ -144,7 +144,7 @@ namespace LRI::RCI {
             }
 
             if(ImGui::Button("Confirm##heartbeatconfirm")) {
-                TestState::getInstance()->setHeartbeatTime(inputHeartbeatRate);
+                TestState::setHeartbeatTime(inputHeartbeatRate);
                 buttonTimer.reset();
             }
 
@@ -156,7 +156,7 @@ namespace LRI::RCI {
         ImGui::Text("Reset sensor time base on start: ");
         ImGui::SameLine();
         if(ImGui::Checkbox("##resettimebox", &resetTimeOnTestStart))
-            TestState::getInstance()->setResetTimeOnTestStart(resetTimeOnTestStart);
+            TestState::setResetTimeOnTestStart(resetTimeOnTestStart);
 
         if(lockButtons) ImGui::BeginDisabled();
 
@@ -168,7 +168,7 @@ namespace LRI::RCI {
         if(ImGui::TimedButton("Hardware Reset", dResetTimer)) {
             pushed = true;
             if(dResetTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                TestState::getInstance()->deviceReset();
+                TestState::deviceReset();
                 buttonTimer.reset();
             }
         }

@@ -59,7 +59,7 @@ namespace LRI::RCI {
         }
 
         // Lock the confirm if the test isnt running
-        bool lock = TestState::getInstance()->getState() != RCP_TEST_RUNNING;
+        bool lock = TestState::getState() != RCP_TEST_RUNNING;
         if(lock) ImGui::BeginDisabled();
         if(ImGui::Button("Confirm")) {
             Prompt::submitPrompt();

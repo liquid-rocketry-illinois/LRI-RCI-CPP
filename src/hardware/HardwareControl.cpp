@@ -58,7 +58,7 @@ namespace LRI::RCI::HWCTRL {
     void update() {
         if(!hasStarted) return;
         BoolSensors::update(); // Periodic updates
-        TestState::getInstance()->update(); // Heartbeats
+        TestState::update(); // Heartbeats
         Sensors::update(); // Serialization threads
 
         if(!doPoll) return;
@@ -86,7 +86,7 @@ namespace LRI::RCI::HWCTRL {
         Sensors::reset();
         SimpleActuators::reset();
         Steppers::reset();
-        TestState::getInstance()->reset();
+        TestState::reset();
     }
 
     void end() {
@@ -172,7 +172,7 @@ namespace LRI::RCI::HWCTRL {
     size_t readData(void* data, size_t bufferSize) { return interf->readData(data, bufferSize); }
 
     int processTestUpdate(const RCP_TestData data) {
-        TestState::getInstance()->receiveRCPUpdate(data);
+        TestState::receiveRCPUpdate(data);
         return 0;
     }
 

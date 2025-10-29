@@ -189,7 +189,7 @@ namespace LRI::RCI {
         for(size_t i = 0; i < targetconfig["tests"].size(); i++) {
             tests[targetconfig["tests"][i]["id"].get<uint8_t>()] = targetconfig["tests"][i]["name"].get<std::string>();
         }
-        TestState::getInstance()->setTests(tests);
+        TestState::setTests(tests);
 
         // Create a master set of all qualifiers
         std::set<HardwareQualifier> allquals;

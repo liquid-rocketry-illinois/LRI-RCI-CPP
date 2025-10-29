@@ -20,7 +20,7 @@ namespace LRI::RCI {
         ImGui::PushID(classid);
 
         // If a test is running, lock the controls
-        if(!TestState::getInited() || TestState::getInstance()->getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
+        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
@@ -66,7 +66,7 @@ namespace LRI::RCI {
             ImGui::PopID();
         }
 
-        if(!TestState::getInited() || TestState::getInstance()->getState() == RCP_TEST_RUNNING) ImGui::EndDisabled();
+        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::EndDisabled();
 
         ImGui::PopID();
         ImGui::PopID();
