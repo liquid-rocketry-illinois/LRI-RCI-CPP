@@ -8,7 +8,7 @@ namespace LRI::RCI::AngledActuators {
     static std::set<HardwareQualifier> actuators;
 
     void reset() {
-        for(const auto& qual : actuators) Sensors::getInstance()->removeSensor(qual);
+        for(const auto& qual : actuators) Sensors::removeSensor(qual);
         actuators.clear();
     }
 
@@ -30,7 +30,7 @@ namespace LRI::RCI::AngledActuators {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return nullptr;
         }
-        return Sensors::getInstance()->getState(qual);
+        return Sensors::getState(qual);
     }
 
     void refreshAll() {

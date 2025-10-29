@@ -19,7 +19,7 @@ namespace LRI::RCI {
         RCP_startTest(number);
         if(resetTimeOnStart) {
             RCP_deviceTimeReset();
-            Sensors::getInstance()->clearAll();
+            Sensors::clearAll();
         }
 
         activeTest = number;

@@ -59,7 +59,7 @@ namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
     SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : abridged(abridged) {
         for(const auto& qual : quals) {
-            sensors[qual] = Sensors::getInstance()->getState(qual);
+            sensors[qual] = Sensors::getState(qual);
         }
     }
 
@@ -130,7 +130,7 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();
-            if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
+            if(ImGui::Button("Write To CSV")) Sensors::writeCSV(qual);
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %lld", data->size());
             ImGui::TextWrapped("%s",
@@ -156,7 +156,7 @@ namespace LRI::RCI {
                     if(ImGui::TimedButton(line.name, tarestate[qual][line.datanum])) {
                         percent = tarestate[qual][line.datanum].timeSince() / CONFIRM_HOLD_TIME;
                         if(percent >= 1.0f) {
-                            Sensors::getInstance()->tare(qual, line.datanum);
+                            Sensors::tare(qual, line.datanum);
                             tarestate[qual][line.datanum].reset();
                         }
                     }
@@ -173,7 +173,7 @@ namespace LRI::RCI {
                 ImGui::CircleProgressBar("##clearprogressspinner", 10, 3, WHITE_COLOR,
                                          clearState[qual].timeSince() / CONFIRM_HOLD_TIME);
                 if(clearState[qual].timeSince() > CONFIRM_HOLD_TIME) {
-                    Sensors::getInstance()->clearGraph(qual);
+                    Sensors::clearGraph(qual);
                     clearState[qual].reset();
                 }
             }

@@ -258,7 +258,7 @@ namespace LRI::RCI {
         }
 
         // Load the sensors singleton with all the sensor qualifiers
-        Sensors::getInstance()->setHardwareConfig(sensors);
+        Sensors::setHardwareConfig(sensors);
 
         // Iterate over the windowlets and configure their modules
         for(size_t i = 0; i < targetconfig["windows"].size(); i++) {

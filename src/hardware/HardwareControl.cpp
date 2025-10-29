@@ -59,7 +59,7 @@ namespace LRI::RCI::HWCTRL {
         if(!hasStarted) return;
         BoolSensors::update(); // Periodic updates
         TestState::getInstance()->update(); // Heartbeats
-        Sensors::getInstance()->update(); // Serialization threads
+        Sensors::update(); // Serialization threads
 
         if(!doPoll) return;
         for(int i = 0; i < POLLS_PER_UPDATE; i++) {
@@ -83,7 +83,7 @@ namespace LRI::RCI::HWCTRL {
         BoolSensors::reset();
         Prompt::reset();
         RawData::reset();
-        Sensors::getInstance()->reset();
+        Sensors::reset();
         SimpleActuators::getInstance()->reset();
         Steppers::getInstance()->reset();
         TestState::getInstance()->reset();
@@ -125,7 +125,7 @@ namespace LRI::RCI::HWCTRL {
             std::set asSet(filtered.cbegin(), filtered.cend());
 
             // Handle all the sensors in one so we dont need a really long switch
-            if(SENSOR_CLASSES.contains(qual.devclass)) Sensors::getInstance()->setHardwareConfig(asSet);
+            if(SENSOR_CLASSES.contains(qual.devclass)) Sensors::setHardwareConfig(asSet);
 
             else switch(qual.devclass) {
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
@@ -195,16 +195,16 @@ namespace LRI::RCI::HWCTRL {
         return 0;
     }
 
-    int processOneFloat(RCP_OneFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
+    int processOneFloat(RCP_OneFloat data) { return Sensors::receiveRCPUpdate(data); }
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
             return Steppers::getInstance()->receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0],
                                                              data.data[1]);
-        return Sensors::getInstance()->receiveRCPUpdate(data);
+        return Sensors::receiveRCPUpdate(data);
     }
 
-    int processThreeFloat(RCP_ThreeFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
+    int processThreeFloat(RCP_ThreeFloat data) { return Sensors::receiveRCPUpdate(data); }
 
-    int processFourFloat(RCP_FourFloat data) { return Sensors::getInstance()->receiveRCPUpdate(data); }
+    int processFourFloat(RCP_FourFloat data) { return Sensors::receiveRCPUpdate(data); }
 } // namespace LRI::RCI::HWCTRL

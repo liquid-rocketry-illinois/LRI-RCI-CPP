@@ -10,14 +10,23 @@
 
 #include "hardware/HardwareControl.h"
 
-namespace LRI::RCI {
-    Sensors* Sensors::getInstance() {
-        static Sensors instance;
-        return &instance;
-    }
+namespace LRI::RCI::Sensors {
+    // Holds the data vectors mapped to their qualifiers
+    static std::map<HardwareQualifier, std::vector<DataPoint>> sensors;
+
+    // Threads are placed in a map that maps the thread ID to its pointer, so threads can move themselves
+    // between these two structures
+    static std::map<std::thread::id, std::thread*> activeThreads;
+    static std::map<std::thread::id, std::thread*> destroyThreads;
+
+    // Lock for the above maps
+    static std::mutex threadSetMux;
+
+    // A flag for all threads to indicate if they should self destruct
+    static std::atomic_bool destroy;
 
     // Function that gets run in thread to put sensor data into a csv. The vector of data is de-allocated at the end!
-    void Sensors::toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data) {
+    static void toCSVFile(const HardwareQualifier& qual, const std::vector<DataPoint>* data) {
         static auto mapStuff = [&] {
             threadSetMux.lock();
             if(destroy) return;
@@ -79,10 +88,7 @@ namespace LRI::RCI {
         mapStuff();
     }
 
-    Sensors::~Sensors() { reset(); }
-
-
-    int Sensors::receiveRCPUpdate(const RCP_OneFloat& data) {
+    int receiveRCPUpdate(const RCP_OneFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
@@ -96,7 +102,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int Sensors::receiveRCPUpdate(const RCP_TwoFloat& data) {
+    int receiveRCPUpdate(const RCP_TwoFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
@@ -109,7 +115,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int Sensors::receiveRCPUpdate(const RCP_ThreeFloat& data) {
+    int receiveRCPUpdate(const RCP_ThreeFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
@@ -122,7 +128,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    int Sensors::receiveRCPUpdate(const RCP_FourFloat& data) {
+    int receiveRCPUpdate(const RCP_FourFloat& data) {
         HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
@@ -135,7 +141,7 @@ namespace LRI::RCI {
         return 0;
     }
 
-    void Sensors::setHardwareConfig(const std::set<HardwareQualifier>& sensids) {
+    void setHardwareConfig(const std::set<HardwareQualifier>& sensids) {
         reset();
 
         for(const auto& qual : sensids) {
@@ -143,7 +149,7 @@ namespace LRI::RCI {
         }
     }
 
-    void Sensors::reset() {
+    void reset() {
         destroy = true;
 
         sensors.clear();
@@ -179,7 +185,7 @@ namespace LRI::RCI {
         destroy = false;
     }
 
-    void Sensors::update() {
+    void update() {
         threadSetMux.lock();
         std::set<std::thread::id> remo;
         for(const auto& [id, thread] : destroyThreads) {
@@ -192,7 +198,7 @@ namespace LRI::RCI {
         threadSetMux.unlock();
     }
 
-    const std::vector<Sensors::DataPoint>* Sensors::getState(const HardwareQualifier& qual) const {
+    const std::vector<DataPoint>* getState(const HardwareQualifier& qual) {
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return nullptr;
@@ -201,7 +207,7 @@ namespace LRI::RCI {
         return &sensors.at(qual);
     }
 
-    void Sensors::writeCSV(const HardwareQualifier& qual) {
+    void writeCSV(const HardwareQualifier& qual) {
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
@@ -209,12 +215,12 @@ namespace LRI::RCI {
 
         auto* copy = new std::vector(sensors[qual]);
         threadSetMux.lock();
-        auto* thread = new std::thread(&Sensors::toCSVFile, this, qual, copy);
+        auto* thread = new std::thread(&toCSVFile, qual, copy);
         activeThreads[thread->get_id()] = thread;
         threadSetMux.unlock();
     }
 
-    void Sensors::tare(const HardwareQualifier& qual, uint8_t dataChannel) {
+    void tare(const HardwareQualifier& qual, uint8_t dataChannel) {
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
@@ -237,7 +243,7 @@ namespace LRI::RCI {
         RCP_requestTareConfiguration(qual.devclass, qual.id, dataChannel, ftotal);
     }
 
-    void Sensors::clearGraph(const HardwareQualifier& qual) {
+    void clearGraph(const HardwareQualifier& qual) {
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
@@ -246,11 +252,11 @@ namespace LRI::RCI {
         sensors[qual].clear();
     }
 
-    void Sensors::clearAll() {
+    void clearAll() {
         for(auto& graph : sensors | std::views::values) graph.clear();
     }
 
-    void Sensors::removeSensor(const HardwareQualifier& qual) {
+    void removeSensor(const HardwareQualifier& qual) {
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
@@ -259,7 +265,7 @@ namespace LRI::RCI {
         sensors.erase(qual);
     }
 
-    void Sensors::addSensor(const HardwareQualifier& qual) {
+    void addSensor(const HardwareQualifier& qual) {
         sensors[qual] = std::vector<DataPoint>();
         sensors[qual].reserve(DATA_VECTOR_INITIAL_SIZE);
     }
