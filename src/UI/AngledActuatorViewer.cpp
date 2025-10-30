@@ -5,7 +5,11 @@
 namespace LRI::RCI {
     AngledActuatorViewer::AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
-        for(const auto& qual : quals) actuators[qual] = AngledActuators::getState(qual);
+        for(const auto& qual : quals) {
+            const auto* act = AngledActuators::getState(qual);
+            if(act == nullptr) continue;
+            actuators[qual] = act;
+        }
     }
 
     void AngledActuatorViewer::render() {

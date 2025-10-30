@@ -10,8 +10,10 @@ namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
     SimpleActuatorViewer::SimpleActuatorViewer(const std::set<HardwareQualifier>& quals, const bool refreshButton) :
         refreshButton(refreshButton) {
-        for(const auto& sol : quals) {
-            sols[sol] = SimpleActuators::getState(sol);
+        for(const auto& qual : quals) {
+            const auto* sol = SimpleActuators::getState(qual);
+            if(sol == nullptr) continue;
+            sols[qual] = sol;
         }
     }
 

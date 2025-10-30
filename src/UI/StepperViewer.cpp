@@ -9,7 +9,9 @@ namespace LRI::RCI {
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            steppers[qual] = Steppers::getState(qual);
+            const auto* stepper = Steppers::getState(qual);
+            if(stepper == nullptr) continue;
+            steppers[qual] = stepper;
             inputs[qual] = Input();
         }
     }

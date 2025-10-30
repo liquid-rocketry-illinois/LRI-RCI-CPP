@@ -8,7 +8,9 @@ namespace LRI::RCI {
     BoolSensorViewer::BoolSensorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            sensors[qual] = BoolSensors::getState(qual);
+            const auto* sense = BoolSensors::getState(qual);
+            if(sense == nullptr) continue;
+            sensors[qual] = sense;
         }
     }
 

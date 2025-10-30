@@ -59,7 +59,9 @@ namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
     SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : abridged(abridged) {
         for(const auto& qual : quals) {
-            sensors[qual] = Sensors::getState(qual);
+            const auto* sense = Sensors::getState(qual);
+            if(sense == nullptr) continue;
+            sensors[qual] = sense;
         }
     }
 
