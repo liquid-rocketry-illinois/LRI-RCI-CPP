@@ -1,11 +1,10 @@
 #include "UI/Windowlet.h"
 
-#include <UI/TargetChooser.h>
-
+#include <iostream>
 #include <utility>
 
-#include <iostream>
-#include "UI/TestStateViewer.h"
+#include "UI/ErrorWindow.h"
+#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
     // The global windowlet set
@@ -51,7 +50,7 @@ namespace LRI::RCI {
 
     // TODO: target chooser module here
     ControlWindowlet::ControlWindowlet() :
-        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this))}, false) {}
+        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this)), static_cast<WModule*>(new ErrorWindow())}, false) {}
 
     void ControlWindowlet::cleanup() {
         ImGui::SaveIniSettingsToDisk(inipath.c_str());
