@@ -70,7 +70,7 @@ namespace LRI::RCI::Sensors {
             break;
 
         case RCP_DEVCLASS_AM_PRESSURE:
-        case RCP_DEVCLASS_AM_TEMPERATURE:
+        case RCP_DEVCLASS_TEMPERATURE:
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
             file << "relmillis,data\n";
             for(const auto& point : *data) {

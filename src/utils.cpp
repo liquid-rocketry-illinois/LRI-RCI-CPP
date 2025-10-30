@@ -31,7 +31,7 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_AM_PRESSURE:
             return "Ambient Pressure";
 
-        case RCP_DEVCLASS_AM_TEMPERATURE:
+        case RCP_DEVCLASS_TEMPERATURE:
             return "Ambient Temperature";
 
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:

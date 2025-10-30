@@ -21,7 +21,7 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
             return std::format("{}: {:.3f} psi", qual.name, data.data[0]);
 
-        case RCP_DEVCLASS_AM_TEMPERATURE:
+        case RCP_DEVCLASS_TEMPERATURE:
             return std::format("{}: {:.3f} C", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
@@ -231,7 +231,7 @@ namespace LRI::RCI {
     const std::map<RCP_DeviceClass, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
         {RCP_DEVCLASS_ANGLED_ACTUATOR,     {{"Actuator Angle",          "Angle (Degrees)",                {{"Angle", 0}}}}},
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
-        {RCP_DEVCLASS_AM_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},
+        {RCP_DEVCLASS_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},
         {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure",                "Pressure (psi)",                 {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Relative Humidity",       "Humidity (Relative %)",          {{"Humidity", 0}}}}},
         {RCP_DEVCLASS_LOAD_CELL,           {{"Load Cell",               "Mass (kg)",                      {{"Mass", 0}}}}},

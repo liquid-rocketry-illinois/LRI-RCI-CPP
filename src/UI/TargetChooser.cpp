@@ -240,7 +240,7 @@ namespace LRI::RCI {
                 [[fallthrough]];
 
             case RCP_DEVCLASS_AM_PRESSURE:
-            case RCP_DEVCLASS_AM_TEMPERATURE:
+            case RCP_DEVCLASS_TEMPERATURE:
             case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
             case RCP_DEVCLASS_RELATIVE_HYGROMETER:
             case RCP_DEVCLASS_LOAD_CELL:
@@ -312,7 +312,7 @@ namespace LRI::RCI {
                     break;
 
                 case RCP_DEVCLASS_AM_PRESSURE:
-                case RCP_DEVCLASS_AM_TEMPERATURE:
+                case RCP_DEVCLASS_TEMPERATURE:
                 case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                 case RCP_DEVCLASS_RELATIVE_HYGROMETER:
                 case RCP_DEVCLASS_LOAD_CELL:
