@@ -8,6 +8,7 @@
 
 #include "WModule.h"
 #include "Windowlet.h"
+#include "hardware/HardwareQualifier.h"
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
@@ -78,6 +79,8 @@ namespace LRI::RCI {
         ~TargetChooser() override = default;
 
         // Helper to initialize all windows with the correct configurations
+        static std::set<HardwareQualifier> getValidQuals(const std::set<HardwareQualifier>& allquals,
+                                                         RCP_DeviceClass devclass, const std::set<uint8_t>& ids);
         void initWindows();
 
     public:

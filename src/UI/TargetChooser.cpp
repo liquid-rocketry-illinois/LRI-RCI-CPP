@@ -180,6 +180,28 @@ namespace LRI::RCI {
         ImGui::PopID();
     }
 
+    std::set<HardwareQualifier> TargetChooser::getValidQuals(const std::set<HardwareQualifier>& allquals,
+                                                             RCP_DeviceClass devclass, const std::set<uint8_t>& ids) {
+        std::set<uint8_t> validIds;
+
+        for(const auto& id : ids) {
+            HardwareQualifier temp = {devclass, id};
+            if(!allquals.contains(temp)) {
+                HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, temp});
+                continue;
+            }
+
+            validIds.insert(id);
+        }
+
+        auto filtered = allquals | std::views::filter([&validIds, devclass](const HardwareQualifier& qual) {
+                            return qual.devclass == devclass && validIds.contains(qual.id);
+                        });
+
+        return std::set<HardwareQualifier>{filtered.cbegin(), filtered.cend()};
+    }
+
+
     // Helper function that resets and initializes everything based on the configuration file
     void TargetChooser::initWindows() {
         configName = targetconfig["name"].get<std::string>();
@@ -284,14 +306,9 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_STEPPER:
                 case RCP_DEVCLASS_ANGLED_ACTUATOR: {
                     bool refresh = targetconfig["windows"][i]["modules"][j]["refresh"].get<bool>();
-                    auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<int>>();
+                    auto ids = targetconfig["windows"][i]["modules"][j]["ids"].get<std::set<uint8_t>>();
 
-                    // Filter out any qualifiers that havent been configured in the devices section
-                    auto filtered = allquals | std::views::filter([&type, &ids](const HardwareQualifier& q) {
-                                        return q.devclass == type && ids.contains(q.id);
-                                    });
-
-                    const auto qualSet = std::set(filtered.begin(), filtered.end());
+                    const auto qualSet = getValidQuals(allquals, static_cast<RCP_DeviceClass>(type), ids);
 
                     // Determine correct module type and construct it
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
@@ -329,13 +346,10 @@ namespace LRI::RCI {
                     for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
                         int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
-                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<int>>();
+                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<uint8_t>>();
 
-                        // Filter out any qualifiers not configured in the devices section
-                        auto filtered = allquals | std::views::filter([&devclass, &ids](const HardwareQualifier& q) {
-                                            return q.devclass == devclass && ids.contains(q.id);
-                                        });
-                        quals.insert(filtered.begin(), filtered.end());
+                        const auto qualSet = getValidQuals(allquals, static_cast<RCP_DeviceClass>(devclass), ids);
+                        quals.insert(qualSet.cbegin(), qualSet.cend());
                     }
 
                     modules.push_back(new SensorViewer(quals, abridged));
