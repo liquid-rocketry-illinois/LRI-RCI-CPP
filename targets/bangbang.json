@@ -13,8 +13,8 @@
   "devices": [
     {
       "devclass": 1,
-      "ids": [0, 1],
-      "names": ["Bang-Banger", "Purge"]
+      "ids": [0, 1, 2],
+      "names": ["Bang-Banger", "Purge", "Water"]
     },
     {
       "devclass": 146,
@@ -71,7 +71,7 @@
         {
           "type": 1,
           "refresh": true,
-          "ids": [0, 1]
+          "ids": [0, 1, 2]
         }
       ]
     }
