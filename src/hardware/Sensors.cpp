@@ -49,7 +49,7 @@ namespace LRI::RCI::Sensors {
         else std::filesystem::create_directories(exportFolder);
 
         const auto now = std::chrono::system_clock::now();
-        std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");
+        std::ofstream file(exportFolder / std::format("{:%d-%m-%Y-%H-%M-%OS}-{}.csv", now, qual.asString()));
 
         // The actual file writing. Depending on the device class, a header is created, and each datapoint is iterated
         // through and written to the file
