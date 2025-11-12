@@ -38,9 +38,8 @@ namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
         control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
-        auto targetsFolder = getRoamingFolder() / "targets";
-        if(std::filesystem::exists(targetsFolder)) {
-            for(const auto& file : std::filesystem::directory_iterator(targetsFolder)) {
+        if(std::filesystem::exists("targets/")) {
+            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
                 if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
                 targetpaths.push_back(file);
             }
@@ -167,7 +166,9 @@ namespace LRI::RCI {
                     // Parse the selected config file
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
-                    control->inipath = targetpaths[chosenConfig].string() + ".ini";
+
+                    std::filesystem::path inipath = getRoamingFolder() / "targets" / (targetpaths[chosenConfig].filename().string() + ".ini");
+                    control->inipath = inipath.string();
 
                     // Tell the main loop to load the new ini file before the next frame
                     if(std::filesystem::exists(control->inipath)) iniFilePath.path = control->inipath;

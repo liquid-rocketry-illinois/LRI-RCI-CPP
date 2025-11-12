@@ -1,9 +1,10 @@
 #include "utils.h"
 
+#include <fstream>
 #include <shlobj_core.h>
 
-#include "imgui.h"
 #include "RCP_Host/RCP_Host.h"
+#include "imgui.h"
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
@@ -66,9 +67,7 @@ namespace LRI::RCI {
 
     static std::filesystem::path roamingFolder;
 
-    const std::filesystem::path& getRoamingFolder() {
-        return roamingFolder;
-    }
+    const std::filesystem::path& getRoamingFolder() { return roamingFolder; }
 
     void detectRoamingFolder() {
 #ifdef RCIDEBUG
@@ -100,7 +99,13 @@ namespace LRI::RCI {
             if(!std::filesystem::is_directory(targetsFolder)) std::exit(-1);
         }
 
-        else std::filesystem::copy("targets", roamingFolder / "targets");
+        else {
+            std::filesystem::copy("targets", roamingFolder / "targets");
+            std::ofstream readme(targetsFolder / "README");
+            readme << "This folder stores user-configured UI layouts.\nNote that the target jsons here are only for "
+                      "reference, the versions actually used are in the executable's folder"
+                   << std::endl;
+        }
     }
 
 } // namespace LRI::RCI
