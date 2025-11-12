@@ -5,6 +5,8 @@
 #include <fstream>
 #include <ranges>
 
+#include "utils.h"
+
 namespace LRI::RCI {
     Sensors* Sensors::getInstance() {
         static Sensors* instance = nullptr;
@@ -24,14 +26,15 @@ namespace LRI::RCI {
             threadSetMux.unlock();
         };
         // Create the exports directory if it does not exist. If it exists as a file, exit early
-        if(std::filesystem::exists("exports")) {
-            if(!std::filesystem::is_directory("./exports")) {
+        const auto& exportFolder = getExportsFolder();
+        if(std::filesystem::exists(exportFolder)) {
+            if(!std::filesystem::is_directory(exportFolder)) {
                 mapStuff();
                 return;
             }
         }
 
-        else std::filesystem::create_directory("./exports");
+        else std::filesystem::create_directories(exportFolder);
 
         const auto now = std::chrono::system_clock::now();
         std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");

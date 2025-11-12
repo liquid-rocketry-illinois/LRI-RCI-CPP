@@ -130,7 +130,9 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::Text(" | ");
             ImGui::SameLine();
-            if(ImGui::Button("Write To CSV")) Sensors::getInstance()->writeCSV(qual);
+            if(ImGui::Button("Write To CSV")) {
+                Sensors::getInstance()->writeCSV(qual);
+            }
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %d", data->size());
             ImGui::TextWrapped("%s",

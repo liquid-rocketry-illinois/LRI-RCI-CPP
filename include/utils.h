@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <chrono>
 #include <string>
+#include <filesystem>
 
 #include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
@@ -96,6 +97,9 @@ namespace LRI::RCI {
         void push(T value);
         void clear();
     };
+
+    [[nodiscard]] const std::filesystem::path& getExportsFolder();
+    void detectExportsFolder();
 } // namespace LRI::RCI
 
 namespace ImGui {

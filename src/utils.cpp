@@ -1,5 +1,7 @@
 #include "utils.h"
 
+#include <shlobj_core.h>
+
 #include <implot.h>
 #include "RCP_Host/RCP_Host.h"
 
@@ -207,6 +209,32 @@ namespace LRI::RCI {
     ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x / v2.x, v1.y / v2.y}; }
 
     ImVec2 operator/(ImVec2 const& v1, const float constant) { return {v1.x / constant, v1.y / constant}; }
+
+    static std::filesystem::path exportsFolder;
+
+    const std::filesystem::path& getExportsFolder() {
+        return exportsFolder;
+    }
+
+    void detectExportsFolder() {
+#ifndef RCIDEBUG
+        char buf[256];
+        DWORD retlen = GetModuleFileName(nullptr, buf, sizeof(buf));
+        if(retlen >= sizeof(buf)) std::exit(-1);
+        exportsFolder = buf;
+        exportsFolder = exportsFolder.parent_path() / "exports";
+#else
+        PWSTR pathstr = nullptr;
+        HRESULT res = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathstr);
+        if(res != S_OK || !pathstr) std::exit(-1);
+        exportsFolder = pathstr;
+        exportsFolder /= "LRI Electronics";
+        exportsFolder /= "Rocket Control Interface (RCI)";
+        exportsFolder /= "exports";
+        CoTaskMemFree(pathstr);
+#endif
+    }
+
 } // namespace LRI::RCI
 
 namespace ImGui {
