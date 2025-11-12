@@ -183,6 +183,11 @@ namespace LRI::RCI {
             }
         }
 
+        ImGui::NewLine();
+        if(ImGui::Button("Open Exports")) {
+            ShellExecute(nullptr, "open", getExportsFolder().string().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+        }
+
         ImGui::PopID();
     }
 

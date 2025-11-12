@@ -217,7 +217,7 @@ namespace LRI::RCI {
     }
 
     void detectExportsFolder() {
-#ifndef RCIDEBUG
+#ifdef RCIDEBUG
         char buf[256];
         DWORD retlen = GetModuleFileName(nullptr, buf, sizeof(buf));
         if(retlen >= sizeof(buf)) std::exit(-1);
@@ -233,6 +233,14 @@ namespace LRI::RCI {
         exportsFolder /= "exports";
         CoTaskMemFree(pathstr);
 #endif
+
+        if(std::filesystem::exists(exportsFolder)) {
+            if(!std::filesystem::is_directory(exportsFolder)) {
+                std::exit(-1);
+            }
+        }
+
+        else std::filesystem::create_directories(exportsFolder);
     }
 
 } // namespace LRI::RCI
