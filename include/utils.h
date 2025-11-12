@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <string>
+#include <filesystem>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -110,6 +111,9 @@ namespace LRI::RCI {
     };
 
     extern IniFilePath iniFilePath;
+
+    [[nodiscard]] const std::filesystem::path& getRoamingFolder();
+    void detectRoamingFolder();
 } // namespace LRI::RCI
 
 namespace ImGui {

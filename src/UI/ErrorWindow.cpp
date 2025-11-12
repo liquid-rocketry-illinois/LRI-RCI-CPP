@@ -11,6 +11,7 @@ namespace LRI::RCI {
 
         ImGui::Text("Error Output:");
         if(!ImGui::BeginChild("##errorframe")) {
+            ImGui::EndChild();
             ImGui::PopID();
             ImGui::PopID();
             return;

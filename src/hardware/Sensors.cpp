@@ -9,6 +9,7 @@
 #include <ranges>
 
 #include "hardware/HardwareControl.h"
+#include "utils.h"
 
 namespace LRI::RCI::Sensors {
     // Holds the data vectors mapped to their qualifiers
@@ -37,14 +38,15 @@ namespace LRI::RCI::Sensors {
             threadSetMux.unlock();
         };
         // Create the exports directory if it does not exist. If it exists as a file, exit early
-        if(std::filesystem::exists("exports")) {
-            if(!std::filesystem::is_directory("./exports")) {
+        const auto& exportFolder = getRoamingFolder() / "exports";
+        if(std::filesystem::exists(exportFolder)) {
+            if(!std::filesystem::is_directory(exportFolder)) {
                 mapStuff();
                 return;
             }
         }
 
-        else std::filesystem::create_directory("./exports");
+        else std::filesystem::create_directories(exportFolder);
 
         const auto now = std::chrono::system_clock::now();
         std::ofstream file(std::format("./exports/{:%d-%m-%Y-%H-%M-%OS}-", now) + qual.asString() + ".csv");

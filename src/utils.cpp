@@ -1,8 +1,9 @@
 #include "utils.h"
 
-#include "RCP_Host/RCP_Host.h"
+#include <shlobj_core.h>
 
 #include "imgui.h"
+#include "RCP_Host/RCP_Host.h"
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
@@ -62,6 +63,46 @@ namespace LRI::RCI {
             return "Unknown";
         }
     }
+
+    static std::filesystem::path roamingFolder;
+
+    const std::filesystem::path& getRoamingFolder() {
+        return roamingFolder;
+    }
+
+    void detectRoamingFolder() {
+#ifdef RCIDEBUG
+        char buf[256];
+        DWORD retlen = GetModuleFileName(nullptr, buf, sizeof(buf));
+        if(retlen >= sizeof(buf)) std::exit(-1);
+        roamingFolder = buf;
+        roamingFolder = roamingFolder.parent_path() / "roaming";
+#else
+        PWSTR pathstr = nullptr;
+        HRESULT res = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathstr);
+        if(res != S_OK || !pathstr) std::exit(-1);
+        roamingFolder = pathstr;
+        roamingFolder /= "LRI Electronics";
+        roamingFolder /= "Rocket Control Interface (RCI)";
+        CoTaskMemFree(pathstr);
+#endif
+
+        if(std::filesystem::exists(roamingFolder)) {
+            if(!std::filesystem::is_directory(roamingFolder)) {
+                std::exit(-1);
+            }
+        }
+
+        else std::filesystem::create_directories(roamingFolder);
+
+        auto targetsFolder = roamingFolder / "targets";
+        if(std::filesystem::exists(targetsFolder)) {
+            if(!std::filesystem::is_directory(targetsFolder)) std::exit(-1);
+        }
+
+        else std::filesystem::copy("targets", roamingFolder / "targets");
+    }
+
 } // namespace LRI::RCI
 
 namespace ImGui {

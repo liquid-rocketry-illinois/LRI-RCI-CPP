@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <set>
+#include <shellapi.h>
 
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
@@ -37,10 +38,11 @@ namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
         control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
-        if(std::filesystem::exists("targets/")) {
-            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
+        auto targetsFolder = getRoamingFolder() / "targets";
+        if(std::filesystem::exists(targetsFolder)) {
+            for(const auto& file : std::filesystem::directory_iterator(targetsFolder)) {
                 if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
-                targetpaths.push_back(file.path().string());
+                targetpaths.push_back(file);
             }
         }
 
@@ -99,10 +101,10 @@ namespace LRI::RCI {
             ImGui::Text("Choose Target Config: ");
             ImGui::SameLine();
             if(targetpaths.empty()) ImGui::Text("No Target configs available");
-            else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].c_str())) {
+            else if(ImGui::BeginCombo("##targetchoosecombo", targetpaths[chosenConfig].filename().string().c_str())) {
                 for(size_t i = 0; i < targetpaths.size(); i++) {
                     bool selected = i == chosenConfig;
-                    if(ImGui::Selectable((targetpaths[i] + "##targetchooser").c_str(), &selected)) chosenConfig = i;
+                    if(ImGui::Selectable(targetpaths[i].filename().string().c_str(), &selected)) chosenConfig = i;
                     if(selected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
@@ -165,7 +167,7 @@ namespace LRI::RCI {
                     // Parse the selected config file
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
-                    control->inipath = targetpaths[chosenConfig] + ".ini";
+                    control->inipath = targetpaths[chosenConfig].string() + ".ini";
 
                     // Tell the main loop to load the new ini file before the next frame
                     if(std::filesystem::exists(control->inipath)) iniFilePath.path = control->inipath;
@@ -173,6 +175,25 @@ namespace LRI::RCI {
                     // Call initializer of the rest of the windows
                     initWindows();
                     activeTarget = true;
+                }
+            }
+        }
+
+        ImGui::NewLine();
+        if(ImGui::Button("Open Exports")) {
+            ShellExecute(nullptr, "open", (getRoamingFolder() / "exports").string().c_str(), nullptr, nullptr,
+                         SW_SHOWDEFAULT);
+        }
+
+        if(activeTarget) {
+            ImGui::SameLine();
+            if(ImGui::Button("Reset Layout")) {
+                std::filesystem::path inifile = control->inipath;
+                std::filesystem::path origfile = "targets" / inifile.filename();
+                if(std::filesystem::exists(origfile) && !std::filesystem::is_directory(origfile)) {
+                    std::filesystem::remove(inifile);
+                    std::filesystem::copy(origfile, inifile);
+                    iniFilePath.path = inifile.string();
                 }
             }
         }
