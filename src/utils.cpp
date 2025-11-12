@@ -210,37 +210,36 @@ namespace LRI::RCI {
 
     ImVec2 operator/(ImVec2 const& v1, const float constant) { return {v1.x / constant, v1.y / constant}; }
 
-    static std::filesystem::path exportsFolder;
+    static std::filesystem::path roamingFolder;
 
-    const std::filesystem::path& getExportsFolder() {
-        return exportsFolder;
+    const std::filesystem::path& getRoamingFolder() {
+        return roamingFolder;
     }
 
-    void detectExportsFolder() {
+    void detectRoamingFolder() {
 #ifdef RCIDEBUG
         char buf[256];
         DWORD retlen = GetModuleFileName(nullptr, buf, sizeof(buf));
         if(retlen >= sizeof(buf)) std::exit(-1);
-        exportsFolder = buf;
-        exportsFolder = exportsFolder.parent_path() / "exports";
+        roamingFolder = buf;
+        roamingFolder = roamingFolder.parent_path() / "exports";
 #else
         PWSTR pathstr = nullptr;
         HRESULT res = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathstr);
         if(res != S_OK || !pathstr) std::exit(-1);
-        exportsFolder = pathstr;
-        exportsFolder /= "LRI Electronics";
-        exportsFolder /= "Rocket Control Interface (RCI)";
-        exportsFolder /= "exports";
+        roamingFolder = pathstr;
+        roamingFolder /= "LRI Electronics";
+        roamingFolder /= "Rocket Control Interface (RCI)";
         CoTaskMemFree(pathstr);
 #endif
 
-        if(std::filesystem::exists(exportsFolder)) {
-            if(!std::filesystem::is_directory(exportsFolder)) {
+        if(std::filesystem::exists(roamingFolder)) {
+            if(!std::filesystem::is_directory(roamingFolder)) {
                 std::exit(-1);
             }
         }
 
-        else std::filesystem::create_directories(exportsFolder);
+        else std::filesystem::create_directories(roamingFolder);
     }
 
 } // namespace LRI::RCI

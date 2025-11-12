@@ -98,8 +98,8 @@ namespace LRI::RCI {
         void clear();
     };
 
-    [[nodiscard]] const std::filesystem::path& getExportsFolder();
-    void detectExportsFolder();
+    [[nodiscard]] const std::filesystem::path& getRoamingFolder();
+    void detectRoamingFolder();
 } // namespace LRI::RCI
 
 namespace ImGui {

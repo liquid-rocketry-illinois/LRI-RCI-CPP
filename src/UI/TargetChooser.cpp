@@ -185,7 +185,8 @@ namespace LRI::RCI {
 
         ImGui::NewLine();
         if(ImGui::Button("Open Exports")) {
-            ShellExecute(nullptr, "open", getExportsFolder().string().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+            ShellExecute(nullptr, "open", (getRoamingFolder() / "exports").string().c_str(), nullptr, nullptr,
+                         SW_SHOWDEFAULT);
         }
 
         ImGui::PopID();
@@ -309,7 +310,8 @@ namespace LRI::RCI {
                     if(type == RCP_DEVCLASS_SIMPLE_ACTUATOR)
                         modules.push_back(new SimpleActuatorViewer(qualSet, refresh));
                     else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
-                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR) modules.push_back(new AngledActuatorViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
+                        modules.push_back(new AngledActuatorViewer(qualSet, refresh));
                     else modules.push_back(new BoolSensorViewer(qualSet, refresh));
                     break;
                 }

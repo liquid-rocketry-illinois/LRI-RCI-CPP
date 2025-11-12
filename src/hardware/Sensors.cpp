@@ -26,7 +26,7 @@ namespace LRI::RCI {
             threadSetMux.unlock();
         };
         // Create the exports directory if it does not exist. If it exists as a file, exit early
-        const auto& exportFolder = getExportsFolder();
+        const auto& exportFolder = getRoamingFolder() / "exports";
         if(std::filesystem::exists(exportFolder)) {
             if(!std::filesystem::is_directory(exportFolder)) {
                 mapStuff();

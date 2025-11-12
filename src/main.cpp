@@ -34,7 +34,7 @@ int main() {
         return -1;
     }
 
-    LRI::RCI::detectExportsFolder();
+    LRI::RCI::detectRoamingFolder();
 
     // Run the init function in utils.cpp
     LRI::RCI::imgui_init(window);
