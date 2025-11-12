@@ -58,7 +58,7 @@ namespace LRI::RCI {
         InterfaceChooser* chooser;
 
         // A vector to store a list of paths to target files
-        std::vector<std::string> targetpaths;
+        std::vector<std::filesystem::path> targetpaths;
 
         // Which target configuration has been chosen
         size_t chosenConfig;

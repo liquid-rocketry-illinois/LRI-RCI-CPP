@@ -222,7 +222,7 @@ namespace LRI::RCI {
         DWORD retlen = GetModuleFileName(nullptr, buf, sizeof(buf));
         if(retlen >= sizeof(buf)) std::exit(-1);
         roamingFolder = buf;
-        roamingFolder = roamingFolder.parent_path() / "exports";
+        roamingFolder = roamingFolder.parent_path() / "roaming";
 #else
         PWSTR pathstr = nullptr;
         HRESULT res = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathstr);
@@ -240,6 +240,13 @@ namespace LRI::RCI {
         }
 
         else std::filesystem::create_directories(roamingFolder);
+
+        auto targetsFolder = roamingFolder / "targets";
+        if(std::filesystem::exists(targetsFolder)) {
+            if(!std::filesystem::is_directory(targetsFolder)) std::exit(-1);
+        }
+
+        else std::filesystem::copy("targets", roamingFolder / "targets");
     }
 
 } // namespace LRI::RCI
