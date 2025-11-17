@@ -21,7 +21,7 @@ namespace LRI::RCI {
         if(ImGui::BeginChild("##serialchild", {ImGui::GetWindowWidth(), scale(175)})) {
             // Displaying the text just by rendering the string stream
             ImGui::PushTextWrapPos();
-            ImGui::TextUnformatted(RawData::getData().str().c_str());
+            ImGui::TextUnformatted(RawData::getData().c_str());
             ImGui::PopTextWrapPos();
         }
 

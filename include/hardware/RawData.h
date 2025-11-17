@@ -16,19 +16,7 @@ namespace LRI::RCI::RawData {
     void reset();
 
     // Return stream for display
-    [[nodiscard]] const std::stringstream& getData();
-
-    // class RawData {
-    //     RawData() = default;
-    //     ~RawData() = default;
-    //
-    //     // String of chars
-    //     std::stringstream chars;
-    //
-    // public:
-    //     // Get singleton instance
-    //     static RawData* getInstance();
-    // };
+    [[nodiscard]] const std::string& getData();
 } // namespace LRI::RCI
 
 #endif // RAWDATA_H
