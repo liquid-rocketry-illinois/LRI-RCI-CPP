@@ -8,14 +8,15 @@ namespace LRI::RCI::SimpleActuators {
     // Maps qualifiers to state pointers
     static std::map<HardwareQualifier, ActuatorState> state;
 
-    int receiveRCPUpdate(const HardwareQualifier& qual, bool newState) {
+    int receiveRCPUpdate(RCP_SimpleActuatorData data) {
+        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID};
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
         }
 
         state[qual].stale = false;
-        state[qual].open = newState;
+        state[qual].open = data.state == RCP_SIMPLE_ACTUATOR_ON;
         return 0;
     }
 

@@ -36,7 +36,7 @@ namespace LRI::RCI::TestState {
     void reset();
 
     // Receive updates from rcp
-    void receiveRCPUpdate(const RCP_TestData& testState);
+    int receiveRCPUpdate(RCP_TestData testState);
 } // namespace LRI::RCI
 
 #endif // TESTSTATE_H

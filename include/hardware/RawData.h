@@ -10,7 +10,7 @@
 // everything necessary
 namespace LRI::RCI::RawData {
     // Receive new chars from RCP
-    void receiveRCPUpdate(const RCP_CustomData& data);
+    int receiveRCPUpdate(RCP_CustomData data);
 
     // Clear the chars stream
     void reset();

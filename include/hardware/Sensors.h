@@ -23,10 +23,10 @@ namespace LRI::RCI::Sensors {
     };
 
     // Receivers for different data structures from RCP
-    int receiveRCPUpdate(const RCP_OneFloat& data);
-    int receiveRCPUpdate(const RCP_TwoFloat& data);
-    int receiveRCPUpdate(const RCP_ThreeFloat& data);
-    int receiveRCPUpdate(const RCP_FourFloat& data);
+    int receiveRCPUpdate1(RCP_OneFloat data);
+    int receiveRCPUpdate2(RCP_TwoFloat data);
+    int receiveRCPUpdate3(RCP_ThreeFloat data);
+    int receiveRCPUpdate4(RCP_FourFloat data);
 
     // Sets which sensors are active
     void setHardwareConfig(const std::set<HardwareQualifier>& sensids);

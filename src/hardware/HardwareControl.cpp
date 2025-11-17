@@ -14,28 +14,20 @@
 namespace LRI::RCI::HWCTRL {
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);
-    int processTestUpdate(RCP_TestData data);
-    int processBoolData(RCP_BoolData data);
-    int processSimpleActuatorData(RCP_SimpleActuatorData data);
-    int processPromptInput(RCP_PromptInputRequest request);
-    int processSerialData(RCP_CustomData data);
-    int processOneFloat(RCP_OneFloat data);
     int processTwoFloat(RCP_TwoFloat data);
-    int processThreeFloat(RCP_ThreeFloat data);
-    int processFourFloat(RCP_FourFloat data);
 
     static RCP_LibInitData callbacks = {
         .sendData = sendData,
         .readData = readData,
-        .processTestUpdate = processTestUpdate,
-        .processBoolData = processBoolData,
-        .processSimpleActuatorData = processSimpleActuatorData,
-        .processPromptInput = processPromptInput,
-        .processSerialData = processSerialData,
-        .processOneFloat = processOneFloat,
+        .processTestUpdate = TestState::receiveRCPUpdate,
+        .processBoolData = BoolSensors::receiveRCPUpdate,
+        .processSimpleActuatorData = SimpleActuators::receiveRCPUpdate,
+        .processPromptInput = Prompt::receiveRCPUpdate,
+        .processSerialData = RawData::receiveRCPUpdate,
+        .processOneFloat = Sensors::receiveRCPUpdate1,
         .processTwoFloat = processTwoFloat,
-        .processThreeFloat = processThreeFloat,
-        .processFourFloat = processFourFloat,
+        .processThreeFloat = Sensors::receiveRCPUpdate3,
+        .processFourFloat = Sensors::receiveRCPUpdate4,
     };
 
     static RCP_Interface* interf;
@@ -171,39 +163,10 @@ namespace LRI::RCI::HWCTRL {
 
     size_t readData(void* data, size_t bufferSize) { return interf->readData(data, bufferSize); }
 
-    int processTestUpdate(const RCP_TestData data) {
-        TestState::receiveRCPUpdate(data);
-        return 0;
-    }
-
-    int processBoolData(RCP_BoolData data) {
-        return BoolSensors::receiveRCPUpdate({RCP_DEVCLASS_BOOL_SENSOR, data.ID, ""}, data.data);
-    }
-
-    int processSimpleActuatorData(const RCP_SimpleActuatorData data) {
-        return SimpleActuators::receiveRCPUpdate({RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID, ""},
-                                                 data.state == RCP_SIMPLE_ACTUATOR_ON);
-    }
-
-    int processPromptInput(RCP_PromptInputRequest request) {
-        Prompt::receiveRCPUpdate(request);
-        return 0;
-    }
-
-    int processSerialData(const RCP_CustomData data) {
-        RawData::receiveRCPUpdate(data);
-        return 0;
-    }
-
-    int processOneFloat(RCP_OneFloat data) { return Sensors::receiveRCPUpdate(data); }
-
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
             return Steppers::receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
-        return Sensors::receiveRCPUpdate(data);
+        return Sensors::receiveRCPUpdate2(data);
     }
 
-    int processThreeFloat(RCP_ThreeFloat data) { return Sensors::receiveRCPUpdate(data); }
-
-    int processFourFloat(RCP_FourFloat data) { return Sensors::receiveRCPUpdate(data); }
 } // namespace LRI::RCI::HWCTRL

@@ -29,10 +29,11 @@ namespace LRI::RCI::Prompt {
         prompt = "";
     }
 
-    void receiveRCPUpdate(const RCP_PromptInputRequest& req) {
+    int receiveRCPUpdate(RCP_PromptInputRequest req) {
         type = req.type;
         if(type != RCP_PromptDataType_RESET) prompt = req.prompt;
         activePrompt = type != RCP_PromptDataType_RESET;
+        return 0;
     }
 
     bool submitPrompt() {

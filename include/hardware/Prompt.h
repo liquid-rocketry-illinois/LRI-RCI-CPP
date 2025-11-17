@@ -24,7 +24,7 @@ namespace LRI::RCI::Prompt {
     bool submitPrompt();
 
     // Receive prompt requests from RCP
-    void receiveRCPUpdate(const RCP_PromptInputRequest& req);
+    int receiveRCPUpdate(RCP_PromptInputRequest req);
 } // namespace LRI::RCI
 
 #endif // PROMPT_H

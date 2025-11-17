@@ -15,7 +15,7 @@ namespace LRI::RCI::BoolSensors {
     };
 
     // Receive updates from RCP
-    int receiveRCPUpdate(const HardwareQualifier& qual, bool newstate);
+    int receiveRCPUpdate(RCP_BoolData data);
 
     // Set which qualifiers are tracked by the singleton, and the interval for refreshes
     void setHardwareConfig(const std::set<HardwareQualifier>& ids, int _refreshTime = 5);

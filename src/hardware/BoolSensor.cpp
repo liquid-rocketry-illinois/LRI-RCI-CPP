@@ -13,13 +13,14 @@ namespace LRI::RCI::BoolSensors {
     static StopWatch refreshTimer;
     static float refreshTime = 5.0f;
 
-    int receiveRCPUpdate(const HardwareQualifier& qual, bool newstate) {
+    int receiveRCPUpdate(RCP_BoolData data) {
+        HardwareQualifier qual{RCP_DEVCLASS_BOOL_SENSOR, data.ID};
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
         }
 
-        state[qual].open = newstate;
+        state[qual].open = data.data;
         state[qual].stale = false;
         return 0;
     }

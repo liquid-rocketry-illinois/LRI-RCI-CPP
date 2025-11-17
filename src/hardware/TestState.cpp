@@ -89,10 +89,11 @@ namespace LRI::RCI::TestState {
 
     void reset() { inited = false; }
 
-    void receiveRCPUpdate(const RCP_TestData& testState) {
-        heartbeatTime = testState.heartbeatTime;
-        dataStreaming = testState.dataStreaming;
-        state = testState.state;
-        inited = testState.isInited;
+    int receiveRCPUpdate(RCP_TestData data) {
+        heartbeatTime = data.heartbeatTime;
+        dataStreaming = data.dataStreaming;
+        state = data.state;
+        inited = data.isInited;
+        return 0;
     }
 } // namespace LRI::RCI::TestState
