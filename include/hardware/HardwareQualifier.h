@@ -1,7 +1,9 @@
 #ifndef HARDWAREQUALIFIER_H
 #define HARDWAREQUALIFIER_H
 
+#include <format>
 #include <string>
+
 #include "RCP_Host/RCP_Host.h"
 
 // Class that represents a device on the target. Each device can be
@@ -15,10 +17,15 @@ namespace LRI::RCI {
         std::string name;
 
         // Used for ordering
-        bool operator<(HardwareQualifier const& rhf) const;
+        bool operator<(HardwareQualifier const& rhf) const {
+            if(devclass == rhf.devclass) return id < rhf.id;
+            return devclass < rhf.devclass;
+        }
 
         // Helper for packing data as a string. Not for display, use the name field instead
-        [[nodiscard]] std::string asString() const;
+        [[nodiscard]] std::string asString() const {
+            return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name);
+        }
     };
 } // namespace LRI::RCI
 

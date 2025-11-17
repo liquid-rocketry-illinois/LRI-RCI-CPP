@@ -84,7 +84,6 @@ add_executable(LRI_control_panel
         src/hardware/BoolSensor.cpp
         src/hardware/EStop.cpp
         src/hardware/HardwareControl.cpp
-        src/hardware/HardwareQualifier.cpp
         src/hardware/Prompt.cpp
         src/hardware/RawData.cpp
         src/hardware/Sensors.cpp
