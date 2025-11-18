@@ -87,7 +87,13 @@ namespace LRI::RCI::TestState {
         }
     }
 
-    void reset() { inited = false; }
+    void reset() {
+        inited = false;
+        state = RCP_TEST_STOPPED;
+        tests.clear();
+        dataStreaming = false;
+        resetTimeOnStart = false;
+    }
 
     int receiveRCPUpdate(RCP_TestData data) {
         heartbeatTime = data.heartbeatTime;
