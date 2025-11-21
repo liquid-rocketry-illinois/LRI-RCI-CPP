@@ -76,7 +76,7 @@ namespace LRI::RCI {
 
     bool COMPort::writeBytes(const uint8_t* bytes, size_t length) {
         DWORD _written = 0;
-        if(!WriteFile(port, bytes, length, &_written, nullptr) || static_cast<size_t>(_written) != length) {
+        if(!WriteFile(port, bytes, static_cast<DWORD>(length), &_written, nullptr) || static_cast<size_t>(_written) != length) {
             lastErrorStage = 5;
             lastErrorCode = GetLastError();
             return false;
@@ -87,7 +87,7 @@ namespace LRI::RCI {
 
     bool COMPort::readBytes(uint8_t* bytes, size_t bufLength, size_t& written) {
         DWORD _written = 0;
-        if(!ReadFile(port, bytes, bufLength, &_written, nullptr)) {
+        if(!ReadFile(port, bytes, static_cast<DWORD>(bufLength), &_written, nullptr)) {
             lastErrorStage = 6;
             lastErrorCode = GetLastError();
             return false;

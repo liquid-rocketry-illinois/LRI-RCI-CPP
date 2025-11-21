@@ -72,7 +72,7 @@ namespace LRI::RCI {
         {
             EmbeddedResource im("LRI_Logo.png");
             GLFWimage image;
-            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &image.width,
+            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()), &image.width,
                                                  &image.height, nullptr, 4);
             glfwSetWindowIcon(window, 1, &image);
             stbi_image_free(image.pixels);
@@ -82,7 +82,7 @@ namespace LRI::RCI {
             EmbeddedResource im("LRI_Logo_big.png");
             int imw, imh;
             unsigned char* imaged =
-                stbi_load_from_memory((unsigned char*) im.getData(), im.getLength(), &imw, &imh, nullptr, 4);
+                stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()), &imw, &imh, nullptr, 4);
 
             glGenTextures(1, &iconTex);
             glBindTexture(GL_TEXTURE_2D, iconTex);
@@ -128,7 +128,7 @@ namespace LRI::RCI {
         glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float largestSquare = std::min(display_w, display_h);
+        float largestSquare = static_cast<float>(std::min(display_w, display_h));
         float coordX = largestSquare / display_w / 1.0f;
         float coordY = largestSquare / display_h / 1.0f;
 

@@ -107,7 +107,7 @@ if(WIN32)
     # Windows libraries and an extra compile flag
     target_link_libraries(LRI_control_panel PRIVATE opengl32 gdi32 imm32 user32 advapi32 Setupapi)
     target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
-#    target_compile_options(LRI_control_panel PRIVATE /Wall /WX)
+    target_compile_options(LRI_control_panel PRIVATE /W3 /WX)
     set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 else()
     target_link_libraries(LRI_control_panel PRIVATE GL)

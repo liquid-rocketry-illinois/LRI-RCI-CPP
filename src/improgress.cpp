@@ -32,7 +32,7 @@ namespace ImGui {
         return true;
     }
 
-    bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
+    bool Spinner(const char* label, float radius, float thickness, const ImU32& color) {
         ImGuiWindow* window = GetCurrentWindow();
         if(window->SkipItems) return false;
 
@@ -47,22 +47,24 @@ namespace ImGui {
         ItemSize(bb, style.FramePadding.y);
         if(!ItemAdd(bb, id)) return false;
 
+        float gtime = static_cast<float>(g.Time);
+
         // Render
         window->DrawList->PathClear();
 
         int num_segments = 30;
-        float val = ImSin(g.Time * 1.8f) * (num_segments - 5);
-        int start = (int) (val < 0 ? -val : val);
+        float val = ImSin(gtime * 1.8f) * static_cast<float>(num_segments - 5);
+        int start = static_cast<int>(val < 0 ? -val : val);
 
-        const float a_min = IM_PI * 2.0f * ((float) start) / (float) num_segments;
-        const float a_max = IM_PI * 2.0f * ((float) num_segments - 3) / (float) num_segments;
+        const float a_min = IM_PI * 2.0f * static_cast<float>(start) / static_cast<float>(num_segments);
+        const float a_max = IM_PI * 2.0f * static_cast<float>(num_segments - 3) / static_cast<float>(num_segments);
 
         const auto centre = ImVec2(pos.x + radius, pos.y + radius + style.FramePadding.y);
 
         for(int i = 0; i < num_segments; i++) {
-            const float a = a_min + ((float) i / (float) num_segments) * (a_max - a_min);
-            window->DrawList->PathLineTo(
-                ImVec2(centre.x + ImCos(a + g.Time * 8) * radius, centre.y + ImSin(a + g.Time * 8) * radius));
+            const float a = a_min + (static_cast<float>(i) / static_cast<float>(num_segments)) * (a_max - a_min);
+            window->DrawList->PathLineTo(ImVec2(centre.x + ImCos(a + gtime * 8) * radius,
+                                                centre.y + ImSin(a + gtime * 8) * radius));
         }
 
         window->DrawList->PathStroke(color, false, thickness);
