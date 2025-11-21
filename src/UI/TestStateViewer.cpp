@@ -65,8 +65,8 @@ namespace LRI::RCI {
 
         ImGui::SameLine();
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0, 0, 1));
 
         if(ImGui::Button("E-STOP")) EStop::ESTOP();
 
@@ -139,8 +139,8 @@ namespace LRI::RCI {
             bool restyle = inputHeartbeatRate != curHeart;
             if(restyle) {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9, 0, 1));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7, 0, 1));
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9f, 0, 1));
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7f, 0, 1));
             }
 
             if(ImGui::Button("Confirm##heartbeatconfirm")) {
@@ -161,8 +161,8 @@ namespace LRI::RCI {
         if(lockButtons) ImGui::BeginDisabled();
 
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0, 0, 1));
 
         pushed = false;
         if(ImGui::TimedButton("Hardware Reset", dResetTimer)) {

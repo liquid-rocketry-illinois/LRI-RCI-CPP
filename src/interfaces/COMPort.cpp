@@ -24,7 +24,7 @@ namespace LRI::RCI {
         if(portlist.empty()) ImGui::Text("No Ports Detected");
         else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].second.c_str())) {
             for(size_t i = 0; i < portlist.size(); i++) {
-                ImGui::PushID(i);
+                ImGui::PushID(static_cast<int>(i));
                 bool selected = i == selectedPort;
                 if(ImGui::Selectable((portlist[i]).second.c_str(), &selected)) selectedPort = i;
                 if(selected) ImGui::SetItemDefaultFocus();

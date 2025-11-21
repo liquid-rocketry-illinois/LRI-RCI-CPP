@@ -15,8 +15,8 @@ namespace LRI::RCI {
 
         // Draw a big button that takes up all available room, and its red
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7, 0, 0, 1));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0, 0, 1));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0, 0, 1));
 
         // If button pushed, send E-STOP packet
         if(ImGui::Button("EMERGENCY STOP",
