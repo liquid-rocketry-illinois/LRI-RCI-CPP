@@ -60,4 +60,7 @@ SpacesInConditionalStatement: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 TabWidth: 4
+RequiresClausePosition: WithPreceding
+IndentRequiresClause: false
+RequiresExpressionIndentation: OuterScope
 ...
