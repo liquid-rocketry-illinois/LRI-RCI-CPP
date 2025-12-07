@@ -63,14 +63,6 @@ namespace LRI::RCI {
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
 
-    // ImVec2 operators
-    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, float constant);
-    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator/(ImVec2 const& v1, float constant);
-
     // Class definition for RingBuffer. See RingBuffer.inl
     template<typename T, T ret = 0>
     class RingBuffer {
