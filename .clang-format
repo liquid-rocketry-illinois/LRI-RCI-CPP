@@ -5,6 +5,7 @@ BasedOnStyle: LLVM
 AccessModifierOffset: -4
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Right
 AlignOperands: false
 AlignTrailingComments: false
 AllowShortBlocksOnASingleLine: Empty
