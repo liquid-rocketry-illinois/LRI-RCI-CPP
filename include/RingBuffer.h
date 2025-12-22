@@ -1,11 +1,30 @@
 #ifndef RINGBUFFER_INL
 #define RINGBUFFER_INL
 
-// Linters will complain this isnt needed but it really is for the class definition
-#include "utils.h"
+#include <cstdint>
 
 namespace LRI::RCI {
-    // RingBuffer template implementation
+    template<typename T, T ret = 0>
+    class RingBuffer {
+        uint32_t buffersize;
+        uint32_t datastart;
+        uint32_t dataend;
+        T* data;
+
+    public:
+        explicit RingBuffer(uint32_t buffersize);
+        RingBuffer(RingBuffer& other);
+        ~RingBuffer();
+
+        [[nodiscard]] uint32_t size() const;
+        [[nodiscard]] bool isEmpty() const;
+        [[nodiscard]] bool isFull() const;
+        [[nodiscard]] uint32_t capacity() const;
+        T pop();
+        T peek() const;
+        void push(T value);
+        void clear();
+    };
 
     // New buffer constructor. Takes in a size for the buffer. Initializes all variables and allocates memory
     template<typename T, T ret>

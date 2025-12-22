@@ -63,29 +63,6 @@ namespace LRI::RCI {
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
 
-    // Class definition for RingBuffer. See RingBuffer.inl
-    template<typename T, T ret = 0>
-    class RingBuffer {
-        uint32_t buffersize;
-        uint32_t datastart;
-        uint32_t dataend;
-        T* data;
-
-    public:
-        explicit RingBuffer(uint32_t buffersize);
-        RingBuffer(RingBuffer& other);
-        ~RingBuffer();
-
-        [[nodiscard]] uint32_t size() const;
-        [[nodiscard]] bool isEmpty() const;
-        [[nodiscard]] bool isFull() const;
-        [[nodiscard]] uint32_t capacity() const;
-        T pop();
-        T peek() const;
-        void push(T value);
-        void clear();
-    };
-
     // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
     // outside the WModule/Windowlet abstraction tree
     class IniFilePath {
@@ -130,7 +107,5 @@ namespace ImGui {
         [[nodiscard]] float getHoldTime() const;
     };
 } // namespace ImGui
-
-#include "RingBuffer.inl"
 
 #endif // UTILS_H

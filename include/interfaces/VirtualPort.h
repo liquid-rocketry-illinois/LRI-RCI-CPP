@@ -5,6 +5,7 @@
 
 #include "RCP_Interface.h"
 #include "UI/TargetChooser.h"
+#include "RingBuffer.h"
 #include "utils.h"
 
 namespace LRI::RCI {
