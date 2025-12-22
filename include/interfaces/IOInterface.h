@@ -6,7 +6,7 @@
 #include <thread>
 
 #include "RCP_Interface.h"
-#include "utils.h"
+#include "RingBuffer.h"
 
 namespace LRI::RCI {
   class IOInterface : public RCP_Interface {
