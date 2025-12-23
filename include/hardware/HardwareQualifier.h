@@ -18,8 +18,7 @@ namespace LRI::RCI {
 
         // Used for ordering
         bool operator<(HardwareQualifier const& rhf) const {
-            if(devclass == rhf.devclass) return id < rhf.id;
-            return devclass < rhf.devclass;
+            return std::tie(devclass, id) < std::tie(rhf.devclass, rhf.id);
         }
 
         // Helper for packing data as a string. Not for display, use the name field instead
