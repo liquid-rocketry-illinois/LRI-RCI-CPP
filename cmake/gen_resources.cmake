@@ -1,3 +1,4 @@
+# While RCI does not support Linux *now*, I'd like to in the future, hence this file will live on
 IF (${WIN32})
     return()
 ENDIF ()
