@@ -11,10 +11,7 @@ if(WIN32)
         message(FATAL_ERROR "MSVC is required on windows")
     endif()
 else()
-    if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-        message("Compiler ID is: ${CMAKE_CXX_COMPILER_ID}")
-        message(FATAL_ERROR "GCC is required on linux")
-    endif()
+    message(FATAL_ERROR "RCI is currently only available on Windows")
 endif()
 
 add_custom_command(
