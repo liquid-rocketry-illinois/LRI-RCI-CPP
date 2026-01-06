@@ -2,7 +2,6 @@
 
 #include <ranges>
 
-#include "hardware/EStop.h"
 #include "hardware/TestState.h"
 #include "improgress.h"
 #include "utils.h"
@@ -68,7 +67,7 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0, 0, 1));
 
-        if(ImGui::Button("E-STOP")) EStop::ESTOP();
+        if(ImGui::Button("E-STOP")) TestState::ESTOP();
 
         ImGui::PopStyleColor(3);
 

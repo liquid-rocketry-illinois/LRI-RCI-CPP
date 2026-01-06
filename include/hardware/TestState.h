@@ -28,6 +28,7 @@ namespace LRI::RCI::TestState {
     bool setDataStreaming(bool stream);
     void setResetTimeOnTestStart(bool reset);
     bool deviceReset();
+    bool ESTOP();
 
     // To be called from main. Handles heartbeats
     void update();
