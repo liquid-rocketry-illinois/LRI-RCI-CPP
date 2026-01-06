@@ -89,7 +89,6 @@ add_executable(LRI_control_panel
         # Hardware classes
         src/hardware/AngledActuator.cpp
         src/hardware/BoolSensor.cpp
-        src/hardware/EStop.cpp
         src/hardware/HardwareControl.cpp
         src/hardware/Prompt.cpp
         src/hardware/RawData.cpp

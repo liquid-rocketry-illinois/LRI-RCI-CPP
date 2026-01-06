@@ -78,6 +78,8 @@ namespace LRI::RCI::TestState {
 
     bool deviceReset() { return !RCP_deviceReset(); }
 
+    bool ESTOP() { return !RCP_sendEStop(); }
+
     void update() {
         if(heartbeatTime == 0) return;
         if(heartbeat.timeSince() > heartbeatTime) {
