@@ -1,5 +1,5 @@
 #include "UI/RawViewer.h"
-#include "hardware/RawData.h"
+#include "hardware/TargetLog.h"
 #include "hardware/TestState.h"
 #include "utils.h"
 

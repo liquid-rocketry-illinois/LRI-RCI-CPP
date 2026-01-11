@@ -15,6 +15,7 @@ namespace LRI::RCI::HWCTRL {
         GENERAL_RCP,
         HWNE_HOST,
         HWNE_TARGET,
+        MISALIGNED_ELOG
     };
 
     struct Error {
@@ -31,6 +32,11 @@ namespace LRI::RCI::HWCTRL {
             else
                 what = "Hardware Qualifier received from target that was not present in the configuration: " +
                     qual.asString();
+        }
+
+        Error(ErrorType type, const HardwareChannel& ch) : Error(type, "") {
+            if(type == ErrorType::HWNE_HOST)
+                what = "Hardware Channel requested that was not present in the configuration: " + ch.asString();
         }
     };
 

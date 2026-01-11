@@ -5,16 +5,18 @@
 #include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/Prompt.h"
-#include "hardware/RawData.h"
 #include "hardware/Sensors.h"
 #include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
+#include "hardware/TargetLog.h"
 #include "hardware/TestState.h"
 
 namespace LRI::RCI::HWCTRL {
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);
-    int processTwoFloat(RCP_TwoFloat data);
+
+    RCP_Error route1F(RCP_1F data);
+    RCP_Error route2F(RCP_2F data);
 
     static RCP_LibInitData callbacks = {
         .sendData = sendData,
@@ -23,9 +25,9 @@ namespace LRI::RCI::HWCTRL {
         .processBoolData = BoolSensors::receiveRCPUpdate,
         .processSimpleActuatorData = SimpleActuators::receiveRCPUpdate,
         .processPromptInput = Prompt::receiveRCPUpdate,
-        .processSerialData = RawData::receiveRCPUpdate,
-        .processOneFloat = Sensors::receiveRCPUpdate1,
-        .processTwoFloat = processTwoFloat,
+        .processTargetLog = TargetLog::receiveRCPUpdate,
+        .processOneFloat = route1F,
+        .processTwoFloat = route2F,
         .processThreeFloat = Sensors::receiveRCPUpdate3,
         .processFourFloat = Sensors::receiveRCPUpdate4,
     };
@@ -36,7 +38,7 @@ namespace LRI::RCI::HWCTRL {
 
     int POLLS_PER_UPDATE = 25;
 
-    void start([[maybe_unused]] RCP_Interface* _interf) {
+    void start(RCP_Interface* _interf) {
         if(interf) {
             return;
         }
@@ -51,17 +53,16 @@ namespace LRI::RCI::HWCTRL {
         if(!hasStarted) return;
         BoolSensors::update(); // Periodic updates
         TestState::update(); // Heartbeats
-        Sensors::update(); // Serialization threads
 
         if(!doPoll) return;
         for(int i = 0; i < POLLS_PER_UPDATE; i++) {
             if(interf->pktAvailable()) {
-                int rc = RCP_poll();
-                if(rc == 0) continue;
+                RCP_Error rc = RCP_poll();
+                if(rc == RCP_ERR_SUCCESS) continue;
 
-                if(rc == -1) addError({ErrorType::GENERAL_RCP, "RCP Not Initialized correctly"});
-                else if(rc == -2) addError({ErrorType::RCP_STREAM, "RCP target stream has become corrupted"});
-                else if(rc != 1) addError({ErrorType::GENERAL_RCP, "Unknown RCP error encountered"});
+                ErrorType type = ErrorType::GENERAL_RCP;
+                if(rc == RCP_ERR_IO_RCV || rc == RCP_ERR_IO_SEND) type = ErrorType::RCP_STREAM;
+                addError({type, RCP_errstr(rc)});
                 pause();
             }
         }
@@ -73,8 +74,7 @@ namespace LRI::RCI::HWCTRL {
         // AngledActuators MUST be reset before Sensors
         AngledActuators::reset();
         BoolSensors::reset();
-        Prompt::reset();
-        RawData::reset();
+        TargetLog::clearDisplayString();
         Sensors::reset();
         SimpleActuators::reset();
         Steppers::reset();
@@ -148,6 +148,7 @@ namespace LRI::RCI::HWCTRL {
 
     const std::vector<Error>& getErrors() { return errors; }
 
+    // Could be used for things like toast notifs
     bool UIHasNewErrors() {
         if(newErrors) {
             newErrors = false;
@@ -157,16 +158,27 @@ namespace LRI::RCI::HWCTRL {
         return false;
     }
 
-
     // This section contains all the callbacks needed for RCP. They simply forward data to the respective singletons
-    size_t sendData(const void* data, size_t length) { return interf->sendData(data, length); }
-
-    size_t readData(void* data, size_t bufferSize) { return interf->readData(data, bufferSize); }
-
-    int processTwoFloat(RCP_TwoFloat data) {
-        if(data.devclass == RCP_DEVCLASS_STEPPER)
-            return Steppers::receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
-        return Sensors::receiveRCPUpdate2(data);
+    size_t sendData(const void* data, size_t length) {
+        // Call the interface first, to queue up the data as soon as possible
+        size_t ret = interf->sendData(data, length);
+        EventLog::getGlobalLog().addSent(data, length);
+        return ret;
     }
 
+    size_t readData(void* data, size_t bufferSize) {
+        size_t ret = interf->readData(data, bufferSize);
+        EventLog::getGlobalLog().addReceived(data, bufferSize);
+        return ret;
+    }
+
+    RCP_Error route1F(RCP_1F data) {
+        if(data.devclass == RCP_DEVCLASS_ANGLED_ACTUATOR) return AngledActuators::receiveRCPUpdate(data);
+        return Sensors::receiveRCPUpdate1(data);
+    }
+
+    RCP_Error route2F(RCP_2F data) {
+        if(data.devclass == RCP_DEVCLASS_STEPPER) return Steppers::receiveRCPUpdate(data);
+        return Sensors::receiveRCPUpdate2(data);
+    }
 } // namespace LRI::RCI::HWCTRL

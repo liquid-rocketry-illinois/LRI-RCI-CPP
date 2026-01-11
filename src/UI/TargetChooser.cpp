@@ -17,10 +17,10 @@
 #include "hardware/BoolSensor.h"
 #include "hardware/HardwareControl.h"
 #include "hardware/Prompt.h"
-#include "hardware/RawData.h"
 #include "hardware/Sensors.h"
 #include "hardware/SimpleActuators.h"
 #include "hardware/Steppers.h"
+#include "hardware/TargetLog.h"
 #include "hardware/TestState.h"
 
 #include "UI/AngledActuatorViewer.h"

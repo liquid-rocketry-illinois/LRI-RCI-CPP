@@ -3,8 +3,10 @@
 
 #include <set>
 
-#include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
+
+#include "HardwareQualifier.h"
+#include "hardware/EventLog.h"
 
 // Singleton for all stepper motors
 namespace LRI::RCI::Steppers {
@@ -14,11 +16,15 @@ namespace LRI::RCI::Steppers {
         bool stale;
     };
 
-    // Receive updates from RCP
-    int receiveRCPUpdate(const HardwareQualifier& qual, const float& pos, const float& speed);
-
     // Set which qualifiers are in use
     void setHardwareConfig(const std::set<HardwareQualifier>& motorlist);
+
+    // Get pointer viewer classes can use to track a stepper
+    [[nodiscard]] const Stepper* getLatestState(const HardwareQualifier& qual);
+    [[nodiscard]] FloatData getFullLog(const HardwareChannel& ch);
+
+    // Request a write to a stepper
+    void setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value);
 
     // Reset class state
     void reset();
@@ -26,11 +32,8 @@ namespace LRI::RCI::Steppers {
     // Request refresh of all steppers
     void refreshAll();
 
-    // Get pointer viewer classes can use to track a stepper
-    [[nodiscard]] const Stepper* getState(const HardwareQualifier& qual);
-
-    // Request a write to a stepper
-    void setState(const HardwareQualifier& qual, RCP_StepperControlMode controlMode, float value);
+    // Receive updates from RCP
+    RCP_Error receiveRCPUpdate(const RCP_2F& data);
 } // namespace LRI::RCI::Steppers
 
 #endif // STEPPERS_H

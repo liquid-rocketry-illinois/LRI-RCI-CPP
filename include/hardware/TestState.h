@@ -21,14 +21,14 @@ namespace LRI::RCI::TestState {
     [[nodiscard]] bool getDataStreaming();
 
     // Methods to send requests to target
-    bool startTest(uint8_t number);
-    bool stopTest();
-    bool pause();
-    bool setHeartbeatTime(uint8_t time);
-    bool setDataStreaming(bool stream);
+    void startTest(uint8_t number);
+    void stopTest();
+    void pause();
+    void setHeartbeatTime(uint8_t time);
+    void setDataStreaming(bool stream);
     void setResetTimeOnTestStart(bool reset);
-    bool deviceReset();
-    bool ESTOP();
+    void deviceReset();
+    void ESTOP();
 
     // To be called from main. Handles heartbeats
     void update();
@@ -37,7 +37,7 @@ namespace LRI::RCI::TestState {
     void reset();
 
     // Receive updates from rcp
-    int receiveRCPUpdate(RCP_TestData testState);
+    RCP_Error receiveRCPUpdate(RCP_TestData testState);
 } // namespace LRI::RCI
 
 #endif // TESTSTATE_H

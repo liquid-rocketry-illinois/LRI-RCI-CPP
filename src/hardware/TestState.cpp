@@ -21,71 +21,65 @@ namespace LRI::RCI::TestState {
 
     bool getInited() { return inited.load(); }
 
-    bool startTest(uint8_t number) {
-        if(state != RCP_TEST_STOPPED) return false;
-        state = RCP_TEST_RUNNING;
+    void setTests(const std::map<uint8_t, std::string>& testlist) { tests = testlist; }
+
+    // A bunch of one line getters
+    const std::map<uint8_t, std::string>* getTestOptions() { return &tests; }
+    uint8_t getActiveTest() { return activeTest; }
+    RCP_TestRunningState getState() { return state; }
+    uint8_t getHeartbeatTime() { return heartbeatTime; }
+    bool getDataStreaming() { return dataStreaming; }
+
+    void startTest(uint8_t number) {
         RCP_startTest(number);
         if(resetTimeOnStart) {
             RCP_deviceTimeReset();
-            Sensors::clearAll();
+            EventLog::getGlobalLog().addTMRST();
         }
 
         activeTest = number;
-        return true;
+        EventLog::getGlobalLog().addTestStart(number);
     }
 
-    bool stopTest() {
-        if(state == RCP_TEST_STOPPED || state == RCP_TEST_ESTOP) return false;
+    void stopTest() {
         RCP_stopTest();
         state = RCP_TEST_STOPPED;
-        return true;
+        EventLog::getGlobalLog().addTestStop();
     }
 
-    bool pause() {
-        if(state == RCP_TEST_ESTOP || state == RCP_TEST_STOPPED) return false;
+    void pause() {
         RCP_pauseUnpauseTest();
         state = (state == RCP_TEST_RUNNING) ? RCP_TEST_PAUSED : RCP_TEST_RUNNING;
-        return true;
+        EventLog::getGlobalLog().addTestPauseUnpause();
     }
 
-    uint8_t getActiveTest() { return activeTest; }
-
-    void setTests(const std::map<uint8_t, std::string>& testlist) { tests = testlist; }
-
-    const std::map<uint8_t, std::string>* getTestOptions() { return &tests; }
-
-
-    RCP_TestRunningState getState() { return state; }
-
-    uint8_t getHeartbeatTime() { return heartbeatTime; }
-
-    bool setHeartbeatTime(uint8_t time) {
-        if(time > 14) return false;
-        bool complete = !RCP_setHeartbeatTime(time);
-        if(complete) heartbeatTime = time;
-        return complete;
+    void setHeartbeatTime(uint8_t time) {
+        RCP_setHeartbeatTime(time);
+        EventLog::getGlobalLog().addHeartbeatSet(time);
     }
 
-    bool getDataStreaming() { return dataStreaming; }
-
-    bool setDataStreaming(bool stream) {
-        bool complete = !RCP_setDataStreaming(stream);
-        if(complete) dataStreaming = stream;
-        return complete;
+    void setDataStreaming(bool stream) {
+        RCP_setDataStreaming(stream);
+        EventLog::getGlobalLog().addDStreamChange(stream);
     }
 
     void setResetTimeOnTestStart(bool reset) { resetTimeOnStart = reset; }
 
-    bool deviceReset() { return !RCP_deviceReset(); }
+    void deviceReset() {
+        EventLog::getGlobalLog().addHWRST();
+        RCP_deviceReset();
+    }
 
-    bool ESTOP() { return !RCP_sendEStop(); }
+    void ESTOP() {
+        EventLog::getGlobalLog().addESTOP();
+        RCP_sendEStop();
+    }
 
     void update() {
         if(heartbeatTime == 0) return;
-        if(heartbeat.timeSince() > heartbeatTime) {
-            if(!RCP_sendHeartbeat()) {
-                heartbeat.reset();
-            }
+        if(heartbeat.timeSince() > static_cast<float>(heartbeatTime)) {
+            if(!RCP_sendHeartbeat()) heartbeat.reset();
+            EventLog::getGlobalLog().addHeartbeat();
         }
     }
 
@@ -97,11 +91,12 @@ namespace LRI::RCI::TestState {
         resetTimeOnStart = false;
     }
 
-    int receiveRCPUpdate(RCP_TestData data) {
+    RCP_Error receiveRCPUpdate(RCP_TestData data) {
         heartbeatTime = data.heartbeatTime;
         dataStreaming = data.dataStreaming;
         state = data.state;
         inited = data.isInited;
-        return 0;
+        EventLog::getGlobalLog().addTestState(data);
+        return RCP_ERR_SUCCESS;
     }
 } // namespace LRI::RCI::TestState

@@ -8,15 +8,14 @@
 // Singleton class for the CUSTOM device class. Technically not fully in spec
 // with RCP, but for our purposes of just using it as a debug log, this does
 // everything necessary
-namespace LRI::RCI::RawData {
+namespace LRI::RCI::TargetLog {
     // Receive new chars from RCP
-    int receiveRCPUpdate(RCP_CustomData data);
+    RCP_Error receiveRCPUpdate(RCP_TargetLogData data);
 
-    // Clear the chars stream
-    void reset();
+    void clearDisplayString();
 
     // Return stream for display
-    [[nodiscard]] const std::string& getData();
+    [[nodiscard]] const std::string& getDisplayString();
 } // namespace LRI::RCI
 
 #endif // RAWDATA_H

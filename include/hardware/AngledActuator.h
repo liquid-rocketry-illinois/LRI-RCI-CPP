@@ -2,17 +2,29 @@
 #define ANGLEDACTUATOR_H
 
 #include <set>
+#include <tuple>
 #include <vector>
 
 #include "HardwareQualifier.h"
-#include "Sensors.h"
+#include "hardware/EventLog.h"
 
 namespace LRI::RCI::AngledActuators {
-    void reset();
-    void setHardwareConfig(std::set<HardwareQualifier>& quals);
+    struct AngledActuatorState {
+        float value;
+        bool stale;
+    };
+
+    void setHardwareConfig(const std::set<HardwareQualifier>& quals);
+
+    [[nodiscard]] const AngledActuatorState* getLatestState(const HardwareChannel& qual);
+    [[nodiscard]] FloatData getFullLog(const HardwareChannel& qual);
+
     void setActuatorPos(const HardwareQualifier& qual, float degrees);
-    [[nodiscard]] const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual);
+
+    void reset();
     void refreshAll();
+
+    RCP_Error receiveRCPUpdate(const RCP_1F& f1);
 } // namespace LRI::RCI::AngledActuators
 
 #endif // ANGLEDACTUATOR_H

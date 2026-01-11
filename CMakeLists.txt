@@ -89,12 +89,13 @@ add_executable(LRI_control_panel
         # Hardware classes
         src/hardware/AngledActuator.cpp
         src/hardware/BoolSensor.cpp
+        src/hardware/EventLog.cpp
         src/hardware/HardwareControl.cpp
         src/hardware/Prompt.cpp
-        src/hardware/RawData.cpp
         src/hardware/Sensors.cpp
         src/hardware/SimpleActuators.cpp
         src/hardware/Steppers.cpp
+        src/hardware/TargetLog.cpp
         src/hardware/TestState.cpp
 
         # (technically) Platform specific

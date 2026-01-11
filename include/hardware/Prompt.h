@@ -7,24 +7,17 @@
 
 // Singleton class for representing prompt state
 namespace LRI::RCI::Prompt {
-    // Gettters for class members
+    // Getters for class members
     [[nodiscard]] bool isActivePrompt();
     [[nodiscard]] const std::string& get_prompt();
     [[nodiscard]] RCP_PromptDataType getType();
 
-    // Get pointers to the holding variables, that viewer classes can
-    // modify to respond to the prompt
-    [[nodiscard]] RCP_GONOGO* getGNGPointer();
-    [[nodiscard]] float* getValPointer();
-
-    // Reset singleton state
-    void reset();
-
     // Submit the latest prompt data
-    bool submitPrompt();
+    int submitPrompt(float val);
+    int submitPrompt(bool val);
 
     // Receive prompt requests from RCP
-    int receiveRCPUpdate(RCP_PromptInputRequest req);
+    RCP_Error receiveRCPUpdate(RCP_PromptInputRequest req);
 } // namespace LRI::RCI
 
 #endif // PROMPT_H
