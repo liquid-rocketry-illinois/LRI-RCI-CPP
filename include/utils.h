@@ -2,15 +2,9 @@
 #define UTILS_H
 
 #include <chrono>
-#include <string>
 #include <filesystem>
+#include <string>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif
-
-#include "GLFW/glfw3.h"
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 

@@ -1,7 +1,6 @@
 #ifndef TESTSTATE_H
 #define TESTSTATE_H
 
-#include <atomic>
 #include <map>
 
 #include "RCP_Host/RCP_Host.h"

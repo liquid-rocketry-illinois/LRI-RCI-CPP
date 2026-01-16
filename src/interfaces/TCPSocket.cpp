@@ -1,7 +1,6 @@
 #include "interfaces/TCPSocket.h"
-#include <iostream>
+
 #include "hardware/TestState.h"
-#include "improgress.h"
 
 namespace LRI::RCI {
     // An RCP interface over TCP

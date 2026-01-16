@@ -1,9 +1,10 @@
 #include "interfaces/IOInterface.h"
 
 #include <chrono>
-
 #include <iostream>
+
 #include "hardware/TestState.h"
+
 namespace LRI::RCI {
     IOInterface::IOInterface() :
         doComm(true), iothread(nullptr), inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)),

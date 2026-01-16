@@ -1,7 +1,7 @@
 #ifndef RAWDATA_H
 #define RAWDATA_H
 
-#include <sstream>
+#include <string>
 
 #include "RCP_Host/RCP_Host.h"
 

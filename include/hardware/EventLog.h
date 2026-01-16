@@ -1,7 +1,6 @@
 #ifndef LRI_CONTROL_PANEL_EVENTLOG_H
 #define LRI_CONTROL_PANEL_EVENTLOG_H
 
-#include <array>
 #include <chrono>
 #include <map>
 #include <string>
