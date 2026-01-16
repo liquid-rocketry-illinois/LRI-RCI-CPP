@@ -105,7 +105,7 @@ add_executable(LRI_control_panel
 
 # Add needed libraries
 target_link_libraries(LRI_control_panel PRIVATE RCP-Host nlohmann_json SFML::Network imgui
-        opengl32 gdi32 imm32 user32 advapi32 Setupapi)
+        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi)
 
 # Add includes folder
 target_include_directories(LRI_control_panel PRIVATE include)

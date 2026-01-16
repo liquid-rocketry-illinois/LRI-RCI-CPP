@@ -1,5 +1,6 @@
 #include "rendering.h"
 
+#include <dwmapi.h>
 #include <string>
 
 #include "imgui.h"
@@ -44,6 +45,14 @@ namespace LRI::RCI {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.IniFilename = nullptr;
+
+
+        // Turn window caption dark
+        {
+            BOOL t = true;
+            DwmSetWindowAttribute(glfwGetWin32Window(window), DWMWINDOWATTRIBUTE::DWMWA_USE_IMMERSIVE_DARK_MODE, &t,
+                                  sizeof(t));
+        }
 
         ImGui::StyleColorsDark();
 
