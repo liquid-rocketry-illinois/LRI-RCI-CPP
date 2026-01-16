@@ -18,6 +18,7 @@ namespace LRI::RCI {
         const int classid;
 
     public:
+        static constexpr ImU32 REBECCA_PURPLE = 0xFF993366;
         // Action delays, in seconds
         static constexpr float SPAM_DELAY = 1;
         static constexpr float CONFIRM_HOLD_TIME = 3;

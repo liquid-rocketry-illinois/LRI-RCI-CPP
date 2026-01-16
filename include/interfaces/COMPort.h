@@ -41,32 +41,5 @@ namespace LRI::RCI {
         // Helper to enumerate detected serial devices
         static bool enumSerialDevs(std::vector<std::pair<std::string, std::string>>& portlist);
     };
-
-    // This chooser is for connecting to serial devices (e.g. COM1, COM2, so on). It allows selecting a device
-    // and choosing the baud rate
-    class COMPortChooser final : public InterfaceChooser {
-        // Storage for available ports. Ports will be in the format of their handle name, a colon, and the windows
-        // display name (ex. COM1:Arduino Serial Device)
-        std::vector<std::pair<std::string, std::string>> portlist;
-
-        // The index of the selected port
-        size_t selectedPort;
-
-        // If there was an error
-        bool error;
-
-        // The current baud rate
-        int baud;
-
-        // The interface itself
-        COMPort* port;
-
-    public:
-        explicit COMPortChooser();
-
-        // Renders the UI for the chooser, and returns a pointer to a valid and open interface once an interface
-        // has been successfully created
-        RCP_Interface* render() override;
-    };
 } // namespace LRI::RCI
 #endif // COMPORT_H

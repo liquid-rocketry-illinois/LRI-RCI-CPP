@@ -6,6 +6,7 @@
 
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
+#include "improgress.h"
 
 #include "utils.h"
 
@@ -167,7 +168,8 @@ namespace LRI::RCI {
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
 
-                    std::filesystem::path inipath = getRoamingFolder() / "targets" / (targetpaths[chosenConfig].filename().string() + ".ini");
+                    std::filesystem::path inipath =
+                        getRoamingFolder() / "targets" / (targetpaths[chosenConfig].filename().string() + ".ini");
                     control->inipath = inipath.string();
 
                     // Tell the main loop to load the new ini file before the next frame
@@ -392,4 +394,191 @@ namespace LRI::RCI {
     int InterfaceChooser::CLASSID = 0;
 
     InterfaceChooser::InterfaceChooser() : classid(CLASSID++) {}
+
+    COMPortChooser::COMPortChooser() : selectedPort(0), error(false), baud(115200), port(nullptr) {
+        COMPort::enumSerialDevs(portlist);
+    }
+
+    RCP_Interface* COMPortChooser::render() {
+            ImGui::PushID("COMPortChooser");
+            ImGui::PushID(classid);
+
+            bool disable = port;
+            if(disable) ImGui::BeginDisabled();
+
+            // It has a dropdown for which device, as listed in enumSerial()
+            ImGui::Text("Choose Serial Port: ");
+            ImGui::SameLine();
+            if(portlist.empty()) ImGui::Text("No Ports Detected");
+            else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].second.c_str())) {
+                for(size_t i = 0; i < portlist.size(); i++) {
+                    ImGui::PushID(static_cast<int>(i));
+                    bool selected = i == selectedPort;
+                    if(ImGui::Selectable((portlist[i]).second.c_str(), &selected)) selectedPort = i;
+                    if(selected) ImGui::SetItemDefaultFocus();
+                    ImGui::PopID();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            if(ImGui::Button("Refresh List")) {
+                selectedPort = 0;
+                COMPort::enumSerialDevs(portlist);
+            }
+
+            // Input for baud rate
+            ImGui::Text("Baud Rate: ");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(scale(100));
+            ImGui::InputInt("##comportchooserbaudinput", &baud);
+            if(baud < 0) baud = 0;
+            else if(baud > 500'000) baud = 500'000;
+
+            if(portlist.empty()) ImGui::BeginDisabled();
+            if(ImGui::Button("Connect")) {
+                // If connect, then create the COMPort
+                port = new COMPort(std::move(R"(\\.\)" + portlist[selectedPort].first), baud);
+            }
+            if(portlist.empty()) ImGui::EndDisabled();
+            if(disable) ImGui::EndDisabled();
+
+            // If the port failed to allocate then return
+            if(!port) {
+                ImGui::PopID();
+                ImGui::PopID();
+                return nullptr;
+            }
+
+            // If the port allocated but did not open then show an error
+            if(port->didPortOpenFail()) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                ImGui::Text("Error Connecting to Serial Port stage %lu code %lu)", port->lastError().code,
+                            port->lastError().stage);
+                ImGui::PopStyleColor();
+
+                ImGui::SameLine();
+                if(ImGui::Button("OK##comportchoosererror")) {
+                    delete port;
+                    port = nullptr;
+                }
+            }
+
+            // While the port is readying, don't return it just yet and display a loading spinner
+            else if(!port->isOpen()) {
+                ImGui::SameLine();
+                ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
+            }
+
+            else {
+                ImGui::PopID();
+                ImGui::PopID();
+                return port;
+            }
+
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
+
+    // Chooser for the interface. Just needs port, client/server, and server ip address if client
+    RCP_Interface* TCPInterfaceChooser::render() {
+        ImGui::PushID("TCPSocketChooser");
+        ImGui::PushID(classid);
+
+        bool isnull = interf == nullptr;
+        if(!isnull) ImGui::BeginDisabled();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, 1, 0, 1));
+        ImGui::Text("Make sure to set the computer's static IP in control panel!");
+        ImGui::PopStyleColor();
+
+        // Buttons to pick between client or server
+        bool tempserver = server;
+        if(tempserver) ImGui::BeginDisabled();
+        if(ImGui::Button("Server")) server = true;
+        if(tempserver) ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        if(!tempserver) ImGui::BeginDisabled();
+        if(ImGui::Button("Client")) server = false;
+        if(!tempserver) ImGui::EndDisabled();
+
+        // If in client mode, ask for ip address
+        if(!tempserver) {
+            ImGui::Text("Server Address: ");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(scale(200));
+            ImGui::InputInt4("##serveraddrinput", ip);
+            for(int& i : ip) {
+                if(i < 0) i = 0;
+                else if(i > 255) i = 255;
+            }
+        }
+
+        // Port input
+        ImGui::Text("Port: ");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(scale(48));
+        ImGui::InputInt("##portinput", &port, 0);
+        if(port < 0) port = 0;
+        else if(port > 65535) port = 65535;
+
+        // Once confirm is pushed, create the interface and begin waiting for a connection
+        if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
+            interf =
+                new TCPSocket(port, tempserver ? sf::IpAddress(0, 0, 0, 0) : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
+        }
+        if(!isnull) ImGui::EndDisabled();
+
+        // If the interface is null, keep rendering
+        if(interf == nullptr) {
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
+
+        // If the interface has been created but did not open properly, display error and continue rendering
+        if(interf->didPortOpenFail()) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+            TCPSocket::Error error = interf->lastError();
+            ImGui::Text("Error opening TCP socket: stage %lu, code %lu", error.stage, error.code);
+            ImGui::PopStyleColor();
+
+            ImGui::SameLine();
+            if(ImGui::Button("OK")) {
+                delete interf;
+                ImGui::PopID();
+                ImGui::PopID();
+                interf = nullptr;
+            }
+
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
+
+        // While the interface is open but not ready, keep waiting for the connection to be established
+        if(!interf->isOpen()) {
+            ImGui::SameLine();
+            ImGui::Text("Waiting for connection");
+            ImGui::SameLine();
+            ImGui::Spinner("##tcpwaitspinner", 8, 1, WModule::REBECCA_PURPLE);
+
+            if(ImGui::Button("Cancel")) {
+                delete interf;
+                ImGui::PopID();
+                ImGui::PopID();
+                interf = nullptr;
+            }
+
+            ImGui::PopID();
+            ImGui::PopID();
+            return nullptr;
+        }
+
+        ImGui::PopID();
+        ImGui::PopID();
+        // Once the interface is ready to go, return it to the TargetChooser
+        return interf;
+    }
 } // namespace LRI::RCI
