@@ -92,10 +92,6 @@ namespace LRI::RCI {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imw, imh, 0, GL_RGBA, GL_UNSIGNED_BYTE, imaged);
             stbi_image_free(imaged);
         }
-
-
-        // Start the TargetChooser window
-        ControlWindowlet::getInstance();
     }
 
     // Is called to set up each frame before rendering
@@ -160,7 +156,6 @@ namespace LRI::RCI {
 
     // All shutdown functions for imgui, implot, and glfw
     void imgui_shutdown(GLFWwindow* window) {
-        ControlWindowlet::getInstance()->cleanup();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImPlot::DestroyContext();

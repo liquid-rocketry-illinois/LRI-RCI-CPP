@@ -67,18 +67,18 @@ add_executable(LRI_control_panel
         src/rendering.cpp
 
         # UI Elements
-        src/UI/AngledActuatorViewer.cpp
-        src/UI/BoolSensorViewer.cpp
-        src/UI/EStopViewer.cpp
-        src/UI/ErrorWindow.cpp
-        src/UI/PromptViewer.cpp
-        src/UI/RawViewer.cpp
-        src/UI/SensorViewer.cpp
-        src/UI/SimpleActuatorViewer.cpp
-        src/UI/StepperViewer.cpp
-        src/UI/TargetChooser.cpp
-        src/UI/TestStateViewer.cpp
-        src/UI/Windowlet.cpp
+#        src/UI/AngledActuatorViewer.cpp
+#        src/UI/BoolSensorViewer.cpp
+#        src/UI/EStopViewer.cpp
+#        src/UI/ErrorWindow.cpp
+#        src/UI/PromptViewer.cpp
+#        src/UI/RawViewer.cpp
+#        src/UI/SensorViewer.cpp
+#        src/UI/SimpleActuatorViewer.cpp
+#        src/UI/StepperViewer.cpp
+#        src/UI/TargetChooser.cpp
+#        src/UI/TestStateViewer.cpp
+#        src/UI/Windowlet.cpp
 
         # Interfaces
         src/interfaces/IOInterface.cpp

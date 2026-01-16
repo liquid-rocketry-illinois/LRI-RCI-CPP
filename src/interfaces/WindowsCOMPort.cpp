@@ -1,5 +1,6 @@
 #include "interfaces/COMPort.h"
 
+#include <chrono>
 #include <SetupAPI.h>
 #include <devguid.h>
 

@@ -3,7 +3,6 @@
 
 #include "SFML/Network.hpp"
 
-#include "UI/TargetChooser.h"
 #include "interfaces/IOInterface.h"
 #include "utils.h"
 

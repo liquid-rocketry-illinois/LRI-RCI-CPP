@@ -6,9 +6,9 @@
 #endif
 
 #include <string>
+#include <vector>
 
 #include "IOInterface.h"
-#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
     class COMPort : public IOInterface {

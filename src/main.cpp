@@ -45,7 +45,7 @@ int main() {
         LRI::RCI::HWCTRL::update();
 
         LRI::RCI::imgui_prerender();
-        LRI::RCI::Windowlet::renderWindowlets();
+        // Render awesome new UI
         LRI::RCI::imgui_postrender(window);
     }
 
