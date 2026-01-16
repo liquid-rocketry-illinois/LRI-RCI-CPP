@@ -59,27 +59,11 @@ namespace LRI::RCI {
         }
     };
 
+    // The definition for this function is in rendering.cpp, since this function deals with some static members
+    void setIniFileForNextFrame(const std::string& path);
 
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
-
-    // Loading a window layout must happen between imgui frames, hence why this structure is used to communicate
-    // outside the WModule/Windowlet abstraction tree
-    class IniFilePath {
-        friend class TargetChooser;
-        std::string path;
-
-    public:
-        std::string getPath() {
-            std::string copy = path;
-            path = "";
-            return copy;
-        }
-
-        [[nodiscard]] bool empty() const { return path.empty(); }
-    };
-
-    extern IniFilePath iniFilePath;
 
     [[nodiscard]] const std::filesystem::path& getRoamingFolder();
     void detectRoamingFolder();

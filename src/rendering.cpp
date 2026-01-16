@@ -2,7 +2,6 @@
 
 #include <string>
 
-#include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -11,15 +10,16 @@
 #include "EmbeddedResource.h"
 #include "VERSION.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #include "UI/Windowlet.h"
 #include "utils.h"
 
-namespace LRI::RCI {
-    IniFilePath iniFilePath;
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include "GLFW/glfw3native.h"
+
+namespace LRI::RCI {
     static std::string VERSION_STRING;
     static GLuint iconTex;
 
@@ -72,8 +72,8 @@ namespace LRI::RCI {
         {
             EmbeddedResource im("LRI_Logo.png");
             GLFWimage image;
-            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()), &image.width,
-                                                 &image.height, nullptr, 4);
+            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()),
+                                                 &image.width, &image.height, nullptr, 4);
             glfwSetWindowIcon(window, 1, &image);
             stbi_image_free(image.pixels);
         }
@@ -81,8 +81,8 @@ namespace LRI::RCI {
         {
             EmbeddedResource im("LRI_Logo_big.png");
             int imw, imh;
-            unsigned char* imaged =
-                stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()), &imw, &imh, nullptr, 4);
+            unsigned char* imaged = stbi_load_from_memory((unsigned char*) im.getData(),
+                                                          static_cast<int>(im.getLength()), &imw, &imh, nullptr, 4);
 
             glGenTextures(1, &iconTex);
             glBindTexture(GL_TEXTURE_2D, iconTex);
@@ -94,12 +94,21 @@ namespace LRI::RCI {
         }
     }
 
+    static std::string iniFilePath;
+    static bool setIniFile = false;
+
+    void setIniFileForNextFrame(const std::string& path) {
+        setIniFile = true;
+        iniFilePath = path;
+    }
+
     // Is called to set up each frame before rendering
     void imgui_prerender() {
         // If a configuration has been loaded and requests to load a window layout, do that here
         // before the new frame.
-        if(!iniFilePath.empty()) {
-            ImGui::LoadIniSettingsFromDisk(iniFilePath.getPath().c_str());
+        if(setIniFile) {
+            ImGui::LoadIniSettingsFromDisk(iniFilePath.c_str());
+            setIniFile = false;
         }
 
         glfwPollEvents();
