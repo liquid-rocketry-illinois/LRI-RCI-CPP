@@ -18,7 +18,7 @@ namespace LRI::RCI {
      * WModule is to the window modules. The major difference is that in the render/update function, the chooser
      * indicates success by returning a pointer to an open interface.
      *
-     * For exaxmple, the COMPortChooser will implement this class. While the user is choosing the settings and
+     * For example, the COMPortChooser will implement this class. While the user is choosing the settings and
      * while waiting for a connection, the render function will return a nullptr, indicating the chooser is still
      * active. However, once the connection has been established, the pointer to the interface will be returned,
      * indicating the program can start showing the actual window modules and can move into normal operation.
