@@ -5,8 +5,8 @@
 #include <set>
 #include <vector>
 
+#include "../WModule.h"
 #include "RCP_Host/RCP_Host.h"
-#include "WModule.h"
 #include "hardware/HardwareQualifier.h"
 #include "hardware/Steppers.h"
 

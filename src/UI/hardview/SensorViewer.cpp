@@ -1,7 +1,7 @@
 #include <filesystem>
 #include <ranges>
 
-#include "UI/SensorViewer.h"
+#include "../../../include/UI/hardview/SensorViewer.h"
 #include "implot.h"
 #include "improgress.h"
 #include "utils.h"

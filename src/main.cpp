@@ -13,9 +13,9 @@
 
 #include "GLFW/glfw3.h"
 
-#include "UI/Windowlet.h"
 #include "hardware/HardwareControl.h"
 #include "rendering.h"
+#include "utils.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure

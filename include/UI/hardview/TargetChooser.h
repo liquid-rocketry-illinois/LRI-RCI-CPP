@@ -9,9 +9,9 @@
 #include "WModule.h"
 #include "Windowlet.h"
 #include "hardware/HardwareQualifier.h"
+#include "interfaces/COMPort.h"
 #include "interfaces/RCP_Interface.h"
 #include "interfaces/TCPSocket.h"
-#include "interfaces/COMPort.h"
 
 namespace LRI::RCI {
     /*
@@ -81,6 +81,14 @@ namespace LRI::RCI {
         explicit TCPInterfaceChooser() = default;
 
         // Rendering function
+        RCP_Interface* render() override;
+    };
+
+    // The virtual chooser just immediately returns an interface, since
+    // the whole class is just stubs
+    class VirtualPortChooser final : public InterfaceChooser {
+    public:
+        VirtualPortChooser() = default;
         RCP_Interface* render() override;
     };
 

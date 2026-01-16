@@ -10,8 +10,6 @@
 
 #include "EmbeddedResource.h"
 #include "VERSION.h"
-
-#include "UI/Windowlet.h"
 #include "utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION

@@ -1,7 +1,7 @@
 #ifndef ESTOPVIEWER_H
 #define ESTOPVIEWER_H
 
-#include "WModule.h"
+#include "../WModule.h"
 
 namespace LRI::RCI {
     // A simple window module which will send an E-STOP packet when pushed

@@ -1,4 +1,4 @@
-#include "UI/RawViewer.h"
+#include "../../../include/UI/hardview/RawViewer.h"
 #include "hardware/TargetLog.h"
 #include "hardware/TestState.h"
 #include "utils.h"

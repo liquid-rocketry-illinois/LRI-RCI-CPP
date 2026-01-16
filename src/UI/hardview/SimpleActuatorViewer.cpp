@@ -1,4 +1,4 @@
-#include "UI/SimpleActuatorViewer.h"
+#include "../../../include/UI/hardview/SimpleActuatorViewer.h"
 
 #include "RCP_Host/RCP_Host.h"
 #include "hardware/TestState.h"

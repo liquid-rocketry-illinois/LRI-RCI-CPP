@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include "WModule.h"
+#include "../WModule.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/HardwareQualifier.h"
 

@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-#include "WModule.h"
+#include "../WModule.h"
 #include "hardware/HardwareQualifier.h"
 #include "hardware/Sensors.h"
 

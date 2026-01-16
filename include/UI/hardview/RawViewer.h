@@ -1,7 +1,7 @@
 #ifndef RAWVIEWER_H
 #define RAWVIEWER_H
 
-#include "WModule.h"
+#include "../WModule.h"
 
 namespace LRI::RCI {
     // Window module which shows the output to the custom device class from RCP

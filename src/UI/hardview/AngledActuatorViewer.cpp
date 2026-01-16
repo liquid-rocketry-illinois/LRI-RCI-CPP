@@ -1,4 +1,4 @@
-#include "UI/AngledActuatorViewer.h"
+#include "../../../include/UI/hardview/AngledActuatorViewer.h"
 
 #include "imgui.h"
 

@@ -1,6 +1,6 @@
 #include <format>
 
-#include "UI/ErrorWindow.h"
+#include "../../../include/UI/hardview/ErrorWindow.h"
 
 #include "hardware/HardwareControl.h"
 

@@ -1,4 +1,4 @@
-#include "UI/PromptViewer.h"
+#include "../../../include/UI/hardview/PromptViewer.h"
 
 #include "hardware/Prompt.h"
 #include "hardware/TestState.h"

@@ -24,7 +24,7 @@
 #include "hardware/TargetLog.h"
 #include "hardware/TestState.h"
 
-#include "UI/AngledActuatorViewer.h"
+#include "../../../include/UI/hardview/AngledActuatorViewer.h"
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/PromptViewer.h"
@@ -580,5 +580,11 @@ namespace LRI::RCI {
         ImGui::PopID();
         // Once the interface is ready to go, return it to the TargetChooser
         return interf;
+    }
+
+    // Virtual port is easy
+    RCP_Interface* VirtualPortChooser::render() {
+        if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
+        return nullptr;
     }
 } // namespace LRI::RCI

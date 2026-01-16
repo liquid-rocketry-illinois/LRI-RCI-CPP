@@ -3,7 +3,7 @@
 
 #include <map>
 #include <set>
-#include "WModule.h"
+#include "../WModule.h"
 #include "hardware/HardwareQualifier.h"
 #include "hardware/SimpleActuators.h"
 

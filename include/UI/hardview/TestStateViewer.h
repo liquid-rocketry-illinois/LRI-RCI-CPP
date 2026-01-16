@@ -1,7 +1,7 @@
 #ifndef TESTSTATEVIEWER_H
 #define TESTSTATEVIEWER_H
 
-#include "WModule.h"
+#include "../WModule.h"
 
 namespace LRI::RCI {
     // A window module for controlling the test state of the target

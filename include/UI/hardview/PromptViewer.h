@@ -1,7 +1,7 @@
 #ifndef PROMPTVIEWER_H
 #define PROMPTVIEWER_H
 
-#include "WModule.h"
+#include "../WModule.h"
 
 // Window module for showing prompts
 namespace LRI::RCI {

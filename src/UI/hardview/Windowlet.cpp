@@ -3,7 +3,7 @@
 #include <iostream>
 #include <utility>
 
-#include "UI/ErrorWindow.h"
+#include "../../../include/UI/hardview/ErrorWindow.h"
 #include "UI/TargetChooser.h"
 
 namespace LRI::RCI {

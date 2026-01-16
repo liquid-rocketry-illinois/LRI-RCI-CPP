@@ -1,4 +1,4 @@
-#include "UI/BoolSensorViewer.h"
+#include "../../../include/UI/hardview/BoolSensorViewer.h"
 
 #include "hardware/BoolSensor.h"
 
