@@ -13,23 +13,14 @@ namespace LRI::RCI {
         static int CLASSID;
 
     protected:
-        static StopWatch buttonTimer;
+        static StopWatch SPAM_TIMER;
 
         const int classid;
 
     public:
-        // Delay after actions in the UI to prevent spam
-        static constexpr float BUTTON_DELAY = 1; // Seconds
+        // Action delays, in seconds
+        static constexpr float SPAM_DELAY = 1;
         static constexpr float CONFIRM_HOLD_TIME = 3;
-
-        static constexpr ImVec2 STATUS_SQUARE_SIZE = {15, 15};
-
-        // Common colors
-        static constexpr ImU32 ENABLED_COLOR = 0xFF00FF00; // Colors are stored as ABGR
-        static constexpr ImU32 STALE_COLOR = 0xF000CDDB;
-        static constexpr ImU32 DISABLED_COLOR = 0xFF0000FF;
-        static constexpr ImU32 REBECCA_PURPLE = 0xFF993366;
-        static constexpr ImU32 WHITE_COLOR = 0xFFFFFFFF;
 
         WModule();
         virtual ~WModule() = default;
