@@ -13,6 +13,7 @@
 
 #include "GLFW/glfw3.h"
 
+#include "UI/UIControl.h"
 #include "hardware/HardwareControl.h"
 #include "rendering.h"
 #include "utils.h"
@@ -38,6 +39,7 @@ int main() {
 
     // Run the init function in utils.cpp
     LRI::RCI::imgui_init(window);
+    LRI::RCI::UIControl::setup();
 
     // A very simple loop :)
     // While the window should not close, render stuff
@@ -45,10 +47,11 @@ int main() {
         LRI::RCI::HWCTRL::update();
 
         LRI::RCI::imgui_prerender();
-        // Render awesome new UI
+        LRI::RCI::UIControl::render();
         LRI::RCI::imgui_postrender(window);
     }
 
+    LRI::RCI::UIControl::shutdown();
     // Once the window should close, then terminate libraries
     LRI::RCI::imgui_shutdown(window);
 

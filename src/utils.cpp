@@ -8,14 +8,6 @@
 
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
-    // Fonts
-    ImFont* font_regular;
-    ImFont* font_bold;
-    ImFont* font_italic;
-
-    // Scaling factor for hidpi screens
-    float scaling_factor;
-
     std::string devclassToString(RCP_DeviceClass devclass) {
         switch(devclass) {
         case RCP_DEVCLASS_TEST_STATE:

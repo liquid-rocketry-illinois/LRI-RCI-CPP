@@ -8,10 +8,6 @@
 #include "imgui_impl_opengl3.h"
 #include "implot.h"
 
-#include "EmbeddedResource.h"
-#include "VERSION.h"
-#include "utils.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -19,6 +15,12 @@
 #include "GLFW/glfw3native.h"
 
 #include "fontawesome.h"
+
+#include "EmbeddedResource.h"
+#include "VERSION.h"
+#include "utils.h"
+#include "UI/UIControl.h"
+#include "UI/style.h"
 
 namespace LRI::RCI {
     static std::string VERSION_STRING;
