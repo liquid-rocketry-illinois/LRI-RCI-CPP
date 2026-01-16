@@ -1,6 +1,6 @@
 #include "hardware/Sensors.h"
 
-#include <chrono>s
+#include <chrono>
 
 #include "hardware/HardwareControl.h"
 
