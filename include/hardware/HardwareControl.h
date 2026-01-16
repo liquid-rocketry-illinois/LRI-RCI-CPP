@@ -44,6 +44,7 @@ namespace LRI::RCI::HWCTRL {
     void update();
     void pause();
     void end();
+    bool isOpen();
 
     void setHardwareConfig(const std::set<HardwareQualifier>& quals);
 

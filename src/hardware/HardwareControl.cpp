@@ -89,6 +89,8 @@ namespace LRI::RCI::HWCTRL {
         resetHardware();
     }
 
+    bool isOpen() { return hasStarted; }
+
     const std::set SENSOR_CLASSES = {
         RCP_DEVCLASS_AM_PRESSURE,
         RCP_DEVCLASS_TEMPERATURE,
