@@ -20,6 +20,8 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
 
+#include "fontawesome.h"
+
 namespace LRI::RCI {
     static std::string VERSION_STRING;
     static GLuint iconTex;
@@ -46,7 +48,6 @@ namespace LRI::RCI {
         // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.IniFilename = nullptr;
 
-
         // Turn window caption dark
         {
             BOOL t = true;
@@ -61,46 +62,59 @@ namespace LRI::RCI {
 
         glfwGetWindowContentScale(window, &scaling_factor, nullptr);
         io.Fonts->Clear();
+
+        // Some constants
+        const float fontSize = scale(16);
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
 
-        {
-            // Load the fonts and add them to imgui. Ubuntu mono my beloved
-            EmbeddedResource fonts("font_regular.ttf");
-            font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                          scale(16), &fontConfig);
-            fonts = EmbeddedResource("font_bold.ttf");
-            font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                       scale(16), &fontConfig);
+        // Load the fonts and add them to imgui. Ubuntu mono my beloved
+        EmbeddedResource res("font_regular.ttf");
+        font_regular = io.Fonts->AddFontFromMemoryTTF((void*) res.getData(), static_cast<int>(res.getLength()),
+                                                      fontSize, &fontConfig);
 
-            fonts = EmbeddedResource("font_italic.ttf");
-            font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                         scale(16), &fontConfig);
-        }
+        // Add fontawesome as merged into the regulars
+        static constexpr ImWchar glyphs[] = {ICON_MIN_FA, ICON_MAX_16_FA, 0};
+        ImFontConfig faconfig;
+        faconfig.MergeMode = true;
+        faconfig.PixelSnapH = true;
+        faconfig.GlyphMinAdvanceX = fontSize;
+        faconfig.FontDataOwnedByAtlas = false;
+        res = EmbeddedResource("fa_900.ttf");
+        io.Fonts->AddFontFromMemoryTTF((void*) res.getData(), static_cast<int>(res.getLength()), fontSize, &faconfig,
+                                       glyphs);
 
-        {
-            EmbeddedResource im("LRI_Logo.png");
-            GLFWimage image;
-            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()),
-                                                 &image.width, &image.height, nullptr, 4);
-            glfwSetWindowIcon(window, 1, &image);
-            stbi_image_free(image.pixels);
-        }
 
-        {
-            EmbeddedResource im("LRI_Logo_big.png");
-            int imw, imh;
-            unsigned char* imaged = stbi_load_from_memory((unsigned char*) im.getData(),
-                                                          static_cast<int>(im.getLength()), &imw, &imh, nullptr, 4);
+        res = EmbeddedResource("font_bold.ttf");
+        font_bold = io.Fonts->AddFontFromMemoryTTF((void*) res.getData(), static_cast<int>(res.getLength()), fontSize,
+                                                   &fontConfig);
 
-            glGenTextures(1, &iconTex);
-            glBindTexture(GL_TEXTURE_2D, iconTex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        res = EmbeddedResource("font_italic.ttf");
+        font_italic = io.Fonts->AddFontFromMemoryTTF((void*) res.getData(), static_cast<int>(res.getLength()), fontSize,
+                                                     &fontConfig);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imw, imh, 0, GL_RGBA, GL_UNSIGNED_BYTE, imaged);
-            stbi_image_free(imaged);
-        }
+        // Load logo for the window icon
+        res = EmbeddedResource("LRI_Logo.png");
+        GLFWimage image;
+        image.pixels = stbi_load_from_memory((unsigned char*) res.getData(), static_cast<int>(res.getLength()),
+                                             &image.width, &image.height, nullptr, 4);
+        glfwSetWindowIcon(window, 1, &image);
+        stbi_image_free(image.pixels);
+
+        // Load logo for the background image
+        res = EmbeddedResource("LRI_Logo_big.png");
+        int imw, imh;
+        unsigned char* imaged = stbi_load_from_memory((unsigned char*) res.getData(), static_cast<int>(res.getLength()),
+                                                      &imw, &imh, nullptr, 4);
+
+        // Set up background image texture
+        glGenTextures(1, &iconTex);
+        glBindTexture(GL_TEXTURE_2D, iconTex);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imw, imh, 0, GL_RGBA, GL_UNSIGNED_BYTE, imaged);
+        stbi_image_free(imaged);
     }
 
     static std::string iniFilePath;
