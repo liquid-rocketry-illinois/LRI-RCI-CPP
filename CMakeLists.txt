@@ -129,9 +129,14 @@ add_custom_target(copy_target_jsons ALL
 add_dependencies(LRI_control_panel copy_target_jsons)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    add_custom_target(LRI_control_panel_GithubRelease
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
-    add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
+    if(NOT DEFINED BASHCMD)
+        message("Must define bash path for release script")
+    else()
+        message("Using bash executable at ${BASHCMD}")
+        add_custom_target(LRI_control_panel_GithubRelease
+                COMMAND ${BASHCMD} ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
+        add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
+    endif()
 else()
     target_compile_definitions(LRI_control_panel PRIVATE -DRCIDEBUG)
 endif()
