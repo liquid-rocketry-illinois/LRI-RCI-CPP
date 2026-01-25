@@ -71,6 +71,7 @@ namespace LRI::RCI {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(3000ms);
 
+        EscapeCommFunction(port, SETDTR);
         isPortOpen = true;
     }
 
