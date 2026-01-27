@@ -55,7 +55,7 @@ namespace LRI::RCI::Sensors {
         // through and written to the file
         switch(qual.devclass) {
         case RCP_DEVCLASS_GPS:
-            file << "relmillis,latitude,longitude,altitude,groundspeed\n";
+            file << "relseconds,latitude,longitude,altitude,groundspeed\n";
             for(const auto& point : *data) {
                 file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2],
                                     point.data[3]);
@@ -65,7 +65,7 @@ namespace LRI::RCI::Sensors {
         case RCP_DEVCLASS_MAGNETOMETER:
         case RCP_DEVCLASS_ACCELEROMETER:
         case RCP_DEVCLASS_GYROSCOPE:
-            file << "relmillis,x,y,z\n";
+            file << "relseconds,x,y,z\n";
             for(const auto& point : *data) {
                 file << std::format("{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2]);
             }
@@ -74,7 +74,7 @@ namespace LRI::RCI::Sensors {
         case RCP_DEVCLASS_AM_PRESSURE:
         case RCP_DEVCLASS_TEMPERATURE:
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            file << "relmillis,data\n";
+            file << "relseconds,data\n";
             for(const auto& point : *data) {
                 file << std::format("{},{}\n", point.timestamp, point.data[0]);
             }
