@@ -4,8 +4,8 @@
 #include <devguid.h>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const std::string&& portname, unsigned long baudrate) :
-        portname(portname), baudrate(baudrate), port(nullptr) {
+    COMPort::COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode) :
+        portname(portname), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
         ioUnlock();
     }
 
@@ -43,7 +43,9 @@ namespace LRI::RCI {
         params.ByteSize = 8;
         params.StopBits = ONESTOPBIT;
         params.Parity = NOPARITY;
-        // params.fDtrControl = DTR_CONTROL_ENABLE; // Not actually needed for arduino, it breaks stm
+
+        // Breaks STM, needed for arduino
+        if(arduinoMode) params.fDtrControl = DTR_CONTROL_ENABLE;
 
         if(!SetCommState(port, &params)) {
             lastErrorStage = 3;
@@ -71,7 +73,8 @@ namespace LRI::RCI {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(3000ms);
 
-        EscapeCommFunction(port, SETDTR);
+        // Only needed for STM
+        if(!arduinoMode) EscapeCommFunction(port, SETDTR);
         isPortOpen = true;
     }
 

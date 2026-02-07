@@ -6,7 +6,7 @@
 
 namespace LRI::RCI {
     // The COMPort chooser will enumerate all available serial devices to be picked from
-    COMPortChooser::COMPortChooser() : selectedPort(0), error(false), baud(115200), port(nullptr) {
+    COMPortChooser::COMPortChooser() : selectedPort(0), error(false), baud(115200), arduinoMode(true), port(nullptr) {
         COMPort::enumSerialDevs(portlist);
     }
 
@@ -47,10 +47,15 @@ namespace LRI::RCI {
         if(baud < 0) baud = 0;
         else if(baud > 500'000) baud = 500'000;
 
+        ImGui::SameLine();
+        ImGui::Text(" | Arduino Mode: ");
+        ImGui::SameLine();
+        ImGui::Checkbox("##arduinomode", &arduinoMode);
+
         if(portlist.empty()) ImGui::BeginDisabled();
         if(ImGui::Button("Connect")) {
             // If connect, then create the COMPort
-            port = new COMPort(std::move(R"(\\.\)" + portlist[selectedPort].first), baud);
+            port = new COMPort(std::move(R"(\\.\)" + portlist[selectedPort].first), baud, arduinoMode);
         }
         if(portlist.empty()) ImGui::EndDisabled();
         if(disable) ImGui::EndDisabled();
