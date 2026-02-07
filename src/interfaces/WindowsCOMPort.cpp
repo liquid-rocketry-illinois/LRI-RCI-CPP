@@ -43,7 +43,7 @@ namespace LRI::RCI {
         params.ByteSize = 8;
         params.StopBits = ONESTOPBIT;
         params.Parity = NOPARITY;
-        params.fDtrControl = DTR_CONTROL_ENABLE;
+        // params.fDtrControl = DTR_CONTROL_ENABLE; // Not actually needed for arduino, it breaks stm
 
         if(!SetCommState(port, &params)) {
             lastErrorStage = 3;
