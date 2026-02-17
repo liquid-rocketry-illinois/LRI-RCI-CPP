@@ -51,6 +51,7 @@ namespace LRI::RCI {
             ImGui::Text("Current Reported Speed: %f", motor->value);
             ImGui::Text("Set value: ");
             ImGui::SameLine();
+            ImGui::SetNextItemWidth(scale(75));
             ImGui::InputFloat("##motorinput", &inputs[id]);
             ImGui::SameLine();
 
