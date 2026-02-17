@@ -1,8 +1,14 @@
 cd $3
 
-which gh > /dev/null
+which gh > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-  echo "Github CLI is required for this auto-release."
+  read -p "Github CLI is required for this auto-release." -n1 -s
+  exit 1
+fi
+
+which wix > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  read -p "WIX is required for this auto-release." -n1 -s
   exit 1
 fi
 
@@ -26,7 +32,9 @@ rm -f env.zip
 
 msiname=RCI-$tagname-win32-x64.msi
 
+cd $3
 wix build -src $3/wix/RCI_installer.xml -o $1/$msiname -d VERSION="$tagname" -b $1
+cd $1
 
 echo "Complete Release Notes"
 echo "# Release Notes" > releaseNotes/notes

@@ -57,6 +57,8 @@ namespace LRI::RCI {
         // The current baud rate
         int baud;
 
+        bool arduinoMode;
+
         // The interface itself
         COMPort* port;
 

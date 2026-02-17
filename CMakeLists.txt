@@ -73,6 +73,7 @@ add_executable(LRI_control_panel
 #        src/UI/BoolSensorViewer.cpp
 #        src/UI/EStopViewer.cpp
 #        src/UI/ErrorWindow.cpp
+#        src/UI/MotorViewer.cpp
 #        src/UI/PromptViewer.cpp
 #        src/UI/RawViewer.cpp
 #        src/UI/SensorViewer.cpp
@@ -92,6 +93,7 @@ add_executable(LRI_control_panel
         src/hardware/BoolSensor.cpp
         src/hardware/EventLog.cpp
         src/hardware/HardwareControl.cpp
+        src/hardware/Motors.cpp
         src/hardware/Prompt.cpp
         src/hardware/Sensors.cpp
         src/hardware/SimpleActuators.cpp
@@ -135,10 +137,14 @@ add_dependencies(LRI_control_panel copy_target_jsons)
 
 # If on release build, add the github release script as a target
 if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
-    get_target_property(EXENAME LRI_control_panel OUTPUT_NAME)
-    add_custom_target(LRI_control_panel_GithubRelease
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
-    add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
+    if(NOT DEFINED BASHCMD)
+        message("Must define bash path for release script")
+    else()
+        message("Using bash executable at ${BASHCMD}")
+        add_custom_target(LRI_control_panel_GithubRelease
+                COMMAND ${BASHCMD} ${CMAKE_CURRENT_SOURCE_DIR}/GithubRelease.sh ${CMAKE_CURRENT_BINARY_DIR} ${EXENAME} ${CMAKE_CURRENT_SOURCE_DIR})
+        add_dependencies(LRI_control_panel_GithubRelease LRI_control_panel)
+    endif()
 else()
     # If in debug build, define a debug macro for some internal use
     target_compile_definitions(LRI_control_panel PRIVATE -DRCIDEBUG)

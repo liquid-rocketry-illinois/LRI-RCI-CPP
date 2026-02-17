@@ -38,6 +38,7 @@ namespace LRI::RCI {
                 uint8_t bytes[TEMP_BUFFER_SIZE];
                 size_t written = 5;
                 if(!readBytes(bytes, TEMP_BUFFER_SIZE, written)) continue;
+                if(written == 0) continue;
 
                 inlock.lock();
                 for(size_t i = 0; i < written; i++) {

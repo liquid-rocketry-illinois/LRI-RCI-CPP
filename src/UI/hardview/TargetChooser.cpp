@@ -17,6 +17,7 @@
 #include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/HardwareControl.h"
+#include "hardware/Motors.h"
 #include "hardware/Prompt.h"
 #include "hardware/Sensors.h"
 #include "hardware/SimpleActuators.h"
@@ -25,6 +26,7 @@
 #include "hardware/TestState.h"
 
 #include "../../../include/UI/hardview/AngledActuatorViewer.h"
+#include "../../../include/UI/hardview/MotorViewer.h"
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/PromptViewer.h"
@@ -39,11 +41,10 @@ namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
         control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
-        if(std::filesystem::exists("targets/")) {
-            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
-                if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
-                targetpaths.push_back(file);
-            }
+        auto targetsFolder = getRoamingFolder() / "targets/";
+        for(const auto& file : std::filesystem::directory_iterator(targetsFolder)) {
+            if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
+            targetpaths.push_back(file);
         }
 
         // Set up the two interface options
@@ -272,6 +273,10 @@ namespace LRI::RCI {
                 Steppers::setHardwareConfig(quals);
                 break;
 
+            case RCP_DEVCLASS_MOTOR:
+                Motors::setHarwareConfig(quals);
+                break;
+
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 SimpleActuators::setHardwareConfig(quals);
                 break;
@@ -325,6 +330,7 @@ namespace LRI::RCI {
                     modules.push_back(new TestStateViewer());
                     break;
 
+                case RCP_DEVCLASS_MOTOR:
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 case RCP_DEVCLASS_BOOL_SENSOR:
                 case RCP_DEVCLASS_STEPPER:
@@ -340,6 +346,7 @@ namespace LRI::RCI {
                     else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
                     else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
                         modules.push_back(new AngledActuatorViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_MOTOR) modules.push_back(new MotorViewer(qualSet, refresh));
                     else modules.push_back(new BoolSensorViewer(qualSet, refresh));
                     break;
                 }
@@ -400,86 +407,91 @@ namespace LRI::RCI {
     }
 
     RCP_Interface* COMPortChooser::render() {
-            ImGui::PushID("COMPortChooser");
-            ImGui::PushID(classid);
+        ImGui::PushID("COMPortChooser");
+        ImGui::PushID(classid);
 
-            bool disable = port;
-            if(disable) ImGui::BeginDisabled();
+        bool disable = port;
+        if(disable) ImGui::BeginDisabled();
 
-            // It has a dropdown for which device, as listed in enumSerial()
-            ImGui::Text("Choose Serial Port: ");
-            ImGui::SameLine();
-            if(portlist.empty()) ImGui::Text("No Ports Detected");
-            else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].second.c_str())) {
-                for(size_t i = 0; i < portlist.size(); i++) {
-                    ImGui::PushID(static_cast<int>(i));
-                    bool selected = i == selectedPort;
-                    if(ImGui::Selectable((portlist[i]).second.c_str(), &selected)) selectedPort = i;
-                    if(selected) ImGui::SetItemDefaultFocus();
-                    ImGui::PopID();
-                }
-
-                ImGui::EndCombo();
-            }
-
-            if(ImGui::Button("Refresh List")) {
-                selectedPort = 0;
-                COMPort::enumSerialDevs(portlist);
-            }
-
-            // Input for baud rate
-            ImGui::Text("Baud Rate: ");
-            ImGui::SameLine();
-            ImGui::SetNextItemWidth(scale(100));
-            ImGui::InputInt("##comportchooserbaudinput", &baud);
-            if(baud < 0) baud = 0;
-            else if(baud > 500'000) baud = 500'000;
-
-            if(portlist.empty()) ImGui::BeginDisabled();
-            if(ImGui::Button("Connect")) {
-                // If connect, then create the COMPort
-                port = new COMPort(std::move(R"(\\.\)" + portlist[selectedPort].first), baud);
-            }
-            if(portlist.empty()) ImGui::EndDisabled();
-            if(disable) ImGui::EndDisabled();
-
-            // If the port failed to allocate then return
-            if(!port) {
+        // It has a dropdown for which device, as listed in enumSerial()
+        ImGui::Text("Choose Serial Port: ");
+        ImGui::SameLine();
+        if(portlist.empty()) ImGui::Text("No Ports Detected");
+        else if(ImGui::BeginCombo("##portselectcombo", portlist[selectedPort].second.c_str())) {
+            for(size_t i = 0; i < portlist.size(); i++) {
+                ImGui::PushID(static_cast<int>(i));
+                bool selected = i == selectedPort;
+                if(ImGui::Selectable((portlist[i]).second.c_str(), &selected)) selectedPort = i;
+                if(selected) ImGui::SetItemDefaultFocus();
                 ImGui::PopID();
-                ImGui::PopID();
-                return nullptr;
             }
 
-            // If the port allocated but did not open then show an error
-            if(port->didPortOpenFail()) {
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
-                ImGui::Text("Error Connecting to Serial Port stage %lu code %lu)", port->lastError().code,
-                            port->lastError().stage);
-                ImGui::PopStyleColor();
+            ImGui::EndCombo();
+        }
 
-                ImGui::SameLine();
-                if(ImGui::Button("OK##comportchoosererror")) {
-                    delete port;
-                    port = nullptr;
-                }
-            }
+        if(ImGui::Button("Refresh List")) {
+            selectedPort = 0;
+            COMPort::enumSerialDevs(portlist);
+        }
 
-            // While the port is readying, don't return it just yet and display a loading spinner
-            else if(!port->isOpen()) {
-                ImGui::SameLine();
-                ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
-            }
+        // Input for baud rate
+        ImGui::Text("Baud Rate: ");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(scale(100));
+        ImGui::InputInt("##comportchooserbaudinput", &baud);
+        if(baud < 0) baud = 0;
+        else if(baud > 500'000) baud = 500'000;
 
-            else {
-                ImGui::PopID();
-                ImGui::PopID();
-                return port;
-            }
+        ImGui::SameLine();
+        ImGui::Text(" | Arduino Mode: ");
+        ImGui::SameLine();
+        ImGui::Checkbox("##arduinomode", &arduinoMode);
 
+        if(portlist.empty()) ImGui::BeginDisabled();
+        if(ImGui::Button("Connect")) {
+            // If connect, then create the COMPort
+            port = new COMPort(std::move(R"(\\.\)" + portlist[selectedPort].first), baud);
+        }
+        if(portlist.empty()) ImGui::EndDisabled();
+        if(disable) ImGui::EndDisabled();
+
+        // If the port failed to allocate then return
+        if(!port) {
             ImGui::PopID();
             ImGui::PopID();
             return nullptr;
         }
+
+        // If the port allocated but did not open then show an error
+        if(port->didPortOpenFail()) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+            ImGui::Text("Error Connecting to Serial Port stage %lu code %lu)", port->lastError().code,
+                        port->lastError().stage);
+            ImGui::PopStyleColor();
+
+            ImGui::SameLine();
+            if(ImGui::Button("OK##comportchoosererror")) {
+                delete port;
+                port = nullptr;
+            }
+        }
+
+        // While the port is readying, don't return it just yet and display a loading spinner
+        else if(!port->isOpen()) {
+            ImGui::SameLine();
+            ImGui::Spinner("##comportchooserspinner", 8, 1, WModule::REBECCA_PURPLE);
+        }
+
+        else {
+            ImGui::PopID();
+            ImGui::PopID();
+            return port;
+        }
+
+        ImGui::PopID();
+        ImGui::PopID();
+        return nullptr;
+    }
 
     // Chooser for the interface. Just needs port, client/server, and server ip address if client
     RCP_Interface* TCPInterfaceChooser::render() {
