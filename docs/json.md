@@ -47,11 +47,12 @@ interval, in seconds to refresh sensors. If set to zero, use the default.
 |      2      |  Stepper Motor Controls  | See Table 6  |
 |      3      |      Prompt Display      | None         |
 |      4      | Angled Actuator Display  | See Table 6  |
+|      5      |      Motor Controls      | See Table 6  |
 |  128/0x80   |     Data Log display     | None         |
 |    0x95     |  Boolean Sensor Display  | See Table 6  |
 | 0x90 - 0xC0 |   Sensor Value Viewer    | See Table 7  |
 
-## Table 6: Simple Actuator, Stepper Motor Control, Boolean Sensor Fields
+## Table 6: Simple Actuator, Stepper Motor Control, Motor Control, Boolean Sensor Fields
 
 | Field Name  |     Type      | Description                                                                                                      |
 |:------------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
