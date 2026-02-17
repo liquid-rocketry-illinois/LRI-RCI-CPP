@@ -16,6 +16,7 @@
 #include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
 #include "hardware/HardwareControl.h"
+#include "hardware/Motors.h"
 #include "hardware/Prompt.h"
 #include "hardware/RawData.h"
 #include "hardware/Sensors.h"
@@ -26,6 +27,7 @@
 #include "UI/AngledActuatorViewer.h"
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
+#include "UI/MotorViewer.h"
 #include "UI/PromptViewer.h"
 #include "UI/RawViewer.h"
 #include "UI/SensorViewer.h"
@@ -167,7 +169,8 @@ namespace LRI::RCI {
                     std::ifstream config(targetpaths[chosenConfig]);
                     targetconfig = nlohmann::json::parse(config);
 
-                    std::filesystem::path inipath = getRoamingFolder() / "targets" / (targetpaths[chosenConfig].filename().string() + ".ini");
+                    std::filesystem::path inipath =
+                        getRoamingFolder() / "targets" / (targetpaths[chosenConfig].filename().string() + ".ini");
                     control->inipath = inipath.string();
 
                     // Tell the main loop to load the new ini file before the next frame
@@ -270,6 +273,10 @@ namespace LRI::RCI {
                 Steppers::setHardwareConfig(quals);
                 break;
 
+            case RCP_DEVCLASS_MOTOR:
+                Motors::setHarwareConfig(quals);
+                break;
+
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 SimpleActuators::setHardwareConfig(quals);
                 break;
@@ -323,6 +330,7 @@ namespace LRI::RCI {
                     modules.push_back(new TestStateViewer());
                     break;
 
+                case RCP_DEVCLASS_MOTOR:
                 case RCP_DEVCLASS_SIMPLE_ACTUATOR:
                 case RCP_DEVCLASS_BOOL_SENSOR:
                 case RCP_DEVCLASS_STEPPER:
@@ -338,6 +346,7 @@ namespace LRI::RCI {
                     else if(type == RCP_DEVCLASS_STEPPER) modules.push_back(new StepperViewer(qualSet, refresh));
                     else if(type == RCP_DEVCLASS_ANGLED_ACTUATOR)
                         modules.push_back(new AngledActuatorViewer(qualSet, refresh));
+                    else if(type == RCP_DEVCLASS_MOTOR) modules.push_back(new MotorViewer(qualSet, refresh));
                     else modules.push_back(new BoolSensorViewer(qualSet, refresh));
                     break;
                 }
