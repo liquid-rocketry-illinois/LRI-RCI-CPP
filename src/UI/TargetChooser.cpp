@@ -40,11 +40,10 @@ namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
         control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
-        if(std::filesystem::exists("targets/")) {
-            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
-                if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
-                targetpaths.push_back(file);
-            }
+        auto targetsFolder = getRoamingFolder() / "targets/";
+        for(const auto& file : std::filesystem::directory_iterator(targetsFolder)) {
+            if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
+            targetpaths.push_back(file);
         }
 
         // Set up the two interface options
