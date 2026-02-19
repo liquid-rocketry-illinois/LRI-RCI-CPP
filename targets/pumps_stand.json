@@ -1,0 +1,56 @@
+{
+  "name": "Pumps Test Stand",
+  "tests": [],
+  "devices": [
+    {
+      "devclass": 5,
+      "ids": [0],
+      "names": ["Spinny spinny"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "Actuator Control",
+      "modules": [
+        {
+          "type": 5,
+          "refresh": true,
+          "ids": [0]
+        }
+      ]
+    },
+    {
+      "title": "ESTOP",
+      "modules": [
+        {
+          "type": -1
+        }
+      ]
+    },
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
+    {
+      "title": "Detailed Sensor Info",
+      "modules": [
+
+      ]
+    }
+  ]
+}
