@@ -100,7 +100,7 @@ namespace LRI::RCI {
         }
 
         else {
-            std::filesystem::copy("targets", roamingFolder / "targets");
+            std::filesystem::copy("targets", targetsFolder);
             std::ofstream readme(targetsFolder / "README");
             readme << "This folder stores user-configured UI layouts.\nNote that the target jsons here are only for "
                       "reference, the versions actually used are in the executable's folder"
