@@ -71,6 +71,13 @@ namespace LRI::RCI::Sensors {
             }
             break;
 
+        case RCP_DEVCLASS_POWERMON:
+            file << "relseconds,a,b\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{},{}\n", point.timestamp, point.data[0], point.data[1]);
+            }
+            break;
+
         case RCP_DEVCLASS_AM_PRESSURE:
         case RCP_DEVCLASS_TEMPERATURE:
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
