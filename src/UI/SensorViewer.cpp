@@ -239,7 +239,7 @@ namespace LRI::RCI {
         {RCP_DEVCLASS_LOAD_CELL,           {{"Load Cell",               "Mass (kg)",                      {{"Mass", 0}}}}},
         {RCP_DEVCLASS_POWERMON,            {{"Power Monitor - Voltage", "Voltage (V)",                    {{"Volts", 0}}}, {"Power Monitor - Power", "Power (W)", {{"Power", 1}}}}},
         {RCP_DEVCLASS_ACCELEROMETER,       {{"Accelerometer",           "Acceleration (m/s/s)",           {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
-        {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)", {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)",               {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetometer",            "Magnetic Field (Gauss)",         {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
     };
