@@ -81,6 +81,7 @@ namespace LRI::RCI::Sensors {
         case RCP_DEVCLASS_AM_PRESSURE:
         case RCP_DEVCLASS_TEMPERATURE:
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+        case RCP_DEVCLASS_FLOW_METER:
             file << "relseconds,data\n";
             for(const auto& point : *data) {
                 file << std::format("{},{}\n", point.timestamp, point.data[0]);

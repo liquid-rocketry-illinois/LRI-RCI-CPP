@@ -298,6 +298,7 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_GYROSCOPE:
             case RCP_DEVCLASS_MAGNETOMETER:
             case RCP_DEVCLASS_GPS:
+            case RCP_DEVCLASS_FLOW_METER:
                 sensors.insert(quals.cbegin(), quals.cend());
                 break;
 
@@ -362,6 +363,7 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
                 case RCP_DEVCLASS_RELATIVE_HYGROMETER:
                 case RCP_DEVCLASS_LOAD_CELL:
+                case RCP_DEVCLASS_FLOW_METER:
                 case RCP_DEVCLASS_POWERMON:
                 case RCP_DEVCLASS_ACCELEROMETER:
                 case RCP_DEVCLASS_GYROSCOPE:

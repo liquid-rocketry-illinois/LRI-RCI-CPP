@@ -50,6 +50,9 @@ namespace LRI::RCI {
                 "{}: Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
                 qual.name, data.data[0], data.data[1], data.data[2], data.data[3]);
 
+        case RCP_DEVCLASS_FLOW_METER:
+            return std::format("{}: Flow Rate: {:.3f} GPM", qual.name, data.data[0]);
+
         default:
             return "Unrecognized sensor";
         }
@@ -242,6 +245,7 @@ namespace LRI::RCI {
         {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)",               {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetometer",            "Magnetic Field (Gauss)",         {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
+        {RCP_DEVCLASS_FLOW_METER,          {{"Flow Meter",              "Flow Rate (GPM)",                {{"Flow Rate", 0}}}}},
     };
     // clang-format on
 } // namespace LRI::RCI
