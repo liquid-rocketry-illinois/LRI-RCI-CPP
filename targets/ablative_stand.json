@@ -1,0 +1,67 @@
+{
+  "name": "Ablative Test Stand",
+  "tests": [
+    {
+      "id": 0,
+      "name": "Ablative Test"
+    }
+  ],
+  "devices": [
+    {
+      "devclass": 145,
+      "ids": [0, 1],
+      "names": ["Ablative Thermocouple", "Graphite Thermocouple"]
+    },
+    {
+      "devclass": 1,
+      "ids": [0],
+      "names": ["LED"]
+    }
+  ],
+  "windows": [
+    {
+      "title": "LED",
+      "modules": [
+        {
+          "type": 1,
+          "refresh": true,
+          "ids": [0]
+        }
+      ]
+    },
+    {
+      "title": "Test Control",
+      "modules": [
+        {
+          "type": 0
+        }
+      ]
+    },
+    {
+      "title": "Debug Info and Prompts",
+      "modules": [
+        {
+          "type": 128
+        },
+        {
+          "type": 3
+        }
+      ]
+    },
+    {
+      "title": "Sensors",
+      "modules": [
+        {
+          "type": 145,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [0, 1]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
