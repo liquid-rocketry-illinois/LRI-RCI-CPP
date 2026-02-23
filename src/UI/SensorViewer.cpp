@@ -30,6 +30,9 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_LOAD_CELL:
             return std::format("{}: {:.3f} kg", qual.name, data.data[0]);
 
+        case RCP_DEVCLASS_FLOW_METER:
+            return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
+
         case RCP_DEVCLASS_POWERMON:
             return std::format("{}: Voltage: {:.3f} V | Power: {:.3f} W", qual.name, data.data[0], data.data[1]);
 
@@ -49,9 +52,6 @@ namespace LRI::RCI {
             return std::format(
                 "{}: Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
                 qual.name, data.data[0], data.data[1], data.data[2], data.data[3]);
-
-        case RCP_DEVCLASS_FLOW_METER:
-            return std::format("{}: Flow Rate: {:.3f} GPM", qual.name, data.data[0]);
 
         default:
             return "Unrecognized sensor";
