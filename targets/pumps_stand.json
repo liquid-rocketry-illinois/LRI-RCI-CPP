@@ -5,7 +5,27 @@
     {
       "devclass": 5,
       "ids": [0],
-      "names": ["Spinny spinny"]
+      "names": ["Pump Motor"]
+    },
+    {
+      "devclass": 145,
+      "ids": [0, 1, 2],
+      "names": ["TC1-PMP", "TC2-PMP", "TC3-MOT"]
+    },
+    {
+      "devclass": 146,
+      "ids": [0, 1],
+      "names": ["PT1-W-PROP", "PT2-W-PROP"]
+    },
+    {
+      "devclass": 1,
+      "ids": [0, 1],
+      "names": ["SVC1-GN2-PRS", "SVO1-GN2-PRS"]
+    },
+    {
+      "devclass": 150,
+      "ids": [0],
+      "names": ["Flowmatic 3000"]
     }
   ],
   "windows": [
@@ -16,6 +36,11 @@
           "type": 5,
           "refresh": true,
           "ids": [0]
+        },
+        {
+          "type": 1,
+          "refresh": true,
+          "ids": [0, 1]
         }
       ]
     },
@@ -49,7 +74,54 @@
     {
       "title": "Detailed Sensor Info",
       "modules": [
-
+        {
+          "type": 146,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [0, 1, 2]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 146,
+              "ids": [0, 1]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 150,
+              "ids": [0]
+            }
+          ]
+        },
+        {
+          "type": 146,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [0, 1, 2]
+            },
+            {
+              "class": 146,
+              "ids": [0, 1]
+            },
+            {
+              "class": 150,
+              "ids": [0]
+            }
+          ]
+        }
       ]
     }
   ]
