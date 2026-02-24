@@ -40,23 +40,31 @@ namespace LRI::RCI {
                 if(written == 0) continue;
 
                 inlock.lock();
+                std::cout << std::hex << "rcv: ";
                 for(size_t i = 0; i < written; i++) {
                     inbuffer->push(bytes[i]);
+                    std::cout << (int) bytes[i] << "  ";
                 }
                 inlock.unlock();
+                std::cout << std::endl;
             }
 
             else {
                 // Write cycle
                 r_nw = true;
                 if(!TestState::getInited()) continue;
+                if(outbuffer->isEmpty()) continue;
 
                 uint8_t bytes[TEMP_BUFFER_SIZE];
                 size_t written = 0;
                 outlock.lock();
+                std::cout << std::hex << "snd: ";
                 for(size_t i = 0; i < TEMP_BUFFER_SIZE && !outbuffer->isEmpty(); i++, written++) {
                     bytes[i] = outbuffer->pop();
+                    std::cout << (int) bytes[i] << "  ";
                 }
+
+                std::cout << std::endl;
 
                 outlock.unlock();
 

@@ -34,7 +34,7 @@ namespace LRI::RCI::Motors {
         }
 
         motors[qual].value = value;
-        motors[qual].stale = true;
+        motors[qual].stale = false;
         return 0;
     }
 
@@ -52,7 +52,7 @@ namespace LRI::RCI::Motors {
 
     void refreshAll() {
         for(const auto& qual : motors | std::views::keys) {
-            RCP_requestGeneralRead(RCP_DEVCLASS_STEPPER, qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_MOTOR, qual.id);
             motors.at(qual).stale = true;
         }
     }
