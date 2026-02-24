@@ -24,12 +24,12 @@ namespace LRI::RCI::TestState {
     bool startTest(uint8_t number) {
         if(state != RCP_TEST_STOPPED) return false;
         state = RCP_TEST_RUNNING;
-        RCP_startTest(number);
         if(resetTimeOnStart) {
             RCP_deviceTimeReset();
             Sensors::clearAll();
         }
 
+        RCP_startTest(number);
         activeTest = number;
         return true;
     }
