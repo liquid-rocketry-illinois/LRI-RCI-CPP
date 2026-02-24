@@ -35,6 +35,8 @@ namespace LRI::RCI::HWCTRL {
     static RCP_Interface* interf;
     static bool doPoll = true;
     static bool hasStarted = false;
+    static std::vector<Error> errors;
+    static bool newErrors = false;
 
     int POLLS_PER_UPDATE = 25;
 
@@ -84,6 +86,7 @@ namespace LRI::RCI::HWCTRL {
     }
 
     void end() {
+        errors.clear();
         hasStarted = false;
         RCP_shutdown();
         delete interf;
@@ -139,9 +142,6 @@ namespace LRI::RCI::HWCTRL {
                 }
         }
     }
-
-    static std::vector<Error> errors;
-    static bool newErrors = false;
 
     void addError(const Error& e) {
         errors.push_back(e);
