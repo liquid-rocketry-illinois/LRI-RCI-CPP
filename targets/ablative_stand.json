@@ -9,8 +9,8 @@
   "devices": [
     {
       "devclass": 145,
-      "ids": [0, 1],
-      "names": ["Ablative Thermocouple", "Graphite Thermocouple"]
+      "ids": [0, 1, 2, 3],
+      "names": ["Ablative Hot Junction", "Graphite Hot Junction", "Ablative Cold Junction", "Graphite Cold Junction"]
     },
     {
       "devclass": 1,
@@ -53,11 +53,31 @@
       "modules": [
         {
           "type": 145,
-          "abridged": false,
+          "abridged": true,
           "ids": [
             {
               "class": 145,
               "ids": [0, 1]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [2, 3]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": false,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [0, 1, 2, 3]
             }
           ]
         }
