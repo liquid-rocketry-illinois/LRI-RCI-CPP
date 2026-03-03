@@ -225,6 +225,8 @@ namespace LRI::RCI {
         ImGui::PopID();
         ImGui::PopID();
         // Once the interface is ready to go, return it to the TargetChooser
-        return interf;
+        auto* temp = interf;
+        interf = nullptr; // Return port but clear internal state so the class instance can be reused
+        return temp;
     }
 } // namespace LRI::RCI

@@ -38,7 +38,7 @@
 // The important one. Module for controlling the program as a whole
 namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
-        control(control), pollingRate(25), chooser(nullptr), chosenConfig(0), chosenInterface(0), activeTarget(false) {
+        control(control), pollingRate(25), chosenConfig(0), chosenInterface(0), activeTarget(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
         for(const auto& file : std::filesystem::directory_iterator("targets/")) {
             if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
@@ -46,12 +46,13 @@ namespace LRI::RCI {
         }
 
         // Set up the two interface options
-        interfaceoptions.emplace_back("Serial Port");
-        interfaceoptions.emplace_back("Virtual Port");
-        interfaceoptions.emplace_back("TCP Socket");
+        interfaceoptions.emplace_back("Serial Port", new COMPortChooser());
+        interfaceoptions.emplace_back("Virtual Port", new VirtualPortChooser());
+        interfaceoptions.emplace_back("TCP Socket", new TCPInterfaceChooser());
+    }
 
-        // Create the default chooser
-        chooser = new COMPortChooser();
+    TargetChooser::~TargetChooser() {
+        for(const auto& ptr : interfaceoptions | std::views::values) delete ptr;
     }
 
     void TargetChooser::render() {
@@ -113,14 +114,13 @@ namespace LRI::RCI {
             // selected it is created
             ImGui::Text("Interface Type: ");
             ImGui::SameLine();
-            bool choosermod = !chooser;
-            if(interfaceoptions.empty()) ImGui::Text("No available interfaces");
-            else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].c_str())) {
+            bool availableInterfaces = !interfaceoptions.empty();
+            if(!availableInterfaces) ImGui::Text("No available interfaces");
+            else if(ImGui::BeginCombo("##interfacechooser", interfaceoptions[chosenInterface].first.c_str())) {
                 for(size_t i = 0; i < interfaceoptions.size(); i++) {
                     bool selected = i == chosenInterface;
-                    if(ImGui::Selectable((interfaceoptions[i] + "##interfacechooser").c_str(), &selected)) {
+                    if(ImGui::Selectable((interfaceoptions[i].first + "##interfacechooser").c_str(), &selected)) {
                         chosenInterface = i;
-                        choosermod = true;
                     }
 
                     if(selected) ImGui::SetItemDefaultFocus();
@@ -129,37 +129,14 @@ namespace LRI::RCI {
                 ImGui::EndCombo();
             }
 
-            // If a new chooser has been chosen:
-            if(choosermod) {
-                delete chooser;
-                switch(chosenInterface) {
-                case 0:
-                    chooser = new COMPortChooser();
-                    break;
-
-                case 1:
-                    chooser = new VirtualPortChooser();
-                    break;
-
-                case 2:
-                    chooser = new TCPInterfaceChooser();
-                    break;
-
-                default:
-                    chooser = nullptr;
-                }
-            }
-
             ImGui::NewLine();
             ImGui::Separator();
 
             // Render the chooser, and if it returns an open interface initialize RCP and the rest of the program
-            if(chooser != nullptr) {
-                RCP_Interface* interf = chooser->render();
+            if(availableInterfaces) {
+                RCP_Interface* interf = interfaceoptions[chosenInterface].second->render();
                 if(interf != nullptr) {
                     // If the chooser indicates success:
-                    delete chooser;
-                    chooser = nullptr;
                     interfName = interf->interfaceType();
                     HWCTRL::start(interf);
 

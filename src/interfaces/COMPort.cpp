@@ -89,7 +89,9 @@ namespace LRI::RCI {
         else {
             ImGui::PopID();
             ImGui::PopID();
-            return port;
+            auto* temp = port;
+            port = nullptr;
+            return temp; // Return port but clear internal state so the class instance can be reused
         }
 
         ImGui::PopID();
