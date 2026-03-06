@@ -49,6 +49,7 @@ namespace LRI::RCI::HWCTRL {
         RCP_init(callbacks);
         RCP_setChannel(RCP_CH_ZERO);
         hasStarted = true;
+        preventScreenTurnoff();
     }
 
     void update() {
@@ -92,6 +93,7 @@ namespace LRI::RCI::HWCTRL {
         delete interf;
         interf = nullptr;
         resetHardware();
+        allowScreenTurnoff();
     }
 
     const std::set SENSOR_CLASSES = {

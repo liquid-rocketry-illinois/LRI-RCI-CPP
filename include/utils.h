@@ -114,6 +114,8 @@ namespace LRI::RCI {
 
     [[nodiscard]] const std::filesystem::path& getRoamingFolder();
     void detectRoamingFolder();
+    void preventScreenTurnoff();
+    void allowScreenTurnoff();
 } // namespace LRI::RCI
 
 namespace ImGui {

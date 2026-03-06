@@ -108,6 +108,22 @@ namespace LRI::RCI {
         }
     }
 
+    void preventScreenTurnoff() {
+#ifdef _WIN32
+        SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+#else
+#error "Linux not yet supported"
+#endif
+    }
+
+    void allowScreenTurnoff() {
+#ifdef _WIN32
+        SetThreadExecutionState(ES_CONTINUOUS);
+#else
+#error "Linux not yet supported"
+#endif
+    }
+
 } // namespace LRI::RCI
 
 namespace ImGui {
