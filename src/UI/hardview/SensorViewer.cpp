@@ -30,6 +30,9 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_LOAD_CELL:
             return std::format("{}: {:.3f} kg", qual.name, data.data[0]);
 
+        case RCP_DEVCLASS_FLOW_METER:
+            return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
+
         case RCP_DEVCLASS_POWERMON:
             return std::format("{}: Voltage: {:.3f} V | Power: {:.3f} W", qual.name, data.data[0], data.data[1]);
 
@@ -233,15 +236,16 @@ namespace LRI::RCI {
     const std::map<RCP_DeviceClass, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
         {RCP_DEVCLASS_ANGLED_ACTUATOR,     {{"Actuator Angle",          "Angle (Degrees)",                {{"Angle", 0}}}}},
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
-        {RCP_DEVCLASS_TEMPERATURE,      {{"Ambient Temperature",     "Temperature (Celsius)",          {{"Temperature", 0}}}}},
+        {RCP_DEVCLASS_TEMPERATURE,         {{"Temperature",             "Temperature (Celsius)",          {{"Temperature", 0}}}}},
         {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure",                "Pressure (psi)",                 {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Relative Humidity",       "Humidity (Relative %)",          {{"Humidity", 0}}}}},
         {RCP_DEVCLASS_LOAD_CELL,           {{"Load Cell",               "Mass (kg)",                      {{"Mass", 0}}}}},
         {RCP_DEVCLASS_POWERMON,            {{"Power Monitor - Voltage", "Voltage (V)",                    {{"Volts", 0}}}, {"Power Monitor - Power", "Power (W)", {{"Power", 1}}}}},
         {RCP_DEVCLASS_ACCELEROMETER,       {{"Accelerometer",           "Acceleration (m/s/s)",           {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
-        {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)", {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)",               {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetometer",            "Magnetic Field (Gauss)",         {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
+        {RCP_DEVCLASS_FLOW_METER,          {{"Flow Meter",              "Flow Rate (GPM)",                {{"Flow Rate", 0}}}}},
     };
     // clang-format on
 } // namespace LRI::RCI

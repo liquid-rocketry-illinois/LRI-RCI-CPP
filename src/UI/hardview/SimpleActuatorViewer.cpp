@@ -9,7 +9,7 @@
 namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
     SimpleActuatorViewer::SimpleActuatorViewer(const std::set<HardwareQualifier>& quals, const bool refreshButton) :
-        refreshButton(refreshButton) {
+        refreshButton(refreshButton), evilMode(false), prevChordState(false) {
         for(const auto& qual : quals) {
             const auto* sol = SimpleActuators::getState(qual);
             if(sol == nullptr) continue;
@@ -18,6 +18,14 @@ namespace LRI::RCI {
     }
 
     void SimpleActuatorViewer::render() {
+        bool chord = ImGui::GetIO().KeyCtrl && ImGui::GetIO().KeyAlt && ImGui::IsKeyDown(ImGuiKey_E);
+        if(prevChordState != chord) {
+            prevChordState = chord;
+            if(chord) {
+                evilMode = !evilMode;
+            }
+        }
+
         ImGui::PushID("SolenoidViewer");
         ImGui::PushID(classid);
 
@@ -59,7 +67,10 @@ namespace LRI::RCI {
             // Control button
             bool prevstale = state->stale;
             if(lockButtons || prevstale) ImGui::BeginDisabled();
-            if(ImGui::Button(!state->open ? "ON" : "OFF")) {
+            const char* text = nullptr;
+            if(evilMode) text = state->open ? "OFF (how evil)" : "ON (how evil)";
+            else text = state->open ? "OFF": "ON";
+            if(ImGui::Button(text)) {
                 SimpleActuators::setActuatorState(id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
                 buttonTimer.reset();
             }

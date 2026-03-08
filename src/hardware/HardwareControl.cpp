@@ -4,6 +4,7 @@
 
 #include "hardware/AngledActuator.h"
 #include "hardware/BoolSensor.h"
+#include "hardware/Motors.h"
 #include "hardware/Prompt.h"
 #include "hardware/Sensors.h"
 #include "hardware/SimpleActuators.h"
@@ -35,6 +36,8 @@ namespace LRI::RCI::HWCTRL {
     static RCP_Interface* interf;
     static bool doPoll = true;
     static bool hasStarted = false;
+    static std::vector<Error> errors;
+    static bool newErrors = false;
 
     int POLLS_PER_UPDATE = 25;
 
@@ -47,6 +50,7 @@ namespace LRI::RCI::HWCTRL {
         RCP_init(callbacks);
         RCP_setChannel(RCP_CH_ZERO);
         hasStarted = true;
+        preventScreenTurnoff();
     }
 
     void update() {
@@ -82,11 +86,13 @@ namespace LRI::RCI::HWCTRL {
     }
 
     void end() {
+        errors.clear();
         hasStarted = false;
         RCP_shutdown();
         delete interf;
         interf = nullptr;
         resetHardware();
+        allowScreenTurnoff();
     }
 
     bool isOpen() { return hasStarted; }
@@ -140,9 +146,6 @@ namespace LRI::RCI::HWCTRL {
         }
     }
 
-    static std::vector<Error> errors;
-    static bool newErrors = false;
-
     void addError(const Error& e) {
         errors.push_back(e);
         newErrors = true;
@@ -176,6 +179,7 @@ namespace LRI::RCI::HWCTRL {
 
     RCP_Error route1F(RCP_1F data) {
         if(data.devclass == RCP_DEVCLASS_ANGLED_ACTUATOR) return AngledActuators::receiveRCPUpdate(data);
+        else if(data.devclass == RCP_DEVCLASS_MOTOR) Motors::receiveRCPUpdate(data);
         return Sensors::receiveRCPUpdate1(data);
     }
 

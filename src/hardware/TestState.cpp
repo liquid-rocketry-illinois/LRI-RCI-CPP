@@ -31,12 +31,12 @@ namespace LRI::RCI::TestState {
     bool getDataStreaming() { return dataStreaming; }
 
     void startTest(uint8_t number) {
-        RCP_startTest(number);
         if(resetTimeOnStart) {
             RCP_deviceTimeReset();
             EventLog::getGlobalLog().addTMRST();
         }
 
+        RCP_startTest(number);
         activeTest = number;
         EventLog::getGlobalLog().addTestStart(number);
     }

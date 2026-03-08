@@ -11,7 +11,7 @@ namespace LRI::RCI::Motors {
         bool stale;
     };
 
-    int receiveRCPUpdate(const HardwareQualifier& qual, const float& data);
+    int receiveRCPUpdate(const RCP_1F& data);
 
     void setHarwareConfig(const std::set<HardwareQualifier>& quals);
 

@@ -13,6 +13,10 @@ namespace LRI::RCI {
         // If a refresh button should be shown at the top
         const bool refreshButton;
 
+        // Be evil?
+        bool evilMode;
+        bool prevChordState;
+
         // Maps pointers to actuator states updated by SimpleActuators to their qualifiers
         std::map<HardwareQualifier, const SimpleActuators::ActuatorState*> sols;
 

@@ -3,6 +3,7 @@
 #include <map>
 #include <ranges>
 
+#include "hardware/EventLog.h"
 #include "hardware/HardwareControl.h"
 
 namespace LRI::RCI::Motors {
@@ -27,14 +28,16 @@ namespace LRI::RCI::Motors {
         motors[qual].stale = true;
     }
 
-    int receiveRCPUpdate(const HardwareQualifier& qual, const float& value) {
+    int receiveRCPUpdate(const RCP_1F& data) {
+        HardwareQualifier qual = {RCP_DEVCLASS_MOTOR, data.ID};
         if(!motors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
         }
 
-        motors[qual].value = value;
-        motors[qual].stale = true;
+        motors[qual].value = data.data;
+        motors[qual].stale = false;
+        EventLog::getGlobalLog().add1F(data);
         return 0;
     }
 
@@ -52,7 +55,7 @@ namespace LRI::RCI::Motors {
 
     void refreshAll() {
         for(const auto& qual : motors | std::views::keys) {
-            RCP_requestGeneralRead(RCP_DEVCLASS_STEPPER, qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_MOTOR, qual.id);
             motors.at(qual).stale = true;
         }
     }

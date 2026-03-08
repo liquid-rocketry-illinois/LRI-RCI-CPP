@@ -92,12 +92,28 @@ namespace LRI::RCI {
         }
 
         else {
-            std::filesystem::copy("targets", roamingFolder / "targets");
+            std::filesystem::copy("targets", targetsFolder);
             std::ofstream readme(targetsFolder / "README");
             readme << "This folder stores user-configured UI layouts.\nNote that the target jsons here are only for "
                       "reference, the versions actually used are in the executable's folder"
                    << std::endl;
         }
+    }
+
+    void preventScreenTurnoff() {
+#ifdef _WIN32
+        SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS);
+#else
+#error "Linux not yet supported"
+#endif
+    }
+
+    void allowScreenTurnoff() {
+#ifdef _WIN32
+        SetThreadExecutionState(ES_CONTINUOUS);
+#else
+#error "Linux not yet supported"
+#endif
     }
 
 } // namespace LRI::RCI

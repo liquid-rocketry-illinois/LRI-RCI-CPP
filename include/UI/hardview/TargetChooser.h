@@ -109,17 +109,15 @@ namespace LRI::RCI {
         // The rate to call RCP_poll()
         int pollingRate;
 
-        // The current interface chooser
-        InterfaceChooser* chooser;
-
         // A vector to store a list of paths to target files
         std::vector<std::filesystem::path> targetpaths;
 
         // Which target configuration has been chosen
         size_t chosenConfig;
 
-        // A list of the interface options
-        std::vector<std::string> interfaceoptions;
+        // A list of the interface options, and an instance of the chooser
+        // Saving the chooser instance means the configured options are saved on interface reopen
+        std::vector<std::pair<std::string, InterfaceChooser*>> interfaceoptions;
 
         // Which interface option has been chosen
         size_t chosenInterface;
@@ -131,7 +129,7 @@ namespace LRI::RCI {
         bool activeTarget;
 
         explicit TargetChooser(ControlWindowlet* control);
-        ~TargetChooser() override = default;
+        ~TargetChooser() override;
 
         // Helper to initialize all windows with the correct configurations
         static std::set<HardwareQualifier> getValidQuals(const std::set<HardwareQualifier>& allquals,
