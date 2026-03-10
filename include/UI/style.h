@@ -9,7 +9,9 @@ namespace LRI::RCI {
     static constexpr ImU32 GREEN = 0xFF00FF00; // Colors are stored as ABGR
     static constexpr ImU32 YELLOW = 0xF000CDDB;
     static constexpr ImU32 RED = 0xFF0000FF;
-    static constexpr ImU32 PURPLE = 0xFF993366;
+    static constexpr ImU32 PURPLE = 0xFFB83C54; // 432ba7
+    static constexpr ImU32 LPURPLE = 0xFFC94D65;
+    static constexpr ImU32 LLPURPLE = 0xFFDA5E76;
     static constexpr ImU32 WHITE = 0xFFFFFFFF;
     static constexpr ImVec4 BACKGROUND_COLOR{0.f, 0.f, 0.f, 0.f};
     static constexpr ImU32 TTRANSPARENT = 0x00000000;

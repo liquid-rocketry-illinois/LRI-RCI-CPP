@@ -1,10 +1,12 @@
 #include "UI/Sidebar.h"
 
+#include <vector>
+
 #include "fontawesome.h"
 #include "imgui.h"
 
-#include "UI/style.h"
 #include "UI/UIControl.h"
+#include "UI/style.h"
 
 namespace LRI::RCI::Sidebar {
     static constexpr ImGuiWindowFlags WFLAGS = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
@@ -13,6 +15,89 @@ namespace LRI::RCI::Sidebar {
     namespace {
         SideBarOptions current = SideBarOptions::NONE;
         bool debugmode = false;
+
+        struct SidebarButton {
+            SideBarOptions option;
+            const char* buttonText;
+            const char* tooltipText;
+            const char* keybindText;
+            ImGuiKey keybind;
+        };
+
+        // clang-format off
+        std::vector<SidebarButton> BUTTONS = {
+            {
+                .option = SideBarOptions::CONNECT,
+                .buttonText = "" ICON_FA_SATELLITE_DISH,
+                .tooltipText = "Target Connection",
+                .keybindText = "T",
+                .keybind = ImGuiKey_T
+            },
+            {
+                .option = SideBarOptions::OVERVIEW,
+                .buttonText = "" ICON_FA_ROCKET,
+                .tooltipText = "Overview",
+                .keybindText = "O",
+                .keybind = ImGuiKey_O
+            },
+            {
+                .option = SideBarOptions::PID,
+                .buttonText = "" ICON_FA_DIAGRAM_PROJECT,
+                .tooltipText = "P&ID",
+                .keybindText = "P",
+                .keybind = ImGuiKey_P
+            },
+            {
+                .option = SideBarOptions::CONFIG,
+                .buttonText = "" ICON_FA_PENCIL,
+                .tooltipText = "Config Editor",
+                .keybindText = "C",
+                .keybind = ImGuiKey_C
+            },
+            {
+                .option = SideBarOptions::HDF,
+                .buttonText = "" ICON_FA_CHART_COLUMN,
+                .tooltipText = "Log Editor",
+                .keybindText = "L",
+                .keybind = ImGuiKey_L
+            }
+        };
+
+        std::vector<SidebarButton> DEBUG_BUTTONS = {
+            {
+                .option = SideBarOptions::PACKETB,
+                .buttonText = "" ICON_FA_HAMMER,
+                .tooltipText = "Packet Builder",
+                .keybindText = "B",
+                .keybind = ImGuiKey_B
+            },
+            {
+                .option = SideBarOptions::PACKETI,
+                .buttonText = "" ICON_FA_NETWORK_WIRED,
+                .tooltipText = "Packet Inspector",
+                .keybindText = "I",
+                .keybind = ImGuiKey_I
+            }
+        };
+        //clang-format on
+
+        void renderButtons(const std::vector<SidebarButton>& buttons, const ImVec2& bsize) {
+            for(const auto& btn : buttons) {
+                bool recolor = current == btn.option;
+                if(recolor) {
+                    ImGui::PushStyleColor(ImGuiCol_Button, PURPLE);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, LPURPLE);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, LLPURPLE);
+                }
+                ImGui::SetCursorPosX(0);
+                if(ImGui::Button(btn.buttonText, bsize) || ImGui::IsKeyPressed(btn.keybind, false)) {
+                    if(current == btn.option) current = SideBarOptions::NONE;
+                    else current = btn.option;
+                }
+                if(recolor) ImGui::PopStyleColor(3);
+                tooltipTextAndKeybind(btn.tooltipText, btn.keybindText);
+            }
+        }
     }
 
     SideBarOptions render() {
@@ -29,70 +114,8 @@ namespace LRI::RCI::Sidebar {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, GRAY_SEMITRANSPARENT);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, LGRAY_SEMITRANSPARENT);
 
-        // Connection
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_SATELLITE_DISH, bsize) || ImGui::IsKeyPressed(ImGuiKey_T, false)) {
-            if(current == SideBarOptions::CONNECT) current = SideBarOptions::NONE;
-            else current = SideBarOptions::CONNECT;
-        }
-        tooltipTextAndKeybind("Target Connection", "T");
-
-        // ImGui::SetItemTooltip("[T] Target Connection");
-
-        // Overview
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_ROCKET, bsize) || ImGui::IsKeyPressed(ImGuiKey_O, false)) {
-            if(current == SideBarOptions::OVERVIEW) current = SideBarOptions::NONE;
-            else current = SideBarOptions::OVERVIEW;
-        }
-        tooltipTextAndKeybind("Overview", "O");
-
-        // P&ID
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_DIAGRAM_PROJECT, bsize) || ImGui::IsKeyPressed(ImGuiKey_P, false)) {
-            if(current == SideBarOptions::PID) current = SideBarOptions::NONE;
-            else current = SideBarOptions::PID;
-        }
-        tooltipTextAndKeybind("P&ID", "P");
-
-        // config editor
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_PENCIL, bsize) || ImGui::IsKeyPressed(ImGuiKey_C, false)) {
-            if(current == SideBarOptions::CONFIG) current = SideBarOptions::NONE;
-            else current = SideBarOptions::CONFIG;
-        }
-        tooltipTextAndKeybind("Config Editor", "C");
-
-        // HDF viewer/editor
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_CHART_COLUMN, bsize) || ImGui::IsKeyPressed(ImGuiKey_L, false)) {
-            if(current == SideBarOptions::HDF) current = SideBarOptions::NONE;
-            else current = SideBarOptions::HDF;
-        }
-        tooltipTextAndKeybind("Log Viewer", "L");
-
-        if(!debugmode) {
-            ImGui::PopStyleColor(3);
-            ImGui::PopStyleVar();
-            ImGui::End();
-            return current;
-        }
-
-        // Packet builder
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_HAMMER, bsize) || ImGui::IsKeyPressed(ImGuiKey_B, false)) {
-            if(current == SideBarOptions::PACKETB) current = SideBarOptions::NONE;
-            else current = SideBarOptions::PACKETB;
-        }
-        tooltipTextAndKeybind("Debug: Packet Builder", "B");
-
-        // Packet inspector
-        ImGui::SetCursorPosX(0);
-        if(ImGui::Button("" ICON_FA_NETWORK_WIRED, bsize) || ImGui::IsKeyPressed(ImGuiKey_I, false)) {
-            if(current == SideBarOptions::PACKETI) current = SideBarOptions::NONE;
-            else current = SideBarOptions::PACKETI;
-        }
-        tooltipTextAndKeybind("Debug: Packet Inspector", "I");
+        renderButtons(BUTTONS, bsize);
+        if(debugmode) renderButtons(DEBUG_BUTTONS, bsize);
 
         ImGui::PopStyleColor(3);
         ImGui::PopStyleVar();

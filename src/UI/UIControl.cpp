@@ -2,6 +2,7 @@
 
 #include "UI/style.h"
 #include "UI/Sidebar.h"
+#include "UI/PacketBuilder.h"
 
 namespace LRI::RCI {
     // Fonts
@@ -35,7 +36,7 @@ namespace LRI::RCI {
             viewportSize = newSize;
             window = {0, 0, viewportSize};
             sidebar = {window.tl(), window.b(), SIDEBAR_WIDTH};
-            main = {sidebar.r(), 0, window.br()};
+            main = {0, sidebar.r(), window.br()};
         }
     } // namespace
 
@@ -47,7 +48,14 @@ namespace LRI::RCI {
 
         void render() {
             calcBoxes();
-            Sidebar::render();
+            switch(Sidebar::render()) {
+            case SideBarOptions::PACKETB:
+                PKTB::render(getMainContentArea());
+                break;
+
+            default:
+                break;
+            }
         }
 
         void shutdown() {}
