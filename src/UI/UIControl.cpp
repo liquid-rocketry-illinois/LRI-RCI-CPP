@@ -12,6 +12,17 @@ namespace LRI::RCI {
     // Scaling factor for hidpi screens
     float scaling_factor;
 
+    void tooltipTextAndKeybind(const char* text, const char* bind) {
+        if(ImGui::BeginItemTooltip()) {
+            ImGui::Text("%s", text);
+            ImGui::BeginDisabled();
+            ImGui::SameLine();
+            ImGui::Text("[%s]", bind);
+            ImGui::EndDisabled();
+            ImGui::EndTooltip();
+        }
+    }
+
     namespace {
         ImVec2 viewportSize;
         Box window;

@@ -12,6 +12,10 @@ namespace LRI::RCI {
     static constexpr ImU32 PURPLE = 0xFF993366;
     static constexpr ImU32 WHITE = 0xFFFFFFFF;
     static constexpr ImVec4 BACKGROUND_COLOR{0.f, 0.f, 0.f, 0.f};
+    static constexpr ImU32 TTRANSPARENT = 0x00000000;
+    static constexpr ImU32 GRAY_SEMITRANSPARENT = 0x88444444;
+    static constexpr ImU32 LGRAY_SEMITRANSPARENT = 0x88777777;
+
 
 }
 
