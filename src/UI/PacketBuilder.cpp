@@ -11,7 +11,7 @@ namespace LRI::RCI::PKTB {
     void render(const Box& windowRegion) {
         ImGui::SetNextWindowPos(windowRegion.tl());
         ImGui::SetNextWindowSize(windowRegion.size());
-        ImGui::Begin("Packet Builder", nullptr, PKTB_WFLAGS);
+        ImGui::Begin("##packetbuilder", nullptr, PKTB_WFLAGS);
         ImGui::Text("eee");
         ImGui::End();
     }

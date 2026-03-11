@@ -100,14 +100,14 @@ namespace LRI::RCI::Sidebar {
         }
     }
 
-    SideBarOptions render() {
+    SideBarOptions render(const Box& region) {
         if(ImGui::IsKeyChordPressed(ImGuiKey_ModCtrl | ImGuiKey_D)) debugmode = !debugmode;
 
-        ImGui::SetNextWindowPos(getSidebarArea().tl());
-        ImGui::SetNextWindowSize(getSidebarArea().size());
+        ImGui::SetNextWindowPos(region.tl());
+        ImGui::SetNextWindowSize(region.size());
         ImGui::Begin("##sidebar", nullptr, WFLAGS);
 
-        ImVec2 bsize = {getSidebarArea().width(), getSidebarArea().width()};
+        ImVec2 bsize = {region.width(), region.width()};
 
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, scale(20));
         ImGui::PushStyleColor(ImGuiCol_Button, TTRANSPARENT);

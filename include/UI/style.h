@@ -4,7 +4,8 @@
 #include "imgui.h"
 
 namespace LRI::RCI {
-    static constexpr float SIDEBAR_WIDTH = 75;
+    static constexpr float SIDEBAR_WIDTH = 40;
+    static constexpr float TOPBAR_WIDTH = 40;
 
     static constexpr ImU32 GREEN = 0xFF00FF00; // Colors are stored as ABGR
     static constexpr ImU32 YELLOW = 0xF000CDDB;

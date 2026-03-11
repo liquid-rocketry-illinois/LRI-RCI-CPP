@@ -2,6 +2,7 @@
 
 #include "UI/style.h"
 #include "UI/Sidebar.h"
+#include "UI/TopBar.h"
 #include "UI/PacketBuilder.h"
 
 namespace LRI::RCI {
@@ -29,28 +30,28 @@ namespace LRI::RCI {
         Box window;
         Box sidebar;
         Box main;
+        Box topBar;
 
         void calcBoxes() {
             ImVec2 newSize = ImGui::GetMainViewport()->Size;
             if(newSize == viewportSize) return;
             viewportSize = newSize;
             window = {0, 0, viewportSize};
-            sidebar = {window.tl(), window.b(), SIDEBAR_WIDTH};
-            main = {0, sidebar.r(), window.br()};
+            sidebar = {window.tl(), window.b(), scale(SIDEBAR_WIDTH)};
+            topBar = {0, sidebar.r(), scale(TOPBAR_WIDTH), window.r()};
+            main = {topBar.b(), sidebar.r(), window.br()};
         }
     } // namespace
-
-    const Box& getMainContentArea() { return main; }
-    const Box& getSidebarArea() { return sidebar; }
 
     namespace UIControl {
         void setup() {}
 
         void render() {
             calcBoxes();
-            switch(Sidebar::render()) {
+            TopBar::render(topBar);
+            switch(Sidebar::render(sidebar)) {
             case SideBarOptions::PACKETB:
-                PKTB::render(getMainContentArea());
+                PKTB::render(main);
                 break;
 
             default:

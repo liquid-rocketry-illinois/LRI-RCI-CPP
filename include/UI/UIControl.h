@@ -15,9 +15,6 @@ namespace LRI::RCI {
     inline ImVec2 scale(ImVec2 val) { return val * scaling_factor; }
     void tooltipTextAndKeybind(const char* text, const char* bind);
 
-    const Box& getSidebarArea();
-    const Box& getMainContentArea();
-
     namespace UIControl {
         void setup();
         void render();
