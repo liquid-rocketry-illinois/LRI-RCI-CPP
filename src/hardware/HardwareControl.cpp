@@ -38,7 +38,7 @@ namespace LRI::RCI::HWCTRL {
     static std::vector<Error> errors;
     static bool newErrors = false;
 
-    int POLLS_PER_UPDATE = 25;
+    int POLLS_PER_UPDATE = 100;
 
     void start([[maybe_unused]] RCP_Interface* _interf) {
         if(interf) {
