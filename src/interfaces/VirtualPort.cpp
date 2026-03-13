@@ -1,5 +1,7 @@
 #include "interfaces/VirtualPort.h"
 
+#include <iostream>
+
 namespace LRI::RCI {
     VirtualPort::VirtualPort() : initpacket(7) {
         // Push the "target ready" packet so the UI can be interacted with
@@ -19,7 +21,13 @@ namespace LRI::RCI {
         return initpacket.size() >= static_cast<uint32_t>(initpacket.peek() & (~RCP_CHANNEL_MASK)) + 2;
     }
 
-    size_t VirtualPort::sendData([[maybe_unused]] const void* data, size_t length) const { return length; }
+    size_t VirtualPort::sendData([[maybe_unused]] const void* data, size_t length) const {
+        const auto* idata = static_cast<const uint8_t*>(data);
+        std::cout << "Sent: " << std::hex;
+        for(size_t i = 0; i < length; i++) { std::cout << static_cast<int>(idata[i]) << "  "; }
+        std::cout << std::endl;
+        return length;
+    }
 
     size_t VirtualPort::readData(void* data, size_t bufferSize) const {
         size_t written = 0;
