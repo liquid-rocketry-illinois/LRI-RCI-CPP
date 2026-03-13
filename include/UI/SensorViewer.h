@@ -65,6 +65,8 @@ namespace LRI::RCI {
         // The tare and clear states for each sensor
         std::map<HardwareQualifier, StopWatch[4]> tarestate;
         std::map<HardwareQualifier, StopWatch> clearState;
+        StopWatch tareAllTimer;
+        StopWatch clearAllTimer;
 
     public:
         explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false);

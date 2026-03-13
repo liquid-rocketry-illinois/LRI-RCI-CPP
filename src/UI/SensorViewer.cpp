@@ -113,6 +113,36 @@ namespace LRI::RCI {
             return;
         }
 
+        if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
+            ImGui::SameLine();
+            ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, WHITE_COLOR,
+                                     clearAllTimer.timeSince() / CONFIRM_HOLD_TIME);
+            if(clearAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
+                for(const auto& qual : sensors | std::views::keys) Sensors::clearGraph(qual);
+                clearAllTimer.reset();
+            }
+        }
+
+        if(ImGui::TimedButton("Tare All Devices", tareAllTimer)) {
+            ImGui::SameLine();
+            ImGui::CircleProgressBar("##tareallprogressspinner", 10, 3, WHITE_COLOR,
+                                     tareAllTimer.timeSince() / CONFIRM_HOLD_TIME);
+            if(tareAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
+                for(const auto& qual : sensors | std::views::keys) {
+                    for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+                        // This WILL NOT WORK for devclasses that have multiple graphs displaying the same datanum.
+                        // WONTFIX, proper version will be in v2 builds
+                        for(const auto& line : graph.lines) Sensors::tare(qual, line.datanum);
+                    }
+                }
+                tareAllTimer.reset();
+            }
+        }
+
+        if(ImGui::Button("Write all to CSV")) {
+            for(const auto& qual : sensors | std::views::keys) Sensors::writeCSV(qual);
+        }
+
         // Iterate through each qualifier and render its data
         for(const auto& [qual, data] : sensors) {
             ImGui::PushID(qual.asString().c_str());
@@ -138,8 +168,8 @@ namespace LRI::RCI {
             if(ImGui::Button("Write To CSV")) Sensors::writeCSV(qual);
             ImGui::SameLine();
             ImGui::Text(" | Data Points: %lld", data->size());
-            ImGui::TextWrapped("%s",
-                        renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
+            ImGui::TextWrapped(
+                "%s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
             if(!tarestate.contains(qual)) {
                 tarestate[qual][0] = StopWatch();
                 tarestate[qual][1] = StopWatch();
