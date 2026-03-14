@@ -6,22 +6,23 @@
 
 #include "interfaces/RCP_Interface.h"
 
+#include "UI/UIControl.h"
 #include "UI/style.h"
 #include "hardware/HardwareControl.h"
-#include "utils.h"
-#include "UI/UIControl.h"
-#include "interfaces/COMPort.h"
 #include "improgress.h"
+#include "interfaces/COMPort.h"
+#include "interfaces/TCPSocket.h"
+#include "utils.h"
 
 namespace LRI::RCI::TargetConnect {
-    namespace SerialPort {
+    namespace COMPortChooser {
         namespace {
             COMPort* port = nullptr;
             std::vector<std::pair<std::string, std::string>> portList;
             size_t selectedPort = 0;
             int baud = 0;
             bool arduinoMode = true;
-        }
+        } // namespace
 
         RCP_Interface* render() {
             ImGui::PushID("COMPortChooser");
@@ -110,7 +111,99 @@ namespace LRI::RCI::TargetConnect {
             ImGui::PopID();
             return ret;
         }
-    }
+    } // namespace COMPortChooser
+
+    namespace TCPSocketChooser {
+        namespace {
+            int tcpport = 5000;
+            int address[4] = {192, 168, 254, 2};
+            bool server = false;
+
+            TCPSocket* port = nullptr;
+        } // namespace
+
+        RCP_Interface* render() {
+            ImGui::PushID("TCPSocketChooser");
+
+            bool disable = port;
+            if(disable) ImGui::BeginDisabled();
+
+            ImGui::PushStyleColor(ImGuiCol_Text, GREEN);
+            ImGui::Text("Make sure to set the computer's static IP in control panel!");
+            ImGui::PopStyleColor();
+
+            ImGui::Text("Server Mode: ");
+            ImGui::SameLine();
+            ImGui::Checkbox("##servermode", &server);
+
+            if(!server) {
+                ImGui::Text("Server IP Address: ");
+                ImGui::SetNextItemWidth(scale(200));
+                ImGui::SameLine();
+                ImGui::InputInt4("##serverip", address);
+                for(int& i : address) {
+                    if(i < 0) i = 0;
+                    else if(i > 255) i = 255;
+                }
+            }
+
+            // Port input
+            ImGui::Text("Port: ");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(scale(48));
+            ImGui::InputInt("##portinput", &tcpport, 0);
+            if(tcpport < 0) tcpport = 0;
+            else if(tcpport > 65535) tcpport = 65535;
+
+            // Once confirm is pushed, create the interface and begin waiting for a connection
+            if(ImGui::Button(server ? "Begin Hosting" : "Connect")) {
+                port = new TCPSocket(tcpport,
+                                     server ? sf::IpAddress(0, 0, 0, 0)
+                                            : sf::IpAddress(address[0], address[1], address[2], address[3]));
+            }
+            if(disable) ImGui::EndDisabled();
+
+            RCP_Interface* ret = nullptr;
+
+            if(port == nullptr) ret = nullptr;
+
+            else if(port->didPortOpenFail()) {
+                ImGui::PushStyleColor(ImGuiCol_Text, RED);
+                TCPSocket::Error error = port->lastError();
+                ImGui::Text("Error opening TCP socket: stage %lu, code %lu", error.stage, error.code);
+                ImGui::PopStyleColor();
+
+                ImGui::SameLine();
+                if(ImGui::Button("OK")) {
+                    delete port;
+                    port = nullptr;
+                }
+
+                ret = nullptr;
+            }
+
+            else if(!port->isOpen()) {
+                ImGui::SameLine();
+                ImGui::Text("Waiting for connection");
+                ImGui::SameLine();
+                ImGui::Spinner("##tcpwaitspinner", 8, 1, WHITE);
+
+                if(ImGui::Button("Cancel")) {
+                    delete port;
+                    port = nullptr;
+                }
+                ret = nullptr;
+            }
+
+            else {
+                ret = port;
+                port = nullptr;
+            }
+
+            ImGui::PopID();
+            return ret;
+        }
+    } // namespace TCPSocketChooser
 
     namespace {
         std::vector<std::pair<std::filesystem::path, std::string>> jsons;
@@ -125,7 +218,7 @@ namespace LRI::RCI::TargetConnect {
                 jsons.emplace_back(file.path(), file.path().filename().string());
             }
         }
-    }
+    } // namespace
 
     RCP_Interface* render(const Box& region) {
         if(jsons.empty()) refreshJsons();
@@ -165,13 +258,16 @@ namespace LRI::RCI::TargetConnect {
 
         ImGui::NewLine();
         if(ImGui::BeginTabBar("##connecttab")) {
-            if(ImGui::BeginTabItem("Serial Port", nullptr)) {
-                interf = SerialPort::render();
+            if(ImGui::BeginTabItem("Serial Port")) {
+                interf = COMPortChooser::render();
                 ImGui::EndTabItem();
             }
 
-            if(ImGui::BeginTabItem("TCP Socket", nullptr)) ImGui::EndTabItem();
-            if(ImGui::BeginTabItem("Virtual Port", nullptr)) ImGui::EndTabItem();
+            if(ImGui::BeginTabItem("TCP Socket")) {
+                interf = TCPSocketChooser::render();
+                ImGui::EndTabItem();
+            }
+            if(ImGui::BeginTabItem("Virtual Port")) ImGui::EndTabItem();
             ImGui::EndTabBar();
         }
 
