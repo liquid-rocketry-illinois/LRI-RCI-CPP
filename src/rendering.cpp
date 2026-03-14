@@ -148,7 +148,7 @@ namespace LRI::RCI {
 
         // Draw version string on bottom left of window
         ImGui::GetBackgroundDrawList()->AddText(
-            ImGui::GetMainViewport()->Pos + ImVec2(scale(10), ImGui::GetMainViewport()->Size.y - scale(40)), 0x33FFFFFF,
+            ImGui::GetMainViewport()->Pos + ImVec2(scale(SIDEBAR_WIDTH + 5), ImGui::GetMainViewport()->Size.y - scale(40)), 0x33FFFFFF,
             VERSION_STRING.c_str(), VERSION_STRING.c_str() + VERSION_STRING.length());
 
         ImGui::Render();
