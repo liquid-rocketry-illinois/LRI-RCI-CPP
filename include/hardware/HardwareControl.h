@@ -9,6 +9,7 @@
 
 namespace LRI::RCI::HWCTRL {
     extern int POLLS_PER_UPDATE;
+    extern int PACKETS_POLLED_IN_LAST_FRAME;
 
     enum class ErrorType {
         RCP_STREAM,

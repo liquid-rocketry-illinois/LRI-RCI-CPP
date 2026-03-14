@@ -40,6 +40,7 @@ namespace LRI::RCI::HWCTRL {
     static bool newErrors = false;
 
     int POLLS_PER_UPDATE = 100;
+    int PACKETS_POLLED_IN_LAST_FRAME = 0;
 
     void start(RCP_Interface* _interf) {
         if(interf) {
@@ -59,7 +60,8 @@ namespace LRI::RCI::HWCTRL {
         TestState::update(); // Heartbeats
 
         if(!doPoll) return;
-        for(int i = 0; i < POLLS_PER_UPDATE; i++) {
+        for(PACKETS_POLLED_IN_LAST_FRAME = 0; PACKETS_POLLED_IN_LAST_FRAME < POLLS_PER_UPDATE;
+            PACKETS_POLLED_IN_LAST_FRAME++) {
             if(interf->pktAvailable()) {
                 RCP_Error rc = RCP_poll();
                 if(rc == RCP_ERR_SUCCESS) continue;

@@ -213,5 +213,9 @@ namespace LRI::RCI {
         style[ImGuiCol_FrameBg] = PURPLEF;
         style[ImGuiCol_FrameBgHovered] = LPURPLEF;
         style[ImGuiCol_FrameBgActive] = LLPURPLEF;
+
+        style[ImGuiCol_Header] = PURPLEF;
+        style[ImGuiCol_HeaderHovered] = LPURPLEF;
+        style[ImGuiCol_HeaderActive] = LLPURPLEF;
     }
 } // namespace LRI::RCI

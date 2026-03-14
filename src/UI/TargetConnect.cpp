@@ -7,7 +7,9 @@
 #include "interfaces/RCP_Interface.h"
 
 #include "UI/style.h"
+#include "hardware/HardwareControl.h"
 #include "utils.h"
+#include "UI/UIControl.h"
 
 namespace LRI::RCI::TargetConnect {
     namespace SerialPort {
@@ -57,6 +59,13 @@ namespace LRI::RCI::TargetConnect {
             refreshJsons();
             selectedJson = 0;
         }
+
+        ImGui::Text("Polling Rate: ");
+        ImGui::SetNextItemWidth(scale(100));
+        ImGui::SameLine();
+        ImGui::InputInt("##hwctrlpollingrateinput", &HWCTRL::POLLS_PER_UPDATE, 1, 5);
+        if(HWCTRL::POLLS_PER_UPDATE < 1) HWCTRL::POLLS_PER_UPDATE = 1;
+        ImGui::Text("Packets processed in last frame: %d", HWCTRL::PACKETS_POLLED_IN_LAST_FRAME);
 
         RCP_Interface* interf = nullptr;
 
