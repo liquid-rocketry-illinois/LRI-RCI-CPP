@@ -10,11 +10,105 @@
 #include "hardware/HardwareControl.h"
 #include "utils.h"
 #include "UI/UIControl.h"
+#include "interfaces/COMPort.h"
+#include "improgress.h"
 
 namespace LRI::RCI::TargetConnect {
     namespace SerialPort {
+        namespace {
+            COMPort* port = nullptr;
+            std::vector<std::pair<std::string, std::string>> portList;
+            size_t selectedPort = 0;
+            int baud = 0;
+            bool arduinoMode = true;
+        }
+
         RCP_Interface* render() {
-            return nullptr;
+            ImGui::PushID("COMPortChooser");
+
+            bool disable = port;
+            if(disable) ImGui::BeginDisabled();
+
+            // It has a dropdown for which device, as listed in enumSerial()
+            ImGui::Text("Choose Serial Port: ");
+            ImGui::SameLine();
+            if(portList.empty()) ImGui::Text("No Ports Detected");
+            else if(ImGui::BeginCombo("##portselectcombo", portList[selectedPort].second.c_str())) {
+                for(size_t i = 0; i < portList.size(); i++) {
+                    ImGui::PushID(static_cast<int>(i));
+                    bool selected = i == selectedPort;
+                    if(ImGui::Selectable((portList[i]).second.c_str(), &selected)) selectedPort = i;
+                    if(selected) ImGui::SetItemDefaultFocus();
+                    ImGui::PopID();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            if(ImGui::Button("Refresh List")) {
+                selectedPort = 0;
+                COMPort::enumSerialDevs(portList);
+            }
+
+            ImGui::NewLine();
+
+            // Input for baud rate
+            ImGui::Text("Baud Rate: ");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(scale(100));
+            ImGui::InputInt("##comportchooserbaudinput", &baud);
+            if(baud < 0) baud = 0;
+            else if(baud > 500'000) baud = 500'000;
+
+            ImGui::SameLine();
+            ImGui::Text(" | Arduino Mode: ");
+            ImGui::SameLine();
+            ImGui::Checkbox("##arduinomode", &arduinoMode);
+
+            if(portList.empty()) ImGui::BeginDisabled();
+            if(ImGui::Button("Connect")) {
+                // If connect, then create the COMPort
+                port = new COMPort(portList[selectedPort].first, baud, arduinoMode);
+            }
+            if(portList.empty()) ImGui::EndDisabled();
+            if(disable) ImGui::EndDisabled();
+
+            RCP_Interface* ret = nullptr;
+
+            if(port == nullptr) {
+                ret = nullptr;
+            }
+
+            // If the port allocated but did not open then show an error
+            else if(port->didPortOpenFail()) {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 0, 0, 1));
+                ImGui::Text("Error Connecting to Serial Port stage %lu code %lu)", port->lastError().code,
+                            port->lastError().stage);
+                ImGui::PopStyleColor();
+
+                ImGui::SameLine();
+                if(ImGui::Button("OK##comportchoosererror")) {
+                    delete port;
+                    port = nullptr;
+                }
+
+                ret = nullptr;
+            }
+
+            // While the port is readying, don't return it just yet and display a loading spinner
+            else if(!port->isOpen()) {
+                ImGui::SameLine();
+                ImGui::Spinner("##comportchooserspinner", 8, 1, PURPLE);
+                ret = nullptr;
+            }
+
+            else {
+                ret = port;
+                port = nullptr;
+            }
+
+            ImGui::PopID();
+            return ret;
         }
     }
 

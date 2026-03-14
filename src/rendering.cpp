@@ -217,5 +217,7 @@ namespace LRI::RCI {
         style[ImGuiCol_Header] = PURPLEF;
         style[ImGuiCol_HeaderHovered] = LPURPLEF;
         style[ImGuiCol_HeaderActive] = LLPURPLEF;
+
+        style[ImGuiCol_CheckMark] = WHITEF;
     }
 } // namespace LRI::RCI
