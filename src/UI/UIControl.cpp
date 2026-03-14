@@ -1,10 +1,10 @@
 #include "UI/UIControl.h"
 
-#include "UI/style.h"
-#include "UI/Sidebar.h"
-#include "UI/TopBar.h"
 #include "UI/PacketBuilder.h"
-#include "UI/connection/TargetConnect.h"
+#include "UI/Sidebar.h"
+#include "UI/TargetConnect.h"
+#include "UI/TopBar.h"
+#include "UI/style.h"
 
 namespace LRI::RCI {
     // Fonts

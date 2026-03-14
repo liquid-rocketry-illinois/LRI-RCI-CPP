@@ -71,8 +71,7 @@ add_executable(LRI_control_panel
         src/UI/Sidebar.cpp
         src/UI/TopBar.cpp
         src/UI/PacketBuilder.cpp
-        src/UI/connection/TargetConnect.cpp
-        src/UI/connection/SerialPort.cpp
+        src/UI/TargetConnect.cpp
 #        src/UI/AngledActuatorViewer.cpp
 #        src/UI/BoolSensorViewer.cpp
 #        src/UI/EStopViewer.cpp

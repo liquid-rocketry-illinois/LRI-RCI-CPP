@@ -1,16 +1,21 @@
-#include "UI/connection/TargetConnect.h"
+#include "../../include/UI/TargetConnect.h"
 
-#include "fontawesome.h"
 #include <filesystem>
 #include <vector>
+#include "fontawesome.h"
 
 #include "interfaces/RCP_Interface.h"
 
 #include "UI/style.h"
-#include "UI/connection/SerialPort.h"
 #include "utils.h"
 
 namespace LRI::RCI::TargetConnect {
+    namespace SerialPort {
+        RCP_Interface* render() {
+            return nullptr;
+        }
+    }
+
     namespace {
         std::vector<std::pair<std::filesystem::path, std::string>> jsons;
         size_t selectedJson = 0;
