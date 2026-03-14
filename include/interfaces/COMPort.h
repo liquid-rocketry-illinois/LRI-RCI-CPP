@@ -28,7 +28,7 @@ namespace LRI::RCI {
 
     public:
         // COMPort needs the port name as a string (COMx) and the baud rate
-        explicit COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode);
+        explicit COMPort(std::string  portname, unsigned long baudrate, bool arduinoMode);
         ~COMPort() override;
 
         // A display string representing the port (COMx @ y baud)

@@ -1,12 +1,13 @@
 #include "interfaces/COMPort.h"
 
 #include <chrono>
+#include <utility>
 #include <SetupAPI.h>
 #include <devguid.h>
 
 namespace LRI::RCI {
-    COMPort::COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode) :
-        portname(portname), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
+    COMPort::COMPort(std::string portname, unsigned long baudrate, bool arduinoMode) :
+        portname(std::move(portname)), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
         ioUnlock();
     }
 
