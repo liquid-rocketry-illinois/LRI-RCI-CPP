@@ -4,6 +4,7 @@
 #include "UI/Sidebar.h"
 #include "UI/TopBar.h"
 #include "UI/PacketBuilder.h"
+#include "UI/connection/TargetConnect.h"
 
 namespace LRI::RCI {
     // Fonts
@@ -50,6 +51,10 @@ namespace LRI::RCI {
             calcBoxes();
             TopBar::render(topBar);
             switch(Sidebar::render(sidebar)) {
+            case SideBarOptions::CONNECT:
+                TargetConnect::render(main);
+                break;
+
             case SideBarOptions::PACKETB:
                 PKTB::render(main);
                 break;

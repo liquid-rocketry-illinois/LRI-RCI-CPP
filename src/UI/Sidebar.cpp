@@ -9,9 +9,6 @@
 #include "UI/style.h"
 
 namespace LRI::RCI::Sidebar {
-    static constexpr ImGuiWindowFlags WFLAGS = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
-
     namespace {
         SideBarOptions current = SideBarOptions::NONE;
         bool debugmode = false;
@@ -110,7 +107,7 @@ namespace LRI::RCI::Sidebar {
         ImVec2 bsize = {region.width(), region.width()};
 
         ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, scale(20));
-        ImGui::PushStyleColor(ImGuiCol_Button, TTRANSPARENT);
+        ImGui::PushStyleColor(ImGuiCol_Button, COLOR_TRANSPARENT);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, GRAY_SEMITRANSPARENT);
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, LGRAY_SEMITRANSPARENT);
 

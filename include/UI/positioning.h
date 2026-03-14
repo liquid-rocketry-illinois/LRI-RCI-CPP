@@ -44,6 +44,9 @@ namespace LRI::RCI {
         [[nodiscard]] float height() const { return _br.y - _tl.y; }
         [[nodiscard]] float width() const { return _br.x - _tl.x; }
     };
+
+    constexpr ImGuiWindowFlags WFLAGS = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking;
 }
 
 #endif // LRI_CONTROL_PANEL_POSITIONING_H

@@ -56,6 +56,7 @@ namespace LRI::RCI {
         }
 
         ImGui::StyleColorsDark();
+        styleColorsLRI();
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
@@ -153,7 +154,7 @@ namespace LRI::RCI {
 
         ImGui::Render();
         glViewport(0, 0, display_w, display_h);
-        glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
+        glClearColor(BACKGROUNDF.x, BACKGROUNDF.y, BACKGROUNDF.z, BACKGROUNDF.w);
         glClear(GL_COLOR_BUFFER_BIT);
 
         float largestSquare = static_cast<float>(std::min(display_w, display_h));
@@ -195,5 +196,22 @@ namespace LRI::RCI {
 
         glfwDestroyWindow(window);
         glfwTerminate();
+    }
+
+    void styleColorsLRI() {
+        auto& style = ImGui::GetStyle().Colors;
+
+        style[ImGuiCol_Button] = PURPLEF;
+        style[ImGuiCol_ButtonHovered] = LPURPLEF;
+        style[ImGuiCol_ButtonActive] = LLPURPLEF;
+
+        style[ImGuiCol_Tab] = PURPLEF;
+        style[ImGuiCol_TabActive] = LLPURPLEF;
+        style[ImGuiCol_TabHovered] = LPURPLEF;
+        style[ImGuiCol_TabDimmed] = DPURPLEF;
+
+        style[ImGuiCol_FrameBg] = PURPLEF;
+        style[ImGuiCol_FrameBgHovered] = LPURPLEF;
+        style[ImGuiCol_FrameBgActive] = LLPURPLEF;
     }
 } // namespace LRI::RCI
