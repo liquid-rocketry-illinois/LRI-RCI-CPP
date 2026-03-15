@@ -26,7 +26,16 @@ add_custom_command(
 # Add needed libraries submoduled in libs/
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/RCP-Host)
-add_subdirectory(libs/json)
+
+set(YAML_CPP_BUILD_CONTRIB OFF)
+set(YAML_CPP_BUILD_TOOLS OFF)
+set(YAML_BUILD_SHARED_LIBS OFF)
+set(YAML_CPP_INSTALL OFF)
+set(YAML_CPP_FORMAT_SOURCE OFF)
+add_subdirectory(libs/yaml)
+
+# Surpress a pesky warning from yaml-cpp
+target_compile_options(yaml-cpp PRIVATE /wd4267)
 
 # Turn off a bunch of unneeded SFML stuff
 set(SFML_BUILD_GRAPHICS OFF)
@@ -111,7 +120,7 @@ add_executable(LRI_control_panel
 )
 
 # Add needed libraries
-target_link_libraries(LRI_control_panel PRIVATE RCP-Host nlohmann_json SFML::Network imgui
+target_link_libraries(LRI_control_panel PRIVATE RCP-Host yaml-cpp SFML::Network imgui
         opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi)
 
 # Add includes folder
@@ -124,7 +133,7 @@ target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
 target_compile_options(LRI_control_panel PRIVATE /W3 /WX)
 
 # Static link CRT
-set_property(TARGET LRI_control_panel glfw RCP-Host PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set_property(TARGET LRI_control_panel glfw RCP-Host yaml-cpp PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Set EXE name
 set_target_properties(LRI_control_panel PROPERTIES OUTPUT_NAME "LRIRCI")
