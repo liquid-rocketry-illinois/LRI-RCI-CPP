@@ -13,6 +13,7 @@
 #include "interfaces/COMPort.h"
 #include "interfaces/TCPSocket.h"
 #include "utils.h"
+#include "interfaces/VirtualPort.h"
 
 namespace LRI::RCI::TargetConnect {
     namespace COMPortChooser {
@@ -205,6 +206,13 @@ namespace LRI::RCI::TargetConnect {
         }
     } // namespace TCPSocketChooser
 
+    namespace VirtualPortChooser {
+        RCP_Interface* render() {
+            if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
+            return nullptr;
+        }
+    }
+
     namespace {
         std::vector<std::pair<std::filesystem::path, std::string>> jsons;
         size_t selectedJson = 0;
@@ -267,7 +275,10 @@ namespace LRI::RCI::TargetConnect {
                 interf = TCPSocketChooser::render();
                 ImGui::EndTabItem();
             }
-            if(ImGui::BeginTabItem("Virtual Port")) ImGui::EndTabItem();
+            if(ImGui::BeginTabItem("Virtual Port")) {
+                interf = VirtualPortChooser::render();
+                ImGui::EndTabItem();
+            }
             ImGui::EndTabBar();
         }
 
