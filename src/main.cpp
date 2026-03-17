@@ -13,8 +13,8 @@
 
 #include "GLFW/glfw3.h"
 
+#include "../include/data/HardwareControl.h"
 #include "UI/UIControl.h"
-#include "hardware/HardwareControl.h"
 #include "rendering.h"
 #include "utils.h"
 

@@ -6,14 +6,14 @@
 
 #include "interfaces/RCP_Interface.h"
 
+#include "../../include/data/HardwareControl.h"
 #include "UI/UIControl.h"
 #include "UI/style.h"
-#include "hardware/HardwareControl.h"
 #include "improgress.h"
 #include "interfaces/COMPort.h"
 #include "interfaces/TCPSocket.h"
-#include "utils.h"
 #include "interfaces/VirtualPort.h"
+#include "utils.h"
 
 namespace LRI::RCI::TargetConnect {
     namespace COMPortChooser {

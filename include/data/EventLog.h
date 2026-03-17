@@ -10,21 +10,6 @@
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    template<typename T>
-    struct DataPoint {
-        std::chrono::system_clock::time_point systime;
-        uint32_t targetMillis = 0;
-        T data;
-
-        explicit DataPoint(const T& data) : DataPoint(0, data) {}
-
-        DataPoint(uint32_t targetMillis, const T& data) :
-            DataPoint(std::chrono::system_clock::now(), targetMillis, data) {}
-
-        DataPoint(const std::chrono::system_clock::time_point& systime, uint32_t targetMillis, const T& data) :
-            systime(systime), targetMillis(targetMillis), data(data) {}
-    };
-
     struct TimePoint {
         std::chrono::system_clock::time_point systime;
         uint32_t targetMillis = 0;
@@ -33,6 +18,20 @@ namespace LRI::RCI {
             systime(systime), targetMillis(targetMillis) {}
 
         explicit TimePoint(uint32_t targetMillis) : TimePoint(std::chrono::system_clock::now(), targetMillis) {}
+    };
+
+    template<typename T>
+    struct DataPoint {
+        TimePoint time;
+        T data;
+
+        explicit DataPoint(const T& data) : DataPoint(0, data) {}
+
+        DataPoint(uint32_t targetMillis, const T& data) :
+            DataPoint(std::chrono::system_clock::now(), targetMillis, data) {}
+
+        DataPoint(const std::chrono::system_clock::time_point& systime, uint32_t targetMillis, const T& data) :
+            time(systime, targetMillis), data(data) {}
     };
 
     struct PromptRequest {
@@ -86,11 +85,10 @@ namespace LRI::RCI {
         std::vector<uint8_t> sentBytes;
 
     public:
-        [[nodiscard]] static EventLog& getGlobalLog();
-
         void createDevice(const HardwareQualifier& qual);
         void clear();
 
+        // Received from target
         void addTestState(const RCP_TestData& td);
         void addSimpleActuator(const RCP_SimpleActuatorData& sact);
         void addBoolData(const RCP_BoolData& bdata);
@@ -101,6 +99,7 @@ namespace LRI::RCI {
         void add3F(const RCP_3F& f3);
         void add4F(const RCP_4F& f4);
 
+        // Sent from host
         void addTestStart(uint8_t testnum);
         void addTestStop();
         void addTestPauseUnpause();

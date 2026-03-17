@@ -95,23 +95,26 @@ add_executable(LRI_control_panel
 #        src/UI/TestStateViewer.cpp
 #        src/UI/Windowlet.cpp
 
+        # Data handline
+        src/data/EventLog.cpp
+        src/data/HardwareControl.cpp
+
         # Interfaces
         src/interfaces/IOInterface.cpp
         src/interfaces/TCPSocket.cpp
         src/interfaces/VirtualPort.cpp
 
+
         # Hardware classes
-        src/hardware/AngledActuator.cpp
-        src/hardware/BoolSensor.cpp
-        src/hardware/EventLog.cpp
-        src/hardware/HardwareControl.cpp
-        src/hardware/Motors.cpp
-        src/hardware/Prompt.cpp
-        src/hardware/Sensors.cpp
-        src/hardware/SimpleActuators.cpp
-        src/hardware/Steppers.cpp
-        src/hardware/TargetLog.cpp
-        src/hardware/TestState.cpp
+#        src/hardware/AngledActuator.cpp
+#        src/hardware/BoolSensor.cpp
+#        src/hardware/Motors.cpp
+#        src/hardware/Prompt.cpp
+#        src/hardware/Sensors.cpp
+#        src/hardware/SimpleActuators.cpp
+#        src/hardware/Steppers.cpp
+#        src/hardware/TargetLog.cpp
+#        src/hardware/TestState.cpp
 
         # (technically) Platform specific
         src/WindowsEmbeddedResource.cpp

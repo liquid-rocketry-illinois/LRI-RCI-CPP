@@ -1,4 +1,4 @@
-#include "hardware/EventLog.h"
+#include "data/EventLog.h"
 
 #include <unordered_set>
 #include <vector>
@@ -35,10 +35,7 @@ namespace LRI::RCI {
         constexpr size_t DATA_VEC_INIT_SIZE = 5000;
         constexpr size_t ACT_VEC_INIT_SIZE = 25;
 
-        EventLog globalLog;
     } // namespace
-
-    EventLog& EventLog::getGlobalLog() { return globalLog; }
 
     void EventLog::createDevice(const HardwareQualifier& qual) {
         HardwareChannel ch = {qual, 0};

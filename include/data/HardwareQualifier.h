@@ -33,8 +33,8 @@ namespace LRI::RCI {
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
 
         // Used for ordering
-        bool operator<(HardwareQualifier const& rhf) const {
-            return std::tie(devclass, id) < std::tie(rhf.devclass, rhf.id);
+        auto operator<=>(const HardwareQualifier& rhf) const {
+            return std::tie(devclass, id) <=> std::tie(rhf.devclass, rhf.id);
         }
 
         // Helper for packing data as a string. Not for display, use the name field instead
@@ -52,8 +52,9 @@ namespace LRI::RCI {
             HardwareQualifier(devclass, id), channel(channel) {}
         HardwareChannel(const HardwareQualifier& qual, uint8_t channel) : HardwareQualifier(qual), channel(channel) {}
 
-        bool operator<(HardwareChannel const& rhf) const {
-            return std::tie(devclass, id, channel) < std::tie(rhf.devclass, rhf.id, rhf.channel);
+        // Used for ordering
+        auto operator<=>(const HardwareChannel& rhf) const {
+            return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
         }
 
         [[nodiscard]] std::string asString() const override {

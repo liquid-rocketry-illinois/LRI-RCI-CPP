@@ -1,4 +1,4 @@
-#include "hardware/HardwareControl.h"
+#include "../../include/data/HardwareControl.h"
 
 #include <ranges>
 
