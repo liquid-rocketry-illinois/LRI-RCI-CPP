@@ -238,6 +238,8 @@ namespace LRI::RCI {
 
     void EventLog::addReadReq(const HardwareQualifier& qual) { host.readReqs.emplace_back(qual); }
 
+    void EventLog::addError(const HWCTRL::Error& err) { host.errors.emplace_back(err); }
+
     void EventLog::addReceived(const void* data, size_t length) {
         const uint8_t* udata = static_cast<const uint8_t*>(data);
         receivedBytes.insert(receivedBytes.end(), udata, udata + length);

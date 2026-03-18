@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "HardwareQualifier.h"
+#include "HardwareControl.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
@@ -75,6 +76,7 @@ namespace LRI::RCI {
             std::map<MiscEvents, std::vector<DataPoint<uint8_t>>> misc;
             std::vector<DataPoint<PromptResponse>> promptResponses;
             std::vector<DataPoint<HardwareQualifier>> readReqs;
+            std::vector<DataPoint<HWCTRL::Error>> errors;
 
             std::map<uint8_t, std::vector<DataPoint<float>>> aActWrites;
             std::map<uint8_t, std::vector<DataPoint<StepperWrite>>> stepperWrites;
@@ -115,6 +117,7 @@ namespace LRI::RCI {
         void addStepperWrite(uint8_t id, RCP_StepperControlMode mode, float val);
         void addSActWrite(uint8_t id, RCP_SimpleActuatorState val);
         void addReadReq(const HardwareQualifier& qual);
+        void addError(const HWCTRL::Error& err);
 
         void addReceived(const void* data, size_t length);
         void addSent(const void* data, size_t length);
@@ -142,6 +145,7 @@ namespace LRI::RCI {
         [[nodiscard]] const auto& getTMRSTs() const { return host.misc.at(MiscEvents::TMRST); }
         [[nodiscard]] const auto& getPromptResponses() const { return host.promptResponses; }
         [[nodiscard]] const auto& getReadRequests() const { return host.readReqs; }
+        [[nodiscard]] const auto& getRCPErrors() const { return host.errors; }
         [[nodiscard]] const auto& getAActWrites() const { return host.aActWrites; }
         [[nodiscard]] const auto& getStepperWrites() const { return host.stepperWrites; }
         [[nodiscard]] const auto& getSActWrites() const { return host.sActWrites; }
