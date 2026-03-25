@@ -3,6 +3,7 @@
 
 #include <format>
 #include <string>
+#include <utility>
 
 #include "RCP_Host/RCP_Host.h"
 
@@ -22,8 +23,6 @@ operations. The channel is ignored.
 */
 namespace LRI::RCI {
     struct HardwareQualifier {
-        virtual ~HardwareQualifier() = default;
-
         RCP_DeviceClass devclass;
         uint8_t id = 0;
         std::string name;
@@ -38,27 +37,26 @@ namespace LRI::RCI {
         }
 
         // Helper for packing data as a string. Not for display, use the name field instead
-        [[nodiscard]] virtual std::string asString() const {
+        [[nodiscard]] std::string asString() const {
             return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name);
         }
     };
 
-    struct HardwareChannel : HardwareQualifier {
-        ~HardwareChannel() override = default;
-
+    struct HardwareChannel {
+        HardwareQualifier qual;
         uint8_t channel = 0;
 
         HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
-            HardwareQualifier(devclass, id), channel(channel) {}
-        HardwareChannel(const HardwareQualifier& qual, uint8_t channel) : HardwareQualifier(qual), channel(channel) {}
+            qual(devclass, id), channel(channel) {}
+        HardwareChannel(HardwareQualifier  qual, uint8_t channel) : qual(std::move(qual)), channel(channel) {}
 
         // Used for ordering
         auto operator<=>(const HardwareChannel& rhf) const {
-            return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
+            return std::tie(qual, channel) <=> std::tie(rhf.qual, rhf.channel);
         }
 
-        [[nodiscard]] std::string asString() const override {
-            return std::format("{}-{}", HardwareQualifier::asString(), channel);
+        [[nodiscard]] std::string asString() const {
+            return std::format("{}-{}", qual.asString(), channel);
         }
     };
 } // namespace LRI::RCI
