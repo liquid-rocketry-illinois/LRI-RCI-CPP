@@ -19,7 +19,7 @@ namespace LRI::RCI {
         ImGui::PushID("MotorViewer");
         ImGui::PushID(classid);
 
-        bool lockButtons = buttonTimer.timeSince() > BUTTON_DELAY;
+        bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
 
         if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
 
