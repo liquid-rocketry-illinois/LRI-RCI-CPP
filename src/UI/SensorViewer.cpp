@@ -19,16 +19,16 @@ namespace LRI::RCI {
             return std::format("{}: {:.3f} mbar", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            return std::format("{}: {:.3f} psi", qual.name, data.data[0]);
+            return std::format("{}: {: 5.1f} psi", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_TEMPERATURE:
-            return std::format("{}: {:.3f} C", qual.name, data.data[0]);
+            return std::format("{}: {: 5.1f} C", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
             return std::format("{}: {:.3f} %", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_LOAD_CELL:
-            return std::format("{}: {:.3f} kg", qual.name, data.data[0]);
+            return std::format("{}: {: 5.1f} kg", qual.name, data.data[0]);
 
         case RCP_DEVCLASS_FLOW_METER:
             return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
