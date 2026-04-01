@@ -17,18 +17,23 @@
   "devices": [
     {
       "devclass": 1,
+      "ids": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      "names": ["EMatch", "SV2-F-PRS", "SV1-OX-PRS", "SV7-F-V", "SV9-OX-ACT", "SV4-F-ACT", "SV3-OX-ACT", "SV10-OX-ACT", "SV11-OX-ACT"]
+    },
+    {
+      "devclass": 145,
       "ids": [0, 1, 2, 3, 4, 5, 6, 7],
-      "names": ["EMatch", "SV2-F-PRS", "SV1-OX-PRS", "SV7-F-V", "SV9-OX-ACT", "SV4-F-ACT", "SV3-OX-ACT", "SV10-OX-ACT"]
+      "names": ["TC1", "TC2", "TC3", "TC4", "TC5", "TC6", "TC7", "TC8"]
     },
     {
       "devclass": 146,
       "ids": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-      "names": ["PT5", "PT6", "PT7", "PT8", "PT1", "PT2", "PT3", "PT4", "PT9", "PT10"]
+      "names": ["PT1", "PT2", "PT3", "PT4", "PT5", "PT6", "PT7", "PT8", "PT9", "PT10"]
     },
     {
       "devclass": 148,
       "ids": [0],
-      "names": ["Load Cell"]
+      "names": ["Tank Load Cell"]
     },
     {
       "devclass": 149,
@@ -94,13 +99,17 @@
             {
               "class": 148,
               "ids": [0]
+            },
+            {
+              "class": 145,
+              "ids": [0, 1, 2, 3, 4, 5, 6, 7]
             }
           ]
         }
       ]
     },
     {
-      "title": "Safety Info",
+      "title": "Abridged Info",
       "modules": [
         {
           "type": 146,
@@ -108,21 +117,47 @@
           "ids": [
             {
               "class": 146,
-              "ids": [0, 1, 2, 3, 4, 5, 6, 7, 8]
-            },
-            {
-              "class": 148,
-              "ids": [0]
+              "ids": [0, 1, 2, 3, 4]
             }
           ]
         },
         {
           "type": 146,
-          "abridged": false,
+          "abridged": true,
           "ids": [
             {
               "class": 146,
-              "ids": [6, 7]
+              "ids": [5, 6, 7, 8, 9]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [0, 1, 2, 3]
+            }
+          ]
+        },
+        {
+          "type": 145,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 145,
+              "ids": [4, 5, 6, 7]
+            }
+          ]
+        },
+        {
+          "type": 148,
+          "abridged": true,
+          "ids": [
+            {
+              "class": 148,
+              "ids": [0]
             }
           ]
         }
@@ -130,3 +165,5 @@
     }
   ]
 }
+
+
