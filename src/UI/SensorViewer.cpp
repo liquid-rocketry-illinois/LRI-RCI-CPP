@@ -105,14 +105,6 @@ namespace LRI::RCI {
             return;
         }
 
-        // If not in abridged mode...
-        if(!ImGui::BeginChild("##child", ImGui::GetWindowSize() - scale(ImVec2(0, 40)))) {
-            ImGui::EndChild();
-            ImGui::PopID();
-            ImGui::PopID();
-            return;
-        }
-
         if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
             ImGui::SameLine();
             ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, WHITE_COLOR,
@@ -221,8 +213,6 @@ namespace LRI::RCI {
 
             ImGui::PopID();
         }
-
-        ImGui::EndChild();
 
         ImGui::PopID();
         ImGui::PopID();
