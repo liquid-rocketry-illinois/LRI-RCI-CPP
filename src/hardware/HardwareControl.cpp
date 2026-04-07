@@ -96,6 +96,10 @@ namespace LRI::RCI::HWCTRL {
         allowScreenTurnoff();
     }
 
+    bool targetOpen() {
+        return hasStarted;
+    }
+
     const std::set SENSOR_CLASSES = {
         RCP_DEVCLASS_AM_PRESSURE,
         RCP_DEVCLASS_TEMPERATURE,
