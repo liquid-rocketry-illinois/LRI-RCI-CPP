@@ -2,27 +2,17 @@
 #define LRI_CONTROL_PANEL_MOTORS_H
 
 #include <set>
+#include <vector>
 
 #include "HardwareQualifier.h"
+#include "Sensors.h"
 
 namespace LRI::RCI::Motors {
-    struct Motor {
-        float value;
-        bool stale;
-    };
-
-    int receiveRCPUpdate(const HardwareQualifier& qual, const float& data);
-
-    void setHarwareConfig(const std::set<HardwareQualifier>& quals);
-
     void reset();
-
-    void refreshAll();
-
-    [[nodiscard]] const Motor* getState(const HardwareQualifier& qual);
-
+    void setHarwareConfig(const std::set<HardwareQualifier>& quals);
     void setState(const HardwareQualifier& qual, float value);
-
+    [[nodiscard]] const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual);
+    void refreshAll();
 } // namespace LRI::RCI::Motors
 
 #endif // LRI_CONTROL_PANEL_MOTORS_H

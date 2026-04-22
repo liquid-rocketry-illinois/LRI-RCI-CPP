@@ -250,6 +250,7 @@ namespace LRI::RCI {
 
             case RCP_DEVCLASS_MOTOR:
                 Motors::setHarwareConfig(quals);
+                sensors.insert(quals.cbegin(), quals.cend());
                 break;
 
             case RCP_DEVCLASS_SIMPLE_ACTUATOR:
@@ -263,7 +264,8 @@ namespace LRI::RCI {
             case RCP_DEVCLASS_ANGLED_ACTUATOR:
                 // Intentional case fallthrough
                 AngledActuators::setHardwareConfig(quals);
-                [[fallthrough]];
+                sensors.insert(quals.cbegin(), quals.cend());
+                break;
 
             case RCP_DEVCLASS_AM_PRESSURE:
             case RCP_DEVCLASS_TEMPERATURE:

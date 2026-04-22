@@ -12,7 +12,7 @@ namespace LRI::RCI {
     class MotorViewer : public WModule {
         const bool refreshButton;
 
-        std::map<HardwareQualifier, const Motors::Motor*> states;
+        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> states;
         std::map<HardwareQualifier, float> inputs;
 
     public:

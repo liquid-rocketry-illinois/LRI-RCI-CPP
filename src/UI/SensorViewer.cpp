@@ -15,6 +15,9 @@ namespace LRI::RCI {
     std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
                                                          const Sensors::DataPoint& data) {
         switch(qual.devclass) {
+        case RCP_DEVCLASS_MOTOR:
+            return std::format("{}: {:6.1f} rpm", qual.name, data.data[0]);
+
         case RCP_DEVCLASS_AM_PRESSURE:
             return std::format("{}: {:.3f} mbar", qual.name, data.data[0]);
 
@@ -254,6 +257,7 @@ namespace LRI::RCI {
 
     // clang-format off
     const std::map<RCP_DeviceClass, std::vector<SensorViewer::Graph>> SensorViewer::GRAPHINFO = {
+        {RCP_DEVCLASS_MOTOR,               {{"Motor",                   "Speed (rpm)",                    {{"Speed", 0}}}}},
         {RCP_DEVCLASS_ANGLED_ACTUATOR,     {{"Actuator Angle",          "Angle (Degrees)",                {{"Angle", 0}}}}},
         {RCP_DEVCLASS_AM_PRESSURE,         {{"Ambient Pressure",        "Pressure (mbars)",               {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_TEMPERATURE,         {{"Temperature",             "Temperature (Celsius)",          {{"Temperature", 0}}}}},

@@ -54,6 +54,13 @@ namespace LRI::RCI::Sensors {
         // The actual file writing. Depending on the device class, a header is created, and each datapoint is iterated
         // through and written to the file
         switch(qual.devclass) {
+        case RCP_DEVCLASS_MOTOR:
+            file << "relseconds,speed\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{}\n", point.timestamp, point.data[0]);
+            }
+            break;
+
         case RCP_DEVCLASS_GPS:
             file << "relseconds,latitude,longitude,altitude,groundspeed\n";
             for(const auto& point : *data) {

@@ -1,20 +1,17 @@
 #include "hardware/Motors.h"
 
-#include <map>
-#include <ranges>
-
 #include "hardware/HardwareControl.h"
 
 namespace LRI::RCI::Motors {
-    std::map<HardwareQualifier, Motor> motors;
+    std::set<HardwareQualifier> motors;
 
-    const Motor* getState(const HardwareQualifier& qual) {
+    const std::vector<Sensors::DataPoint>* getState(const HardwareQualifier& qual) {
         if(!motors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return nullptr;
         }
 
-        return &motors.at(qual);
+        return Sensors::getState(qual);
     }
 
     void setState(const HardwareQualifier& qual, float value) {
@@ -24,36 +21,22 @@ namespace LRI::RCI::Motors {
         }
 
         RCP_sendMotorWrite(qual.id, value);
-        motors[qual].stale = true;
-    }
-
-    int receiveRCPUpdate(const HardwareQualifier& qual, const float& value) {
-        if(!motors.contains(qual)) {
-            HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
-            return 1;
-        }
-
-        motors[qual].value = value;
-        motors[qual].stale = false;
-        return 0;
     }
 
     void setHarwareConfig(const std::set<HardwareQualifier>& quals) {
         reset();
-
-        for(const auto& qual : quals) motors[qual] = Motor();
-
+        motors.insert(quals.begin(), quals.end());
         refreshAll();
     }
 
     void reset() {
+        for(const auto& qual : motors) Sensors::removeSensor(qual);
         motors.clear();
     }
 
     void refreshAll() {
-        for(const auto& qual : motors | std::views::keys) {
+        for(const auto& qual : motors) {
             RCP_requestGeneralRead(RCP_DEVCLASS_MOTOR, qual.id);
-            motors.at(qual).stale = true;
         }
     }
 } // namespace LRI::RCI::Motors

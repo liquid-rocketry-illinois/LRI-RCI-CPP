@@ -16,7 +16,6 @@ namespace LRI::RCI::HWCTRL {
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);
     int processTwoFloat(RCP_TwoFloat data);
-    int processOneFloat(RCP_OneFloat data);
 
     static RCP_LibInitData callbacks = {
         .sendData = sendData,
@@ -26,7 +25,7 @@ namespace LRI::RCI::HWCTRL {
         .processSimpleActuatorData = SimpleActuators::receiveRCPUpdate,
         .processPromptInput = Prompt::receiveRCPUpdate,
         .processSerialData = RawData::receiveRCPUpdate,
-        .processOneFloat = processOneFloat,
+        .processOneFloat = Sensors::receiveRCPUpdate1,
         .processTwoFloat = processTwoFloat,
         .processThreeFloat = Sensors::receiveRCPUpdate3,
         .processFourFloat = Sensors::receiveRCPUpdate4,
@@ -170,11 +169,6 @@ namespace LRI::RCI::HWCTRL {
     size_t sendData(const void* data, size_t length) { return interf->sendData(data, length); }
 
     size_t readData(void* data, size_t bufferSize) { return interf->readData(data, bufferSize); }
-
-    int processOneFloat(RCP_OneFloat data) {
-        if(data.devclass == RCP_DEVCLASS_MOTOR) return Motors::receiveRCPUpdate({RCP_DEVCLASS_MOTOR, data.ID, ""}, data.data);
-        return Sensors::receiveRCPUpdate1(data);
-    }
 
     int processTwoFloat(RCP_TwoFloat data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
