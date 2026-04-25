@@ -63,7 +63,8 @@ namespace LRI::RCI {
 
     // Store the abridged state
     // Add the qualifiers to track and their associated state pointer to the map
-    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged) : abridged(abridged) {
+    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged, bool showControls) :
+        abridged(abridged), showControls(showControls) {
         for(const auto& qual : quals) {
             const auto* sense = Sensors::getState(qual);
             if(sense == nullptr) continue;
@@ -108,34 +109,36 @@ namespace LRI::RCI {
             return;
         }
 
-        if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
-            ImGui::SameLine();
-            ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, WHITE_COLOR,
-                                     clearAllTimer.timeSince() / CONFIRM_HOLD_TIME);
-            if(clearAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                for(const auto& qual : sensors | std::views::keys) Sensors::clearGraph(qual);
-                clearAllTimer.reset();
-            }
-        }
-
-        if(ImGui::TimedButton("Tare All Devices", tareAllTimer)) {
-            ImGui::SameLine();
-            ImGui::CircleProgressBar("##tareallprogressspinner", 10, 3, WHITE_COLOR,
-                                     tareAllTimer.timeSince() / CONFIRM_HOLD_TIME);
-            if(tareAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                for(const auto& qual : sensors | std::views::keys) {
-                    for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
-                        // This WILL NOT WORK for devclasses that have multiple graphs displaying the same datanum.
-                        // WONTFIX, proper version will be in v2 builds
-                        for(const auto& line : graph.lines) Sensors::tare(qual, line.datanum);
-                    }
+        if(showControls) {
+            if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
+                ImGui::SameLine();
+                ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, WHITE_COLOR,
+                                         clearAllTimer.timeSince() / CONFIRM_HOLD_TIME);
+                if(clearAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
+                    for(const auto& qual : sensors | std::views::keys) Sensors::clearGraph(qual);
+                    clearAllTimer.reset();
                 }
-                tareAllTimer.reset();
             }
-        }
 
-        if(ImGui::Button("Write all to CSV")) {
-            for(const auto& qual : sensors | std::views::keys) Sensors::writeCSV(qual);
+            if(ImGui::TimedButton("Tare All Devices", tareAllTimer)) {
+                ImGui::SameLine();
+                ImGui::CircleProgressBar("##tareallprogressspinner", 10, 3, WHITE_COLOR,
+                                         tareAllTimer.timeSince() / CONFIRM_HOLD_TIME);
+                if(tareAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
+                    for(const auto& qual : sensors | std::views::keys) {
+                        for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+                            // This WILL NOT WORK for devclasses that have multiple graphs displaying the same datanum.
+                            // WONTFIX, proper version will be in v2 builds
+                            for(const auto& line : graph.lines) Sensors::tare(qual, line.datanum);
+                        }
+                    }
+                    tareAllTimer.reset();
+                }
+            }
+
+            if(ImGui::Button("Write all to CSV")) {
+                for(const auto& qual : sensors | std::views::keys) Sensors::writeCSV(qual);
+            }
         }
 
         // Iterate through each qualifier and render its data

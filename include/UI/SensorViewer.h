@@ -55,6 +55,8 @@ namespace LRI::RCI {
         // If the sensors should be displayed in abridged mode
         const bool abridged;
 
+        const bool showControls;
+
         // Holds the data vector pointers mapped to their qualifiers. This pointer is updated by the Sensors class
         std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> sensors;
 
@@ -69,7 +71,7 @@ namespace LRI::RCI {
         StopWatch clearAllTimer;
 
     public:
-        explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false);
+        explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false, bool showControls = false);
         ~SensorViewer() override = default;
 
         // Overridden render function

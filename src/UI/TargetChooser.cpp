@@ -350,6 +350,11 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_GPS: {
                     // Get abridged setting
                     bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
+                    bool showControls = false;
+
+                    if(targetconfig["windows"][i]["modules"][j].count("showControls") != 0)
+                        showControls = targetconfig["windows"][i]["modules"][j]["showControls"].get<bool>();
+
                     std::set<HardwareQualifier> quals;
 
                     // Parse which qualifiers to add
@@ -362,7 +367,7 @@ namespace LRI::RCI {
                         quals.insert(qualSet.cbegin(), qualSet.cend());
                     }
 
-                    modules.push_back(new SensorViewer(quals, abridged));
+                    modules.push_back(new SensorViewer(quals, abridged, showControls));
                     break;
                 }
 

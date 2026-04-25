@@ -61,10 +61,11 @@ interval, in seconds to refresh sensors. If set to zero, use the default.
 
 ## Table 7: Sensor Value Field Viewer
 
-| Field Name |       Type       | Description                                                                                                            |
-|:-----------|:----------------:|:-----------------------------------------------------------------------------------------------------------------------|
-| abridged   |       bool       | Whether this sensor module should be rendered in abridged mode                                                         |
-| ids        | Array of Objects | Which sensors to track. Each object contains the information for a range of IDs per device class to track. See Table 8 |
+| Field Name   |       Type       | Description                                                                                                            |
+|:-------------|:----------------:|:-----------------------------------------------------------------------------------------------------------------------|
+| abridged     |       bool       | Whether this sensor module should be rendered in abridged mode                                                         |
+| showControls |       bool       | Whether this sensor module should display controls like the tare, clear graph, and CSV buttons. False if not present   |
+| ids          | Array of Objects | Which sensors to track. Each object contains the information for a range of IDs per device class to track. See Table 8 |
 
 ## Table 8: Sensor Module "ids" Object Fields
 
