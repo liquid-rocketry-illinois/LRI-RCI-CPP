@@ -58,7 +58,7 @@ namespace LRI::RCI {
         const bool showControls;
 
         // Holds the data vector pointers mapped to their qualifiers. This pointer is updated by the Sensors class
-        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> sensors;
+        std::vector<std::pair<HardwareQualifier, const std::vector<Sensors::DataPoint>*>> sensors;
 
         // Render all the graphs for a particular qualifier
         static void renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
@@ -71,7 +71,7 @@ namespace LRI::RCI {
         StopWatch clearAllTimer;
 
     public:
-        explicit SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged = false, bool showControls = false);
+        explicit SensorViewer(const std::vector<HardwareQualifier>& quals, bool abridged = false, bool showControls = false);
         ~SensorViewer() override = default;
 
         // Overridden render function

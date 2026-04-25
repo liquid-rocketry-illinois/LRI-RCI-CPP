@@ -355,16 +355,23 @@ namespace LRI::RCI {
                     if(targetconfig["windows"][i]["modules"][j].count("showControls") != 0)
                         showControls = targetconfig["windows"][i]["modules"][j]["showControls"].get<bool>();
 
-                    std::set<HardwareQualifier> quals;
+                    std::vector<HardwareQualifier> quals;
 
                     // Parse which qualifiers to add
                     for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
-                        int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
-                        auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::set<uint8_t>>();
+                        auto devclass = static_cast<RCP_DeviceClass>(
+                            targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>());
+                        auto ids =
+                            targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
 
-                        const auto qualSet = getValidQuals(allquals, static_cast<RCP_DeviceClass>(devclass), ids);
-                        quals.insert(qualSet.cbegin(), qualSet.cend());
+                        for(const auto& id : ids) {
+                            HardwareQualifier qual{devclass, id};
+                            if(!allquals.contains(qual)) HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+                            else
+                                quals.push_back(*allquals.find(qual)); // Use iterator to the allquals version so we can
+                                                                       // include the name string as well
+                        }
                     }
 
                     modules.push_back(new SensorViewer(quals, abridged, showControls));

@@ -63,12 +63,12 @@ namespace LRI::RCI {
 
     // Store the abridged state
     // Add the qualifiers to track and their associated state pointer to the map
-    SensorViewer::SensorViewer(const std::set<HardwareQualifier>& quals, bool abridged, bool showControls) :
+    SensorViewer::SensorViewer(const std::vector<HardwareQualifier>& quals, bool abridged, bool showControls) :
         abridged(abridged), showControls(showControls) {
         for(const auto& qual : quals) {
             const auto* sense = Sensors::getState(qual);
             if(sense == nullptr) continue;
-            sensors[qual] = sense;
+            sensors.emplace_back(qual, sense);
         }
     }
 
