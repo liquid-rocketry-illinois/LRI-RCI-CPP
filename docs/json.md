@@ -5,12 +5,13 @@ is invalid, and program behavior is indeterminate (likely a crash).
 
 ## Table 1: Main Fields
 
-| Field Name |       Type       | Description                                                                                                                                                                       |
-|:-----------|:----------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| name       |      String      | The name of the configuration. Used only for display purposes                                                                                                                     |
-| tests      | Array of Objects | The set of valid tests and their associated RCP ID numbers from [0, 15]. See table 2 for object details                                                                           |
-| devices    | Array of Objects | Used to configure the singletons with what devices are present and should be loaded. Two objects in this array cannot share the same device class. See table 3 for object details |
-| windows    | Array of Objects | Used to configure the windowlets and which modules they contain. See table 4 for details                                                                                          |
+| Field Name     |       Type       | Description                                                                                                                                                                       |
+|:---------------|:----------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| name           |      String      | The name of the configuration. Used only for display purposes                                                                                                                     |
+| allowViewports |       bool       | Whether to enable ImGui viewports for this configuration. Defaults to false if not present                                                                                        |
+| tests          | Array of Objects | The set of valid tests and their associated RCP ID numbers from [0, 15]. See table 2 for object details                                                                           |
+| devices        | Array of Objects | Used to configure the singletons with what devices are present and should be loaded. Two objects in this array cannot share the same device class. See table 3 for object details |
+| windows        | Array of Objects | Used to configure the windowlets and which modules they contain. See table 4 for details                                                                                          |
 
 ## Table 2: Tests object array fields
 

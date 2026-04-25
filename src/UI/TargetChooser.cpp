@@ -38,7 +38,8 @@
 // The important one. Module for controlling the program as a whole
 namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
-        control(control), pollingRate(25), chosenConfig(0), chosenInterface(0), activeTarget(false) {
+        control(control), pollingRate(25), chosenConfig(0), chosenInterface(0), activeTarget(false),
+        hasEnabledViewports(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
         for(const auto& file : std::filesystem::directory_iterator("targets/")) {
             if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
@@ -88,6 +89,7 @@ namespace LRI::RCI {
                 HWCTRL::end();
                 control->cleanup();
                 activeTarget = false;
+                if(hasEnabledViewports) ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
             }
         }
 
@@ -205,6 +207,9 @@ namespace LRI::RCI {
     // Helper function that resets and initializes everything based on the configuration file
     void TargetChooser::initWindows() {
         configName = targetconfig["name"].get<std::string>();
+        hasEnabledViewports = false;
+        if(targetconfig.count("allowViewports")) hasEnabledViewports = targetconfig["allowViewports"].get<bool>();
+        if(hasEnabledViewports) ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
         // Parse test list and pass to TestState
         std::map<uint8_t, std::string> tests;
