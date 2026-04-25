@@ -360,13 +360,19 @@ namespace LRI::RCI {
                     // Parse which qualifiers to add
                     for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
                         // Json's getting a little long lol
-                        auto devclass = static_cast<RCP_DeviceClass>(
-                            targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>());
+                        int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+
+                        if(devclass == -1) {
+                            if(!abridged) continue;
+                            quals.emplace_back(RCP_DEVCLASS_TEST_STATE, 0);
+                            continue;
+                        }
+
                         auto ids =
                             targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
 
                         for(const auto& id : ids) {
-                            HardwareQualifier qual{devclass, id};
+                            HardwareQualifier qual{static_cast<RCP_DeviceClass>(devclass), id};
                             if(!allquals.contains(qual)) HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
                             else
                                 quals.push_back(*allquals.find(qual)); // Use iterator to the allquals version so we can

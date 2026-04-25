@@ -66,6 +66,11 @@ namespace LRI::RCI {
     SensorViewer::SensorViewer(const std::vector<HardwareQualifier>& quals, bool abridged, bool showControls) :
         abridged(abridged), showControls(showControls) {
         for(const auto& qual : quals) {
+            if(qual.devclass == RCP_DEVCLASS_TEST_STATE) {
+                sensors.emplace_back(qual, nullptr);
+                continue;
+            }
+
             const auto* sense = Sensors::getState(qual);
             if(sense == nullptr) continue;
             sensors.emplace_back(qual, sense);
@@ -88,7 +93,14 @@ namespace LRI::RCI {
             // A lot of this math is just for text wrapping, so that numbers dont get wrapped in the middle
             const float width = ImGui::GetWindowWidth();
             const float spacerWidth = ImGui::CalcTextSize(" | ").x;
+            // bool first = true;
+
             for(const auto& [qual, data] : sensors) {
+                if(qual.devclass == RCP_DEVCLASS_TEST_STATE) {
+                    currentLineWidth = 0;
+                    continue;
+                }
+
                 std::string str = renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1));
                 float size = ImGui::CalcTextSize(str.c_str()).x * 1.075f;
 
