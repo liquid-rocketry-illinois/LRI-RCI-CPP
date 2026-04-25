@@ -3,7 +3,7 @@
   "tests": [
     {
       "id": 0,
-      "name": "Solenoid Verification"
+      "name": "Ignition Test"
     },
     {
       "id": 1,
@@ -32,8 +32,8 @@
     },
     {
       "devclass": 148,
-      "ids": [0],
-      "names": ["Tank Load Cell"]
+      "ids": [0, 1],
+      "names": ["TM1", "TM2"]
     },
     {
       "devclass": 149,
@@ -98,7 +98,7 @@
             },
             {
               "class": 148,
-              "ids": [0]
+              "ids": [0, 1]
             },
             {
               "class": 145,
@@ -157,7 +157,7 @@
           "ids": [
             {
               "class": 148,
-              "ids": [0]
+              "ids": [0, 1]
             }
           ]
         }
