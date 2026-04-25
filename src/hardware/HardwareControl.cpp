@@ -66,7 +66,9 @@ namespace LRI::RCI::HWCTRL {
                 if(rc == -1) addError({ErrorType::GENERAL_RCP, "RCP Not Initialized correctly"});
                 else if(rc == -2) addError({ErrorType::RCP_STREAM, "RCP target stream has become corrupted"});
                 else if(rc != 1) addError({ErrorType::GENERAL_RCP, "Unknown RCP error encountered"});
-                pause();
+
+		// Pausing is taken out because its causing issues for pumps and stuff
+                // pause();
             }
         }
     }
