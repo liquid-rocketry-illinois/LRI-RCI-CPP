@@ -163,63 +163,66 @@ namespace LRI::RCI {
                 continue;
             }
 
-            // Status Square
-            ImGui::Text("Sensor Status: ");
-            ImGui::SameLine();
-            ImVec2 pos = ImGui::GetCursorScreenPos();
-            draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), data->empty() ? STALE_COLOR : ENABLED_COLOR);
-            ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
-            if(ImGui::IsItemHovered()) ImGui::SetTooltip(data->empty() ? "No data received" : "Receiving data");
+            if(showControls) {
 
-            // Render the csv button, the current data point count, the current data point
-            ImGui::SameLine();
-            ImGui::Text(" | ");
-            ImGui::SameLine();
-            if(ImGui::Button("Write To CSV")) Sensors::writeCSV(qual);
-            ImGui::SameLine();
-            ImGui::Text(" | Data Points: %lld", data->size());
-            ImGui::TextWrapped(
-                "%s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
-            if(!tarestate.contains(qual)) {
-                tarestate[qual][0] = StopWatch();
-                tarestate[qual][1] = StopWatch();
-                tarestate[qual][2] = StopWatch();
-                tarestate[qual][3] = StopWatch();
-            }
+                // Status Square
+                ImGui::Text("Sensor Status: ");
+                ImGui::SameLine();
+                ImVec2 pos = ImGui::GetCursorScreenPos();
+                draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), data->empty() ? STALE_COLOR : ENABLED_COLOR);
+                ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
+                if(ImGui::IsItemHovered()) ImGui::SetTooltip(data->empty() ? "No data received" : "Receiving data");
 
-            // Handle the tares. If the tarestate == -1, then no tare has been activated. If
-            // the tare state is 0, 1, 2, or 3 then the first click to tare a data channel has been done,
-            // and we're just waiting on the confirm
-            ImGui::Text("Tare: ");
-            float percent = 0.0f;
-            for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
-                ImGui::PushID(graph.name);
-                int i = 0;
-                for(const auto& line : graph.lines) {
-                    ImGui::PushID(i++);
-                    ImGui::SameLine();
-                    if(ImGui::TimedButton(line.name, tarestate[qual][line.datanum])) {
-                        percent = tarestate[qual][line.datanum].timeSince() / CONFIRM_HOLD_TIME;
-                        if(percent >= 1.0f) {
-                            Sensors::tare(qual, line.datanum);
-                            tarestate[qual][line.datanum].reset();
+                // Render the csv button, the current data point count, the current data point
+                ImGui::SameLine();
+                ImGui::Text(" | ");
+                ImGui::SameLine();
+                if(ImGui::Button("Write To CSV")) Sensors::writeCSV(qual);
+                ImGui::SameLine();
+                ImGui::Text(" | Data Points: %lld", data->size());
+                ImGui::TextWrapped(
+                    "%s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
+                if(!tarestate.contains(qual)) {
+                    tarestate[qual][0] = StopWatch();
+                    tarestate[qual][1] = StopWatch();
+                    tarestate[qual][2] = StopWatch();
+                    tarestate[qual][3] = StopWatch();
+                }
+
+                // Handle the tares. If the tarestate == -1, then no tare has been activated. If
+                // the tare state is 0, 1, 2, or 3 then the first click to tare a data channel has been done,
+                // and we're just waiting on the confirm
+                ImGui::Text("Tare: ");
+                float percent = 0.0f;
+                for(const auto& graph : GRAPHINFO.at(qual.devclass)) {
+                    ImGui::PushID(graph.name);
+                    int i = 0;
+                    for(const auto& line : graph.lines) {
+                        ImGui::PushID(i++);
+                        ImGui::SameLine();
+                        if(ImGui::TimedButton(line.name, tarestate[qual][line.datanum])) {
+                            percent = tarestate[qual][line.datanum].timeSince() / CONFIRM_HOLD_TIME;
+                            if(percent >= 1.0f) {
+                                Sensors::tare(qual, line.datanum);
+                                tarestate[qual][line.datanum].reset();
+                            }
                         }
+                        ImGui::PopID();
                     }
                     ImGui::PopID();
                 }
-                ImGui::PopID();
-            }
 
-            ImGui::SameLine();
-            ImGui::CircleProgressBar("##tareprogressspinner", 10, 3, WHITE_COLOR, percent);
-
-            if(ImGui::TimedButton("Clear Graphs", clearState[qual])) {
                 ImGui::SameLine();
-                ImGui::CircleProgressBar("##clearprogressspinner", 10, 3, WHITE_COLOR,
-                                         clearState[qual].timeSince() / CONFIRM_HOLD_TIME);
-                if(clearState[qual].timeSince() > CONFIRM_HOLD_TIME) {
-                    Sensors::clearGraph(qual);
-                    clearState[qual].reset();
+                ImGui::CircleProgressBar("##tareprogressspinner", 10, 3, WHITE_COLOR, percent);
+
+                if(ImGui::TimedButton("Clear Graphs", clearState[qual])) {
+                    ImGui::SameLine();
+                    ImGui::CircleProgressBar("##clearprogressspinner", 10, 3, WHITE_COLOR,
+                                             clearState[qual].timeSince() / CONFIRM_HOLD_TIME);
+                    if(clearState[qual].timeSince() > CONFIRM_HOLD_TIME) {
+                        Sensors::clearGraph(qual);
+                        clearState[qual].reset();
+                    }
                 }
             }
 
