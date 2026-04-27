@@ -11,60 +11,10 @@ namespace LRI::RCI {
     // Helper
     float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
 
-    // Format the latest datapoint as a string with the appropriate units
-    std::string SensorViewer::renderLatestReadingsString(const HardwareQualifier& qual,
-                                                         const Sensors::DataPoint& data) {
-        switch(qual.devclass) {
-        case RCP_DEVCLASS_MOTOR:
-            return std::format("{}: {:6.1f} rpm", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_AM_PRESSURE:
-            return std::format("{}: {:.3f} mbar", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-            return std::format("{}: {: 5.1f} psi", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_TEMPERATURE:
-            return std::format("{}: {: 5.1f} C", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-            return std::format("{}: {:.3f} %", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_LOAD_CELL:
-            return std::format("{}: {: 5.1f} kg", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_FLOW_METER:
-            return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
-
-        case RCP_DEVCLASS_POWERMON:
-            return std::format("{}: Voltage: {:.3f} V | Power: {:.3f} W", qual.name, data.data[0], data.data[1]);
-
-        case RCP_DEVCLASS_ACCELEROMETER:
-            return std::format("{}: X: {:.3f} m/s/s | Y: {:.3f} m/s/s | Z: {:.3f} m/s/s", qual.name, data.data[0],
-                               data.data[1], data.data[2]);
-
-        case RCP_DEVCLASS_GYROSCOPE:
-            return std::format("{}: X: {:.3f} d/s/s | Y: {:.3f} d/s/s | Z: {:.3f} d/s/s", qual.name, data.data[0],
-                               data.data[1], data.data[2]);
-
-        case RCP_DEVCLASS_MAGNETOMETER:
-            return std::format("{}: X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", qual.name, data.data[0], data.data[1],
-                               data.data[2]);
-
-        case RCP_DEVCLASS_GPS:
-            return std::format(
-                "{}: Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
-                qual.name, data.data[0], data.data[1], data.data[2], data.data[3]);
-
-        default:
-            return "Unrecognized sensor";
-        }
-    }
-
     // Store the abridged state
     // Add the qualifiers to track and their associated state pointer to the map
-    SensorViewer::SensorViewer(const std::vector<HardwareQualifier>& quals, bool abridged, bool showControls) :
-        abridged(abridged), showControls(showControls) {
+    SensorViewer::SensorViewer(const std::vector<HardwareQualifier>& quals, bool showControls) :
+        showControls(showControls) {
         for(const auto& qual : quals) {
             if(qual.devclass == RCP_DEVCLASS_TEST_STATE) {
                 sensors.emplace_back(qual, nullptr);
@@ -86,40 +36,6 @@ namespace LRI::RCI {
         const float xsize = ImGui::GetWindowWidth() - scale(50);
         const auto plotsize =
             ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
-
-        // If in abridged mode, render the simpler stuff and exit early
-        if(abridged) {
-            float currentLineWidth = 0;
-            // A lot of this math is just for text wrapping, so that numbers dont get wrapped in the middle
-            const float width = ImGui::GetWindowWidth();
-            const float spacerWidth = ImGui::CalcTextSize(" | ").x;
-            // bool first = true;
-
-            for(const auto& [qual, data] : sensors) {
-                if(qual.devclass == RCP_DEVCLASS_TEST_STATE) {
-                    currentLineWidth = 0;
-                    continue;
-                }
-
-                std::string str = renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1));
-                float size = ImGui::CalcTextSize(str.c_str()).x * 1.075f;
-
-                if(currentLineWidth + size > width || currentLineWidth == 0) {
-                    ImGui::TextUnformatted(str.c_str());
-                    currentLineWidth = size;
-                }
-
-                else {
-                    ImGui::SameLine();
-                    ImGui::Text(" | %s", str.c_str());
-                    currentLineWidth += size + spacerWidth;
-                }
-            }
-
-            ImGui::PopID();
-            ImGui::PopID();
-            return;
-        }
 
         if(showControls) {
             if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
@@ -180,8 +96,10 @@ namespace LRI::RCI {
                 if(ImGui::Button("Write To CSV")) Sensors::writeCSV(qual);
                 ImGui::SameLine();
                 ImGui::Text(" | Data Points: %lld", data->size());
-                ImGui::TextWrapped(
-                    "%s", renderLatestReadingsString(qual, data->empty() ? empty : data->at(data->size() - 1)).c_str());
+                ImGui::TextWrapped("%s",
+                                   Sensors::renderLatestReadingsString(
+                                       qual, data->empty() ? Sensors::empty : data->at(data->size() - 1))
+                                       .c_str());
                 if(!tarestate.contains(qual)) {
                     tarestate[qual][0] = StopWatch();
                     tarestate[qual][1] = StopWatch();

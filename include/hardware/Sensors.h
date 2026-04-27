@@ -57,6 +57,9 @@ namespace LRI::RCI::Sensors {
 
     // Adds a single qualifier
     void addSensor(const HardwareQualifier& qual);
+
+    constexpr DataPoint empty{0, 0, 0, 0, 0};
+    std::string renderLatestReadingsString(const HardwareQualifier& qual, const Sensors::DataPoint& data);
 } // namespace LRI::RCI::Sensors
 
 #endif // SENSORS_H

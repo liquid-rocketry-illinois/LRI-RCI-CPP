@@ -46,15 +46,6 @@ namespace LRI::RCI {
 
         static const std::map<RCP_DeviceClass, std::vector<Graph>> GRAPHINFO;
 
-        // Takes a qualifier and a datapoint and renders it to a string with the correct units
-        static std::string renderLatestReadingsString(const HardwareQualifier& qual, const Sensors::DataPoint& data);
-
-        // An ampty data point
-        static constexpr Sensors::DataPoint empty{0, 0, 0, 0, 0};
-
-        // If the sensors should be displayed in abridged mode
-        const bool abridged;
-
         const bool showControls;
 
         // Holds the data vector pointers mapped to their qualifiers. This pointer is updated by the Sensors class
@@ -71,7 +62,7 @@ namespace LRI::RCI {
         StopWatch clearAllTimer;
 
     public:
-        explicit SensorViewer(const std::vector<HardwareQualifier>& quals, bool abridged = false, bool showControls = false);
+        explicit SensorViewer(const std::vector<HardwareQualifier>& quals, bool showControls = false);
         ~SensorViewer() override = default;
 
         // Overridden render function

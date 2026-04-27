@@ -288,5 +288,52 @@ namespace LRI::RCI::Sensors {
         sensors[qual].reserve(DATA_VECTOR_INITIAL_SIZE);
     }
 
+    std::string renderLatestReadingsString(const HardwareQualifier& qual, const DataPoint& data) {
 
-} // namespace LRI::RCI
+        switch(qual.devclass) {
+        case RCP_DEVCLASS_MOTOR:
+            return std::format("{}: {:6.1f} rpm", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_AM_PRESSURE:
+            return std::format("{}: {:.3f} mbar", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            return std::format("{}: {: 5.1f} psi", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_TEMPERATURE:
+            return std::format("{}: {: 5.1f} C", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+            return std::format("{}: {:.3f} %", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_LOAD_CELL:
+            return std::format("{}: {: 5.1f} kg", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_FLOW_METER:
+            return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_POWERMON:
+            return std::format("{}: Voltage: {:.3f} V | Power: {:.3f} W", qual.name, data.data[0], data.data[1]);
+
+        case RCP_DEVCLASS_ACCELEROMETER:
+            return std::format("{}: X: {:.3f} m/s/s | Y: {:.3f} m/s/s | Z: {:.3f} m/s/s", qual.name, data.data[0],
+                               data.data[1], data.data[2]);
+
+        case RCP_DEVCLASS_GYROSCOPE:
+            return std::format("{}: X: {:.3f} d/s/s | Y: {:.3f} d/s/s | Z: {:.3f} d/s/s", qual.name, data.data[0],
+                               data.data[1], data.data[2]);
+
+        case RCP_DEVCLASS_MAGNETOMETER:
+            return std::format("{}: X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", qual.name, data.data[0], data.data[1],
+                               data.data[2]);
+
+        case RCP_DEVCLASS_GPS:
+            return std::format(
+                "{}: Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
+                qual.name, data.data[0], data.data[1], data.data[2], data.data[3]);
+
+        default:
+            return "Unrecognized sensor";
+        }
+    }
+} // namespace LRI::RCI::Sensors
