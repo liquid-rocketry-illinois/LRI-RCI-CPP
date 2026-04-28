@@ -28,7 +28,7 @@ is invalid, and program behavior is indeterminate (likely a crash).
 | ids        |   Array of Int   | Indicates the IDs to load. Even if there is only one of a particular device class this still needs to be an array of ints                                                                |
 | names      | Array of Strings | Matches human readably names to the IDs of the devices. Must be in the same order as the IDs array and must be the same size. At least one name is required to match the one required ID |
 
-The Boolean Sensor device (0x95) has one additional field, `refreshTime`. This field is an integer that sets the 
+The Boolean Sensor device (0x95) has one additional field, `refreshTime`. This field is an integer that sets the
 interval, in seconds to refresh sensors. If set to zero, use the default.
 
 ## Table 4: Windowlet object array fields
@@ -55,23 +55,27 @@ interval, in seconds to refresh sensors. If set to zero, use the default.
 
 ## Table 6: Simple Actuator, Stepper Motor Control, Motor Control, Boolean Sensor Fields
 
-| Field Name  |     Type      | Description                                                                                                      |
-|:------------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
-| refresh     |     bool      | Whether or not to display a refresh button at the top                                                            |
-| ids         | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
+| Field Name |     Type      | Description                                                                                                      |
+|:-----------|:-------------:|:-----------------------------------------------------------------------------------------------------------------|
+| refresh    |     bool      | Whether or not to display a refresh button at the top                                                            |
+| ids        | Array of ints | Which RCP ID devices to display. IDs specified in this array must be enumerated in the devices structure as well |
 
 ## Table 7: Sensor Value Field Viewer
 
-| Field Name   |       Type       | Description                                                                                                            |
-|:-------------|:----------------:|:-----------------------------------------------------------------------------------------------------------------------|
-| abridged     |       bool       | Whether this sensor module should be rendered in abridged mode                                                         |
-| showControls |       bool       | Whether this sensor module should display controls like the tare, clear graph, and CSV buttons. False if not present   |
-| ids          | Array of Objects | Which sensors to track. Each object contains the information for a range of IDs per device class to track. See Table 8 |
+Has at least two fields:
 
-## Table 8: Sensor Module "ids" Object Fields
+- `mode`: This is an enum of (`classic`, `abridged`, `multi`). Depending on the mode, there are different fields.
+- `ids`: Stores the data for which graphs to show
 
-| Field Name |     Type      | Description                                                 |
-|:-----------|:-------------:|:------------------------------------------------------------|
-| devclass   |      int      | The device class of this object and the corresponding IDs   |
-| ids        | Array of Ints | The IDs of the above device class of the individual sensors |
-   
+| Field Name |                 Type                 | Description                                                                                           |
+|:-----------|:------------------------------------:|:------------------------------------------------------------------------------------------------------|
+| devclass   |                 int                  | The device class of this object and the corresponding IDs                                             |
+| ids        |            Array of Ints             | The IDs of the above device class of the individual sensors                                           |
+| channel    | Array of Ints (abridged)/int (multi) | Which channel of the above ID to show in text/Which channel of the above devclass to show for all IDs |
+| title      |            string (multi)            | Title for the combined graph                                                                          |
+
+In abridged mode, each entry in the `ids` array forces a line break in the text. In classic mode, seperate entries do
+not have meaning. In multi mode, each entry contains the list of devices that should be displayed on a single graph.
+
+In classic mode, there is an additional field, `showControls`, which determines if control buttons like taring and data
+clearing are shown as well.

@@ -107,7 +107,7 @@ namespace LRI::RCI::Sensors {
     }
 
     int receiveRCPUpdate1(RCP_OneFloat data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
+        HardwareQualifier qual = {data.devclass, data.ID};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
@@ -121,7 +121,7 @@ namespace LRI::RCI::Sensors {
     }
 
     int receiveRCPUpdate2(RCP_TwoFloat data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
+        HardwareQualifier qual = {data.devclass, data.ID};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
@@ -134,7 +134,7 @@ namespace LRI::RCI::Sensors {
     }
 
     int receiveRCPUpdate3(RCP_ThreeFloat data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
+        HardwareQualifier qual = {data.devclass, data.ID};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
@@ -147,7 +147,7 @@ namespace LRI::RCI::Sensors {
     }
 
     int receiveRCPUpdate4(RCP_FourFloat data) {
-        HardwareQualifier qual = {.devclass = data.devclass, .id = data.ID, .name = ""};
+        HardwareQualifier qual = {data.devclass, data.ID};
         if(!sensors.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;

@@ -24,10 +24,12 @@
 #include "hardware/Steppers.h"
 #include "hardware/TestState.h"
 
+#include "UI/AbridgedSensorViewer.h"
 #include "UI/AngledActuatorViewer.h"
 #include "UI/BoolSensorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/MotorViewer.h"
+#include "UI/MultiSensorViewer.h"
 #include "UI/PromptViewer.h"
 #include "UI/RawViewer.h"
 #include "UI/SensorViewer.h"
@@ -354,38 +356,99 @@ namespace LRI::RCI {
                 case RCP_DEVCLASS_MAGNETOMETER:
                 case RCP_DEVCLASS_GPS: {
                     // Get abridged setting
-                    bool abridged = targetconfig["windows"][i]["modules"][j]["abridged"].get<bool>();
-                    bool showControls = false;
+                    std::string mode = targetconfig["windows"][i]["modules"][j]["mode"].get<std::string>();
 
-                    if(targetconfig["windows"][i]["modules"][j].count("showControls") != 0)
-                        showControls = targetconfig["windows"][i]["modules"][j]["showControls"].get<bool>();
+                    if(mode == "classic") {
+                        bool showControls = false;
 
-                    std::vector<HardwareQualifier> quals;
+                        if(targetconfig["windows"][i]["modules"][j].count("showControls") != 0)
+                            showControls = targetconfig["windows"][i]["modules"][j]["showControls"].get<bool>();
 
-                    // Parse which qualifiers to add
-                    for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
-                        // Json's getting a little long lol
-                        int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+                        std::vector<HardwareQualifier> quals;
 
-                        if(devclass == -1) {
-                            if(!abridged) continue;
-                            quals.emplace_back(RCP_DEVCLASS_TEST_STATE, 0);
-                            continue;
+                        // Parse which qualifiers to add
+                        for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                            // Json's getting a little long lol
+                            int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+
+                            auto ids =
+                                targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
+
+                            for(const auto& id : ids) {
+                                HardwareQualifier qual{static_cast<RCP_DeviceClass>(devclass), id};
+                                if(!allquals.contains(qual)) HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+                                else
+                                    quals.push_back(
+                                        *allquals.find(qual)); // Use iterator to the allquals version so we can
+                                // include the name string as well
+                            }
                         }
 
-                        auto ids =
-                            targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
-
-                        for(const auto& id : ids) {
-                            HardwareQualifier qual{static_cast<RCP_DeviceClass>(devclass), id};
-                            if(!allquals.contains(qual)) HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
-                            else
-                                quals.push_back(*allquals.find(qual)); // Use iterator to the allquals version so we can
-                                                                       // include the name string as well
-                        }
+                        modules.push_back(new SensorViewer(quals, showControls));
+                        break;
                     }
 
-                    modules.push_back(new SensorViewer(quals, abridged, showControls));
+                    if(mode == "abridged") {
+                        std::vector<std::vector<HardwareChannel>> ch;
+
+                        // Parse which qualifiers to add
+                        for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                            std::vector<HardwareChannel> individualChannels;
+                            // Json's getting a little long lol
+                            int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+
+                            auto ids =
+                                targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
+
+                            auto channels = targetconfig["windows"][i]["modules"][j]["ids"][k]["channel"]
+                                                .get<std::vector<uint8_t>>();
+
+                            if(ids.size() != channels.size()) break;
+
+                            for(size_t l = 0; l < ids.size(); l++) {
+                                HardwareQualifier qual{static_cast<RCP_DeviceClass>(devclass), ids[l]};
+                                if(!allquals.contains(qual)) {
+                                    HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+                                    continue;
+                                }
+                                individualChannels.emplace_back(*allquals.find(qual), channels[l]);
+                            }
+
+                            ch.emplace_back(std::move(individualChannels));
+                        }
+
+                        modules.push_back(new AbridgedSensorViewer(ch));
+                        break;
+                    }
+
+                    if(mode == "multi") {
+                        std::vector<MultiSensorViewer::GraphData> gd;
+
+                        for(size_t k = 0; k < targetconfig["windows"][i]["modules"][j]["ids"].size(); k++) {
+                            MultiSensorViewer::GraphData data;
+                            data.title = targetconfig["windows"][i]["modules"][j]["ids"][k]["title"].get<std::string>();
+
+                            int devclass = targetconfig["windows"][i]["modules"][j]["ids"][k]["class"].get<int>();
+                            uint8_t channel = targetconfig["windows"][i]["modules"][j]["ids"][k]["channel"].get<uint8_t>();
+
+                            auto ids = targetconfig["windows"][i]["modules"][j]["ids"][k]["ids"].get<std::vector<uint8_t>>();
+
+                            for(const auto& id : ids) {
+                                HardwareQualifier qual{static_cast<RCP_DeviceClass>(devclass), id};
+                                if(!allquals.contains(qual)) {
+                                    HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
+                                    continue;
+                                }
+                                data.channels.emplace_back(*allquals.find(qual), channel);
+                            }
+
+                            gd.emplace_back(std::move(data));
+                        }
+
+                        modules.push_back(new MultiSensorViewer(gd));
+                        break;
+                    }
+
                     break;
                 }
 
