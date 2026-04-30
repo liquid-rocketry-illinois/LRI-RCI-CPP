@@ -76,37 +76,29 @@
       "modules": [
         {
           "type": 146,
-          "abridged": true,
+          "mode": "abridged",
           "ids": [
             {
               "class": 145,
-              "ids": [0, 1, 2]
-            }
-          ]
-        },
-        {
-          "type": 145,
-          "abridged": true,
-          "ids": [
+              "ids": [0, 1, 2],
+              "channel": [0, 0, 0]
+            },
             {
               "class": 146,
-              "ids": [0, 1]
-            }
-          ]
-        },
-        {
-          "type": 145,
-          "abridged": true,
-          "ids": [
+              "ids": [0, 1],
+              "channel": [0, 0]
+            },
             {
               "class": 150,
-              "ids": [0]
+              "ids": [0],
+              "channel": [0]
             }
           ]
         },
         {
           "type": 146,
-          "abridged": false,
+          "mode": "classic",
+          "showControls": true,
           "ids": [
             {
               "class": 145,
