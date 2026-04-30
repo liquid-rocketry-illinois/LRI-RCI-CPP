@@ -53,27 +53,24 @@
       "modules": [
         {
           "type": 145,
-          "abridged": true,
+          "mode": "abridged",
           "ids": [
             {
               "class": 145,
-              "ids": [0, 1]
+              "ids": [0, 1],
+              "channel": [0, 0]
+            },
+            {
+              "class": 145,
+              "ids": [2, 3],
+              "channel": [0, 0]
             }
           ]
         },
         {
           "type": 145,
-          "abridged": true,
-          "ids": [
-            {
-              "class": 145,
-              "ids": [2, 3]
-            }
-          ]
-        },
-        {
-          "type": 145,
-          "abridged": false,
+          "mode": "classic",
+          "showControls": true,
           "ids": [
             {
               "class": 145,
