@@ -12,7 +12,11 @@
     },
     {
       "id": 2,
-      "name": "SV3/4 ON"
+      "name": "Dance Mode"
+    },
+    {
+      "id": 3,
+      "name": "SV3/4 Timed Valves"
     }
   ],
   "devices": [
