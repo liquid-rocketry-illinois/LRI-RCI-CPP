@@ -59,7 +59,7 @@
       "modules": [
         {
           "type": 146,
-          "abridged": false,
+          "mode": "classic",
           "ids": [
             {
               "class": 146,
