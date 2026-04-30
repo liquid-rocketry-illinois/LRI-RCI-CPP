@@ -110,7 +110,8 @@
       "modules": [
         {
           "type": 144,
-          "abridged": false,
+          "mode": "classic",
+          "showControls": true,
           "ids": [
             {
               "class": 144,
