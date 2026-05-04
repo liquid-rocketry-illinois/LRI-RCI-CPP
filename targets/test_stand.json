@@ -21,6 +21,10 @@
     {
       "id": 4,
       "name": "Set MBV Delay"
+    },
+    {
+      "id": 5,
+      "name": "Hotfire with auto off"
     }
   ],
   "devices": [
