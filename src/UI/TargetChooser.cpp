@@ -40,7 +40,7 @@
 // The important one. Module for controlling the program as a whole
 namespace LRI::RCI {
     TargetChooser::TargetChooser(ControlWindowlet* control) :
-        control(control), pollingRate(25), chosenConfig(0), chosenInterface(0), activeTarget(false),
+        control(control), chosenConfig(0), chosenInterface(0), activeTarget(false),
         hasEnabledViewports(false) {
         // Iterate through the targets/ directory if it exists and create a list of the available targets
         for(const auto& file : std::filesystem::directory_iterator("targets/")) {
