@@ -308,6 +308,9 @@ namespace LRI::RCI::Sensors {
     std::string renderLatestReadingsString(const HardwareQualifier& qual, const DataPoint& data) {
 
         switch(qual.devclass) {
+        case RCP_DEVCLASS_ANGLED_ACTUATOR:
+            return std::format("{}: {:4.1f} d", qual.name, data.data[0]);
+            
         case RCP_DEVCLASS_MOTOR:
             return std::format("{}: {:6.1f} rpm", qual.name, data.data[0]);
 
