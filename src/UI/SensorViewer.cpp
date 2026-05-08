@@ -200,11 +200,15 @@ namespace LRI::RCI {
         {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure",                "Pressure (psi)",                 {{"Pressure", 0}}}}},
         {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Relative Humidity",       "Humidity (Relative %)",          {{"Humidity", 0}}}}},
         {RCP_DEVCLASS_LOAD_CELL,           {{"Load Cell",               "Mass (kg)",                      {{"Mass", 0}}}}},
+        {RCP_DEVCLASS_ALTITUDE,            {{"Altitude",                "Altitude (m)",                   {{"Altitude", 0}}}}},
+        {RCP_DEVCLASS_RADIO_STRENGTH,      {{"Radio Strength",          "Strength (dBm)",                 {{"Strength", 0}}}}},
         {RCP_DEVCLASS_POWERMON,            {{"Power Monitor - Voltage", "Voltage (V)",                    {{"Volts", 0}}}, {"Power Monitor - Power", "Power (W)", {{"Power", 1}}}}},
         {RCP_DEVCLASS_ACCELEROMETER,       {{"Accelerometer",           "Acceleration (m/s/s)",           {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_GYROSCOPE,           {{"Gyroscope",               "Rotation (deg/s)",               {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
         {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetometer",            "Magnetic Field (Gauss)",         {{"X", 0}, {"Y", 1}, {"Z", 2}}}}},
+        {RCP_DEVCLASS_RPY,                 {{"Orientation",             "Orientation (degrees)",          {{"Roll", 0}, {"Pitch", 1}, {"Yaw", 2}}}}},
         {RCP_DEVCLASS_GPS,                 {{"GPS - Lat & Lon",         "Position (degrees)",             {{"Latitude", 0}, {"Longitude", 1}}}, {"GPS - Altitude", "Altitude (m)", {{"Altitude", 2}}}, {"GPS - Ground Speed", "Speed (m/s)", {{"Speed", 3}}}}},
+        {RCP_DEVCLASS_QUATERNION,          {{"Quaternion",              "Value",                          {{"W", 0}, {"X", 1}, {"Y", 2}, {"Z", 3}}}}},
         {RCP_DEVCLASS_FLOW_METER,          {{"Flow Meter",              "Flow Rate (GPM)",                {{"Flow Rate", 0}}}}},
     };
     // clang-format on

@@ -69,10 +69,25 @@ namespace LRI::RCI::Sensors {
             }
             break;
 
+        case RCP_DEVCLASS_QUATERNION:
+            file << "relseconds,w,x,y,z\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2],
+                                    point.data[3]);
+            }
+            break;
+
         case RCP_DEVCLASS_MAGNETOMETER:
         case RCP_DEVCLASS_ACCELEROMETER:
         case RCP_DEVCLASS_GYROSCOPE:
             file << "relseconds,x,y,z\n";
+            for(const auto& point : *data) {
+                file << std::format("{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2]);
+            }
+            break;
+
+        case RCP_DEVCLASS_RPY:
+            file << "relseconds,roll,pitch,yaw\n";
             for(const auto& point : *data) {
                 file << std::format("{},{},{},{}\n", point.timestamp, point.data[0], point.data[1], point.data[2]);
             }
@@ -90,6 +105,8 @@ namespace LRI::RCI::Sensors {
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
         case RCP_DEVCLASS_FLOW_METER:
         case RCP_DEVCLASS_LOAD_CELL:
+        case RCP_DEVCLASS_ALTITUDE:
+        case RCP_DEVCLASS_RADIO_STRENGTH:
             file << "relseconds,data\n";
             for(const auto& point : *data) {
                 file << std::format("{},{}\n", point.timestamp, point.data[0]);
@@ -312,6 +329,12 @@ namespace LRI::RCI::Sensors {
         case RCP_DEVCLASS_FLOW_METER:
             return std::format("{}: {:.3f} GPM", qual.name, data.data[0]);
 
+        case RCP_DEVCLASS_ALTITUDE:
+            return std::format("{}: {} M", qual.name, data.data[0]);
+
+        case RCP_DEVCLASS_RADIO_STRENGTH:
+            return std::format("{}: {} dBm", qual.name, data.data[0]);
+
         case RCP_DEVCLASS_POWERMON:
             return std::format("{}: Voltage: {:.3f} V | Power: {:.3f} W", qual.name, data.data[0], data.data[1]);
 
@@ -327,10 +350,18 @@ namespace LRI::RCI::Sensors {
             return std::format("{}: X: {:.3f} G | Y: {:.3f} G | Z: {:.3f} G", qual.name, data.data[0], data.data[1],
                                data.data[2]);
 
+        case RCP_DEVCLASS_RPY:
+            return std::format("{}: Roll: {} d | Pitch: {} d | Yaw: {} d", qual.name, data.data[0], data.data[1],
+                               data.data[2]);
+
         case RCP_DEVCLASS_GPS:
             return std::format(
                 "{}: Latitude: {:.3f} d | Longitude: {:.3f} d | Altitude: {:.3f} m | Ground Speed: {:.3f} m/s",
                 qual.name, data.data[0], data.data[1], data.data[2], data.data[3]);
+
+        case RCP_DEVCLASS_QUATERNION:
+            return std::format("{}: W: {} | X: {} | Y: {} | Z: {}", qual.name, data.data[0], data.data[1], data.data[2],
+                               data.data[3]);
 
         default:
             return "Unrecognized sensor";

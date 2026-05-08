@@ -43,18 +43,22 @@ namespace LRI::RCI {
 
         // clang-format off
         const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO {
-            {RCP_DEVCLASS_MOTOR,               {{"Speed (rpm)"},                                                 {{0, "{}"}}}},
-            {RCP_DEVCLASS_AM_PRESSURE,         {{"Pressure (mbars)"},                                            {{0, "{}"}}}},
-            {RCP_DEVCLASS_TEMPERATURE,         {{"Temperature (Celsius)"},                                       {{0, "{}"}}}},
-            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure (psi)"},                                              {{0, "{}"}}}},
-            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Humidity (Relative %)"},                                       {{0, "{}"}}}},
-            {RCP_DEVCLASS_FLOW_METER,          {{"Flow Rate (GPM)"},                                             {{0, "{}"}}}},
-            {RCP_DEVCLASS_LOAD_CELL,           {{"Mass (kg)"},                                                   {{0, "{}"}}}},
-            {RCP_DEVCLASS_POWERMON,            {{"Voltage", "Power (W)"},                                        {{0, "{} Voltage"},  {1, "{} Power"}}}},
-            {RCP_DEVCLASS_ACCELEROMETER,       {{"Acceleration (m/s/s)"},                                        {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
-            {RCP_DEVCLASS_GYROSCOPE,           {{"Rotation (deg/s)"},                                            {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
-            {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetic Field (Gauss)"},                                      {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
-            {RCP_DEVCLASS_GPS,                 {{"Latitude", "Longitude", "Altitude (m)", "Ground Speed (m/s)"}, {{0, "{} Latitude"}, {1, "{} Longitude"}, {2, "{} Altitude"}, {3, "{} Ground Speed"}}}}
+            {RCP_DEVCLASS_MOTOR,               {{"Speed (rpm)"},                                                          {{0, "{}"}}}},
+            {RCP_DEVCLASS_AM_PRESSURE,         {{"Pressure (mbars)"},                                                     {{0, "{}"}}}},
+            {RCP_DEVCLASS_TEMPERATURE,         {{"Temperature (Celsius)"},                                                {{0, "{}"}}}},
+            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{"Pressure (psi)"},                                                       {{0, "{}"}}}},
+            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{"Humidity (Relative %)"},                                                {{0, "{}"}}}},
+            {RCP_DEVCLASS_FLOW_METER,          {{"Flow Rate (GPM)"},                                                      {{0, "{}"}}}},
+            {RCP_DEVCLASS_LOAD_CELL,           {{"Mass (kg)"},                                                            {{0, "{}"}}}},
+            {RCP_DEVCLASS_ALTITUDE,            {{"Altitude (m)"},                                                         {{0, "{}"}}}},
+            {RCP_DEVCLASS_RADIO_STRENGTH,      {{"RSSI (dBm)"},                                                           {{0, "{}"}}}},
+            {RCP_DEVCLASS_POWERMON,            {{"Voltage", "Power (W)"},                                              {{0, "{} Voltage"},  {1, "{} Power"}}}},
+            {RCP_DEVCLASS_ACCELEROMETER,       {{"Acceleration (m/s/s)"},                                                 {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
+            {RCP_DEVCLASS_GYROSCOPE,           {{"Rotation (deg/s)"},                                                     {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
+            {RCP_DEVCLASS_MAGNETOMETER,        {{"Magnetic Field (Gauss)"},                                               {{0, "{} X"},        {0, "{} Y"},         {0, "{} Z"}}}},
+            {RCP_DEVCLASS_RPY,                 {{"Orientation (degrees)"},                                                {{0, "{} Roll"},     {0, "{} Pitch"},     {0, "{} Yaw"}}}},
+            {RCP_DEVCLASS_GPS,                 {{"Latitude", "Longitude", "Altitude (m)", "Ground Speed (m/s)"}, {{0, "{} Latitude"}, {1, "{} Longitude"}, {2, "{} Altitude"}, {3, "{} Ground Speed"}}}},
+            {RCP_DEVCLASS_QUATERNION,          {{"Q"},                                                                    {{0, "{} W"}, {0, "{} X"}, {0, "{} Y"}, {0, "{} Z"}}}},
         };
         // clang-format on
     } // namespace
