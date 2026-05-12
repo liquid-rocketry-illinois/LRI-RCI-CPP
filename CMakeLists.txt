@@ -81,11 +81,13 @@ add_executable(LRI_control_panel
         src/UI/TopBar.cpp
         src/UI/PacketBuilder.cpp
         src/UI/TargetConnect.cpp
+#        src/UI/AbridgedSensorInfo.cpp
 #        src/UI/AngledActuatorViewer.cpp
 #        src/UI/BoolSensorViewer.cpp
 #        src/UI/EStopViewer.cpp
 #        src/UI/ErrorWindow.cpp
 #        src/UI/MotorViewer.cpp
+#        src/UI/MultiSensorViewer.cpp
 #        src/UI/PromptViewer.cpp
 #        src/UI/RawViewer.cpp
 #        src/UI/SensorViewer.cpp

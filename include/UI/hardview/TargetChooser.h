@@ -106,9 +106,6 @@ namespace LRI::RCI {
         std::string configName;
         std::string interfName;
 
-        // The rate to call RCP_poll()
-        int pollingRate;
-
         // A vector to store a list of paths to target files
         std::vector<std::filesystem::path> targetpaths;
 
@@ -127,6 +124,8 @@ namespace LRI::RCI {
 
         // If there is currently an active configuration
         bool activeTarget;
+
+        bool hasEnabledViewports;
 
         explicit TargetChooser(ControlWindowlet* control);
         ~TargetChooser() override;

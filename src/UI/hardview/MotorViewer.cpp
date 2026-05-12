@@ -19,7 +19,7 @@ namespace LRI::RCI {
         ImGui::PushID("MotorViewer");
         ImGui::PushID(classid);
 
-        bool lockButtons = buttonTimer.timeSince() > BUTTON_DELAY;
+        bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
 
         if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
 
@@ -40,27 +40,28 @@ namespace LRI::RCI {
 
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = motor->stale ? STALE_COLOR : ENABLED_COLOR;
-            const char* tooltip = motor->stale ? "Stale Data" : "Current Data";
+            ImU32 statusColor = motor->empty() ? STALE_COLOR : ENABLED_COLOR;
+            const char* tooltip = motor->empty() ? "Stale Data" : "Current Data";
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
             ImGui::SameLine();
 
             ImGui::Text("Motor %s (%d)", id.name.c_str(), id.id);
-            ImGui::Text("Current Reported Speed: %f", motor->value);
+            if(!motor->empty()) ImGui::Text("Current Reported Speed: %f", motor->at(motor->size() - 1));
+            else ImGui::Text("Current Reported Speed: % 6.1f", 0);
             ImGui::Text("Set value: ");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(scale(75));
             ImGui::InputFloat("##motorinput", &inputs[id]);
             ImGui::SameLine();
 
-            if(lockButtons || motor->stale) ImGui::BeginDisabled();
+            if(lockButtons || motor->empty()) ImGui::BeginDisabled();
             if(ImGui::Button("Set")) {
                 Motors::setState(id, inputs[id]);
                 buttonTimer.reset();
             }
-            if(lockButtons || motor->stale) ImGui::EndDisabled();
+            if(lockButtons || motor->empty()) ImGui::EndDisabled();
 
             ImGui::NewLine();
             ImGui::Separator();

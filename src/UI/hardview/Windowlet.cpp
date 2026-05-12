@@ -70,7 +70,7 @@ namespace LRI::RCI {
 
         size_t size = modules.size() - 1;
         size_t i = 0;
-        if(ImGui::Begin(title.c_str(), nullptr, ImGuiWindowFlags_NoDocking))
+        if(ImGui::Begin(title.c_str()))
             for(auto* mod : modules) {
                 mod->render();
                 if(i++ != size) ImGui::Separator();
