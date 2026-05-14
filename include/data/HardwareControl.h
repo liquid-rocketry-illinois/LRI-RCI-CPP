@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 
-#include "EventLog.h"
+// #include "EventLog.h"
 #include "HardwareQualifier.h"
 
 #include "interfaces/RCP_Interface.h"
@@ -49,8 +49,6 @@ namespace LRI::RCI {
         bool isOpen();
 
         void requestRefresh(const HardwareQualifier& qual);
-        [[nodiscard]] FloatData getFloatData(const HardwareChannel& ch);
-        [[nodiscard]] BoolData getBoolData(const HardwareChannel& ch);
     } // namespace HWCTRL
 
     namespace AngledActuator {

@@ -23,6 +23,8 @@ operations. The channel is ignored.
 */
 namespace LRI::RCI {
     struct HardwareQualifier {
+        virtual ~HardwareQualifier() = default;
+
         RCP_DeviceClass devclass;
         uint8_t id = 0;
         std::string name;
@@ -42,21 +44,22 @@ namespace LRI::RCI {
         }
     };
 
-    struct HardwareChannel {
-        HardwareQualifier qual;
+    struct HardwareChannel : HardwareQualifier {
+        ~HardwareChannel() override = default;
+
         uint8_t channel = 0;
 
         HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
-            qual(devclass, id), channel(channel) {}
-        HardwareChannel(HardwareQualifier  qual, uint8_t channel) : qual(std::move(qual)), channel(channel) {}
+            HardwareQualifier(devclass, id), channel(channel) {}
+        HardwareChannel(HardwareQualifier  qual, uint8_t channel) : HardwareQualifier(std::move(qual)), channel(channel) {}
 
         // Used for ordering
         auto operator<=>(const HardwareChannel& rhf) const {
-            return std::tie(qual, channel) <=> std::tie(rhf.qual, rhf.channel);
+            return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
         }
 
         [[nodiscard]] std::string asString() const {
-            return std::format("{}-{}", qual.asString(), channel);
+            return std::format("{}-{}", HardwareQualifier::asString(), channel);
         }
     };
 } // namespace LRI::RCI

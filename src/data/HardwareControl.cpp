@@ -1,6 +1,7 @@
 #include "data/HardwareControl.h"
 
 #include "RCP_Host/RCP_Host.h"
+#include "data/EventLog.h"
 
 namespace LRI::RCI {
     // namespace AngledActuator {
@@ -8,6 +9,10 @@ namespace LRI::RCI {
     //         std::map<HardwareQualifier,
     //     }
     // }
+
+    namespace TestState {
+        bool getInited() { return false; }
+    }
 
     namespace HWCTRL {
         namespace {
@@ -69,7 +74,7 @@ namespace LRI::RCI {
                     ErrorType type = ErrorType::GENERAL_RCP;
                     if(rc == RCP_ERR_IO_RCV || rc == RCP_ERR_IO_SEND) type = ErrorType::RCP_STREAM;
                     errors.emplace_back(type, RCP_errstr(rc));
-                    log.addError(type, RCP_errstr(rc));
+                    // log.addError(type, RCP_errstr(rc));
                     pause();
                 }
             }
@@ -93,36 +98,36 @@ namespace LRI::RCI {
             if(res == RCP_ERR_INVALID_DEVCLASS) {
                 Error err = {ErrorType::HW_INVALID, qual};
                 errors.emplace_back(err);
-                log.addError(err);
+                // log.addError(err);
             }
 
             else if(res == RCP_ERR_IO_SEND) {
                 Error err = {ErrorType::RCP_STREAM, "Stream error on refresh request"};
                 errors.emplace_back(err);
-                log.addError(err);
+                // log.addError(err);
             }
         }
 
         FloatData getFloatData(const HardwareChannel& ch) {
-            if(!hwconfig.contains(ch.qual)) {
-                Error err{ErrorType::HWNE_HOST, ch.qual};
-                log.addError(err);
+            if(!hwconfig.contains(ch)) {
+                Error err{ErrorType::HWNE_HOST, ch};
+                // log.addError(err);
                 errors.emplace_back(err);
                 return {};
             }
 
-            return {&log.getSensorTimestamps().at(ch.qual), &log.getFloats().at(ch)};
+            return {&log.getSensorTimestamps().at(ch), &log.getFloats().at(ch)};
         }
 
         BoolData getBoolData(const HardwareChannel& ch) {
-            if(!hwconfig.contains(ch.qual)) {
-                Error err{ErrorType::HWNE_HOST, ch.qual};
-                log.addError(err);
+            if(!hwconfig.contains(ch)) {
+                Error err{ErrorType::HWNE_HOST, ch};
+                // log.addError(err);
                 errors.emplace_back(err);
                 return {};
             }
 
-            return {&log.getSensorTimestamps().at(ch.qual), &log.getBools().at(ch)};
+            return {&log.getSensorTimestamps().at(ch), &log.getBools().at(ch)};
         }
     } // namespace HWCTRL
 } // namespace LRI::RCI

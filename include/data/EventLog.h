@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "HardwareQualifier.h"
 #include "HardwareControl.h"
+#include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
