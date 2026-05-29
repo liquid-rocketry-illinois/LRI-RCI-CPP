@@ -7,18 +7,16 @@ The LRI Rocket Control Interface (RCI) is a graphical program for interacting wi
 built by members of the Liquid Rocketry at Illinois RSO. It provides a simple UI for viewing sensor outputs, manual
 control of actuators, and running automated tests.
 
-RCI currently _only_ supports Windows targets, however the program is portable and does not require any addition
-installation beyond downloading the executable. Prebuilt binaries can be downloaded from this Github page under the
-releases section (`LRIRCI.exe`), or a full environment that also contains the target configuration files (`env.zip`).
+RCI currently _only_ supports Windows targets. To install, go to the releases section on the right side of this page,
+and download/install the `.msi` file in the assets section.
 
-![Digital Tripper Example](./assets/dt_example.png)
-_Example showing some graphed data_
+![Digital Tripper Example](./assets/rande_example.png)
 
-![Test Stand Example](./assets/ts_example.png)
-_Example showing the solenoid control window_
+![Test Stand Example](./assets/ea_example.png)
+
 ## Usage
 
-After downloading and running the executable, select the desired target configuration and interface from the
+After downloading and installing, select the desired target configuration and interface from the
 dropdowns in the `Target Settings` window. On a successful interface creation, the UI will automatically be
 populated with controls for the actuators and sensors defined in the target configuration.
 
@@ -31,47 +29,21 @@ regardless of their configuration.
 
 RCI is written in C++ 23, and requires all libraries submoduled in `libs/` to be cloned in order to build. No other
 libraries or environment is necessary, besides a recent enough version of CMake. RCI is intended to be built with
-MSVC, as the CMake file specifies the MSVC specific static linking options to statically link the c++ standard
-library to ensure the program's portability. No other libraries or environments are needed to build.
+MSVC.
 
 ### Other Development Files
 
-Inside `testbench/testbench.ino` is a simple arduino sketch for testing various components. It tests the stepper
-motor and solenoid controls, as well as the ambient temperature sensor (its really just for me). In addition, one of
-the interfaces available in the target settings is the `Virtual Port`. This interface only contains stubs for the
-various functions used by [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host), and is used so that the UI
-can be populated without having a target to test with. This interface is not intended to be used for regular usage,
-and will soon be moved to be built only for debug targets.
+For an example RCP target implementation, see the
+[Target Library](https://github.com/liquid-rocketry-illinois/RCP-Target). For the RCP specification, see
+the [Host Library](https://github.com/liquid-rocketry-illinois/RCP-Host/). For more implementation examples, see the 
+[RANDE Implementation](https://github.com/liquid-rocketry-illinois/RCP-Host/).
+
+The virtual port in the target settings can also be used to load the UI without actually connecting to a target.
 
 In addition, a short Github release automation script is present in `GithubRelease.sh`. This is not intended to be
 used by anyone but the maintainer (Jacob Baumel), and was only created because he was tired of manually uploading
 releases. It is not intended to be run manually, but rather as a part of CMake, where it is defined as a CMake
 target in order to ensure builds are prepared before it's execution. It requires both a bash environment (i.e. MSYS,
 Git for Windows, etc.) and Github CLI to be installed in order to use. It will tag the latest commit with the
-entered version number, create env.zip, prompt for release notes, and upload everything (release notes, binaries
-including `LRIRCI.exe` and `env.zip`) as a new release. Again, not intended for other people.
-
-## TODO list
-
-Although the program is in a mostly complete state, there are a few things left to work on:
-
-- [ ] Fix PCA9534 arduino initialization thingy
-- [ ] TCP Interface (IN PROGRESS)
-- [ ] Proper DPI scaling (right now everything only looks nice on 2880x1800)
-- [ ] Manual confirms and numeric input over RCP
-- [ ] Test mode lockout of actuators
-- [ ] Better error and heartbeat handling
-- [ ] Serial disconnects
-- [ ] Switch out glfw for sfml (dpi makes me sad)
-- [ ] Some final fixes to RCP
-- [ ] Fix whatever is going on with the button delay
-- [ ] Nicer UI styling and executable icon
-- [ ] Linux support
-- [ ] Fancy emergency stop button :)
-
-- [x] Readmes for the other related projects ([Test Stand](https://github.com/liquid-rocketry-illinois/test-stand-sw),
-  [RCP](https://github.com/liquid-rocketry-illinois/RCP-Host))
-- [x] Full screen graphs and better scaling for non-fullscreen graphs
-- [x] Fix ringbuffer
-- [x] Show latest sensor readings as text
-- [x] Fix having to press estop twice to trigger it
+entered version number, create the release assets, prompt for release notes, and upload everything (release notes,
+binaries including `LRIRCI.exe` and the installer MSI) as a new release. Again, not intended for other people.
