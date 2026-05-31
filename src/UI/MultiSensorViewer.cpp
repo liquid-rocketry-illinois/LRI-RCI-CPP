@@ -132,9 +132,9 @@ namespace LRI::RCI {
         ImGui::PushID(classid);
 
         // Get the drawlist, and calculate the size of the plots
-        const float xsize = ImGui::GetWindowWidth() - scale(50);
+        const float xsize = ImGui::GetWindowWidth() - scale(25);
         const auto plotsize =
-            ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(75)));
+            ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(25)));
 
         for(size_t index = 0; index < channels.size(); index++) {
             ImGui::PushID(titles.at(index).c_str());
