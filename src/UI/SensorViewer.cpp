@@ -73,10 +73,12 @@ namespace LRI::RCI {
         for(const auto& [qual, data] : sensors) {
             ImGui::PushID(qual.asString().c_str());
 
-            // Put them all in the little dropdown things
-            if(!ImGui::TreeNode(qual.name.c_str())) {
-                ImGui::PopID();
-                continue;
+            if(sensors.size() > 1) {
+                // Put them all in the little dropdown things
+                if(!ImGui::TreeNode(qual.name.c_str())) {
+                    ImGui::PopID();
+                    continue;
+                }
             }
 
             if(showControls) {
@@ -147,8 +149,10 @@ namespace LRI::RCI {
             // Render the graph itself
             renderGraphs(qual, data, plotsize);
 
-            ImGui::Separator();
-            ImGui::TreePop();
+            if(sensors.size() > 1) {
+                ImGui::Separator();
+                ImGui::TreePop();
+            }
 
             ImGui::PopID();
         }
