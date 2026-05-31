@@ -1,5 +1,5 @@
 {
-  "name": "Electric Angel",
+  "name": "HAL",
   "tests": [],
   "devices": [
     {
@@ -19,8 +19,8 @@
     },
     {
       "devclass": 152,
-      "ids": [0],
-      "names": ["Radio Strength"]
+      "ids": [0, 1],
+      "names": ["Radio Strength (Rocket)", "Radio Strength (Ground Station)"]
     },
     {
       "devclass": 176,
@@ -102,7 +102,7 @@
       ]
     },
     {
-      "title": "Detailed Sensor Info",
+      "title": "Sensor Controls",
       "modules": [
         {
           "type": 151,
@@ -114,7 +114,11 @@
               "ids": [0]
             },
             {
-              "class": 152,
+              "class": 192,
+              "ids": [0]
+            },
+            {
+              "class": 179,
               "ids": [0]
             },
             {
@@ -126,24 +130,85 @@
               "ids": [0]
             },
             {
-              "class": 178,
-              "ids": [0]
-            },
-            {
-              "class": 179,
-              "ids": [0]
-            },
-            {
-              "class": 192,
-              "ids": [0]
-            },
-            {
               "class": 193,
               "ids": [0]
             },
             {
+              "class": 178,
+              "ids": [0]
+            },
+            {
+              "class": 152,
+              "ids": [0, 1]
+            },
+            {
               "class": 4,
               "ids": [0, 1]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Important Info - Orientation",
+      "modules": [
+        {
+          "type": 179,
+          "mode": "classic",
+          "showControls": false,
+          "ids": [
+            {
+              "class": 179,
+              "ids": [0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Important Info - GPS",
+      "modules": [
+        {
+          "type": 192,
+          "mode": "classic",
+          "showControls": false,
+          "ids": [
+            {
+              "class": 192,
+              "ids": [0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Important Info - Altitude",
+      "modules": [
+        {
+          "type": 151,
+          "mode": "classic",
+          "showControls": false,
+          "ids": [
+            {
+              "class": 151,
+              "ids": [0]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Important Info - RSSI",
+      "modules": [
+        {
+          "type": 152,
+          "mode": "multi",
+          "ids": [
+            {
+              "title": "Signal Strength",
+              "class": 152,
+              "ids": [0, 1],
+              "channel": 0
             }
           ]
         }
