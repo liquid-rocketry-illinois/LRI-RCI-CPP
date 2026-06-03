@@ -29,17 +29,17 @@ namespace LRI::RCI {
         uint8_t id = 0;
         std::string name;
 
-        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string name) :
+        constexpr HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string name) :
             devclass(devclass), id(id), name(std::move(name)) {}
-        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
+        constexpr HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
 
         // Used for ordering
-        auto operator<=>(const HardwareQualifier& rhf) const {
+        constexpr auto operator<=>(const HardwareQualifier& rhf) const {
             return std::tie(devclass, id) <=> std::tie(rhf.devclass, rhf.id);
         }
 
         // Helper for packing data as a string. Not for display, use the name field instead
-        [[nodiscard]] std::string asString() const {
+        [[nodiscard]] constexpr virtual std::string asString() const {
             return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name);
         }
     };
@@ -49,19 +49,39 @@ namespace LRI::RCI {
 
         uint8_t channel = 0;
 
-        HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
+        constexpr HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
             HardwareQualifier(devclass, id), channel(channel) {}
-        HardwareChannel(HardwareQualifier  qual, uint8_t channel) : HardwareQualifier(std::move(qual)), channel(channel) {}
+        constexpr HardwareChannel(const HardwareQualifier& qual, uint8_t channel = 0) :
+            HardwareQualifier(qual), channel(channel) {}
 
         // Used for ordering
-        auto operator<=>(const HardwareChannel& rhf) const {
+        constexpr auto operator<=>(const HardwareChannel& rhf) const {
             return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
         }
 
-        [[nodiscard]] std::string asString() const {
+        [[nodiscard]] constexpr std::string asString() const override {
             return std::format("{}-{}", HardwareQualifier::asString(), channel);
         }
     };
+
+    namespace TestStateChannels {
+        enum Channels : uint8_t {
+            T_INITED = 0,
+            T_DSTREAM = 1,
+            T_HEARTBEAT_TIME = 2,
+            T_TEST_RUN_STATE = 3,
+            T_RUNNING_TEST = 4,
+            T_TEST_PROGRESS = 5,
+
+            H_HEARTBEAT = 0,
+            H_DSTREAM = 1,
+            H_HEARTBEAT_TIME = 2,
+            H_TEST_RUN_STATE = 3,
+            H_TEST_ID = 4,
+            H_TIME_RESET = 5,
+            H_DEV_RESET = 6
+        };
+    }
 } // namespace LRI::RCI
 
 #endif // HARDWAREQUALIFIER_H

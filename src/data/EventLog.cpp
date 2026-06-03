@@ -1,157 +1,266 @@
 #include "data/EventLog.h"
 
-#include <unordered_set>
 #include <vector>
 
 #include "utils.h"
 
 namespace LRI::RCI {
     namespace {
-        const std::unordered_set READ_ONLY = {
-            RCP_DEVCLASS_AM_PRESSURE,
-            RCP_DEVCLASS_TEMPERATURE,
-            RCP_DEVCLASS_PRESSURE_TRANSDUCER,
-            RCP_DEVCLASS_RELATIVE_HYGROMETER,
-            RCP_DEVCLASS_LOAD_CELL,
-            RCP_DEVCLASS_BOOL_SENSOR,
-            RCP_DEVCLASS_POWERMON,
-            RCP_DEVCLASS_ACCELEROMETER,
-            RCP_DEVCLASS_GYROSCOPE,
-            RCP_DEVCLASS_MAGNETOMETER,
-            RCP_DEVCLASS_GPS,
-        };
-
-        const std::unordered_set f1_DEVS = {RCP_DEVCLASS_ANGLED_ACTUATOR, RCP_DEVCLASS_TEMPERATURE,
-                                            RCP_DEVCLASS_PRESSURE_TRANSDUCER, RCP_DEVCLASS_RELATIVE_HYGROMETER,
-                                            RCP_DEVCLASS_LOAD_CELL};
-
-        const std::unordered_set f2_DEVS = {RCP_DEVCLASS_STEPPER, RCP_DEVCLASS_POWERMON};
-
-        const std::unordered_set f3_DEVS = {RCP_DEVCLASS_ACCELEROMETER, RCP_DEVCLASS_GYROSCOPE,
-                                            RCP_DEVCLASS_MAGNETOMETER};
-
-        const std::unordered_set f4_DEVS = {RCP_DEVCLASS_GPS};
-
         constexpr size_t DATA_VEC_INIT_SIZE = 5000;
         constexpr size_t ACT_VEC_INIT_SIZE = 25;
 
+        constexpr HardwareChannel TEST_STATE{RCP_DEVCLASS_TEST_STATE, 0, 0};
+        constexpr HardwareQualifier TARGET_LOG{RCP_DEVCLASS_TARGET_LOG, 0};
+        constexpr HardwareChannel PROMPT{RCP_DEVCLASS_PROMPT, 0, 0};
     } // namespace
 
-    void EventLog::createDevice(const HardwareQualifier& qual) {
-        HardwareChannel ch = {qual, 0};
+    namespace TestStateChannels {
+        // Oh man if only there was some kind of reflective introspection system...
+        constexpr Channels ALL_TCH[] = {
+            T_INITED, T_DSTREAM, T_HEARTBEAT_TIME, T_TEST_RUN_STATE, T_RUNNING_TEST, T_TEST_PROGRESS,
+        };
 
-        if(f1_DEVS.contains(qual.devclass)) target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-        else if(f2_DEVS.contains(qual.devclass)) {
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 1;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+        constexpr Channels ALL_HCH[] = {
+            H_HEARTBEAT, H_DSTREAM, H_HEARTBEAT_TIME, H_TEST_RUN_STATE, H_TEST_ID, H_TIME_RESET, H_DEV_RESET,
+        };
+
+        constexpr HardwareChannel HEARTBEAT{TEST_STATE, H_HEARTBEAT};
+        constexpr HardwareChannel DSTREAM{TEST_STATE, H_DSTREAM};
+        constexpr HardwareChannel HBTIME{TEST_STATE, H_HEARTBEAT_TIME};
+        constexpr HardwareChannel RUNSTATE{TEST_STATE, H_TEST_RUN_STATE};
+        constexpr HardwareChannel TESTID{TEST_STATE, H_TEST_ID};
+        constexpr HardwareChannel TIMERST{TEST_STATE, H_TIME_RESET};
+        constexpr HardwareChannel DEVRST{TEST_STATE, H_DEV_RESET};
+
+        const std::map<Channels, uint8_t (*)(const RCP_TestData&)> CHANNEL_GETTERS = {
+            {T_INITED, [](const RCP_TestData& d) -> uint8_t { return d.isInited; }},
+            {T_DSTREAM, [](const RCP_TestData& d) -> uint8_t { return d.dataStreaming; }},
+            {T_HEARTBEAT_TIME, [](const RCP_TestData& d) -> uint8_t { return d.heartbeatTime; }},
+            {T_TEST_RUN_STATE, [](const RCP_TestData& d) -> uint8_t { return d.state; }},
+            {T_RUNNING_TEST, [](const RCP_TestData& d) -> uint8_t { return d.runningTest; }},
+            {T_TEST_PROGRESS, [](const RCP_TestData& d) -> uint8_t { return d.testProgress; }},
+        };
+    } // namespace TestStateChannels
+
+    EventLog::EventLog() {
+        HardwareChannel ch{TEST_STATE};
+
+        target.timestamps[TEST_STATE].reserve(DATA_VEC_INIT_SIZE);
+
+        for(constexpr auto c : TestStateChannels::ALL_TCH) {
+            ch.channel = c;
+            target.uints[ch].reserve(DATA_VEC_INIT_SIZE);
         }
-        else if(f3_DEVS.contains(qual.devclass)) {
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 1;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 2;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+
+        for(constexpr auto c : TestStateChannels::ALL_HCH) {
+            ch.channel = c;
+
+            // The test ID to run can be matched up to entries in the test state array, so it does not need seperate
+            // timestamps
+            if(c != TestStateChannels::H_TEST_ID) host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            // None of these have associated metadata
+            if(c == TestStateChannels::H_HEARTBEAT || c == TestStateChannels::H_DEV_RESET ||
+               c == TestStateChannels::H_TIME_RESET)
+                continue;
+            host.ctrl_uints[ch].reserve(ACT_VEC_INIT_SIZE);
         }
-        else if(f4_DEVS.contains(qual.devclass)) {
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 1;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 2;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            ch.channel = 3;
-            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-        }
+
+        host.acttimestamps[TARGET_LOG].reserve(ACT_VEC_INIT_SIZE);
+        host.strings[TARGET_LOG].reserve(ACT_VEC_INIT_SIZE);
+
+        // To store prompt request string
+        host.acttimestamps[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+        host.strings[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+        // To store prompt type
+        host.ctrl_uints[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+
+        // To store response information
+        host.ctrltimestamps[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+
+        // To store responses themselves
+        host.act_uints[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+        host.act_floats[PROMPT].reserve(ACT_VEC_INIT_SIZE);
+    }
+
+    void EventLog::createDevice(const HardwareQualifier& qual) {
+        HardwareChannel ch{qual, 0};
+
         switch(qual.devclass) {
         case RCP_DEVCLASS_SIMPLE_ACTUATOR:
-            host.sActWrites[qual.id].reserve(ACT_VEC_INIT_SIZE);
-            [[fallthrough]];
+        case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
+            // For data sent back
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+            target.uints[ch].reserve(DATA_VEC_INIT_SIZE);
 
-        case RCP_DEVCLASS_BOOL_SENSOR:
-            target.bools[ch].reserve(DATA_VEC_INIT_SIZE);
+            // For the control data
+            host.acttimestamps[qual].reserve(ACT_VEC_INIT_SIZE);
+            host.act_uints[qual].reserve(ACT_VEC_INIT_SIZE);
             break;
+        }
+
+        case RCP_DEVCLASS_STEPPER: {
+            // For the 2 floats sent back
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            ch.channel = 1;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+
+            // For the control mode and value sent as writes
+            host.acttimestamps[qual].reserve(ACT_VEC_INIT_SIZE);
+            host.act_floats[qual].reserve(ACT_VEC_INIT_SIZE);
+            host.act_uints[qual].reserve(ACT_VEC_INIT_SIZE);
+            break;
+        }
 
         case RCP_DEVCLASS_ANGLED_ACTUATOR:
-            host.aActWrites[qual.id].reserve(ACT_VEC_INIT_SIZE);
-            break;
+        case RCP_DEVCLASS_MOTOR: {
+            // For data sent back
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
 
-        case RCP_DEVCLASS_STEPPER:
-            host.stepperWrites[qual.id].reserve(ACT_VEC_INIT_SIZE);
+            // For the control data
+            host.acttimestamps[qual].reserve(ACT_VEC_INIT_SIZE);
+            host.act_floats[qual].reserve(ACT_VEC_INIT_SIZE);
             break;
+        }
 
-        case RCP_DEVCLASS_TEST_STATE:
-        case RCP_DEVCLASS_PROMPT:
-        case RCP_DEVCLASS_TARGET_LOG:
         case RCP_DEVCLASS_AM_PRESSURE:
         case RCP_DEVCLASS_TEMPERATURE:
         case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
         case RCP_DEVCLASS_RELATIVE_HYGROMETER:
         case RCP_DEVCLASS_LOAD_CELL:
-        case RCP_DEVCLASS_POWERMON:
+        case RCP_DEVCLASS_FLOW_METER:
+        case RCP_DEVCLASS_ALTITUDE:
+        case RCP_DEVCLASS_RADIO_STRENGTH: {
+            // For data sent back
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+        }
+
+        case RCP_DEVCLASS_BOOL_SENSOR: {
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+            target.uints[ch].reserve(DATA_VEC_INIT_SIZE);
+
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+            break;
+        }
+
+        case RCP_DEVCLASS_POWERMON: {
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 1;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            break;
+        }
+
         case RCP_DEVCLASS_ACCELEROMETER:
         case RCP_DEVCLASS_GYROSCOPE:
         case RCP_DEVCLASS_MAGNETOMETER:
-        case RCP_DEVCLASS_GPS:
-        case RCP_DEVCLASS_AMALGAMATE:
+        case RCP_DEVCLASS_RPY: {
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 1;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 2;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
             break;
+        }
+
+        case RCP_DEVCLASS_GPS:
+        case RCP_DEVCLASS_QUATERNION: {
+            target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
+
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 1;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 2;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            ch.channel = 3;
+            target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
+            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
+            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
+
+            break;
+        }
 
         default:
-#ifdef RCIDEBUG
-            throw std::runtime_error("Unaccounted devclass: " + devclassToString(qual.devclass));
-#else
-            break;
-#endif
+            // Amalgamate is not valid here
+            // Test state, target log, and prompts are already handled
         }
     }
 
     void EventLog::clear() {
-        target.testRunningState.clear();
-        target.misc.clear();
-        target.logs.clear();
-        target.prompts.clear();
         target.timestamps.clear();
         target.floats.clear();
-        target.bools.clear();
+        target.uints.clear();
 
-        host.testRunningState.clear();
-        host.misc.clear();
-        host.promptResponses.clear();
+        host.acttimestamps.clear();
+        host.strings.clear();
+        host.act_uints.clear();
+        host.act_floats.clear();
+        host.ctrltimestamps.clear();
+        host.tares.clear();
+        host.ctrl_uints.clear();
         host.readReqs.clear();
-        host.aActWrites.clear();
-        host.sActWrites.clear();
-        host.stepperWrites.clear();
     }
 
     void EventLog::addTestState(const RCP_TestData& td) {
-        target.misc[MiscEvents::DSTREAM].emplace_back(td.timestamp, static_cast<const bool&>(td.dataStreaming));
-        target.misc[MiscEvents::INITED].emplace_back(td.timestamp, static_cast<const bool&>(td.isInited));
-        target.testRunningState.emplace_back(td.timestamp, td.state);
-        if(td.state == RCP_TEST_RUNNING) {
-            target.misc[MiscEvents::TEST_START].emplace_back(td.timestamp, td.runningTest);
-            target.misc[MiscEvents::TEST_PROG].emplace_back(td.timestamp, td.testProgress);
+        target.timestamps[TEST_STATE].emplace_back(td.timestamp);
+        HardwareChannel ch{TEST_STATE, 0};
+
+        for(constexpr auto& c : TestStateChannels::ALL_TCH) {
+            ch.channel = c;
+            target.uints[ch].emplace_back(TestStateChannels::CHANNEL_GETTERS.at(c)(td));
         }
     }
 
-    void EventLog::addSimpleActuator(const RCP_SimpleActuatorData& sact) {
-        HardwareChannel ch = {RCP_DEVCLASS_SIMPLE_ACTUATOR, sact.ID, 0};
-        if(!target.bools.contains(ch)) return;
-        target.timestamps[ch].emplace_back(sact.timestamp);
-        target.bools[ch].emplace_back(sact.state == RCP_SIMPLE_ACTUATOR_ON);
-    }
-
-    void EventLog::addBoolData(const RCP_BoolData& bdata) {
-        HardwareChannel ch = {RCP_DEVCLASS_BOOL_SENSOR, bdata.ID, 0};
-        if(!target.bools.contains(ch)) return;
-        target.timestamps[ch].emplace_back(bdata.timestamp);
-        target.bools[ch].emplace_back(bdata.data);
+    void EventLog::addPromptRequest(const RCP_PromptInputRequest& preq) {
+        host.acttimestamps[PROMPT].emplace_back();
+        if(preq.type == RCP_PromptDataType_RESET) host.strings[PROMPT].emplace_back("RESET");
+        else host.strings[PROMPT].emplace_back(preq.prompt, preq.length);
     }
 
     void EventLog::addTargetLog(const RCP_TargetLogData& log) {
-        target.logs.emplace_back(log.timestamp, std::string(log.data, log.length));
+        host.acttimestamps[TARGET_LOG].emplace_back();
+        host.strings[TARGET_LOG].emplace_back(log.data, log.length);
     }
 
-    void EventLog::addPromptRequest(const RCP_PromptInputRequest& preq) {
-        target.prompts.emplace_back(0, PromptRequest{preq.type, std::string(preq.prompt, preq.length)});
+    void EventLog::addByteData(const RCP_ByteData& data) {
+        HardwareChannel ch = {data.devclass, data.ID, 0};
+        if(!target.uints.contains(ch)) return;
+        target.uints[ch].emplace_back(data.data);
+        target.timestamps[ch].emplace_back(data.timestamp);
     }
 
     void EventLog::add1F(const RCP_1F& f1) {
@@ -165,88 +274,213 @@ namespace LRI::RCI {
         HardwareChannel ch = {f2.devclass, f2.ID, 0};
         if(!target.floats.contains(ch)) return;
         target.timestamps[ch].emplace_back(f2.timestamp);
-        for(uint8_t channel = 0; channel < 2; channel++) {
-            ch.channel = channel;
-            target.floats[ch].emplace_back(f2.data[channel]);
-        }
+        for(; ch.channel < 2; ch.channel++) target.floats[ch].emplace_back(f2.data[ch.channel]);
     }
 
     void EventLog::add3F(const RCP_3F& f3) {
         HardwareChannel ch = {f3.devclass, f3.ID, 0};
         if(!target.floats.contains(ch)) return;
         target.timestamps[ch].emplace_back(f3.timestamp);
-        for(uint8_t channel = 0; channel < 3; channel++) {
-            ch.channel = channel;
-            target.floats[ch].emplace_back(f3.data[channel]);
-        }
+        for(; ch.channel < 3; ch.channel++) target.floats[ch].emplace_back(f3.data[ch.channel]);
     }
 
     void EventLog::add4F(const RCP_4F& f4) {
         HardwareChannel ch = {f4.devclass, f4.ID, 0};
         if(!target.floats.contains(ch)) return;
         target.timestamps[ch].emplace_back(f4.timestamp);
-        for(uint8_t channel = 0; channel < 4; channel++) {
-            ch.channel = channel;
-            target.floats[ch].emplace_back(f4.data[channel]);
-        }
+        for(; ch.channel < 4; ch.channel++) target.floats[ch].emplace_back(f4.data[ch.channel]);
     }
+
+    using namespace TestStateChannels;
 
     void EventLog::addTestStart(uint8_t testnum) {
-        auto tp = std::chrono::system_clock::now();
-        host.testRunningState.emplace_back(tp, 0, RCP_TEST_RUNNING);
-        host.misc[MiscEvents::TEST_START].emplace_back(tp, 0, testnum);
+        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_START);
+        host.ctrl_uints[TESTID].emplace_back(testnum);
     }
 
-    void EventLog::addTestStop() { host.testRunningState.emplace_back(RCP_TEST_STOPPED); }
+    void EventLog::addTestStop() {
+        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_STOP);
+    }
 
-    void EventLog::addTestPauseUnpause() { host.testRunningState.emplace_back(RCP_TEST_PAUSED); }
+    void EventLog::addTestPauseUnpause() {
+        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_PAUSE);
+    }
 
-    void EventLog::addHeartbeatSet(uint8_t time) { host.misc[MiscEvents::HEARTBEAT_SET].emplace_back(time); }
+    void EventLog::addHeartbeatSet(uint8_t time) {
+        host.ctrltimestamps[HBTIME].emplace_back();
+        host.ctrl_uints[HBTIME].emplace_back(time);
+    }
 
-    void EventLog::addHeartbeat() { host.misc[MiscEvents::HEARTBEAT].emplace_back(0); }
+    void EventLog::addHeartbeat() { host.ctrltimestamps[HEARTBEAT].emplace_back(); }
 
-    void EventLog::addDStreamChange(bool streaming) { host.misc[MiscEvents::DSTREAM].emplace_back(streaming); }
+    void EventLog::addDStreamChange(bool streaming) {
+        host.ctrltimestamps[DSTREAM].emplace_back();
+        host.ctrl_uints[DSTREAM].emplace_back(streaming ? 1 : 0);
+    }
 
-    void EventLog::addESTOP() { host.testRunningState.emplace_back(RCP_TEST_ESTOP); }
+    void EventLog::addESTOP() {
+        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_ESTOP);
+    }
 
-    void EventLog::addHWRST() { host.misc[MiscEvents::HWRST].emplace_back(0); }
+    void EventLog::addHWRST() { host.ctrltimestamps[DEVRST].emplace_back(); }
 
-    void EventLog::addTMRST() { host.misc[MiscEvents::TMRST].emplace_back(0); }
+    void EventLog::addTMRST() { host.ctrltimestamps[TIMERST].emplace_back(); }
 
     void EventLog::addPromptResponse(float val) {
-        host.promptResponses.emplace_back(PromptResponse{.index = target.prompts.size() - 1, .fdata = val});
+        host.ctrltimestamps[PROMPT].emplace_back();
+        host.act_uints[PROMPT].emplace_back(0);
+        host.act_floats[PROMPT].emplace_back(val);
     }
 
     void EventLog::addPromptResponse(bool val) {
-        host.promptResponses.emplace_back(PromptResponse{.index = target.prompts.size() - 1, .bdata = val});
+        host.ctrltimestamps[PROMPT].emplace_back();
+        host.act_uints[PROMPT].emplace_back(val);
+        host.act_floats[PROMPT].emplace_back(0);
     }
 
     void EventLog::addAActWrite(uint8_t id, float val) {
-        if(!host.aActWrites.contains(id)) return;
-        host.aActWrites[id].emplace_back(val);
+        HardwareQualifier qual{RCP_DEVCLASS_ANGLED_ACTUATOR, id};
+        if(!host.act_floats.contains(qual)) return;
+        host.acttimestamps[qual].emplace_back();
+        host.act_floats[qual].emplace_back(val);
+    }
+
+    void EventLog::addMotorWrite(uint8_t id, float val) {
+        HardwareQualifier qual{RCP_DEVCLASS_MOTOR, id};
+        if(!host.act_floats.contains(qual)) return;
+        host.acttimestamps[qual].emplace_back();
+        host.act_floats[qual].emplace_back(val);
     }
 
     void EventLog::addStepperWrite(uint8_t id, RCP_StepperControlMode mode, float val) {
-        if(!host.stepperWrites.contains(id)) return;
-        host.stepperWrites[id].emplace_back(StepperWrite{mode, val});
+        HardwareQualifier qual{RCP_DEVCLASS_STEPPER, id};
+        if(!host.act_floats.contains(qual)) return;
+        host.acttimestamps[qual].emplace_back();
+        host.act_floats[qual].emplace_back(val);
+        host.act_uints[qual].emplace_back(mode);
     }
 
     void EventLog::addSActWrite(uint8_t id, RCP_SimpleActuatorState val) {
-        if(!host.sActWrites.contains(id)) return;
-        host.sActWrites[id].emplace_back(val == RCP_SIMPLE_ACTUATOR_ON);
+        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, id};
+        if(!host.act_uints.contains(qual)) return;
+        host.acttimestamps[qual].emplace_back();
+        host.act_uints[qual].emplace_back(val);
     }
 
-    void EventLog::addReadReq(const HardwareQualifier& qual) { host.readReqs.emplace_back(qual); }
+    void EventLog::addDActWrite(uint8_t id, uint8_t val) {
+        HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, id};
+        if(!host.act_uints.contains(qual)) return;
+        host.acttimestamps[qual].emplace_back();
+        host.act_uints[qual].emplace_back(val);
+    }
 
-    void EventLog::addError(const HWCTRL::Error& err) { host.errors.emplace_back(err); }
+    void EventLog::addReadReq(const HardwareQualifier& qual) { host.readReqs.emplace_back(getHostTime(), qual); }
+
+    void EventLog::addTare(const HardwareChannel& ch, float off) {
+        if(!host.tares.contains(ch)) return;
+        host.ctrltimestamps[ch].emplace_back();
+        host.tares[ch].emplace_back(off);
+    }
 
     void EventLog::addReceived(const void* data, size_t length) {
         const uint8_t* udata = static_cast<const uint8_t*>(data);
-        receivedBytes.insert(receivedBytes.end(), udata, udata + length);
+        rxbytes.insert(rxbytes.end(), udata, udata + length);
     }
 
     void EventLog::addSent(const void* data, size_t length) {
         const uint8_t* udata = static_cast<const uint8_t*>(data);
-        sentBytes.insert(sentBytes.end(), udata, udata + length);
+        txbytes.insert(txbytes.end(), udata, udata + length);
     }
+
+    // Getters
+    TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
+        HardwareChannel channel{TEST_STATE, ch};
+        if(!target.uints.contains(channel)) return {};
+        return std::make_tuple(&target.timestamps.at(TEST_STATE), &target.uints.at(channel));
+    }
+
+    HostString EventLog::getPromptRequests() const {
+        return std::make_tuple(&host.acttimestamps.at(PROMPT), &host.strings.at(PROMPT));
+    }
+
+    PromptResponse EventLog::getPromptResponses() const {
+        return std::make_tuple(&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT), &host.act_uints.at(PROMPT));
+    }
+
+    HostString EventLog::getLogs() const {
+        return std::make_tuple(&host.acttimestamps.at(TARGET_LOG), &host.strings.at(TARGET_LOG));
+    }
+
+    TargetUint EventLog::getChannelUintData(const HardwareChannel& ch) const {
+        if(!target.uints.contains(ch)) return {};
+        return std::make_tuple(&target.timestamps.at(ch), &target.uints.at(ch));
+    }
+
+    TargetFloat EventLog::getChannelFloatData(const HardwareChannel& ch) const {
+        if(!target.floats.contains(ch)) return {};
+        return std::make_tuple(&target.timestamps.at(ch), &target.floats.at(ch));
+    }
+
+    HostUint EventLog::getRequestedRunningStates() const {
+        return std::make_tuple(&host.ctrltimestamps.at(TEST_STATE), &host.ctrl_uints.at(TEST_STATE));
+    }
+
+    const UintList* EventLog::getRequestedTestStartIDs() const { return &host.ctrl_uints.at(TESTID); }
+
+    HostUint EventLog::getRequestedHeartbeatTimeSet() const {
+        return std::make_tuple(&host.ctrltimestamps.at(HBTIME), &host.ctrl_uints.at(HBTIME));
+    }
+
+    const TimePointList* EventLog::getHeartbeats() const { return &host.ctrltimestamps.at(HEARTBEAT); }
+
+    HostUint EventLog::getRequestedDStreams() const {
+        return std::make_tuple(&host.ctrltimestamps.at(DSTREAM), &host.ctrl_uints.at(DSTREAM));
+    }
+
+    const TimePointList* EventLog::getRequestedHWResets() const { return &host.ctrltimestamps.at(DEVRST); }
+    const TimePointList* EventLog::getRequestedTimeResets() const { return &host.ctrltimestamps.at(TIMERST); }
+
+    HostFloat EventLog::getRequestedAActWrites(uint8_t id) const {
+        HardwareQualifier qual{RCP_DEVCLASS_ANGLED_ACTUATOR, id};
+        if(!host.act_floats.contains(qual)) return {};
+        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_floats.at(qual));
+    }
+
+    HostFloat EventLog::getRequestedMotorWrites(uint8_t id) const {
+        HardwareQualifier qual{RCP_DEVCLASS_MOTOR, id};
+        if(!host.act_floats.contains(qual)) return {};
+        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_floats.at(qual));
+    }
+
+    StepperWritesList EventLog::getRequestedStepperWrites(uint8_t id) const {
+        HardwareQualifier qual{RCP_DEVCLASS_STEPPER, id};
+        if(!host.act_uints.contains(qual)) return {};
+        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual), &host.act_floats.at(qual));
+    }
+
+    HostUint EventLog::getRequestedSActWrites(uint8_t id) const {
+        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, id};
+        if(!host.act_uints.contains(qual)) return {};
+        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual));
+    }
+
+    HostUint EventLog::getRequestedDActWrites(uint8_t id) const {
+        HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, id};
+        if(!host.act_uints.contains(qual)) return {};
+        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual));
+    }
+
+    HostFloat EventLog::getRequestedTares(const HardwareChannel& ch) const {
+        if(!host.tares.contains(ch)) return {};
+        return std::make_tuple(&host.ctrltimestamps.at(ch), &host.tares.at(ch));
+    }
+
+    const ReadRequestsList* EventLog::getReadRequests() const { return &host.readReqs; }
+
+    const UintList* EventLog::getRXBytes() const { return &rxbytes; }
+    const UintList* EventLog::getTXBytes() const { return &txbytes; }
 } // namespace LRI::RCI

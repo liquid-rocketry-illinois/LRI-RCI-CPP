@@ -6,96 +6,74 @@
 #include <string>
 #include <vector>
 
-#include "HardwareControl.h"
 #include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
 
 namespace LRI::RCI {
-    struct TimePoint {
-        std::chrono::system_clock::time_point systime;
-        uint32_t targetMillis = 0;
+    using HostTime = std::chrono::system_clock::time_point;
+    using TargetTime = uint32_t;
+    constexpr auto& getHostTime = std::chrono::system_clock::now;
 
-        TimePoint(const std::chrono::system_clock::time_point& systime, uint32_t targetMillis) :
-            systime(systime), targetMillis(targetMillis) {}
 
-        explicit TimePoint(uint32_t targetMillis) : TimePoint(std::chrono::system_clock::now(), targetMillis) {}
+    struct CombinedTime {
+        TargetTime ttime;
+        HostTime htime;
+        explicit CombinedTime(TargetTime ttime, const HostTime& htime = getHostTime()) : ttime(ttime), htime(htime) {}
     };
 
-    template<typename T>
-    struct DataPoint {
-        TimePoint time;
-        T data;
+    using TargetFloat = std::tuple<const std::vector<CombinedTime>*, const std::vector<float>*>;
+    using TargetUint = std::tuple<const std::vector<CombinedTime>*, const std::vector<uint8_t>*>;
 
-        explicit DataPoint(const T& data) : DataPoint(0, data) {}
-
-        DataPoint(uint32_t targetMillis, const T& data) :
-            DataPoint(std::chrono::system_clock::now(), targetMillis, data) {}
-
-        DataPoint(const std::chrono::system_clock::time_point& systime, uint32_t targetMillis, const T& data) :
-            time(systime, targetMillis), data(data) {}
-    };
-
-    struct PromptRequest {
-        RCP_PromptDataType type;
-        std::string prompt;
-    };
-
-    struct PromptResponse {
-        size_t index;
-        union {
-            bool bdata;
-            float fdata;
-        };
-    };
-
-    struct StepperWrite {
-        RCP_StepperControlMode mode;
-        float value;
-    };
+    using HostString = std::tuple<const std::vector<HostTime>*, const std::vector<std::string>*>;
+    using HostUint = std::tuple<const std::vector<HostTime>*, const std::vector<uint8_t>*>;
+    using HostFloat = std::tuple<const std::vector<HostTime>*, const std::vector<float>*>;
+    using PromptResponse =
+        std::tuple<const std::vector<HostTime>*, const std::vector<float>*, const std::vector<uint8_t>*>;
+    using TimePointList = std::vector<HostTime>;
+    using StepperWritesList =
+        std::tuple<const std::vector<HostTime>*, const std::vector<uint8_t>*, const std::vector<float>*>;
+    using ReadRequestsList = std::vector<std::pair<HostTime, HardwareQualifier>>;
+    using UintList = std::vector<uint8_t>;
 
     class EventLog {
-        enum class MiscEvents { TEST_START, TEST_PROG, HEARTBEAT_SET, HEARTBEAT, INITED, DSTREAM, HWRST, TMRST };
-
         struct {
-            std::vector<DataPoint<RCP_TestRunningState>> testRunningState;
-            std::map<MiscEvents, std::vector<DataPoint<uint8_t>>> misc;
-            std::vector<DataPoint<std::string>> logs;
-            std::vector<DataPoint<PromptRequest>> prompts;
-
             // Timestamps are stored separately from the data channel data, since for up to 4 channels in one single
             // device, we would be storing the time information 4 separate times. Timepoints are associated to
             // datapoints based on array index, since all datapoints are added to along with the time point at the
             // same time
-            std::map<HardwareQualifier, std::vector<TimePoint>> timestamps;
+            std::map<HardwareQualifier, std::vector<CombinedTime>> timestamps;
             std::map<HardwareChannel, std::vector<float>> floats;
-            std::map<HardwareChannel, std::vector<bool>> bools;
+            std::map<HardwareChannel, std::vector<uint8_t>> uints;
         } target;
 
         struct {
-            std::vector<DataPoint<RCP_TestRunningState>> testRunningState;
-            std::map<MiscEvents, std::vector<DataPoint<uint8_t>>> misc;
-            std::vector<DataPoint<PromptResponse>> promptResponses;
-            std::vector<DataPoint<HardwareQualifier>> readReqs;
-            std::vector<DataPoint<HWCTRL::Error>> errors;
+            std::map<HardwareQualifier, std::vector<HostTime>> acttimestamps;
+            std::map<HardwareQualifier, std::vector<std::string>> strings; // For prompts and logs
+            std::map<HardwareQualifier, std::vector<uint8_t>> act_uints;
+            std::map<HardwareQualifier, std::vector<float>> act_floats;
 
-            std::map<uint8_t, std::vector<DataPoint<float>>> aActWrites;
-            std::map<uint8_t, std::vector<DataPoint<StepperWrite>>> stepperWrites;
-            std::map<uint8_t, std::vector<DataPoint<bool>>> sActWrites;
+            std::map<HardwareChannel, std::vector<HostTime>> ctrltimestamps;
+            std::map<HardwareChannel, std::vector<float>> tares;
+            std::map<HardwareChannel, std::vector<uint8_t>> ctrl_uints;
+
+            ReadRequestsList readReqs;
         } host;
 
-        std::vector<uint8_t> receivedBytes;
-        std::vector<uint8_t> sentBytes;
+        std::vector<uint8_t> rxbytes;
+        std::vector<uint8_t> txbytes;
 
     public:
+        EventLog();
+        ~EventLog() = default;
+
         void createDevice(const HardwareQualifier& qual);
         void clear();
 
         // Received from target
         void addTestState(const RCP_TestData& td);
-        void addSimpleActuator(const RCP_SimpleActuatorData& sact);
-        void addBoolData(const RCP_BoolData& bdata);
-        void addTargetLog(const RCP_TargetLogData& log);
         void addPromptRequest(const RCP_PromptInputRequest& preq);
+        void addTargetLog(const RCP_TargetLogData& log);
+        void addByteData(const RCP_ByteData& data);
         void add1F(const RCP_1F& f1);
         void add2F(const RCP_2F& f2);
         void add3F(const RCP_3F& f3);
@@ -111,52 +89,53 @@ namespace LRI::RCI {
         void addESTOP();
         void addHWRST();
         void addTMRST();
+
         void addPromptResponse(float val);
         void addPromptResponse(bool val);
+
         void addAActWrite(uint8_t id, float val);
+        void addMotorWrite(uint8_t id, float val);
         void addStepperWrite(uint8_t id, RCP_StepperControlMode mode, float val);
         void addSActWrite(uint8_t id, RCP_SimpleActuatorState val);
-        void addReadReq(const HardwareQualifier& qual);
-        void addError(const HWCTRL::Error& err);
+        void addDActWrite(uint8_t id, uint8_t val);
 
+        void addReadReq(const HardwareQualifier& qual);
+        void addTare(const HardwareChannel& ch, float off);
+
+        // Logs all raw RCP data sent and received for later inspection
         void addReceived(const void* data, size_t length);
         void addSent(const void* data, size_t length);
 
-        [[nodiscard]] const auto& getReportedTestStates() const { return target.testRunningState; }
-        [[nodiscard]] const auto& getReportedActiveTest() const { return target.misc.at(MiscEvents::TEST_START); }
-        [[nodiscard]] const auto& getReportedTestProgress() const { return target.misc.at(MiscEvents::TEST_PROG); }
-        [[nodiscard]] const auto& getReportedHeartbeatTimes() const {
-            return target.misc.at(MiscEvents::HEARTBEAT_SET);
-        }
-        [[nodiscard]] const auto& getReportedInited() const { return target.misc.at(MiscEvents::INITED); }
-        [[nodiscard]] const auto& getReportedDStreaming() const { return target.misc.at(MiscEvents::DSTREAM); }
-        [[nodiscard]] const auto& getLogs() const { return target.logs; }
-        [[nodiscard]] const auto& getPrompts() const { return target.prompts; }
-        [[nodiscard]] const auto& getSensorTimestamps() const { return target.timestamps; }
-        [[nodiscard]] const auto& getFloats() const { return target.floats; }
-        [[nodiscard]] const auto& getBools() const { return target.bools; }
+        // Getters
+        [[nodiscard]] TargetUint getReportedTestStateChannel(TestStateChannels::Channels ch);
 
-        [[nodiscard]] const auto& getRequestedTestStates() const { return host.testRunningState; }
-        [[nodiscard]] const auto& getRequestedActiveTest() const { return host.misc.at(MiscEvents::TEST_START); }
-        [[nodiscard]] const auto& getRequestedHeartbeatTime() const { return host.misc.at(MiscEvents::HEARTBEAT_SET); }
-        [[nodiscard]] const auto& getHeartbeats() const { return host.misc.at(MiscEvents::HEARTBEAT); }
-        [[nodiscard]] const auto& getRequestedDStream() const { return host.misc.at(MiscEvents::DSTREAM); }
-        [[nodiscard]] const auto& getHWRSTs() const { return host.misc.at(MiscEvents::HWRST); }
-        [[nodiscard]] const auto& getTMRSTs() const { return host.misc.at(MiscEvents::TMRST); }
-        [[nodiscard]] const auto& getPromptResponses() const { return host.promptResponses; }
-        [[nodiscard]] const auto& getReadRequests() const { return host.readReqs; }
-        [[nodiscard]] const auto& getRCPErrors() const { return host.errors; }
-        [[nodiscard]] const auto& getAActWrites() const { return host.aActWrites; }
-        [[nodiscard]] const auto& getStepperWrites() const { return host.stepperWrites; }
-        [[nodiscard]] const auto& getSActWrites() const { return host.sActWrites; }
+        [[nodiscard]] HostString getPromptRequests() const;
+        [[nodiscard]] PromptResponse getPromptResponses() const;
 
-        [[nodiscard]] const auto& getReceived() const { return receivedBytes; }
-        [[nodiscard]] const auto& getSent() const { return sentBytes; }
+        [[nodiscard]] HostString getLogs() const;
+
+        [[nodiscard]] TargetUint getChannelUintData(const HardwareChannel& ch) const;
+        [[nodiscard]] TargetFloat getChannelFloatData(const HardwareChannel& ch) const;
+
+        [[nodiscard]] HostUint getRequestedRunningStates() const;
+        [[nodiscard]] const UintList* getRequestedTestStartIDs() const;
+        [[nodiscard]] HostUint getRequestedHeartbeatTimeSet() const;
+        [[nodiscard]] const TimePointList* getHeartbeats() const;
+        [[nodiscard]] HostUint getRequestedDStreams() const;
+        [[nodiscard]] const TimePointList* getRequestedHWResets() const;
+        [[nodiscard]] const TimePointList* getRequestedTimeResets() const;
+        [[nodiscard]] HostFloat getRequestedAActWrites(uint8_t id) const;
+        [[nodiscard]] HostFloat getRequestedMotorWrites(uint8_t id) const;
+        [[nodiscard]] StepperWritesList getRequestedStepperWrites(uint8_t id) const;
+        [[nodiscard]] HostUint getRequestedSActWrites(uint8_t id) const;
+        [[nodiscard]] HostUint getRequestedDActWrites(uint8_t id) const;
+        [[nodiscard]] HostFloat getRequestedTares(const HardwareChannel& ch) const;
+
+        [[nodiscard]] const ReadRequestsList* getReadRequests() const;
+
+        [[nodiscard]] const UintList* getRXBytes() const;
+        [[nodiscard]] const UintList* getTXBytes() const;
     };
-
-    using FloatData = std::tuple<const std::vector<TimePoint>*, const std::vector<float>*>;
-    using BoolData = std::tuple<const std::vector<TimePoint>*, const std::vector<bool>*>;
-
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_EVENTLOG_H
