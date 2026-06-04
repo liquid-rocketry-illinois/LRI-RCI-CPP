@@ -9,9 +9,9 @@ namespace LRI::RCI {
         constexpr size_t DATA_VEC_INIT_SIZE = 5000;
         constexpr size_t ACT_VEC_INIT_SIZE = 25;
 
-        constexpr HardwareChannel TEST_STATE{RCP_DEVCLASS_TEST_STATE, 0, 0};
-        constexpr HardwareQualifier TARGET_LOG{RCP_DEVCLASS_TARGET_LOG, 0};
-        constexpr HardwareChannel PROMPT{RCP_DEVCLASS_PROMPT, 0, 0};
+        const HardwareChannel TEST_STATE{RCP_DEVCLASS_TEST_STATE, 0, 0};
+        const HardwareQualifier TARGET_LOG{RCP_DEVCLASS_TARGET_LOG, 0};
+        const HardwareChannel PROMPT{RCP_DEVCLASS_PROMPT, 0, 0};
     } // namespace
 
     namespace TestStateChannels {
@@ -24,13 +24,13 @@ namespace LRI::RCI {
             H_HEARTBEAT, H_DSTREAM, H_HEARTBEAT_TIME, H_TEST_RUN_STATE, H_TEST_ID, H_TIME_RESET, H_DEV_RESET,
         };
 
-        constexpr HardwareChannel HEARTBEAT{TEST_STATE, H_HEARTBEAT};
-        constexpr HardwareChannel DSTREAM{TEST_STATE, H_DSTREAM};
-        constexpr HardwareChannel HBTIME{TEST_STATE, H_HEARTBEAT_TIME};
-        constexpr HardwareChannel RUNSTATE{TEST_STATE, H_TEST_RUN_STATE};
-        constexpr HardwareChannel TESTID{TEST_STATE, H_TEST_ID};
-        constexpr HardwareChannel TIMERST{TEST_STATE, H_TIME_RESET};
-        constexpr HardwareChannel DEVRST{TEST_STATE, H_DEV_RESET};
+        const HardwareChannel HEARTBEAT{TEST_STATE, H_HEARTBEAT};
+        const HardwareChannel DSTREAM{TEST_STATE, H_DSTREAM};
+        const HardwareChannel HBTIME{TEST_STATE, H_HEARTBEAT_TIME};
+        const HardwareChannel RUNSTATE{TEST_STATE, H_TEST_RUN_STATE};
+        const HardwareChannel TESTID{TEST_STATE, H_TEST_ID};
+        const HardwareChannel TIMERST{TEST_STATE, H_TIME_RESET};
+        const HardwareChannel DEVRST{TEST_STATE, H_DEV_RESET};
 
         const std::map<Channels, uint8_t (*)(const RCP_TestData&)> CHANNEL_GETTERS = {
             {T_INITED, [](const RCP_TestData& d) -> uint8_t { return d.isInited; }},
@@ -47,12 +47,12 @@ namespace LRI::RCI {
 
         target.timestamps[TEST_STATE].reserve(DATA_VEC_INIT_SIZE);
 
-        for(constexpr auto c : TestStateChannels::ALL_TCH) {
+        for(const auto c : TestStateChannels::ALL_TCH) {
             ch.channel = c;
             target.uints[ch].reserve(DATA_VEC_INIT_SIZE);
         }
 
-        for(constexpr auto c : TestStateChannels::ALL_HCH) {
+        for(const auto c : TestStateChannels::ALL_HCH) {
             ch.channel = c;
 
             // The test ID to run can be matched up to entries in the test state array, so it does not need seperate
@@ -214,7 +214,7 @@ namespace LRI::RCI {
             break;
         }
 
-        default:
+        default: {}
             // Amalgamate is not valid here
             // Test state, target log, and prompts are already handled
         }
@@ -239,7 +239,7 @@ namespace LRI::RCI {
         target.timestamps[TEST_STATE].emplace_back(td.timestamp);
         HardwareChannel ch{TEST_STATE, 0};
 
-        for(constexpr auto& c : TestStateChannels::ALL_TCH) {
+        for(const auto& c : TestStateChannels::ALL_TCH) {
             ch.channel = c;
             target.uints[ch].emplace_back(TestStateChannels::CHANNEL_GETTERS.at(c)(td));
         }
@@ -339,7 +339,7 @@ namespace LRI::RCI {
     void EventLog::addPromptResponse(bool val) {
         host.ctrltimestamps[PROMPT].emplace_back();
         host.act_uints[PROMPT].emplace_back(val);
-        host.act_floats[PROMPT].emplace_back(0);
+        host.act_floats[PROMPT].emplace_back(0.0f);
     }
 
     void EventLog::addAActWrite(uint8_t id, float val) {

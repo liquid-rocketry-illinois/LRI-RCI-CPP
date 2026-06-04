@@ -3,8 +3,9 @@
 
 #include <format>
 #include <string>
+#include <string_view>
 #include <utility>
-
+using namespace std::string_view_literals;
 #include "RCP_Host/RCP_Host.h"
 
 /*
@@ -27,19 +28,19 @@ namespace LRI::RCI {
 
         RCP_DeviceClass devclass;
         uint8_t id = 0;
-        std::string name;
+        std::string_view name;
 
-        constexpr HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string name) :
-            devclass(devclass), id(id), name(std::move(name)) {}
-        constexpr HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
+        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string_view name) :
+            devclass(devclass), id(id), name((name)) {}
+        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
 
         // Used for ordering
-        constexpr auto operator<=>(const HardwareQualifier& rhf) const {
+        auto operator<=>(const HardwareQualifier& rhf) const {
             return std::tie(devclass, id) <=> std::tie(rhf.devclass, rhf.id);
         }
 
         // Helper for packing data as a string. Not for display, use the name field instead
-        [[nodiscard]] constexpr virtual std::string asString() const {
+        [[nodiscard]] virtual std::string asString() const {
             return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name);
         }
     };
@@ -49,17 +50,17 @@ namespace LRI::RCI {
 
         uint8_t channel = 0;
 
-        constexpr HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
+        HardwareChannel(RCP_DeviceClass devclass, uint8_t id, uint8_t channel) :
             HardwareQualifier(devclass, id), channel(channel) {}
-        constexpr HardwareChannel(const HardwareQualifier& qual, uint8_t channel = 0) :
+        HardwareChannel(const HardwareQualifier& qual, uint8_t channel = 0) :
             HardwareQualifier(qual), channel(channel) {}
 
         // Used for ordering
-        constexpr auto operator<=>(const HardwareChannel& rhf) const {
+        auto operator<=>(const HardwareChannel& rhf) const {
             return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
         }
 
-        [[nodiscard]] constexpr std::string asString() const override {
+        [[nodiscard]] std::string asString() const override {
             return std::format("{}-{}", HardwareQualifier::asString(), channel);
         }
     };
