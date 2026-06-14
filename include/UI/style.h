@@ -41,6 +41,8 @@ namespace LRI::RCI {
     COLOR_CONSTANT(LGRAY_SEMITRANSPARENT, 0x88777777);
 
 #undef COLOR_CONSTANT
+
+    void setImGuiStyles();
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_STYLE_H

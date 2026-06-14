@@ -71,16 +71,16 @@ add_executable(LRI_control_panel
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp
 
         src/main.cpp
-        src/utils.cpp
-        src/improgress.cpp
-        src/rendering.cpp
+#        src/utils.cpp
+#        src/improgress.cpp
+#        src/rendering.cpp
 
         # UI Elements
-        src/UI/UIControl.cpp
-        src/UI/Sidebar.cpp
-        src/UI/TopBar.cpp
-        src/UI/PacketBuilder.cpp
-        src/UI/TargetConnect.cpp
+#        src/UI/UIControl.cpp
+#        src/UI/Sidebar.cpp
+#        src/UI/TopBar.cpp
+#        src/UI/PacketBuilder.cpp
+#        src/UI/TargetConnect.cpp
 #        src/UI/AbridgedSensorInfo.cpp
 #        src/UI/AngledActuatorViewer.cpp
 #        src/UI/BoolSensorViewer.cpp
@@ -98,13 +98,13 @@ add_executable(LRI_control_panel
 #        src/UI/Windowlet.cpp
 
         # Data handline
-        src/data/EventLog.cpp
-        src/data/HardwareControl.cpp
+#        src/data/EventLog.cpp
+#        src/data/HardwareControl.cpp
 
         # Interfaces
-        src/interfaces/IOInterface.cpp
-        src/interfaces/TCPSocket.cpp
-        src/interfaces/VirtualPort.cpp
+#        src/interfaces/IOInterface.cpp
+#        src/interfaces/TCPSocket.cpp
+#        src/interfaces/VirtualPort.cpp
 
 
         # Hardware classes
