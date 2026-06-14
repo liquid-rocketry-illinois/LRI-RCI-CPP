@@ -17,10 +17,10 @@
 #include "fontawesome.h"
 
 #include "EmbeddedResource.h"
+#include "UIold/UIControl.h"
+#include "UIold/style.h"
 #include "VERSION.h"
 #include "utils.h"
-#include "UI/UIControl.h"
-#include "UI/style.h"
 
 namespace LRI::RCI {
     static std::string VERSION_STRING;
