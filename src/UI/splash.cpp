@@ -2,7 +2,6 @@
 
 #include <print>
 
-#include "EmbeddedResource.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -20,7 +19,7 @@ namespace LRI::RCI {
         constexpr std::string_view SPLASH_NAME = "Rocket Control Interface";
     } // namespace
 
-    SplashWindow::SplashWindow() : window(nullptr), birdTex(0), startTime(std::chrono::system_clock::now()) {
+    SplashWindow::SplashWindow() : window(nullptr), startTime(std::chrono::system_clock::now()) {
         glfwDefaultWindowHints();
 
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
@@ -40,29 +39,8 @@ namespace LRI::RCI {
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
 
-        {
-            EmbeddedResource image("LRI_Logo.png");
-            GLFWimage gimage;
-            gimage.pixels = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(image.getData()),
-                                                  static_cast<int>(image.getLength()), &gimage.width, &gimage.height, nullptr, 4);
-            glfwSetWindowIcon(window, 1, &gimage);
-            stbi_image_free(gimage.pixels);
-        }
-
-        {
-            EmbeddedResource image("LRI_Logo_big.png");
-            int iw, ih;
-            unsigned char* idata = stbi_load_from_memory(reinterpret_cast<const unsigned char*>(image.getData()),
-                                                         static_cast<int>(image.getLength()), &iw, &ih, nullptr, 4);
-
-            glGenTextures(1, &birdTex);
-            glBindTexture(GL_TEXTURE_2D, birdTex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iw, ih, 0, GL_RGBA, GL_UNSIGNED_BYTE, idata);
-            stbi_image_free(idata);
-        }
+        style::setWindowIcon(window);
+        style::setupBirdIcon();
 
         HWND handle = glfwGetWin32Window(window);
         SetWindowLong(handle, GWL_EXSTYLE, WS_EX_PALETTEWINDOW);
@@ -72,7 +50,7 @@ namespace LRI::RCI {
         {
             float xs, ys;
             glfwGetMonitorContentScale(mon, &xs, &ys);
-            setScaleFactor((xs + ys) / 2);
+            style::setScaleFactor((xs + ys) / 2);
         }
 
         const GLFWvidmode* mode = glfwGetVideoMode(mon);
@@ -100,7 +78,7 @@ namespace LRI::RCI {
             int wX, wY;
             glfwGetWindowSize(window, &wX, &wY);
 
-            ImGui::GetForegroundDrawList()->AddImage(birdTex, {0, 0}, {wX, wY});
+            ImGui::GetForegroundDrawList()->AddImage(style::getBirdTex(), {0, 0}, {static_cast<float>(wX), static_cast<float>(wY)});
 
             ImGui::Render();
             glViewport(0, 0, wX, wY);
@@ -115,8 +93,7 @@ namespace LRI::RCI {
     }
 
     SplashWindow::~SplashWindow() {
-        glDeleteTextures(1, &birdTex);
-
+        style::cleanupBirdTex();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();

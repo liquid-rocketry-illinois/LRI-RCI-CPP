@@ -18,12 +18,12 @@
 #include "UI/splash.h"
 #include "UI/style.h"
 #include "system.h"
+#include "UI/window.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure
  */
 
-using namespace LRI::RCI;
 
 // A very small main function :)
 int main() {
@@ -36,8 +36,13 @@ int main() {
     LRI::RCI::detectRoamingFolder();
 
     {
-        SplashWindow splash;
+        LRI::RCI::SplashWindow splash;
         splash.loop();
+    }
+
+    {
+        LRI::RCI::Window window;
+        window.loop();
     }
 
     glfwTerminate();

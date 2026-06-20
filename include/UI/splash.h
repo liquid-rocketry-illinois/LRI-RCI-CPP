@@ -8,10 +8,9 @@
 
 namespace LRI::RCI {
     class SplashWindow {
-        static constexpr std::chrono::milliseconds TIME_OPEN{5000};
+        static constexpr std::chrono::milliseconds TIME_OPEN {RCIDEBUG ? 1000 : 5000};
         const std::chrono::system_clock::time_point startTime;
         GLFWwindow* window;
-        GLuint birdTex;
 
     public:
         SplashWindow();
