@@ -71,6 +71,9 @@ add_executable(LRI_control_panel
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp
 
         src/main.cpp
+        src/system.cpp
+        src/UI/style.cpp
+        src/UI/splash.cpp
 #        src/utils.cpp
 #        src/improgress.cpp
 #        src/rendering.cpp
@@ -121,7 +124,7 @@ add_executable(LRI_control_panel
         # (technically) Platform specific
         src/WindowsEmbeddedResource.cpp
         resources/resources.rc
-        src/interfaces/WindowsCOMPort.cpp
+#        src/interfaces/WindowsCOMPort.cpp
 )
 
 # Add needed libraries

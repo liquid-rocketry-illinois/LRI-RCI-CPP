@@ -16,9 +16,9 @@
 
 #include "fontawesome.h"
 
+#include "../include/UI/style.h"
 #include "EmbeddedResource.h"
 #include "UIold/UIControl.h"
-#include "UIold/style.h"
 #include "VERSION.h"
 #include "utils.h"
 

@@ -9,8 +9,10 @@ namespace LRI::RCI {
     }
 
     EmbeddedResource::~EmbeddedResource() {
-        UnlockResource(resource);
-        FreeResource(resource);
+        if(resource != nullptr) {
+            UnlockResource(resource);
+            FreeResource(resource);
+        }
     }
 
     size_t EmbeddedResource::getLength() const { return length; }

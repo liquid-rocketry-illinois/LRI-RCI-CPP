@@ -43,6 +43,10 @@ namespace LRI::RCI {
 #undef COLOR_CONSTANT
 
     void setImGuiStyles();
+
+    void setScaleFactor(float scale);
+    float operator""_sc(unsigned long long value);
+    float operator""_sc(long double value);
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_STYLE_H
