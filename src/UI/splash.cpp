@@ -97,10 +97,13 @@ namespace LRI::RCI {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            ImGui::GetForegroundDrawList()->AddImage(birdTex, {0, 0}, {500_sc, 500_sc});
+            int wX, wY;
+            glfwGetWindowSize(window, &wX, &wY);
+
+            ImGui::GetForegroundDrawList()->AddImage(birdTex, {0, 0}, {wX, wY});
 
             ImGui::Render();
-            glViewport(0, 0, 640, 400);
+            glViewport(0, 0, wX, wY);
             glClearColor(0, 0, 0, 0);
             glClear(GL_COLOR_BUFFER_BIT);
 

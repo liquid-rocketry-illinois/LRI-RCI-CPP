@@ -62,8 +62,9 @@ add_library(imgui OBJECT
 )
 
 # Setup includes and libraries for ImGui
-target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/implot)
+target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/implot include/imgui)
 target_link_libraries(imgui PUBLIC glfw)
+target_compile_definitions(imgui PUBLIC -DIMGUI_USER_CONFIG="imuserconfig.h")
 
 # Add the main executable target with all the sources
 add_executable(LRI_control_panel
