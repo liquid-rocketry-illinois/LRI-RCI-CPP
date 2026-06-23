@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <print>
+#include <Shlobj.h>
 
 #include "EmbeddedResource.h"
 
@@ -30,9 +31,9 @@ namespace LRI::RCI {
         PWSTR pathstr = nullptr;
         HRESULT res = SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, nullptr, &pathstr);
         if(res != S_OK || !pathstr) std::exit(-1);
-        roamingFolder = pathstr;
-        roamingFolder /= "LRI Electronics";
-        roamingFolder /= "Rocket Control Interface (RCI)";
+        roaming = pathstr;
+        roaming /= "LRI Electronics";
+        roaming /= "Rocket Control Interface (RCI)";
         CoTaskMemFree(pathstr);
 #endif
 
