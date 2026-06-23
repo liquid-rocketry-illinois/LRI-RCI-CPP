@@ -8,7 +8,14 @@
 
 namespace LRI::RCI {
     class SplashWindow {
-        static constexpr std::chrono::milliseconds TIME_OPEN {RCIDEBUG ? 1000 : 5000};
+        static constexpr std::chrono::milliseconds TIME_OPEN{
+#ifdef RCIDEBUG
+            1000
+#else
+            5000
+#endif
+        };
+
         const std::chrono::system_clock::time_point startTime;
         GLFWwindow* window;
 
@@ -21,6 +28,6 @@ namespace LRI::RCI {
 
         void loop();
     };
-}
+} // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_SPLASH_H
