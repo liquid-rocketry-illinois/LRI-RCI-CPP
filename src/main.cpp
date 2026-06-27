@@ -15,8 +15,6 @@
 #include <print>
 
 #include "GLFW/glfw3.h"
-#include "UI/splash.h"
-#include "UI/style.h"
 #include "system.h"
 #include "UI/window.h"
 
@@ -35,15 +33,11 @@ int main() {
 
     LRI::RCI::detectRoamingFolder();
 
-    {
-        LRI::RCI::SplashWindow splash;
-        splash.loop();
-    }
+    // Will loop until splash finishes
+    LRI::RCI::splash::show();
 
-    {
-        LRI::RCI::Window window;
-        window.loop();
-    }
+    // Will loop until user exits
+    LRI::RCI::show();
 
     glfwTerminate();
     return 0;

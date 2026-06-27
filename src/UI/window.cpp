@@ -14,10 +14,118 @@
 #include "UI/vscode_icons.h"
 #include "util/guards.h"
 
+#define CAPHEIGHT (40_sc)
+
 namespace LRI::RCI {
+    namespace {
+        bool insideCaption(LONG cursory) { return static_cast<float>(cursory) < CAPHEIGHT; }
+
+        WindowInfo winfo{insideCaption, nullptr};
+        GLFWwindow* window;
+
+        void renderCaption() {
+            ImGui::SetNextWindowPos(V0);
+
+            // Size of the caption
+            const ImVec2 capsize = {style::getWindowSize().x, CAPHEIGHT};
+
+            // Size of the largest square that fits into the caption. Used for buttons
+            const ImVec2 csquare = {capsize.y, capsize.y};
+
+            constexpr ImGuiWindowFlags FLAGS =
+                ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking;
+
+            ImGui::SetNextWindowSize(capsize);
+            if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
+            font::pushCodicons();
+
+            SCOPE_EXIT {
+                ImGui::PopFont();
+                ImGui::End();
+            };
+
+            // Draw little bird icon in top left corner
+            ImGui::GetWindowDrawList()->AddRectFilled(V0, capsize, style::DGRAYi);
+            ImGui::SetCursorPos(V0);
+            ImGui::Image(style::getBirdTex(), csquare);
+
+            // Draw hamborger button
+            ImGui::SetCursorPos({capsize.y + 5_sc, 0});
+            ImGui::Button(ICON_VS_THREE_BARS "##hamborger", csquare);
+
+            // Draw window control buttons
+            // Minimize button
+            ImVec2 cpos = {capsize.x - 120_sc, 0};
+            ImGui::SetCursorPos(cpos);
+            if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
+
+            // Maximize/restore
+            cpos.x += capsize.y;
+            ImGui::SetCursorPos(cpos);
+            if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
+                if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
+            }
+            else {
+                if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "##restore", csquare)) glfwMaximizeWindow(window);
+            }
+
+            // Close button
+            cpos.x += capsize.y;
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style::RED);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, style::LRED);
+            ImGui::SetCursorPos(cpos);
+            if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
+            ImGui::PopStyleColor(2);
+
+            ImGui::SetCursorPos({90_sc, 0});
+            // const char* targettext = "Open Target"
+            ImGui::Button("E" ICON_VS_ACCOUNT "##popup", csquare);
+        }
+
+        void frame() {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            int wX, wY;
+            glfwGetWindowSize(window, &wX, &wY);
+            style::setFrameWindowSize({static_cast<float>(wX), static_cast<float>(wY)});
+
+            renderCaption();
+
+            {
+                ImVec2 blankSpace = style::getWindowSize() - ImVec2{0, 40_sc};
+                ImVec2 impos;
+                ImVec2 imsize;
+
+                if(blankSpace.y < blankSpace.x) {
+                    float leftoverX = blankSpace.x - blankSpace.y;
+                    impos = {leftoverX / 2, 40_sc};
+                    imsize = {blankSpace.y, blankSpace.y};
+                }
+
+                else {
+                    float leftoverY = blankSpace.y - blankSpace.x;
+                    impos = {0, 40_sc + (leftoverY / 2)};
+                    imsize = {blankSpace.x, blankSpace.x};
+                }
+
+                ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), impos, impos + imsize);
+            }
+
+            ImGui::Render();
+            glViewport(0, 0, wX, wY);
+            glClearColor(0, 0, 0, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glfwSwapBuffers(window);
+        }
+    } // namespace
+
     LRESULT borderlessCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-        Window* w = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-        if(!w) return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        auto* i = reinterpret_cast<WindowInfo*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        if(i == nullptr) return DefWindowProc(hwnd, uMsg, wParam, lParam);
 
         switch(uMsg) {
         case WM_NCACTIVATE:
@@ -30,7 +138,7 @@ namespace LRI::RCI {
             RECT& rect = *reinterpret_cast<RECT*>(lParam);
             RECT client = rect;
 
-            CallWindowProc(w->oldProc, hwnd, uMsg, wParam, lParam);
+            CallWindowProc(i->oldProc, hwnd, uMsg, wParam, lParam);
 
             if(IsZoomed(hwnd)) {
                 WINDOWINFO windowInfo = {};
@@ -102,7 +210,7 @@ namespace LRI::RCI {
                 return HTBOTTOMRIGHT;
             case RegionClient:
             default:
-                if(w->inCaption(cursor.y - wpos.top)) return HTCAPTION;
+                if(i->cfunc(cursor.y - wpos.top)) return HTCAPTION;
                 break;
             }
 
@@ -113,17 +221,40 @@ namespace LRI::RCI {
             break;
         }
 
-        return CallWindowProc(w->oldProc, hwnd, uMsg, wParam, lParam);
+        return CallWindowProc(i->oldProc, hwnd, uMsg, wParam, lParam);
     }
 
-    Window::Window() : window(nullptr), hwnd(nullptr), oldProc(nullptr) {
-        glfwDefaultWindowHints();
+    GLFWwindow* setupBorderlessWindow(WindowInfo* usrptr) {
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-        window = glfwCreateWindow(1280, 720, "RCI", nullptr, nullptr);
-        hwnd = glfwGetWin32Window(window);
+        GLFWwindow* win = glfwCreateWindow(1280, 720, "RCI", nullptr, nullptr);
+        HWND hwnd = glfwGetWin32Window(win);
+
+        // Needed for rounded corners
+        MARGINS m = {1, 1, 1, 1};
+        DwmExtendFrameIntoClientArea(hwnd, &m);
+
+        BOOL val = TRUE;
+        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val));
+
+        LONG style = GetWindowLong(hwnd, GWL_STYLE);
+        style |= WS_OVERLAPPEDWINDOW;
+        style &= ~WS_POPUP;
+        SetWindowLong(hwnd, GWL_STYLE, style);
+
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(usrptr));
+        usrptr->oldProc = reinterpret_cast<WNDPROC>(
+            SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(borderlessCallback)));
+
+        return win;
+    }
+
+    void show() {
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        window = setupBorderlessWindow(&winfo);
 
         glfwSetWindowOpacity(window, 1);
         glfwMakeContextCurrent(window);
@@ -134,27 +265,10 @@ namespace LRI::RCI {
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
 
-        oldProc = reinterpret_cast<WNDPROC>(
-            SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(borderlessCallback)));
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-        glfwSetWindowUserPointer(window, this);
-
-        // Needed for rounded corners
-        MARGINS m = {1, 1, 1, 1};
-        DwmExtendFrameIntoClientArea(hwnd, &m);
-
-        BOOL val = TRUE;
-        DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &val, sizeof(val));
-
         glfwSetWindowRefreshCallback(window, [](auto* w) {
-            reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->frame();
+            frame();
             DwmFlush();
         });
-
-        LONG style = GetWindowLong(hwnd, GWL_STYLE);
-        style |= WS_OVERLAPPEDWINDOW;
-        style &= ~WS_POPUP;
-        SetWindowLong(hwnd, GWL_STYLE, style);
 
         style::setWindowIcon(window);
         style::setupBirdIcon();
@@ -171,125 +285,19 @@ namespace LRI::RCI {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         style::setImGuiStyles();
-    }
 
-    void Window::frame() {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        glfwShowWindow(window);
 
-        int wX, wY;
-        glfwGetWindowSize(window, &wX, &wY);
-        style::setFrameWindowSize({static_cast<float>(wX), static_cast<float>(wY)});
-
-        {
-            ImVec2 blankSpace = style::getWindowSize() - ImVec2{0, 40_sc};
-            ImVec2 impos;
-            ImVec2 imsize;
-
-            if(blankSpace.y < blankSpace.x) {
-                float leftoverX = blankSpace.x - blankSpace.y;
-                impos = {leftoverX / 2, 40_sc};
-                imsize = {blankSpace.y, blankSpace.y};
-            }
-
-            else {
-                float leftoverY = blankSpace.y - blankSpace.x;
-                impos = {0, 40_sc + (leftoverY / 2)};
-                imsize = {blankSpace.x, blankSpace.x};
-            }
-
-            ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), impos, impos + imsize);
-        }
-
-        ImGui::ShowDemoWindow();
-        renderCaption();
-        for(Windowlet* w : windowlets) w->render();
-
-        ImGui::Render();
-        glViewport(0, 0, wX, wY);
-        glClearColor(0, 0, 0, 1);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
-    }
-
-    void Window::renderCaption() {
-        ImGui::SetNextWindowPos(V0);
-
-        // Size of the caption
-        const ImVec2 capsize = {style::getWindowSize().x, 40_sc};
-
-        // Size of the largest square that fits into the caption. Used for buttons
-        const ImVec2 csquare = {40_sc, 40_sc};
-
-        constexpr ImGuiWindowFlags FLAGS =
-            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking;
-
-        ImGui::SetNextWindowSize(capsize);
-        if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
-        font::pushCodicons();
-
-        SCOPE_EXIT {
-            ImGui::PopFont();
-            ImGui::End();
-        };
-
-        // Draw little bird icon in top left corner
-        ImGui::GetWindowDrawList()->AddRectFilled({0, 0}, capsize, style::DGRAYi);
-        ImGui::SetCursorPos(V0);
-        ImGui::Image(style::getBirdTex(), csquare);
-
-        // Draw hamborger button
-        ImGui::SetCursorPos({45_sc, 0});
-        ImGui::Button(ICON_VS_THREE_BARS "##hamborger", csquare);
-
-        // Draw window control buttons
-        // Minimize button
-        ImVec2 cpos = {style::getWindowSize().x - 120_sc, 0};
-        ImGui::SetCursorPos(cpos);
-        if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
-
-        // Maximize/restore
-        cpos.x += 40_sc;
-        ImGui::SetCursorPos(cpos);
-        if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
-            if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
-        }
-        else {
-            if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "##restore", csquare)) glfwMaximizeWindow(window);
-        }
-
-        // Close button
-        cpos.x += 40_sc;
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style::RED);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, style::LRED);
-        ImGui::SetCursorPos(cpos);
-        if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
-        ImGui::PopStyleColor(2);
-
-        ImGui::SetCursorPos({90_sc, 0});
-        // const char* targettext = "Open Target"
-        ImGui::Button("E" ICON_VS_ACCOUNT "##popup", csquare);
-    }
-
-    bool Window::inCaption(LONG cursory) const { return static_cast<float>(cursory) < 40_sc; }
-
-    void Window::loop() {
         while(!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             frame();
         }
-    }
 
-    void Window::registerWindowlet(Windowlet* w) { windowlets.emplace(w); }
-
-    Window::~Window() {
         style::cleanupBirdTex();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
         glfwDestroyWindow(window);
     }
+
 } // namespace LRI::RCI
