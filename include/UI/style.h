@@ -16,8 +16,9 @@ namespace LRI::RCI {
     }
 
     namespace style {
-#define COLOR_CONSTANT(name, value) static constexpr ImU32 name = value;\
-static constexpr ImVec4 name ## F = U32ToImVec4(name)
+#define COLOR_CONSTANT(name, value)                                                                                    \
+    static constexpr ImU32 name##i = value;                                                                               \
+    static constexpr ImVec4 name = U32ToImVec4(name##i)
 
         COLOR_CONSTANT(EEE, 0x11223344);
 
@@ -28,9 +29,12 @@ static constexpr ImVec4 name ## F = U32ToImVec4(name)
         // Solid Base Colors
         COLOR_CONSTANT(YELLOW, 0xF000CDDB);
         COLOR_CONSTANT(GREEN, 0xFF00FF00);
-        COLOR_CONSTANT(RED, 0xFF0000FF);
+        COLOR_CONSTANT(LRED, 0xFF0000FF);
+        COLOR_CONSTANT(RED, 0xFF0000EE);
         COLOR_CONSTANT(WHITE, 0xFFFFFFFF);
-        COLOR_CONSTANT(BACKGROUND, 0xFF000000);
+        COLOR_CONSTANT(BACKGROUND, 0xFF999999);
+        COLOR_CONSTANT(BUTTONHOVER, 0x0CFFFFFF);
+        COLOR_CONSTANT(BUTTONPRESS, 0x12FFFFFF);
 
         // Purples
         COLOR_CONSTANT(DPURPLE, 0xFFA72B43);
@@ -40,7 +44,8 @@ static constexpr ImVec4 name ## F = U32ToImVec4(name)
 
         // Transparents
         // COLOR_CONSTANT(TRANSPARENT, 0x00000000);
-        COLOR_CONSTANT(COLOR_TRANSPARENT, 0x00000000);
+        COLOR_CONSTANT(CTRANSPARENT, 0x00000000);
+        COLOR_CONSTANT(DGRAY, 0xFF222222);
         COLOR_CONSTANT(GRAY_SEMITRANSPARENT, 0x88444444);
         COLOR_CONSTANT(LGRAY_SEMITRANSPARENT, 0x88777777);
 
@@ -55,8 +60,8 @@ static constexpr ImVec4 name ## F = U32ToImVec4(name)
 
         void setFrameWindowSize(ImVec2 size);
         ImVec2 getWindowSize();
-    void setImGuiStyles();
-    }
+        void setImGuiStyles();
+    } // namespace style
 
     namespace font {
         void setupFonts();
@@ -66,11 +71,12 @@ static constexpr ImVec4 name ## F = U32ToImVec4(name)
         void pushItalic();
         void pushAwesome();
         void pushCodicons();
-    }
+    } // namespace font
 
 
     float operator""_sc(unsigned long long value);
     float operator""_sc(long double value);
+    constexpr ImVec2 V0 = {0, 0};
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_STYLE_H

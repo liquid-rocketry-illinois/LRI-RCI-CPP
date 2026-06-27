@@ -11,6 +11,8 @@
 
 #include <print>
 #include "UI/style.h"
+#include "UI/vscode_icons.h"
+#include "util/guards.h"
 
 namespace LRI::RCI {
     LRESULT borderlessCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -44,7 +46,17 @@ namespace LRI::RCI {
             return WVR_REDRAW;
         }
 
+        case WM_ERASEBKGND:
+            return 1;
+        case WM_WINDOWPOSCHANGING: {
+            // Make sure that windows discards the entire client area when resizing to avoid flickering
+            const auto windowPos = reinterpret_cast<LPWINDOWPOS>(lParam);
+            windowPos->flags |= SWP_NOCOPYBITS;
+            break;
+        }
+
         case WM_NCHITTEST: {
+            if(ImGui::IsAnyItemHovered()) return HTCLIENT;
             POINT cursor = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
 
             // Formatter goes berserk with this :(
@@ -110,7 +122,7 @@ namespace LRI::RCI {
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-        window = glfwCreateWindow(1280, 720, "Rocket Control Interface", nullptr, nullptr);
+        window = glfwCreateWindow(1280, 720, "RCI", nullptr, nullptr);
         hwnd = glfwGetWin32Window(window);
 
         glfwSetWindowOpacity(window, 1);
@@ -157,6 +169,8 @@ namespace LRI::RCI {
 
         io.IniFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+        style::setImGuiStyles();
     }
 
     void Window::frame() {
@@ -168,8 +182,29 @@ namespace LRI::RCI {
         glfwGetWindowSize(window, &wX, &wY);
         style::setFrameWindowSize({static_cast<float>(wX), static_cast<float>(wY)});
 
-        ImGui::Text("hello");
-        ImGui::GetBackgroundDrawList()->AddRectFilled({0, 0}, {style::getWindowSize().x, 50}, style::WHITE);
+        {
+            ImVec2 blankSpace = style::getWindowSize() - ImVec2{0, 40_sc};
+            ImVec2 impos;
+            ImVec2 imsize;
+
+            if(blankSpace.y < blankSpace.x) {
+                float leftoverX = blankSpace.x - blankSpace.y;
+                impos = {leftoverX / 2, 40_sc};
+                imsize = {blankSpace.y, blankSpace.y};
+            }
+
+            else {
+                float leftoverY = blankSpace.y - blankSpace.x;
+                impos = {0, 40_sc + (leftoverY / 2)};
+                imsize = {blankSpace.x, blankSpace.x};
+            }
+
+            ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), impos, impos + imsize);
+        }
+
+        ImGui::ShowDemoWindow();
+        renderCaption();
+        for(Windowlet* w : windowlets) w->render();
 
         ImGui::Render();
         glViewport(0, 0, wX, wY);
@@ -180,7 +215,66 @@ namespace LRI::RCI {
         glfwSwapBuffers(window);
     }
 
-    bool Window::inCaption(LONG cursorY) { return cursorY < 50; }
+    void Window::renderCaption() {
+        ImGui::SetNextWindowPos(V0);
+
+        // Size of the caption
+        const ImVec2 capsize = {style::getWindowSize().x, 40_sc};
+
+        // Size of the largest square that fits into the caption. Used for buttons
+        const ImVec2 csquare = {40_sc, 40_sc};
+
+        constexpr ImGuiWindowFlags FLAGS =
+            ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking;
+
+        ImGui::SetNextWindowSize(capsize);
+        if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
+        font::pushCodicons();
+
+        SCOPE_EXIT {
+            ImGui::PopFont();
+            ImGui::End();
+        };
+
+        // Draw little bird icon in top left corner
+        ImGui::GetWindowDrawList()->AddRectFilled({0, 0}, capsize, style::DGRAYi);
+        ImGui::SetCursorPos(V0);
+        ImGui::Image(style::getBirdTex(), csquare);
+
+        // Draw hamborger button
+        ImGui::SetCursorPos({45_sc, 0});
+        ImGui::Button(ICON_VS_THREE_BARS "##hamborger", csquare);
+
+        // Draw window control buttons
+        // Minimize button
+        ImVec2 cpos = {style::getWindowSize().x - 120_sc, 0};
+        ImGui::SetCursorPos(cpos);
+        if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
+
+        // Maximize/restore
+        cpos.x += 40_sc;
+        ImGui::SetCursorPos(cpos);
+        if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
+            if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
+        }
+        else {
+            if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "##restore", csquare)) glfwMaximizeWindow(window);
+        }
+
+        // Close button
+        cpos.x += 40_sc;
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style::RED);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, style::LRED);
+        ImGui::SetCursorPos(cpos);
+        if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
+        ImGui::PopStyleColor(2);
+
+        ImGui::SetCursorPos({90_sc, 0});
+        // const char* targettext = "Open Target"
+        ImGui::Button("E" ICON_VS_ACCOUNT "##popup", csquare);
+    }
+
+    bool Window::inCaption(LONG cursory) const { return static_cast<float>(cursory) < 40_sc; }
 
     void Window::loop() {
         while(!glfwWindowShouldClose(window)) {
@@ -189,6 +283,8 @@ namespace LRI::RCI {
         }
     }
 
+    void Window::registerWindowlet(Windowlet* w) { windowlets.emplace(w); }
+
     Window::~Window() {
         style::cleanupBirdTex();
         ImGui_ImplOpenGL3_Shutdown();
@@ -196,5 +292,4 @@ namespace LRI::RCI {
         ImGui::DestroyContext();
         glfwDestroyWindow(window);
     }
-
 } // namespace LRI::RCI

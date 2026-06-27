@@ -3,6 +3,7 @@
 
 // Make basic imvec operators available
 #define IMGUI_DEFINE_MATH_OPERATORS
+// #define IMGUI_DISABLE_DEFAULT_FONT
 
 // Add int constructors for the imvecs
 // #define IM_VEC2_CLASS_EXTRA constexpr ImVec2(int x, int y) : x(x), y(y) {}

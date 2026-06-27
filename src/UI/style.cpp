@@ -18,7 +18,41 @@ namespace LRI::RCI {
     float operator""_sc(long double value) { return static_cast<float>(value) * scaleFactor; }
 
     namespace style {
-        void setImGuiStyles() {}
+        void setImGuiStyles() {
+            // ----- Sizes -----
+            ImGuiStyle& style = ImGui::GetStyle();
+            ImGui::StyleColorsDark();
+
+            style.WindowBorderSize = 0;
+
+            // ----- Colors -----
+
+            auto& colors = style.Colors;
+
+            colors[ImGuiCol_Text] = WHITE;
+            colors[ImGuiCol_WindowBg] = BACKGROUND;
+            colors[ImGuiCol_Button] = CTRANSPARENT;
+            colors[ImGuiCol_ButtonHovered] = BUTTONHOVER;
+            colors[ImGuiCol_ButtonActive] = BUTTONPRESS;
+            // colors[ImGuiCol_Button] = PURPLEF;
+            // colors[ImGuiCol_ButtonHovered] = LPURPLEF;
+            // colors[ImGuiCol_ButtonActive] = LLPURPLEF;
+
+            // colors[ImGuiCol_Tab] = PURPLEF;
+            // colors[ImGuiCol_TabActive] = LLPURPLEF;
+            // colors[ImGuiCol_TabHovered] = LPURPLEF;
+            // colors[ImGuiCol_TabDimmed] = DPURPLEF;
+
+            // colors[ImGuiCol_FrameBg] = PURPLEF;
+            // colors[ImGuiCol_FrameBgHovered] = LPURPLEF;
+            // colors[ImGuiCol_FrameBgActive] = LLPURPLEF;
+
+            // colors[ImGuiCol_Header] = PURPLEF;
+            // colors[ImGuiCol_HeaderHovered] = LPURPLEF;
+            // colors[ImGuiCol_HeaderActive] = LLPURPLEF;
+
+            // colors[ImGuiCol_CheckMark] = WHITEF;
+        }
 
         void setScaleFactor(float scale) { scaleFactor = scale; }
 
@@ -58,7 +92,6 @@ namespace LRI::RCI {
 
     namespace font {
         namespace {
-            ImFont* normal;
             ImFont* bold;
             ImFont* italic;
             ImFont* awesome;
@@ -74,31 +107,42 @@ namespace LRI::RCI {
 
             const float fontsize = 16_sc;
 
-            ImFontConfig fc;
-            fc.FontDataOwnedByAtlas = false;
+            ImFontConfig text;
+            text.FontDataOwnedByAtlas = false;
 
-            EmbeddedResource font("font_regular.ttf");
-            normal = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize, &fc);
+            ImFontConfig icons;
+            icons.FontDataOwnedByAtlas = false;
+            icons.PixelSnapH = true;
+            icons.GlyphMinAdvanceX = fontsize;
+            icons.MergeMode = true;
+            icons.GlyphOffset = {0, 2 * scaleFactor * scaleFactor};
+
+            // Load fontawesome and codicons in merge mode with the regular font so the icons can be used in text
+            // We load font_regular twice, once with awesome merged, and once with codicons merged
+            EmbeddedResource regular("font_regular.ttf");
+            awesome = fonts->AddFontFromMemoryTTF(const_cast<char*>(regular.getData()),
+                                                  static_cast<int>(regular.getLength()), fontsize, &text);
+
+            EmbeddedResource font("fa_900.ttf");
+            fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize,
+                                        &icons, AWESOME_CODEPOINTS);
+
+            codicons = fonts->AddFontFromMemoryTTF(const_cast<char*>(regular.getData()),
+                                                   static_cast<int>(regular.getLength()), fontsize, &text);
+
+            font = EmbeddedResource("codicon.ttf");
+            fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize,
+                                        &icons, CODICON_CODEPOINTS);
 
             font = EmbeddedResource("font_bold.ttf");
-            bold = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize, &fc);
+            bold = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()),
+                                               fontsize, &text);
 
             font = EmbeddedResource("font_italic.ttf");
-            italic = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize, &fc);
-
-            fc.PixelSnapH = true;
-            fc.GlyphMinAdvanceX = fontsize;
-
-            font = EmbeddedResource("fa_900.ttf");
-            awesome = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize, &fc,
-                                                  AWESOME_CODEPOINTS);
-
-            font = EmbeddedResource("codicons.ttf");
-            codicons = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()), fontsize, &fc,
-                                                   CODICON_CODEPOINTS);
+            italic = fonts->AddFontFromMemoryTTF(const_cast<char*>(font.getData()), static_cast<int>(font.getLength()),
+                                                 fontsize, &text);
         }
 
-        void pushNormal() { ImGui::PushFont(normal); }
         void pushBold() { ImGui::PushFont(bold); }
         void pushItalic() { ImGui::PushFont(italic); }
         void pushAwesome() { ImGui::PushFont(awesome); }

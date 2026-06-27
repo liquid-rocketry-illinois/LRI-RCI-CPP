@@ -3,16 +3,26 @@
 
 #include "Windows.h"
 #include "glfw/glfw3.h"
+#include <set>
 
 namespace LRI::RCI {
+    class Windowlet {
+    public:
+        virtual ~Windowlet() = default;
+        virtual void render() = 0;
+    };
 
     class Window {
         GLFWwindow* window;
         HWND hwnd;
         WNDPROC oldProc;
 
+        std::set<Windowlet*> windowlets;
+
         void frame();
-        bool inCaption(LONG cursorY);
+        void renderCaption();
+        void renderTargetPopup();
+        bool inCaption(LONG cursory) const;
 
     public:
         friend LRESULT borderlessCallback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -23,6 +33,7 @@ namespace LRI::RCI {
         Window& operator=(const Window&) = delete;
 
         void loop();
+        void registerWindowlet(Windowlet* w);
     };
 }
 

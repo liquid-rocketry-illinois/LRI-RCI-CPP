@@ -1,6 +1,6 @@
 #pragma once
 
-#define FONT_ICON_FILE_NAME_VS "codicons.ttf"
+#define FONT_ICON_FILE_NAME_VS "codicon.ttf"
 
 #define ICON_MIN_VS 0xea60
 #define ICON_MAX_16_VS 0xf101
