@@ -1,13 +1,10 @@
-#include "system.h"
+#include "util/system.h"
 
-#include <Windows.h>
-#include <print>
 #include <Shlobj.h>
-
-#include "EmbeddedResource.h"
+#include <print>
 
 #define STB_IMAGE_IMPLEMENTATION 1
-#include "stb_image.h"
+#include "util/stb_image.h"
 
 namespace LRI::RCI {
     namespace {

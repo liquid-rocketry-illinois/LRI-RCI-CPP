@@ -1,8 +1,8 @@
 #include "UI/style.h"
 
-#include "stb_image.h"
+#include "util/stb_image.h"
 
-#include "EmbeddedResource.h"
+#include "util/EmbeddedResource.h"
 #include "UI/fontawesome.h"
 #include "UI/vscode_icons.h"
 

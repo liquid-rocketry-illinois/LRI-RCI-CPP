@@ -14,8 +14,8 @@
 
 #include <print>
 
+#include "util/system.h"
 #include "GLFW/glfw3.h"
-#include "system.h"
 #include "UI/window.h"
 
 /*

@@ -5,8 +5,8 @@
 #include <mutex>
 #include <thread>
 
+#include "util/RingBuffer.h"
 #include "RCP_Interface.h"
-#include "RingBuffer.h"
 
 namespace LRI::RCI {
   class IOInterface : public RCP_Interface {

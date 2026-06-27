@@ -3,8 +3,8 @@
 
 #include <string>
 
+#include "util/RingBuffer.h"
 #include "RCP_Interface.h"
-#include "RingBuffer.h"
 #include "utils.h"
 
 namespace LRI::RCI {

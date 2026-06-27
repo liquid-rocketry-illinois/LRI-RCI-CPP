@@ -1,4 +1,4 @@
-#include "EmbeddedResource.h"
+#include "util/EmbeddedResource.h"
 
 namespace LRI::RCI {
     EmbeddedResource::EmbeddedResource(const std::string&& path) {
