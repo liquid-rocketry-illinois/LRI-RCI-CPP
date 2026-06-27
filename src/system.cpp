@@ -53,4 +53,7 @@ namespace LRI::RCI {
 
         else std::filesystem::create_directories(targetsFolder);
     }
+
+    void keepScreenAwake() { SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS); }
+    void allowScreenSleep() { SetThreadExecutionState(ES_CONTINUOUS); }
 } // namespace LRI::RCI
