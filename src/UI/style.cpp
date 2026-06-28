@@ -24,13 +24,17 @@ namespace LRI::RCI {
             ImGui::StyleColorsDark();
 
             style.WindowBorderSize = 0;
+            style.PopupBorderSize = 1;
+            style.PopupRounding = 3;
 
             // ----- Colors -----
 
             auto& colors = style.Colors;
 
             colors[ImGuiCol_Text] = WHITE;
-            colors[ImGuiCol_WindowBg] = BACKGROUND;
+            colors[ImGuiCol_WindowBg] = DGRAY;
+            colors[ImGuiCol_PopupBg] = DGRAY;
+            colors[ImGuiCol_Border] = LGRAY_SEMITRANSPARENT;
             colors[ImGuiCol_Button] = CTRANSPARENT;
             colors[ImGuiCol_ButtonHovered] = BUTTONHOVER;
             colors[ImGuiCol_ButtonActive] = BUTTONPRESS;
@@ -54,7 +58,10 @@ namespace LRI::RCI {
             // colors[ImGuiCol_CheckMark] = WHITEF;
         }
 
-        void setScaleFactor(float scale) { scaleFactor = scale; }
+        void setScaleFactor(float scale) {
+            scaleFactor = scale;
+            ImGui::GetStyle().ScaleAllSizes(scale);
+        }
 
         float getScaleFactor() { return scaleFactor; }
 
@@ -115,7 +122,7 @@ namespace LRI::RCI {
             icons.PixelSnapH = true;
             icons.GlyphMinAdvanceX = fontsize;
             icons.MergeMode = true;
-            icons.GlyphOffset = {0, 2 * scaleFactor * scaleFactor};
+            icons.GlyphOffset = {0, 3_sc};
 
             // Load fontawesome and codicons in merge mode with the regular font so the icons can be used in text
             // We load font_regular twice, once with awesome merged, and once with codicons merged

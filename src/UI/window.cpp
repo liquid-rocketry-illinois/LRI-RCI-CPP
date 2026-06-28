@@ -10,6 +10,7 @@
 #include "windowsx.h"
 
 #include <print>
+#include "UI/fontawesome.h"
 #include "UI/style.h"
 #include "UI/vscode_icons.h"
 #include "util/guards.h"
@@ -18,10 +19,65 @@
 
 namespace LRI::RCI {
     namespace {
+        enum class PState : uint8_t {
+            NONE,
+            TARGET_EDIT,
+            TEST_LOG,
+            HARDWARE,
+        } state = PState::NONE;
+
         bool insideCaption(LONG cursory) { return static_cast<float>(cursory) < CAPHEIGHT; }
 
         WindowInfo winfo{insideCaption, nullptr};
         GLFWwindow* window;
+
+        void renderChooserPopup(ImVec2 pos) {
+            ImGui::SetNextWindowPos(pos);
+            ImGui::SetNextWindowSize({200_sc, 300_sc});
+            if(!ImGui::BeginPopup("##dropdownchooser", ImGuiWindowFlags_AlwaysVerticalScrollbar)) return;
+            SCOPE_EXIT { ImGui::EndPopup(); };
+
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {4_sc, 4_sc});
+
+            // 200 window size - 8px padding on both sides - 14 scrollbar size
+            ImVec2 buttonSize = {170_sc, 0};
+
+            ImGui::Button(ICON_VS_ADD " New Target\nThing##addtarget", buttonSize);
+            ImGui::Button(ICON_VS_FOLDER " Open Target##opentarget", buttonSize);
+            ImGui::Button(ICON_VS_FOLDER " Open Testlog##opentestlog", buttonSize);
+            ImGui::Button(ICON_VS_EDIT " Target Editor##edittarget", buttonSize);
+
+            ImGui::Separator();
+
+            ImGui::BeginDisabled();
+            ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            // ImGui::Text("No Recents");
+            ImGui::EndDisabled();
+
+            ImGui::PopStyleVar();
+        }
 
         void renderCaption() {
             ImGui::SetNextWindowPos(V0);
@@ -32,35 +88,52 @@ namespace LRI::RCI {
             // Size of the largest square that fits into the caption. Used for buttons
             const ImVec2 csquare = {capsize.y, capsize.y};
 
+            const float buttonHeight = CAPHEIGHT - 10_sc;
+            const float buttonY = (CAPHEIGHT - buttonHeight) / 2;
+            const ImVec2 bsquare = {buttonHeight, buttonHeight};
+
             constexpr ImGuiWindowFlags FLAGS =
                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking;
 
             ImGui::SetNextWindowSize(capsize);
-            if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
             font::pushCodicons();
-
             SCOPE_EXIT {
                 ImGui::PopFont();
                 ImGui::End();
             };
 
+            if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
+
             // Draw little bird icon in top left corner
-            ImGui::GetWindowDrawList()->AddRectFilled(V0, capsize, style::DGRAYi);
             ImGui::SetCursorPos(V0);
             ImGui::Image(style::getBirdTex(), csquare);
 
-            // Draw hamborger button
-            ImGui::SetCursorPos({capsize.y + 5_sc, 0});
-            ImGui::Button(ICON_VS_THREE_BARS "##hamborger", csquare);
+            ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8_sc);
+            ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0, 0.5f});
+
+            // Draw hamborger
+            ImGui::SetCursorPos({csquare.x + 5_sc, buttonY});
+            ImGui::Button(ICON_VS_THREE_BARS "##hamborger", bsquare);
+
+            // Draw the target dropdown
+            bool dchooserOpen = ImGui::IsPopupOpen("##dropdownchooser");
+            if(dchooserOpen) ImGui::PushStyleColor(ImGuiCol_Button, style::BUTTONHOVER);
+            ImGui::SetCursorPos({csquare.x + 5_sc + bsquare.x + 5_sc, buttonY});
+            if(ImGui::Button(" " ICON_VS_ROCKET " No Target " ICON_VS_CHEVRON_DOWN " ##popup", {0, bsquare.y})) {
+                ImGui::OpenPopup("##dropdownchooser");
+            }
+            if(dchooserOpen) ImGui::PopStyleColor();
+            renderChooserPopup({csquare.x + 5_sc + bsquare.x + 5_sc, capsize.y - buttonY});
+            ImGui::PopStyleVar(2);
 
             // Draw window control buttons
             // Minimize button
-            ImVec2 cpos = {capsize.x - 120_sc, 0};
+            ImVec2 cpos = {capsize.x - (3 * csquare.x), 0};
             ImGui::SetCursorPos(cpos);
             if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
 
             // Maximize/restore
-            cpos.x += capsize.y;
+            cpos.x += csquare.y;
             ImGui::SetCursorPos(cpos);
             if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
                 if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
@@ -70,16 +143,12 @@ namespace LRI::RCI {
             }
 
             // Close button
-            cpos.x += capsize.y;
+            cpos.x += csquare.y;
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style::RED);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, style::LRED);
             ImGui::SetCursorPos(cpos);
             if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
             ImGui::PopStyleColor(2);
-
-            ImGui::SetCursorPos({90_sc, 0});
-            // const char* targettext = "Open Target"
-            ImGui::Button("E" ICON_VS_ACCOUNT "##popup", csquare);
         }
 
         void frame() {
@@ -91,6 +160,7 @@ namespace LRI::RCI {
             glfwGetWindowSize(window, &wX, &wY);
             style::setFrameWindowSize({static_cast<float>(wX), static_cast<float>(wY)});
 
+            ImGui::ShowDemoWindow();
             renderCaption();
 
             {
@@ -273,6 +343,7 @@ namespace LRI::RCI {
         style::setWindowIcon(window);
         style::setupBirdIcon();
         font::setupFonts();
+        style::setImGuiStyles();
 
         {
             float mX, mY;
@@ -284,7 +355,6 @@ namespace LRI::RCI {
         io.IniFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        style::setImGuiStyles();
 
         glfwShowWindow(window);
 

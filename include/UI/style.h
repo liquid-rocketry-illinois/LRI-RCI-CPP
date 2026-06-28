@@ -17,10 +17,8 @@ namespace LRI::RCI {
 
     namespace style {
 #define COLOR_CONSTANT(name, value)                                                                                    \
-    static constexpr ImU32 name##i = value;                                                                               \
+    static constexpr ImU32 name##i = value;                                                                            \
     static constexpr ImVec4 name = U32ToImVec4(name##i)
-
-        COLOR_CONSTANT(EEE, 0x11223344);
 
         static constexpr float SIDEBAR_WIDTH = 40;
         static constexpr float TOPBAR_WIDTH = 40;
