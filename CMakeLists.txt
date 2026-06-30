@@ -72,7 +72,7 @@ add_executable(LRI_control_panel
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp
 
         src/main.cpp
-        src/system.cpp
+        src/util/system.cpp
         src/UI/style.cpp
         src/UI/splash.cpp
         src/UI/window.cpp
@@ -124,7 +124,7 @@ add_executable(LRI_control_panel
 #        src/hardware/TestState.cpp
 
         # (technically) Platform specific
-        src/WindowsEmbeddedResource.cpp
+        src/util/WindowsEmbeddedResource.cpp
         resources/resources.rc
 #        src/interfaces/WindowsCOMPort.cpp
 )
