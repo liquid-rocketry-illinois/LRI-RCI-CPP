@@ -10,9 +10,12 @@
 #include "windowsx.h"
 
 #include <print>
+
+#include "RCP_Host/RCP_Host.h"
 #include "UI/fontawesome.h"
 #include "UI/style.h"
 #include "UI/vscode_icons.h"
+#include "VERSION.h"
 #include "util/guards.h"
 
 #define CAPHEIGHT (40_sc)
@@ -31,6 +34,9 @@ namespace LRI::RCI {
         WindowInfo winfo{insideCaption, nullptr};
         GLFWwindow* window;
 
+        std::string versionString;
+        float verStringHeight = 0;
+
         void renderChooserPopup(ImVec2 pos) {
             ImGui::SetNextWindowPos(pos);
             ImGui::SetNextWindowSize({200_sc, 300_sc});
@@ -42,7 +48,7 @@ namespace LRI::RCI {
             // 200 window size - 8px padding on both sides - 14 scrollbar size
             ImVec2 buttonSize = {170_sc, 0};
 
-            ImGui::Button(ICON_VS_ADD " New Target\nThing##addtarget", buttonSize);
+            ImGui::Button(ICON_VS_ADD " New Target##addtarget", buttonSize);
             ImGui::Button(ICON_VS_FOLDER " Open Target##opentarget", buttonSize);
             ImGui::Button(ICON_VS_FOLDER " Open Testlog##opentestlog", buttonSize);
             ImGui::Button(ICON_VS_EDIT " Target Editor##edittarget", buttonSize);
@@ -51,29 +57,6 @@ namespace LRI::RCI {
 
             ImGui::BeginDisabled();
             ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
-            // ImGui::Text("No Recents");
             ImGui::EndDisabled();
 
             ImGui::PopStyleVar();
@@ -182,6 +165,9 @@ namespace LRI::RCI {
 
                 ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), impos, impos + imsize);
             }
+
+            ImGui::GetBackgroundDrawList()->AddText({10_sc, wY - verStringHeight - 10_sc}, style::GRAY_SEMITRANSPARENTi,
+                                                    versionString.c_str());
 
             ImGui::Render();
             glViewport(0, 0, wX, wY);
@@ -355,6 +341,13 @@ namespace LRI::RCI {
         io.IniFilename = nullptr;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+        font::pushAwesome();
+        versionString =
+            "RCI " + std::string(RCI_VERSION, RCI_VERSION_END) + "\nRCP " + std::string(RCP_VERSION, RCP_VERSION_END);
+        verStringHeight = ImGui::CalcTextSize(versionString.c_str()).y;
+        ImGui::PopFont();
+        glfwSetWindowSizeLimits(window, static_cast<int>(400_sc), static_cast<int>(300_sc), GLFW_DONT_CARE,
+                                GLFW_DONT_CARE);
 
         glfwShowWindow(window);
 
