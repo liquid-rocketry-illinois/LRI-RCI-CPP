@@ -9,7 +9,7 @@ namespace LRI::RCI {
 
     public:
 
-        ScopeGuard(std::function<void()>&& func) : func(func) {}
+        ScopeGuard(std::function<void()> func) : func(std::move(func)) {}
         ~ScopeGuard() {
             func();
         }
@@ -22,7 +22,7 @@ namespace LRI::RCI {
 
         class Ctor {
         public:
-            ScopeGuard operator+(std::function<void()>&& f) const { return ScopeGuard(std::move(f)); }
+            ScopeGuard operator+(std::function<void()> f) const { return ScopeGuard(std::move(f)); }
         };
     };
 
