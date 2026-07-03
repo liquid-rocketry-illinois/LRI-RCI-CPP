@@ -76,6 +76,7 @@ add_executable(LRI_control_panel
         src/UI/style.cpp
         src/UI/splash.cpp
         src/UI/window.cpp
+        src/util/settings.cpp
 #        src/utils.cpp
 #        src/improgress.cpp
 #        src/rendering.cpp

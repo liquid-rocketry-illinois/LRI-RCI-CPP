@@ -17,6 +17,7 @@
 #include "util/system.h"
 #include "GLFW/glfw3.h"
 #include "UI/window.h"
+#include "util/settings.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure
@@ -32,6 +33,7 @@ int main() {
     }
 
     LRI::RCI::detectRoamingFolder();
+    LRI::RCI::settings::loadUsersettings();
 
     // Will loop until splash finishes
     LRI::RCI::splash::show();

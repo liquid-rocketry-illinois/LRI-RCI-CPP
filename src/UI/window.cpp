@@ -17,6 +17,7 @@
 #include "UI/vscode_icons.h"
 #include "VERSION.h"
 #include "util/guards.h"
+#include "util/settings.h"
 
 #define CAPHEIGHT (40_sc)
 
@@ -33,6 +34,7 @@ namespace LRI::RCI {
 
         WindowInfo winfo{insideCaption, nullptr};
         GLFWwindow* window;
+        bool firstLoop = true;
 
         std::string versionString;
         float verStringHeight = 0;
@@ -134,6 +136,24 @@ namespace LRI::RCI {
             ImGui::PopStyleColor(2);
         }
 
+        void renderConfigModal() {
+            if(!settings::hadParseError()) return;
+            if(firstLoop) ImGui::OpenPopup("Config Error##cfgerror");
+
+            ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+            ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, {0.5, 0.5});
+            if(!ImGui::BeginPopupModal("Config Error##cfgerror", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) return;
+            SCOPE_EXIT { ImGui::EndPopup(); };
+
+            ImGui::Text("Error loading config:\n%s", settings::getErrorString().c_str());
+            ImGui::Text("Load New Config: ");
+            ImGui::SameLine();
+            if(ImGui::Button("OK")) {
+                settings::loadFreshConfig();
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
         void frame() {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
@@ -145,6 +165,7 @@ namespace LRI::RCI {
 
             ImGui::ShowDemoWindow();
             renderCaption();
+            renderConfigModal();
 
             {
                 ImVec2 blankSpace = style::getWindowSize() - ImVec2{0, 40_sc};
@@ -350,10 +371,12 @@ namespace LRI::RCI {
                                 GLFW_DONT_CARE);
 
         glfwShowWindow(window);
+        firstLoop = true;
 
         while(!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             frame();
+            firstLoop = false;
         }
 
         style::cleanupBirdTex();
