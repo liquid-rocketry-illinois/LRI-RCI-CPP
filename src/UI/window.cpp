@@ -42,10 +42,15 @@ namespace LRI::RCI {
         void renderChooserPopup(ImVec2 pos) {
             ImGui::SetNextWindowPos(pos);
             ImGui::SetNextWindowSize({200_sc, 300_sc});
+            ImGui::PushStyleColor(ImGuiCol_Border, style::PURPLE);
+            SCOPE_EXIT { ImGui::PopStyleColor(); };
             if(!ImGui::BeginPopup("##dropdownchooser", ImGuiWindowFlags_AlwaysVerticalScrollbar)) return;
-            SCOPE_EXIT { ImGui::EndPopup(); };
-
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {4_sc, 4_sc});
+
+            SCOPE_EXIT {
+                ImGui::PopStyleVar();
+                ImGui::EndPopup();
+            };
 
             // 200 window size - 8px padding on both sides - 14 scrollbar size
             ImVec2 buttonSize = {170_sc, 0};
@@ -57,11 +62,71 @@ namespace LRI::RCI {
 
             ImGui::Separator();
 
-            ImGui::BeginDisabled();
-            ImGui::Text("No Recents");
-            ImGui::EndDisabled();
+            if(settings::getRecents().empty()) {
+                ImGui::BeginDisabled();
+                ImGui::Text("No Recents");
+                ImGui::EndDisabled();
+                return;
+            }
 
-            ImGui::PopStyleVar();
+            int id = 0;
+            buttonSize.y = 40_sc;
+            for(const settings::Recent& r : settings::getRecents()) {
+                ImGui::PushID(id++);
+
+                ImVec2 cursor = ImGui::GetCursorPos();
+                ImVec2 extraPopupPos = ImGui::GetCursorScreenPos() + ImVec2{172_sc, 0};
+
+                ImGui::Button("##button", buttonSize);
+                ImVec2 afterButton = ImGui::GetCursorPos();
+                bool wasHovered = false;
+                static bool alreadyOpen = false;
+                static int coyoteFrames = 0;
+                if(ImGui::IsItemHovered()) {
+                    wasHovered = true;
+                    if(!alreadyOpen) {
+                        ImGui::OpenPopup("##dropdownextras");
+                        coyoteFrames = 3;
+                    }
+                }
+
+                ImGui::PushFont(nullptr, 28_sc);
+                ImVec2 iconsize = ImGui::CalcTextSize(&r.display_char[0]);
+                cursor += ImVec2{5_sc, (buttonSize.y - iconsize.y) / 2};
+                ImGui::SetCursorPos(cursor);
+                if(r.type == settings::RecentType::TARGET) ImGui::Text("%s", &r.display_char[0]);
+                else ImGui::Text(ICON_VS_GRAPH_LINE);
+                ImGui::PopFont();
+
+                cursor.x += iconsize.x;
+                ImGui::SetCursorPos(cursor);
+                ImGui::Text("%s", r.displayName.c_str());
+
+                ImGui::BeginDisabled();
+                ImGui::PushFont(nullptr, 12_sc);
+                cursor += ImVec2{0, 16_sc};
+                ImGui::SetCursorPos(cursor);
+                if(r.type == settings::RecentType::TARGET) ImGui::Text("%s", r.connectName.c_str());
+                else ImGui::Text("Test Log");
+                ImGui::PopFont();
+                ImGui::EndDisabled();
+
+                ImGui::SetNextWindowPos(extraPopupPos);
+                if(ImGui::BeginPopup("##dropdownextras", ImGuiWindowFlags_ChildWindow)) {
+                    alreadyOpen = true;
+                    ImGui::Text("HELLO");
+                    wasHovered = wasHovered || ImGui::IsWindowHovered();
+                    if(!wasHovered) {
+                        if(coyoteFrames-- <= 0) ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
+                else alreadyOpen = false;
+
+                ImGui::SetCursorPos(afterButton);
+                ImGui::PopID();
+            }
+            ImGui::Dummy(V0);
         }
 
         void renderCaption() {
@@ -142,7 +207,9 @@ namespace LRI::RCI {
 
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
             ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, {0.5, 0.5});
-            if(!ImGui::BeginPopupModal("Config Error##cfgerror", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) return;
+            if(!ImGui::BeginPopupModal("Config Error##cfgerror", nullptr,
+                                       ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
+                return;
             SCOPE_EXIT { ImGui::EndPopup(); };
 
             ImGui::Text("Error loading config:\n%s", settings::getErrorString().c_str());

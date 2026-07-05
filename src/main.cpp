@@ -42,5 +42,7 @@ int main() {
     LRI::RCI::show();
 
     glfwTerminate();
+
+    LRI::RCI::settings::writeSettings();
     return 0;
 }

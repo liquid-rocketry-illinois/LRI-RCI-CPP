@@ -4,6 +4,7 @@
 #include <vector>
 #include <filesystem>
 #include <string>
+#include <array>
 
 namespace LRI::RCI::settings {
     enum class RecentType {
@@ -12,8 +13,9 @@ namespace LRI::RCI::settings {
     };
 
     struct Recent {
-        RecentType type;
+        RecentType type = RecentType::TARGET;
         std::string displayName;
+        std::array<char, 4> display_char;
         std::string connectName;
         std::filesystem::path path;
     };
