@@ -1,6 +1,8 @@
 #include "util/system.h"
 
 #include <Shlobj.h>
+#include <SetupAPI.h>
+#include <devguid.h>
 #include <print>
 
 #define STB_IMAGE_IMPLEMENTATION 1
@@ -9,6 +11,7 @@
 namespace LRI::RCI {
     namespace {
         std::filesystem::path roaming;
+        std::vector<std::pair<std::string, std::string>> serials;
     }
 
     const std::filesystem::path& roamingFolder() { return roaming; }
@@ -56,4 +59,42 @@ namespace LRI::RCI {
 
     void keepScreenAwake() { SetThreadExecutionState(ES_DISPLAY_REQUIRED | ES_CONTINUOUS); }
     void allowScreenSleep() { SetThreadExecutionState(ES_CONTINUOUS); }
+
+    // Honestly I dont know what this does its some Windows spaghetti I stole from SO but it works so yay
+    // https://stackoverflow.com/a/77752863
+    void enumSerialDevs() {
+        serials.clear();
+        HANDLE devs = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, nullptr, nullptr, DIGCF_PRESENT);
+        if(devs == INVALID_HANDLE_VALUE) return;
+
+        SP_DEVINFO_DATA data;
+        data.cbSize = sizeof(SP_DEVINFO_DATA);
+        char s[80];
+
+        for(DWORD i = 0; SetupDiEnumDeviceInfo(devs, i, &data); i++) {
+            HKEY hkey = SetupDiOpenDevRegKey(devs, &data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
+            if(hkey == INVALID_HANDLE_VALUE) {
+                continue;
+            }
+
+            char comname[16];
+            DWORD len = 16;
+
+            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
+            RegCloseKey(hkey);
+            if(comname[0] != 'C') continue;
+
+            SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE) s, sizeof(s), nullptr);
+
+            // Somehow we end up with the name we need to open the port, and a more user friendly display string.
+            // These get appended to this vector for later
+            serials.emplace_back(std::string(comname), std::string(comname) + " : " + std::string(s));
+        }
+
+        SetupDiDestroyDeviceInfoList(devs);
+    }
+
+    const std::vector<std::pair<std::string, std::string>>& serialDevs() {
+        return serials;
+    }
 } // namespace LRI::RCI

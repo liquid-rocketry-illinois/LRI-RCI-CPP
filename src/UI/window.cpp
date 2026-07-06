@@ -254,8 +254,8 @@ namespace LRI::RCI {
                 ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), impos, impos + imsize);
             }
 
-            ImGui::GetBackgroundDrawList()->AddText({10_sc, wY - verStringHeight - 10_sc}, style::GRAY_SEMITRANSPARENTi,
-                                                    versionString.c_str());
+            ImGui::GetBackgroundDrawList()->AddText({10_sc, static_cast<float>(wY) - verStringHeight - 10_sc},
+                                                    style::GRAY_SEMITRANSPARENTi, versionString.c_str());
 
             ImGui::Render();
             glViewport(0, 0, wX, wY);
