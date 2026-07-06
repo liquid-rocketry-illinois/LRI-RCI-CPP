@@ -11,6 +11,9 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "UI/style.h"
 #include "glfw/glfw3native.h"
+#include "util/ThreadPool.h"
+#include "util/settings.h"
+#include "util/system.h"
 
 // using namespace std::chrono_literals;
 
@@ -94,6 +97,15 @@ namespace LRI::RCI::splash {
 
         startTime = std::chrono::system_clock::now();
 
+        // May as well put the splash to work. Run some of the setup tasks in a background thread
+        ThreadPool pool(1);
+        // This MUST happen early since the result is used by other. Internally, the tasks are placed into a queue, so
+        // combined with the fact this is a thread pool of size 1, this is guarenteed to run before anything else
+        pool.enqueue(detectRoamingFolder);
+
+        pool.enqueue(enumSerialDevs);
+        pool.enqueue(settings::loadUsersettings);
+
         while(!glfwWindowShouldClose(window)) {
             glfwPollEvents();
             ImGui_ImplOpenGL3_NewFrame();
@@ -114,8 +126,10 @@ namespace LRI::RCI::splash {
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             glfwSwapBuffers(window);
 
-            // Close the splash after TIME_OPEN. surprise! splash isnt actually functional its just style points
-            if(std::chrono::system_clock::now() - startTime > TIME_OPEN) glfwSetWindowShouldClose(window, GLFW_TRUE);
+            // Close the splash after TIME_OPEN (and all background tasks are done).
+            // surprise! splash (mostly) isnt actually functional its just style points
+            if(std::chrono::system_clock::now() - startTime > TIME_OPEN && pool.complete())
+                glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
 
         // Cleanup for the main window

@@ -32,10 +32,6 @@ int main() {
         return -1;
     }
 
-    LRI::RCI::detectRoamingFolder();
-    LRI::RCI::enumSerialDevs();
-    LRI::RCI::settings::loadUsersettings();
-
     // Will loop until splash finishes
     LRI::RCI::splash::show();
 
