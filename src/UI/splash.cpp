@@ -99,8 +99,9 @@ namespace LRI::RCI::splash {
 
         // May as well put the splash to work. Run some of the setup tasks in a background thread
         ThreadPool pool(1);
-        // This MUST happen early since the result is used by other. Internally, the tasks are placed into a queue, so
-        // combined with the fact this is a thread pool of size 1, this is guarenteed to run before anything else
+        // This MUST happen early since the result is used by other tasks. Internally, the tasks are placed into a
+        // queue, so combined with the fact this is a thread pool of size 1, this is guarenteed to run before
+        // anything else
         pool.enqueue(detectRoamingFolder);
 
         pool.enqueue(enumSerialDevs);
