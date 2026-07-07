@@ -28,10 +28,10 @@ namespace LRI::RCI {
 
         RCP_DeviceClass devclass;
         uint8_t id = 0;
-        std::string_view name;
+        std::string name;
 
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string_view name) :
-            devclass(devclass), id(id), name((name)) {}
+            devclass(devclass), id(id), name(name) {}
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
 
         // Used for ordering
