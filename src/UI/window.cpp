@@ -9,6 +9,7 @@
 #include "imgui_impl_opengl3.h"
 #include "windowsx.h"
 
+#include <future>
 #include <print>
 
 #include "RCP_Host/RCP_Host.h"
@@ -16,8 +17,11 @@
 #include "UI/style.h"
 #include "UI/vscode_icons.h"
 #include "VERSION.h"
+#include "nfd.h"
 #include "util/guards.h"
 #include "util/settings.h"
+#include "util/system.h"
+#include "UI/TargetView.h"
 
 #define CAPHEIGHT (40_sc)
 
@@ -38,6 +42,15 @@ namespace LRI::RCI {
 
         std::string versionString;
         float verStringHeight = 0;
+        Windowlet* openView = nullptr;
+
+        enum class OpenType {
+            NONE,
+            TLOG,
+            TARGET,
+        } openType;
+
+        std::optional<std::future<std::filesystem::path>> popupSelectedFile = std::nullopt;
 
         void renderChooserPopup(ImVec2 pos) {
             ImGui::SetNextWindowPos(pos);
@@ -56,8 +69,16 @@ namespace LRI::RCI {
             ImVec2 buttonSize = {170_sc, 0};
 
             ImGui::Button(ICON_VS_ADD " New Target##addtarget", buttonSize);
-            ImGui::Button(ICON_VS_FOLDER " Open Target##opentarget", buttonSize);
-            ImGui::Button(ICON_VS_FOLDER " Open Testlog##opentestlog", buttonSize);
+            if(ImGui::Button(ICON_VS_FOLDER " Open Target##opentarget", buttonSize)) {
+                popupSelectedFile = pickFile("target");
+                openType = OpenType::TARGET;
+            }
+
+            if(ImGui::Button(ICON_VS_FOLDER " Open Testlog##opentestlog", buttonSize)) {
+                popupSelectedFile = pickFile("testlog");
+                openType = OpenType::TLOG;
+            }
+
             ImGui::Button(ICON_VS_EDIT " Target Editor##edittarget", buttonSize);
 
             ImGui::Separator();
@@ -85,7 +106,7 @@ namespace LRI::RCI {
                 if(ImGui::IsItemHovered()) {
                     wasHovered = true;
                     if(!alreadyOpen) {
-                        ImGui::OpenPopup("##dropdownextras");
+                        ImGui::OpenPopup("##dropdownextras", ImGuiPopupFlags_NoReopen);
                         coyoteFrames = 3;
                     }
                 }
@@ -166,6 +187,11 @@ namespace LRI::RCI {
             ImGui::Button(ICON_VS_THREE_BARS "##hamborger", bsquare);
 
             // Draw the target dropdown
+            const bool disableDueToFilePicker = popupSelectedFile.has_value();
+            if(disableDueToFilePicker) {
+                ImGui::BeginDisabled();
+                ImGui::OpenPopup("##dropdownchooser", ImGuiPopupFlags_NoReopen);
+            }
             bool dchooserOpen = ImGui::IsPopupOpen("##dropdownchooser");
             if(dchooserOpen) ImGui::PushStyleColor(ImGuiCol_Button, style::BUTTONHOVER);
             ImGui::SetCursorPos({csquare.x + 5_sc + bsquare.x + 5_sc, buttonY});
@@ -175,6 +201,7 @@ namespace LRI::RCI {
             if(dchooserOpen) ImGui::PopStyleColor();
             renderChooserPopup({csquare.x + 5_sc + bsquare.x + 5_sc, capsize.y - buttonY});
             ImGui::PopStyleVar(2);
+            if(disableDueToFilePicker) ImGui::EndDisabled();
 
             // Draw window control buttons
             // Minimize button
@@ -233,6 +260,8 @@ namespace LRI::RCI {
             ImGui::ShowDemoWindow();
             renderCaption();
             renderConfigModal();
+
+            if(openView != nullptr) openView->render();
 
             {
                 ImVec2 blankSpace = style::getWindowSize() - ImVec2{0, 40_sc};
@@ -444,6 +473,18 @@ namespace LRI::RCI {
             glfwPollEvents();
             frame();
             firstLoop = false;
+            if(openView != nullptr && openView->shouldClose()) {
+                delete openView;
+                openView = nullptr;
+            }
+            if(popupSelectedFile) {
+                if(popupSelectedFile->wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+                    if(openType == OpenType::TARGET) openView = new TargetView(popupSelectedFile->get());
+
+                    popupSelectedFile = std::nullopt;
+                    openType = OpenType::NONE;
+                }
+            }
         }
 
         style::cleanupBirdTex();

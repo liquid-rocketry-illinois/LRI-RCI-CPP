@@ -97,15 +97,12 @@ namespace LRI::RCI::splash {
 
         startTime = std::chrono::system_clock::now();
 
-        // May as well put the splash to work. Run some of the setup tasks in a background thread
-        ThreadPool pool(1);
-        // This MUST happen early since the result is used by other tasks. Internally, the tasks are placed into a
-        // queue, so combined with the fact this is a thread pool of size 1, this is guarenteed to run before
-        // anything else
-        pool.enqueue(detectRoamingFolder);
-
-        pool.enqueue(enumSerialDevs);
-        pool.enqueue(settings::loadUsersettings);
+        // Throw some setup in an async func so that the splash can actually do some work
+        auto fut = std::async(std::launch::async, [] {
+            detectRoamingFolder();
+            enumSerialDevs();
+            settings::loadUsersettings();
+        });
 
         while(!glfwWindowShouldClose(window)) {
             glfwPollEvents();
@@ -129,9 +126,12 @@ namespace LRI::RCI::splash {
 
             // Close the splash after TIME_OPEN (and all background tasks are done).
             // surprise! splash (mostly) isnt actually functional its just style points
-            if(std::chrono::system_clock::now() - startTime > TIME_OPEN && pool.complete())
+            if(std::chrono::system_clock::now() - startTime > TIME_OPEN &&
+               fut.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
         }
+
+        fut.get();
 
         // Cleanup for the main window
         style::cleanupBirdTex();

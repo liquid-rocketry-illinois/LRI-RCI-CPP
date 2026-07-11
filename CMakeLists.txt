@@ -66,6 +66,9 @@ target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/impl
 target_link_libraries(imgui PUBLIC glfw)
 target_compile_definitions(imgui PUBLIC -DIMGUI_USER_CONFIG="imuserconfig.h")
 
+add_library(nfd OBJECT libs/nfd/src/nfd_common.c libs/nfd/src/nfd_win.cpp)
+target_include_directories(nfd PUBLIC libs/nfd/src/include)
+
 # Add the main executable target with all the sources
 add_executable(LRI_control_panel
         # The generated version info file
@@ -77,6 +80,8 @@ add_executable(LRI_control_panel
         src/UI/splash.cpp
         src/UI/window.cpp
         src/util/settings.cpp
+        src/data/targetconfig.cpp
+        src/UI/TargetView.cpp
 #        src/utils.cpp
 #        src/improgress.cpp
 #        src/rendering.cpp
@@ -132,7 +137,7 @@ add_executable(LRI_control_panel
 
 # Add needed libraries
 target_link_libraries(LRI_control_panel PRIVATE RCP-Host yaml-cpp SFML::Network imgui
-        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi)
+        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi nfd)
 
 # Add includes folder
 target_include_directories(LRI_control_panel PRIVATE include)

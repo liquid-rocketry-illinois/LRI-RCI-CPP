@@ -7,6 +7,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION 1
 #include "util/stb_image.h"
+#include "util/guards.h"
+#include "nfd.h"
 
 namespace LRI::RCI {
     namespace {
@@ -96,5 +98,25 @@ namespace LRI::RCI {
 
     const std::vector<std::pair<std::string, std::string>>& serialDevs() {
         return serials;
+    }
+
+    std::future<std::filesystem::path> pickFile(const std::string& filter, const std::string& defaultLocation) {
+        return std::async(std::launch::async, [=] {
+            const char* cfilter = nullptr;
+            if(!filter.empty()) cfilter = filter.c_str();
+
+            const char* defLoc = nullptr;
+            if(!defaultLocation.empty()) defLoc = defaultLocation.c_str();
+
+            nfdchar_t* outpath = nullptr;
+            SCOPE_EXIT {
+                if(outpath != nullptr) free(outpath);
+            };
+
+            auto res = NFD_OpenDialog(cfilter, defLoc, &outpath);
+            if(res == NFD_OKAY) return std::filesystem::path(outpath);
+
+            return std::filesystem::path();
+        });
     }
 } // namespace LRI::RCI

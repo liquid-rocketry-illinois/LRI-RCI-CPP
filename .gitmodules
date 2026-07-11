@@ -16,3 +16,6 @@
 [submodule "libs/yaml"]
 	path = libs/yaml
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "libs/nfd"]
+	path = libs/nfd
+	url = https://github.com/mlabbe/nativefiledialog
