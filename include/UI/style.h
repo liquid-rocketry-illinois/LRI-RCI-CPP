@@ -74,6 +74,7 @@ namespace LRI::RCI {
 
     float operator""_sc(unsigned long long value);
     float operator""_sc(long double value);
+    float scale(float value);
     constexpr ImVec2 V0 = {0, 0};
 } // namespace LRI::RCI
 

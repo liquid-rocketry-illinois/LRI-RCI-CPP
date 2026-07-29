@@ -16,6 +16,7 @@ namespace LRI::RCI {
 
     float operator""_sc(unsigned long long value) { return static_cast<float>(value) * scaleFactor; }
     float operator""_sc(long double value) { return static_cast<float>(value) * scaleFactor; }
+    float scale(float value) { return value * scaleFactor; }
 
     namespace style {
         void setImGuiStyles() {
@@ -60,7 +61,6 @@ namespace LRI::RCI {
 
         void setScaleFactor(float scale) {
             scaleFactor = scale;
-            ImGui::GetStyle().ScaleAllSizes(scale);
         }
 
         float getScaleFactor() { return scaleFactor; }
@@ -112,7 +112,7 @@ namespace LRI::RCI {
             ImFontAtlas* fonts = ImGui::GetIO().Fonts;
             fonts->ClearFonts();
 
-            const float fontsize = 16_sc;
+            constexpr float fontsize = 16;
 
             ImFontConfig text;
             text.FontDataOwnedByAtlas = false;
@@ -122,7 +122,7 @@ namespace LRI::RCI {
             icons.PixelSnapH = true;
             icons.GlyphMinAdvanceX = fontsize;
             icons.MergeMode = true;
-            icons.GlyphOffset = {0, 3_sc};
+            icons.GlyphOffset = {0, 3};
 
             // Load fontawesome and codicons in merge mode with the regular font so the icons can be used in text
             // We load font_regular twice, once with awesome merged, and once with codicons merged
