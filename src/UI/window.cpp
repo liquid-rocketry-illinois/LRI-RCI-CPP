@@ -194,7 +194,7 @@ namespace {
 
         ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), basePos + impos, impos + imsize);
         ImGui::GetBackgroundDrawList()->AddText(basePos + ImVec2{10_sc, style::getWindowSize().y - scale(VER_STRING_HEIGHT) - 10_sc},
-                                                style::GRAY_SEMITRANSPARENTi, VERSION_STRING.c_str());
+                                                colors::GRAY_SEMITRANSPARENTi, VERSION_STRING.c_str());
     }
 
     // void renderChooserPopup(ImVec2 pos) {
@@ -369,8 +369,8 @@ namespace {
 
         // Close button
         cpos.x += csquare.y;
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, style::RED);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, style::LRED);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::RED);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::LRED);
         ImGui::SetCursorPos(cpos);
         if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
         ImGui::PopStyleColor(2);

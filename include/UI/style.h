@@ -15,7 +15,7 @@ namespace LRI::RCI {
                 static_cast<float>((color >> IM_COL32_A_SHIFT) & 0xFF) * s};
     }
 
-    namespace style {
+    namespace colors {
 #define COLOR_CONSTANT(name, value)                                                                                    \
     static constexpr ImU32 name##i = value;                                                                            \
     static constexpr ImVec4 name = U32ToImVec4(name##i)
@@ -48,7 +48,9 @@ namespace LRI::RCI {
         COLOR_CONSTANT(LGRAY_SEMITRANSPARENT, 0x88777777);
 
 #undef COLOR_CONSTANT
+    } // namespace colors
 
+    namespace style {
         void setWindowIcon(GLFWwindow* window);
         void setupBirdIcon();
         GLuint getBirdTex();
