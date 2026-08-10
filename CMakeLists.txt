@@ -82,6 +82,7 @@ add_executable(LRI_control_panel
         src/util/settings.cpp
         src/data/targetconfig.cpp
         src/UI/TargetView.cpp
+        src/util/FrameDeferred.cpp
 #        src/utils.cpp
 #        src/improgress.cpp
 #        src/rendering.cpp

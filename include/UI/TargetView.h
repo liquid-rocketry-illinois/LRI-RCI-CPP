@@ -18,6 +18,7 @@ namespace LRI::RCI {
 
         void render() override;
         bool shouldClose() override;
+        std::string contextString() override;
     };
 }
 

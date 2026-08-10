@@ -32,6 +32,7 @@ namespace LRI::RCI {
 
             auto& colors = style.Colors;
 
+            using namespace colors;
             colors[ImGuiCol_Text] = WHITE;
             colors[ImGuiCol_WindowBg] = DGRAY;
             colors[ImGuiCol_PopupBg] = DGRAY;

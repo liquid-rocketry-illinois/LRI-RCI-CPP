@@ -13,4 +13,6 @@ namespace LRI::RCI {
     bool TargetView::shouldClose() {
         return close;
     }
+
+    std::string TargetView::contextString() { return ""; }
 } // namespace LRI::RCI

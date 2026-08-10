@@ -18,6 +18,7 @@
 #include "UI/style.h"
 #include "UI/vscode_icons.h"
 #include "VERSION.h"
+#include "util/FrameDeferred.h"
 #include "util/guards.h"
 #include "util/settings.h"
 #include "util/system.h"
@@ -158,7 +159,12 @@ namespace {
 namespace {
     using namespace LRI::RCI;
 
-    // Windowlet* openView = nullptr;
+    Windowlet* openView = nullptr;
+
+    constexpr std::string_view NO_SELECT_STRING =
+        std::string_view(" " ICON_VS_ROCKET " No Target " ICON_VS_CHEVRON_DOWN " ");
+    constexpr std::string_view CONTEXT_STRING_ID = "###chooserbuttonstring";
+    std::string contextString = std::string(NO_SELECT_STRING) + std::string(CONTEXT_STRING_ID);
     // enum class OpenType {
     //     NONE,
     //     TLOG,
@@ -193,8 +199,9 @@ namespace {
         }
 
         ImGui::GetBackgroundDrawList()->AddImage(style::getBirdTex(), basePos + impos, impos + imsize);
-        ImGui::GetBackgroundDrawList()->AddText(basePos + ImVec2{10_sc, style::getWindowSize().y - scale(VER_STRING_HEIGHT) - 10_sc},
-                                                colors::GRAY_SEMITRANSPARENTi, VERSION_STRING.c_str());
+        ImGui::GetBackgroundDrawList()->AddText(
+            basePos + ImVec2{10_sc, style::getWindowSize().y - scale(VER_STRING_HEIGHT) - 10_sc},
+            colors::GRAY_SEMITRANSPARENTi, VERSION_STRING.c_str());
     }
 
     // void renderChooserPopup(ImVec2 pos) {
@@ -295,6 +302,80 @@ namespace {
     //     ImGui::Dummy(V0);
     // }
 
+    void renderContextPicker(const float& buttonY, const ImVec2& bsquare, const ImVec2& csquare) {
+        static const auto CHOOSERNAME = "##contextchooser";
+
+
+        // These two vars track the file we are waiting on opening. If fpath is nullopt, we are not waiting. Otherwise,
+        //   fOpenType indicates what kind of file we are waiting on for the next invocation of renderContextPicker
+        static std::optional<std::future<std::filesystem::path>> fpath = std::nullopt;
+        static enum { TARGET, TESTLOG } fOpenType = TARGET;
+
+        const bool waitingOnFpicker = [] {
+            if(!fpath.has_value()) return false;
+            if(fpath->wait_for(std::chrono::milliseconds(0)) != std::future_status::ready) return true;
+
+            // In this branch, we know the file picker has completed. So, defer create the view to handle it
+            FrameDeferred::defer([] {
+                const auto path = fpath->get();
+                if(path != std::filesystem::path()) switch(fOpenType) {
+                    case TARGET:
+                        openView = new TargetView(path);
+                        break;
+
+                    case TESTLOG:
+                        break;
+
+                    default:
+                        break;
+                    }
+
+                fpath = std::nullopt;
+            });
+
+            // Since the creation was deferred to next frame, we still need to return tru in this frame
+            return true;
+        }();
+
+        if(waitingOnFpicker) ImGui::OpenPopup(CHOOSERNAME, ImGuiPopupFlags_NoReopen);
+        const bool chooserOpen = ImGui::IsPopupOpen(CHOOSERNAME);
+
+        // Rest of function is disabled
+        if(waitingOnFpicker) ImGui::BeginDisabled();
+        SCOPE_EXIT {
+            if(waitingOnFpicker) ImGui::EndDisabled();
+        };
+
+        { // active button color if open
+            if(chooserOpen) ImGui::PushStyleColor(ImGuiCol_Button, colors::BUTTONHOVER);
+            SCOPE_EXIT { ImGui::PopStyleColor(); };
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(buttonY);
+            if(ImGui::Button(contextString.c_str(), {0, bsquare.y})) {
+                ImGui::OpenPopup(CHOOSERNAME);
+            }
+        }
+
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos +
+                                ImVec2{csquare.x + 5_sc + bsquare.x + 5_sc, CAPHEIGHT - buttonY});
+        ImGui::SetNextWindowSize({200_sc, 300_sc});
+        TEMP_COLOR(ImGuiCol_Border, colors::PURPLE);
+        if(!ImGui::BeginPopup(CHOOSERNAME, ImGuiWindowFlags_AlwaysVerticalScrollbar)) return;
+
+        // 200 window size - 8px padding both sides - 14px scrollbar size
+        const ImVec2 buttonSize = {170_sc, 0};
+
+        if(ImGui::Button(ICON_VS_ADD " New Target##addtarget", buttonSize)) openView = nullptr;
+
+        if(ImGui::Button(ICON_VS_FOLDER " Open Target##opentarget", buttonSize)) {
+            FrameDeferred::defer([] {
+                fpath = pickFile("target");
+                fOpenType = TARGET;
+            });
+        }
+    }
+
     void renderCaption() {
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
 
@@ -312,68 +393,79 @@ namespace {
             ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking;
 
         ImGui::SetNextWindowSize(capsize);
-        font::pushCodicons();
-        SCOPE_EXIT {
-            ImGui::PopFont();
-            ImGui::End();
-        };
 
-        if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
+        { // Codicons Font
+            font::pushCodicons();
+            SCOPE_EXIT {
+                ImGui::PopFont();
+                ImGui::End();
+            };
 
-        // Draw little bird icon in top left corner
-        ImGui::SetCursorPos(V0);
-        ImGui::Image(style::getBirdTex(), csquare);
+            if(!ImGui::Begin("##caption", nullptr, FLAGS)) return;
 
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8_sc);
-        ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0, 0.5f});
+            // Draw little bird icon in top left corner
+            ImGui::SetCursorPos(V0);
+            ImGui::Image(style::getBirdTex(), csquare);
 
-        // Draw hamborger
-        ImGui::SetCursorPos({csquare.x + 5_sc, buttonY});
-        ImGui::Button(ICON_VS_THREE_BARS "##hamborger", bsquare);
+            { // Frame Rounding and Button Text Alignment
+                ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 8_sc);
+                ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0.5f, 0.5f});
+                SCOPE_EXIT { ImGui::PopStyleVar(2); };
 
-        ImGui::PopStyleVar(2);
-        // ImGui::PopStyleColor(2);
+                // Draw hamborger
+                ImGui::SameLine();
+                ImGui::SetCursorPosY(buttonY);
+                ImGui::Button(ICON_VS_THREE_BARS "##hamborger", bsquare);
 
-        // Draw the target dropdown
-        // const bool disableDueToFilePicker = popupSelectedFile.has_value();
-        // if(disableDueToFilePicker) {
-        //     ImGui::BeginDisabled();
-        //     ImGui::OpenPopup("##dropdownchooser", ImGuiPopupFlags_NoReopen);
-        // }
-        // bool dchooserOpen = ImGui::IsPopupOpen("##dropdownchooser");
-        // if(dchooserOpen) ImGui::PushStyleColor(ImGuiCol_Button, style::BUTTONHOVER);
-        // ImGui::SetCursorPos({csquare.x + 5_sc + bsquare.x + 5_sc, buttonY});
-        // if(ImGui::Button(" " ICON_VS_ROCKET " No Target " ICON_VS_CHEVRON_DOWN " ##popup", {0, bsquare.y})) {
-        //     ImGui::OpenPopup("##dropdownchooser");
-        // }
-        // if(dchooserOpen) ImGui::PopStyleColor();
-        // renderChooserPopup({csquare.x + 5_sc + bsquare.x + 5_sc, capsize.y - buttonY});
-        // ImGui::PopStyleVar(2);
-        // if(disableDueToFilePicker) ImGui::EndDisabled();
+                renderContextPicker(buttonY, bsquare, csquare);
+            }
+            // ImGui::PopStyleColor(2);
 
-        // Draw window control buttons
-        // Minimize button
-        ImVec2 cpos = {capsize.x - (3 * csquare.x), 0};
-        ImGui::SetCursorPos(cpos);
-        if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
+            // Draw the target dropdown
+            // const bool disableDueToFilePicker = popupSelectedFile.has_value();
+            // if(disableDueToFilePicker) {
+            //     ImGui::BeginDisabled();
+            //     ImGui::OpenPopup("##dropdownchooser", ImGuiPopupFlags_NoReopen);
+            // }
+            // bool dchooserOpen = ImGui::IsPopupOpen("##dropdownchooser");
+            // if(dchooserOpen) ImGui::PushStyleColor(ImGuiCol_Button, style::BUTTONHOVER);
+            // ImGui::SetCursorPos({csquare.x + 5_sc + bsquare.x + 5_sc, buttonY});
+            // if(ImGui::Button(" " ICON_VS_ROCKET " No Target " ICON_VS_CHEVRON_DOWN " ##popup", {0, bsquare.y})) {
+            //     ImGui::OpenPopup("##dropdownchooser");
+            // }
+            // if(dchooserOpen) ImGui::PopStyleColor();
+            // renderChooserPopup({csquare.x + 5_sc + bsquare.x + 5_sc, capsize.y - buttonY});
+            // ImGui::PopStyleVar(2);
+            // if(disableDueToFilePicker) ImGui::EndDisabled();
 
-        // Maximize/restore
-        cpos.x += csquare.y;
-        ImGui::SetCursorPos(cpos);
-        if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
-            if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
+            // Draw window control buttons
+            // Minimize button
+            ImVec2 cpos = {capsize.x - (3 * csquare.x), 0};
+            ImGui::SetCursorPos(cpos);
+            if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", csquare)) glfwIconifyWindow(window);
+
+            // Maximize/restore
+            cpos.x += csquare.y;
+            ImGui::SetCursorPos(cpos);
+            if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
+                if(ImGui::Button(ICON_VS_CHROME_RESTORE "##restore", csquare)) glfwRestoreWindow(window);
+            }
+            else {
+                if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "##restore", csquare)) glfwMaximizeWindow(window);
+            }
+
+            // Close button
+            cpos.x += csquare.y;
+
+            { // Button Colors
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::RED);
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::LRED);
+                SCOPE_EXIT { ImGui::PopStyleColor(2); };
+
+                ImGui::SetCursorPos(cpos);
+                if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
+            }
         }
-        else {
-            if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "##restore", csquare)) glfwMaximizeWindow(window);
-        }
-
-        // Close button
-        cpos.x += csquare.y;
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::RED);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::LRED);
-        ImGui::SetCursorPos(cpos);
-        if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", csquare)) glfwSetWindowShouldClose(window, true);
-        ImGui::PopStyleColor(2);
     }
 
     void frame() {
@@ -450,6 +542,7 @@ namespace LRI::RCI {
         glfwShowWindow(window);
 
         while(!glfwWindowShouldClose(window)) {
+            FrameDeferred::updateDeferredValues();
             glfwPollEvents();
             frame();
 
@@ -467,11 +560,23 @@ namespace LRI::RCI {
             // }
         }
 
+        glfwHideWindow(window);
+
         style::cleanupBirdTex();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
         glfwDestroyWindow(window);
+    }
+
+    void setContextString(const std::string& str) {
+        contextString = str;
+        contextString += CONTEXT_STRING_ID;
+    }
+
+    void unsetContextString() {
+        contextString = NO_SELECT_STRING;
+        contextString += CONTEXT_STRING_ID;
     }
 
 } // namespace LRI::RCI

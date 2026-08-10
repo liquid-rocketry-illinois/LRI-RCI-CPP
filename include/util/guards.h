@@ -30,6 +30,8 @@ namespace LRI::RCI {
 #define CAT(A, B) CATIMPL(A, B)
 #define SCOPE_EXIT [[maybe_unused]] ScopeGuard CAT(GUARD, __COUNTER__) = ScopeGuard::Ctor() + [&]()
 
+#define TEMP_COLOR(COLOR, VALUE) ImGui::PushStyleColor(COLOR, VALUE); SCOPE_EXIT { ImGui::PopStyleColor(); }
+
 // #define SCOPE_EXIT [[maybe_unused]] ScopeGuard __COUNTER__;
 }
 
