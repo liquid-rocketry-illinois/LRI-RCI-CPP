@@ -143,4 +143,10 @@ namespace LRI::RCI {
 
         glfwDestroyWindow(window);
     }
+
+    void render(GLFWwindow* window) {
+        imgui_prerender();
+        Windowlet::renderWindowlets();
+        imgui_postrender(window);
+    }
 } // namespace LRI::RCI

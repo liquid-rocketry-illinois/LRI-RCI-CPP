@@ -48,9 +48,7 @@ int main() {
     while(!glfwWindowShouldClose(window)) {
         LRI::RCI::HWCTRL::update();
 
-        LRI::RCI::imgui_prerender();
-        LRI::RCI::Windowlet::renderWindowlets();
-        LRI::RCI::imgui_postrender(window);
+        LRI::RCI::render(window);
     }
 
     // Once the window should close, then terminate libraries

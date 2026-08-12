@@ -14,6 +14,7 @@ namespace LRI::RCI {
     void imgui_prerender();
     void imgui_postrender(GLFWwindow* window);
     void imgui_shutdown(GLFWwindow* window);
+    void render(GLFWwindow* window);
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_RENDERING_H
