@@ -31,6 +31,16 @@ namespace LRI::RCI {
         glfwSwapInterval(1);
         glfwSetWindowTitle(window, "LRI Rocket Control Panel");
 
+        // Do a quick black fill so the user doesnt get flash banged by the default white
+        {
+            int wX, wY;
+            glfwGetWindowSize(window, &wX, &wY);
+            glViewport(0, 0, wX, wY);
+            glClearColor(BACKGROUND_COLOR.x, BACKGROUND_COLOR.y, BACKGROUND_COLOR.z, BACKGROUND_COLOR.w);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(window);
+        }
+
         // Create imgui and implot contexts
         IMGUI_CHECKVERSION();
         ImGui::SetCurrentContext(nullptr);
