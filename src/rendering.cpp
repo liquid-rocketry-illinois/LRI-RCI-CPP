@@ -14,15 +14,11 @@
 #include "UI/Windowlet.h"
 #include "UI/gutils.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
 
 namespace LRI::RCI {
     static std::string VERSION_STRING;
-    static GLuint iconTex;
 
     // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
@@ -37,7 +33,7 @@ namespace LRI::RCI {
 
         // Create imgui and implot contexts
         IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        ImGui::CreateContext(style::getSharedFonts());
         ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -61,48 +57,7 @@ namespace LRI::RCI {
         ImGui_ImplOpenGL3_Init();
 
         glfwGetWindowContentScale(window, &style::scaling_factor, nullptr);
-        io.Fonts->Clear();
-        ImFontConfig fontConfig;
-        fontConfig.FontDataOwnedByAtlas = false;
-
-        {
-            // Load the fonts and add them to imgui. Ubuntu mono my beloved
-            EmbeddedResource fonts("font_regular.ttf");
-            font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                          16, &fontConfig);
-            fonts = EmbeddedResource("font_bold.ttf");
-            font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
-                                                       &fontConfig);
-
-            fonts = EmbeddedResource("font_italic.ttf");
-            font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                         16, &fontConfig);
-        }
-
-        {
-            EmbeddedResource im("LRI_Logo.png");
-            GLFWimage image;
-            image.pixels = stbi_load_from_memory((unsigned char*) im.getData(), static_cast<int>(im.getLength()),
-                                                 &image.width, &image.height, nullptr, 4);
-            glfwSetWindowIcon(window, 1, &image);
-            stbi_image_free(image.pixels);
-        }
-
-        {
-            EmbeddedResource im("LRI_Logo_big.png");
-            int imw, imh;
-            unsigned char* imaged = stbi_load_from_memory((unsigned char*) im.getData(),
-                                                          static_cast<int>(im.getLength()), &imw, &imh, nullptr, 4);
-
-            glGenTextures(1, &iconTex);
-            glBindTexture(GL_TEXTURE_2D, iconTex);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imw, imh, 0, GL_RGBA, GL_UNSIGNED_BYTE, imaged);
-            stbi_image_free(imaged);
-        }
-
+        style::setWindowIcon(window);
 
         // Start the TargetChooser window
         ControlWindowlet::getInstance();
@@ -127,6 +82,7 @@ namespace LRI::RCI {
 
         glfwPollEvents();
 
+        pingFonts();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
@@ -152,7 +108,7 @@ namespace LRI::RCI {
         float coordY = largestSquare / display_h / 1.0f;
 
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, iconTex);
+        glBindTexture(GL_TEXTURE_2D, style::birdIcon());
 
         glBegin(GL_QUADS);
         glTexCoord2f(0, 0);
@@ -186,6 +142,5 @@ namespace LRI::RCI {
         ImGui::DestroyContext();
 
         glfwDestroyWindow(window);
-        glfwTerminate();
     }
 } // namespace LRI::RCI

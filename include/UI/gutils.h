@@ -1,6 +1,8 @@
 #ifndef LRI_CONTROL_PANEL_GUTILS_H
 #define LRI_CONTROL_PANEL_GUTILS_H
 
+#include <Windows.h>
+
 #include "imgui.h"
 #include "glfw/glfw3.h"
 
@@ -8,15 +10,17 @@ namespace LRI::RCI {
     namespace style {
         extern float scaling_factor;
 
-        void setupResources();
-        void cleanupResources();
+        void setup();
+        void cleanup();
         GLFWwindow* getSharedResources();
         ImFontAtlas* getSharedFonts();
         GLuint birdIcon();
 
-        void fontNormal();
-        void fontBold();
-        void fontItalic();
+        void fontNormal(float size = 0);
+        void fontBold(float size = 0);
+        void fontItalic(float size = 0);
+
+        void setWindowIcon(GLFWwindow* window);
     }
 
     inline float scale(int val) { return val * style::scaling_factor; }
@@ -26,6 +30,8 @@ namespace LRI::RCI {
     inline float operator""_sc(long double val) { return static_cast<float>(val) * style::scaling_factor; }
 
     constexpr ImVec2 V0 = ImVec2{0, 0};
+
+    void pingFonts();
 }
 
 #endif // LRI_CONTROL_PANEL_GUTILS_H

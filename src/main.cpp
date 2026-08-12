@@ -16,6 +16,7 @@
 #include "UI/Windowlet.h"
 #include "hardware/HardwareControl.h"
 #include "rendering.h"
+#include "UI/gutils.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure
@@ -28,8 +29,11 @@ int main() {
         return -1;
     }
 
+    LRI::RCI::style::setup();
+
+    glfwDefaultWindowHints();
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "LRI RCI", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "LRI RCI", nullptr, LRI::RCI::style::getSharedResources());
     if(!window) {
         return -1;
     }
@@ -51,6 +55,9 @@ int main() {
 
     // Once the window should close, then terminate libraries
     LRI::RCI::imgui_shutdown(window);
+    LRI::RCI::style::cleanup();
+
+    glfwTerminate();
 
     return 0;
 }

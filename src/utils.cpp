@@ -6,6 +6,9 @@
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 // A mish-mash of various different things that are useful
 namespace LRI::RCI {
     // Fonts
