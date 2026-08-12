@@ -151,7 +151,7 @@ namespace LRI::RCI {
                     control->inipath = inipath.string();
 
                     // Tell the main loop to load the new ini file before the next frame
-                    if(std::filesystem::exists(control->inipath)) iniFilePath.path = control->inipath;
+                    if(std::filesystem::exists(control->inipath)) setIniFileForNextFrame(control->inipath);
 
                     // Call initializer of the rest of the windows
                     initWindows();
@@ -174,7 +174,7 @@ namespace LRI::RCI {
                 if(std::filesystem::exists(origfile) && !std::filesystem::is_directory(origfile)) {
                     std::filesystem::remove(inifile);
                     std::filesystem::copy(origfile, inifile);
-                    iniFilePath.path = inifile.string();
+                    setIniFileForNextFrame(inifile.string());
                 }
             }
         }
