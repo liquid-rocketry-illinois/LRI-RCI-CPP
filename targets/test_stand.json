@@ -1,6 +1,5 @@
 {
   "name": "Test Stand",
-  "allowViewports": true,
   "tests": [
     {
       "id": 0,

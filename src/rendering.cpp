@@ -41,8 +41,8 @@ namespace LRI::RCI {
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts | ImGuiConfigFlags_DpiEnableScaleViewports;
         io.IniFilename = nullptr;
 
         ImGui::StyleColorsDark();
@@ -59,14 +59,14 @@ namespace LRI::RCI {
             // Load the fonts and add them to imgui. Ubuntu mono my beloved
             EmbeddedResource fonts("font_regular.ttf");
             font_regular = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                          scale(16), &fontConfig);
+                                                          16, &fontConfig);
             fonts = EmbeddedResource("font_bold.ttf");
-            font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                       scale(16), &fontConfig);
+            font_bold = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
+                                                       &fontConfig);
 
             fonts = EmbeddedResource("font_italic.ttf");
             font_italic = io.Fonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
-                                                         scale(16), &fontConfig);
+                                                         16, &fontConfig);
         }
 
         {

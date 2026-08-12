@@ -70,8 +70,6 @@ namespace LRI::RCI {
         // If there is currently an active configuration
         bool activeTarget;
 
-        bool hasEnabledViewports;
-
         explicit TargetChooser(ControlWindowlet* control);
         ~TargetChooser() override;
 
