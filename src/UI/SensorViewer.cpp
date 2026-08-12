@@ -4,7 +4,7 @@
 #include "UI/SensorViewer.h"
 #include "implot.h"
 #include "improgress.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
@@ -33,9 +33,9 @@ namespace LRI::RCI {
 
         // Get the drawlist, and calculate the size of the plots
         ImDrawList* draw = ImGui::GetWindowDrawList();
-        const float xsize = ImGui::GetWindowWidth() - scale(25);
+        const float xsize = ImGui::GetWindowWidth() - 25_sc;
         const auto plotsize =
-            ImVec2(xsize, min3(xsize * (9.0f / 16.0f), scale(500), ImGui::GetWindowHeight() - scale(25)));
+            ImVec2(xsize, min3(xsize * (9.0f / 16.0f), 500_sc, ImGui::GetWindowHeight() - 25_sc));
 
         if(showControls) {
             if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {

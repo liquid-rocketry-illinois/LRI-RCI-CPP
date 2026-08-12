@@ -3,7 +3,7 @@
 #include "RCP_Host/RCP_Host.h"
 #include "hardware/TestState.h"
 #include "imgui.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 // Module for viewing and controlling simple actuators
 namespace LRI::RCI {

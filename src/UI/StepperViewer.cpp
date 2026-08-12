@@ -1,7 +1,7 @@
 #include "UI/StepperViewer.h"
 
 #include "hardware/TestState.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 // Module for viewing steppers
 namespace LRI::RCI {
@@ -72,7 +72,7 @@ namespace LRI::RCI {
             ImGui::NewLine();
             ImGui::Text("Value: ");
             ImGui::SameLine();
-            ImGui::SetNextItemWidth(scale(75));
+            ImGui::SetNextItemWidth(75_sc);
             ImGui::InputFloat(BTN_NAMES.at(inputs[id].mode)[1], &inputs[id].val);
 
             // The apply button actually sends the control value to the stepper motors

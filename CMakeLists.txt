@@ -83,6 +83,7 @@ add_executable(LRI_control_panel
         src/UI/TargetChooser.cpp
         src/UI/TestStateViewer.cpp
         src/UI/Windowlet.cpp
+        src/UI/gutils.cpp
 
         # Interfaces
         src/interfaces/COMPort.cpp

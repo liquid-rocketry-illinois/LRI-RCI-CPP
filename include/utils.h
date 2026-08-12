@@ -25,14 +25,6 @@ namespace LRI::RCI {
     extern ImFont* font_bold;
     extern ImFont* font_italic;
 
-    // Scaling factor for hi-dpi screens. Not perfect but its good enough
-    extern float scaling_factor;
-
-
-    // Helpers for scaling floats and ImVec2's by scaling_factor
-    inline ImVec2 scale(const ImVec2& vec) { return vec * scaling_factor; }
-    inline float scale(float val) { return val * scaling_factor; }
-
     // Stopwatch class for time tracking
     class StopWatch final {
         // The last time the stopwatch was reset

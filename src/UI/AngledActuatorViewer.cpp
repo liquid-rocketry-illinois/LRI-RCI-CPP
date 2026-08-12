@@ -2,6 +2,8 @@
 
 #include "imgui.h"
 
+#include "UI/gutils.h"
+
 namespace LRI::RCI {
     AngledActuatorViewer::AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
@@ -38,7 +40,7 @@ namespace LRI::RCI {
             ImGui::Text("Set angle: ");
             ImGui::SameLine();
             ImGui::PushID(qual.asString().c_str());
-            ImGui::SetNextItemWidth(scale(75));
+            ImGui::SetNextItemWidth(75_sc);
             ImGui::InputFloat("##setpoint", &setpoints[qual]);
             ImGui::SameLine();
             ImGui::Text("degrees ");

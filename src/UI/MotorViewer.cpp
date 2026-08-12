@@ -3,6 +3,7 @@
 #include "imgui.h"
 
 #include "hardware/TestState.h"
+#include "UI/gutils.h"
 
 namespace LRI::RCI {
     MotorViewer::MotorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
@@ -52,7 +53,7 @@ namespace LRI::RCI {
             else ImGui::Text("Current Reported Speed: % 6.1f", 0);
             ImGui::Text("Set value: ");
             ImGui::SameLine();
-            ImGui::SetNextItemWidth(scale(75));
+            ImGui::SetNextItemWidth(75_sc);
             ImGui::InputFloat("##motorinput", &inputs[id]);
             ImGui::SameLine();
 

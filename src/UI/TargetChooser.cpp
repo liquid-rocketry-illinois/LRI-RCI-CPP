@@ -7,7 +7,7 @@
 #include "RCP_Host/RCP_Host.h"
 #include "imgui.h"
 
-#include "utils.h"
+#include "UI/gutils.h"
 
 #include "interfaces/COMPort.h"
 #include "interfaces/TCPSocket.h"
@@ -77,7 +77,7 @@ namespace LRI::RCI {
             ImGui::NewLine();
             ImGui::Text("Polling Rate (polls/frame): ");
             ImGui::SameLine();
-            ImGui::SetNextItemWidth(75 * scaling_factor);
+            ImGui::SetNextItemWidth(75_sc);
             ImGui::InputInt("##pollinginput", &HWCTRL::POLLS_PER_UPDATE, 1, 5);
             if(HWCTRL::POLLS_PER_UPDATE < 1) HWCTRL::POLLS_PER_UPDATE = 1;
 

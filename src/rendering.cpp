@@ -12,7 +12,7 @@
 #include "VERSION.h"
 
 #include "UI/Windowlet.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -60,7 +60,7 @@ namespace LRI::RCI {
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
 
-        glfwGetWindowContentScale(window, &scaling_factor, nullptr);
+        glfwGetWindowContentScale(window, &style::scaling_factor, nullptr);
         io.Fonts->Clear();
         ImFontConfig fontConfig;
         fontConfig.FontDataOwnedByAtlas = false;
@@ -139,7 +139,7 @@ namespace LRI::RCI {
 
         // Draw version string on bottom left of window
         ImGui::GetBackgroundDrawList()->AddText(
-            ImGui::GetMainViewport()->Pos + ImVec2(scale(5), ImGui::GetMainViewport()->Size.y - scale(40)), 0x33FFFFFF,
+            ImGui::GetMainViewport()->Pos + ImVec2(5_sc, ImGui::GetMainViewport()->Size.y - 40_sc), 0x33FFFFFF,
             VERSION_STRING.c_str(), VERSION_STRING.c_str() + VERSION_STRING.length());
 
         ImGui::Render();

@@ -4,7 +4,7 @@
 
 #include "hardware/TestState.h"
 #include "improgress.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 // Module for viewing and controlling test state
 namespace LRI::RCI {
@@ -127,7 +127,7 @@ namespace LRI::RCI {
         if(doHeartbeats) {
             ImGui::Text("Time between heartbeats (seconds): ");
             ImGui::SameLine();
-            ImGui::SetNextItemWidth(scale(75));
+            ImGui::SetNextItemWidth(75_sc);
             ImGui::InputInt("##heartbeatrate", &inputHeartbeatRate);
             if(inputHeartbeatRate < 0) inputHeartbeatRate = 0;
             if(inputHeartbeatRate > 14) inputHeartbeatRate = 14;

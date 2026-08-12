@@ -2,7 +2,7 @@
 
 #include "UI/WModule.h"
 #include "improgress.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 namespace LRI::RCI {
     // The COMPort chooser will enumerate all available serial devices to be picked from
@@ -42,7 +42,7 @@ namespace LRI::RCI {
         // Input for baud rate
         ImGui::Text("Baud Rate: ");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(scale(100));
+        ImGui::SetNextItemWidth(100_sc);
         ImGui::InputInt("##comportchooserbaudinput", &baud);
         if(baud < 0) baud = 0;
         else if(baud > 500'000) baud = 500'000;

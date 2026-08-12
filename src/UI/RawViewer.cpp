@@ -1,7 +1,7 @@
 #include "UI/RawViewer.h"
 #include "hardware/RawData.h"
 #include "hardware/TestState.h"
-#include "utils.h"
+#include "UI/gutils.h"
 
 // Module for viewing latest debug output
 namespace LRI::RCI {
@@ -18,7 +18,7 @@ namespace LRI::RCI {
         ImGui::Separator();
 
         // An imgui child to contain the text
-        if(ImGui::BeginChild("##serialchild", {ImGui::GetWindowWidth(), scale(175)})) {
+        if(ImGui::BeginChild("##serialchild", {ImGui::GetWindowWidth(), 175_sc})) {
             // Displaying the text just by rendering the string stream
             ImGui::PushTextWrapPos();
             ImGui::TextUnformatted(RawData::getData().c_str());

@@ -5,6 +5,7 @@
 
 #include "UI/ErrorWindow.h"
 #include "UI/TargetChooser.h"
+#include "UI/gutils.h"
 
 namespace LRI::RCI {
     // The global windowlet set
@@ -41,7 +42,7 @@ namespace LRI::RCI {
         size_t i = 0;
 
         if(ImGui::Begin(title.c_str())) {
-            scaling_factor = ImGui::GetWindowViewport()->DpiScale;
+            style::scaling_factor = ImGui::GetWindowViewport()->DpiScale;
             for(auto* mod : modules) {
                 mod->render();
                 if(i++ != size) ImGui::Separator();
@@ -67,8 +68,8 @@ namespace LRI::RCI {
     }
 
     void ControlWindowlet::render() {
-        ImGui::SetNextWindowPos(scale(ImVec2(37.5, 50)), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(scale(ImVec2(550, 225)), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos(ImVec2(37.5_sc, 50_sc), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(550_sc, 225_sc), ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 
         Windowlet::render();

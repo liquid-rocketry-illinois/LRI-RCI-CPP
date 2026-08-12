@@ -3,6 +3,7 @@
 #include "imgui.h"
 
 #include "hardware/TestState.h"
+#include "UI/gutils.h"
 
 // Module for viewing ESTOP state
 namespace LRI::RCI {
@@ -19,7 +20,7 @@ namespace LRI::RCI {
 
         // If button pushed, send E-STOP packet
         if(ImGui::Button("EMERGENCY STOP",
-                         {ImGui::GetWindowWidth() - scale(10), ImGui::GetWindowHeight() - scale(30)})) {
+                         {ImGui::GetWindowWidth() - 10_sc, ImGui::GetWindowHeight() - 30_sc})) {
             TestState::ESTOP();
         }
 

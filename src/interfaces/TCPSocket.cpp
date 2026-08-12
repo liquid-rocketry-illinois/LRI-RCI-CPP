@@ -3,6 +3,7 @@
 #include "UI/TargetChooser.h"
 #include "hardware/TestState.h"
 #include "improgress.h"
+#include "UI/gutils.h"
 
 namespace LRI::RCI {
     // An RCP interface over TCP
@@ -153,7 +154,7 @@ namespace LRI::RCI {
         if(!tempserver) {
             ImGui::Text("Server Address: ");
             ImGui::SameLine();
-            ImGui::SetNextItemWidth(scale(200));
+            ImGui::SetNextItemWidth(200_sc);
             ImGui::InputInt4("##serveraddrinput", ip);
             for(int& i : ip) {
                 if(i < 0) i = 0;
@@ -164,7 +165,7 @@ namespace LRI::RCI {
         // Port input
         ImGui::Text("Port: ");
         ImGui::SameLine();
-        ImGui::SetNextItemWidth(scale(48));
+        ImGui::SetNextItemWidth(48_sc);
         ImGui::InputInt("##portinput", &port, 0);
         if(port < 0) port = 0;
         else if(port > 65535) port = 65535;

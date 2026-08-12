@@ -2,6 +2,8 @@
 
 #include "hardware/BoolSensor.h"
 
+#include "UI/gutils.h"
+
 // Module for viewing the BoolSensor states
 namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
