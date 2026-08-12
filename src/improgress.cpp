@@ -88,7 +88,7 @@ namespace ImGui {
 
         window->DrawList->PathClear();
         window->DrawList->PathArcTo(center, radius, 0, 2 * IM_PI * progress);
-        window->DrawList->PathStroke(color, false, thickness);
+        window->DrawList->PathStroke(color, thickness);
 
         return true;
     }

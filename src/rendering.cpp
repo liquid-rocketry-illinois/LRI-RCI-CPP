@@ -42,7 +42,8 @@ namespace LRI::RCI {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
-        io.ConfigFlags |= ImGuiConfigFlags_DpiEnableScaleFonts | ImGuiConfigFlags_DpiEnableScaleViewports;
+        io.ConfigDpiScaleFonts = true;
+        io.ConfigDpiScaleViewports = true;
         io.IniFilename = nullptr;
 
         ImGui::StyleColorsDark();

@@ -49,8 +49,9 @@ add_library(imgui OBJECT
         libs/implot/implot_demo.cpp
 )
 
-target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/implot)
+target_include_directories(imgui PUBLIC libs/imgui libs/imgui/backends libs/implot include/imgui)
 target_link_libraries(imgui PUBLIC glfw)
+target_compile_definitions(imgui PUBLIC -DIMGUI_USER_CONFIG="imuserconfig.h")
 
 add_executable(LRI_control_panel
         ${CMAKE_CURRENT_BINARY_DIR}/VERSION.cpp

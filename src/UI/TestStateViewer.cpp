@@ -85,7 +85,7 @@ namespace LRI::RCI {
         ImGui::PushID("testselectcombo");
         if(tests->empty()) {
             ImGui::SameLine();
-            ImGui::PushFont(font_italic);
+            ImGui::PushFont(font_italic, 0);
             ImGui::Text("No Available Tests");
             ImGui::PopFont();
         }

@@ -28,13 +28,6 @@ namespace LRI::RCI {
     // Scaling factor for hi-dpi screens. Not perfect but its good enough
     extern float scaling_factor;
 
-    // ImVec2 operators
-    inline ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x + v2.x, v1.y + v2.y}; }
-    inline ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x - v2.x, v1.y - v2.y}; }
-    inline ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x * v2.x, v1.y * v2.y}; }
-    inline ImVec2 operator*(ImVec2 const& v1, float constant) { return {v1.x * constant, v1.y * constant}; }
-    inline ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2) { return {v1.x / v2.x, v1.y / v2.y}; }
-    inline ImVec2 operator/(ImVec2 const& v1, float constant) { return {v1.x / constant, v1.y / constant}; }
 
     // Helpers for scaling floats and ImVec2's by scaling_factor
     inline ImVec2 scale(const ImVec2& vec) { return vec * scaling_factor; }
@@ -62,14 +55,6 @@ namespace LRI::RCI {
 
     // Small helper
     std::string devclassToString(RCP_DeviceClass devclass);
-
-    // ImVec2 operators
-    ImVec2 operator+(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator-(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator*(ImVec2 const& v1, float constant);
-    ImVec2 operator/(ImVec2 const& v1, ImVec2 const& v2);
-    ImVec2 operator/(ImVec2 const& v1, float constant);
 
     // Class definition for RingBuffer. See RingBuffer.inl
     template<typename T, T ret = 0>
