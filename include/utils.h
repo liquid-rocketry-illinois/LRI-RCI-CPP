@@ -42,6 +42,10 @@ namespace LRI::RCI {
             const std::chrono::duration<float> elapsed = std::chrono::system_clock::now() - lastClock;
             return elapsed.count();
         }
+
+        [[nodiscard]] std::chrono::milliseconds millis() const {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - lastClock);
+        }
     };
 
     // The definition for this function is in rendering.cpp, since this function deals with some static members
