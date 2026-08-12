@@ -86,7 +86,8 @@ namespace LRI::RCI {
         for(const auto& graph : graphs) {
             for(const auto& qual : graph.channels) {
                 if(lineNames.contains(qual)) continue;
-                lineNames[qual] = std::vformat(GRAPHINFO.at(qual.devclass).lines.at(qual.channel).legend, std::make_format_args(qual.name));
+                lineNames[qual] = std::vformat(GRAPHINFO.at(qual.devclass).lines.at(qual.channel).legend,
+                                               std::make_format_args(qual.name));
             }
         }
 
@@ -147,10 +148,11 @@ namespace LRI::RCI {
             ImPlot::SetupAxes("Time (s)", axislist.at(index).c_str(), ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
 
             for(const auto& qual : channels.at(index)) {
-                if(data.at(qual)->empty()) ImPlot::PlotLine<double>(lineNames.at(qual).c_str(), nullptr, nullptr, 0, 0, 0, 0);
-                else ImPlot::PlotLine(lineNames.at(qual).c_str(), &data.at(qual)->at(0).timestamp,
-                                 data.at(qual)->at(0).data + qual.channel, static_cast<int>(data.at(qual)->size()), 0, 0,
-                                 sizeof(Sensors::DataPoint));
+                if(data.at(qual)->empty()) ImPlot::PlotLine<double>(lineNames.at(qual).c_str(), nullptr, nullptr, 0);
+                else
+                    ImPlot::PlotLine(lineNames.at(qual).c_str(), &data.at(qual)->at(0).timestamp,
+                                     data.at(qual)->at(0).data + qual.channel, static_cast<int>(data.at(qual)->size()),
+                                     {ImPlotProp_Stride, sizeof(Sensors::DataPoint)});
             }
 
             ImPlot::EndPlot();

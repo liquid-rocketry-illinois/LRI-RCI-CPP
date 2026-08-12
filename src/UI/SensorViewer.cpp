@@ -182,8 +182,8 @@ namespace LRI::RCI {
 
             // Iterate through each line and render it
             for(const auto& line : graph.lines) {
-                ImPlot::PlotLine(line.name, &data->at(0).timestamp, (data->at(0).data + line.datanum),
-                                 static_cast<int>(data->size()), 0, 0, sizeof(Sensors::DataPoint));
+                ImPlot::PlotLine(line.name, &data->at(0).timestamp, data->at(0).data + line.datanum,
+                                 static_cast<int>(data->size()), {ImPlotProp_Stride, sizeof(Sensors::DataPoint)});
             }
 
             ImPlot::EndPlot();

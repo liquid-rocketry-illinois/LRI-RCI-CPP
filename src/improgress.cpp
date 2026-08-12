@@ -65,7 +65,7 @@ namespace ImGui {
                 ImVec2(centre.x + ImCos(a + g.Time * 8) * radius, centre.y + ImSin(a + g.Time * 8) * radius));
         }
 
-        window->DrawList->PathStroke(color, false, thickness);
+        window->DrawList->PathStroke(color, thickness);
 
         return true;
     }
