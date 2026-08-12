@@ -33,7 +33,9 @@ namespace LRI::RCI {
 
         // Create imgui and implot contexts
         IMGUI_CHECKVERSION();
+        ImGui::SetCurrentContext(nullptr);
         ImGui::CreateContext(style::getSharedFonts());
+
         ImPlot::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -82,10 +84,10 @@ namespace LRI::RCI {
 
         glfwPollEvents();
 
-        pingFonts();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        pingFonts();
     }
 
     // Is called after each frame to draw the framebuffer and swap it to the screen

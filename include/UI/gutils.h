@@ -21,6 +21,7 @@ namespace LRI::RCI {
         void fontItalic(float size = 0);
 
         void setWindowIcon(GLFWwindow* window);
+        void resetFontFrameCount();
     }
 
     inline float scale(int val) { return val * style::scaling_factor; }

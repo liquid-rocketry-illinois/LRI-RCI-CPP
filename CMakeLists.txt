@@ -79,6 +79,7 @@ add_executable(LRI_control_panel
         src/UI/RawViewer.cpp
         src/UI/SensorViewer.cpp
         src/UI/SimpleActuatorViewer.cpp
+        src/UI/Splash.cpp
         src/UI/StepperViewer.cpp
         src/UI/TargetChooser.cpp
         src/UI/TestStateViewer.cpp

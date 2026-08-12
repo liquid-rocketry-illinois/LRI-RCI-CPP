@@ -82,6 +82,10 @@ namespace LRI::RCI::style {
         glfwSetWindowIcon(window, 1, &image);
         stbi_image_free(image.pixels);
     }
+
+    void resetFontFrameCount() {
+        sharedFonts->Builder->FrameCount = 0;
+    }
 } // namespace LRI::RCI::style
 
 namespace LRI::RCI {

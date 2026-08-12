@@ -17,6 +17,7 @@
 #include "hardware/HardwareControl.h"
 #include "rendering.h"
 #include "UI/gutils.h"
+#include "UI/Splash.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure
@@ -31,6 +32,11 @@ int main() {
 
     LRI::RCI::style::setup();
 
+    {
+        LRI::RCI::Splash s;
+        s.show();
+    }
+
     glfwDefaultWindowHints();
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
     GLFWwindow* window = glfwCreateWindow(1920, 1080, "LRI RCI", nullptr, LRI::RCI::style::getSharedResources());
@@ -38,7 +44,7 @@ int main() {
         return -1;
     }
 
-    LRI::RCI::detectRoamingFolder();
+    // LRI::RCI::detectRoamingFolder();
 
     // Run the init function in utils.cpp
     LRI::RCI::imgui_init(window);
