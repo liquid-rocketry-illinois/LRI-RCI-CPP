@@ -13,7 +13,11 @@
 
 namespace LRI::RCI {
     class Window {
+        static constexpr float CAPTION_SIZE = 40;
+        static LRESULT borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
         GLFWwindow* window;
+        WNDPROC oldProc;
 
         std::set<Windowlet*> windowlets;
         std::vector<std::function<void()>> preframes;
