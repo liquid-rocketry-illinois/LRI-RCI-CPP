@@ -18,8 +18,7 @@ namespace {
     ImFont* bold = nullptr;
     ImFont* italic = nullptr;
 
-    const std::string VERSION_STRING =
-        "RCI " + std::string(RCI_VERSION, RCI_VERSION_END) + "\nRCP " + std::string(RCP_VERSION, RCP_VERSION_END);
+    std::string VERSION_STRING;
     ImVec2 VERSION_SIZE;
 } // namespace
 
@@ -67,6 +66,8 @@ namespace LRI::RCI::style {
                                                        &fontConfig);
         }
 
+        VERSION_STRING = std::string("RCI ") + std::string(RCI_VERSION, RCI_VERSION_END) + std::string("\nRCP ") +
+            std::string(RCP_VERSION, RCP_VERSION_END);
         VERSION_SIZE = normal->CalcTextSizeA(16, FLT_MAX, -1, VERSION_STRING.c_str());
         VERSION_SIZE.x = ImCeilFast(VERSION_SIZE.x);
     }
