@@ -30,14 +30,6 @@ namespace LRI::RCI {
         // Returns "Virtual Interface"
         [[nodiscard]] std::string interfaceType() const override;
     };
-
-    // The virtual chooser just immediately returns an interface, since
-    // the whole class is just stubs
-    class VirtualPortChooser final : public InterfaceChooser {
-    public:
-        VirtualPortChooser() = default;
-        RCP_Interface* render() override;
-    };
 } // namespace LRI::RCI
 
 #endif // VIRTUAL_H

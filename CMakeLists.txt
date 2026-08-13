@@ -88,7 +88,6 @@ add_executable(LRI_control_panel
         src/UI/gutils.cpp
 
         # Interfaces
-        src/interfaces/COMPort.cpp
         src/interfaces/IOInterface.cpp
         src/interfaces/TCPSocket.cpp
         src/interfaces/VirtualPort.cpp

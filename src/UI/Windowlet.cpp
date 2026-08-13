@@ -16,11 +16,11 @@ namespace LRI::RCI {
         for(const auto* mod : modules) delete mod;
     }
 
-    void Windowlet::render() {
+    void Windowlet::render(bool* closed, ImGuiWindowFlags flags) {
         size_t size = modules.size() - 1;
         size_t i = 0;
 
-        if(ImGui::Begin(title.c_str())) {
+        if(ImGui::Begin(title.c_str(), closed, flags)) {
             style::scaling_factor = ImGui::GetWindowViewport()->DpiScale;
             for(auto* mod : modules) {
                 mod->render();
@@ -28,6 +28,10 @@ namespace LRI::RCI {
             }
         }
         ImGui::End();
+    }
+
+    void Windowlet::render() {
+        render(nullptr, ImGuiWindowFlags_None);
     }
 
     // TODO: target chooser module here

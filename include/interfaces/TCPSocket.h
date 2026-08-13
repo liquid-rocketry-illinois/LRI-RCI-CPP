@@ -3,9 +3,7 @@
 
 #include "SFML/Network.hpp"
 
-#include "UI/TargetChooser.h"
 #include "interfaces/IOInterface.h"
-#include "utils.h"
 
 // An interface for communicating over a TCP socket. Uses the sfml network module
 namespace LRI::RCI {
@@ -37,22 +35,6 @@ namespace LRI::RCI {
         bool writeBytes(const uint8_t* bytes, size_t length) override;
         bool readBytes(uint8_t* bytes, size_t bufLength, size_t& written) override;
         void ioDeinit() override;
-    };
-
-    // The chooser for a tcp interface
-    class TCPInterfaceChooser final : public InterfaceChooser {
-        // Default port and ip addresses
-        int port = 5000;
-        int ip[4] = {192, 168, 254, 2};
-        bool server = false;
-
-        TCPSocket* interf = nullptr;
-
-    public:
-        explicit TCPInterfaceChooser() = default;
-
-        // Rendering function
-        RCP_Interface* render() override;
     };
 } // namespace LRI::RCI
 

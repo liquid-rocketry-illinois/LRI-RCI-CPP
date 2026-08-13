@@ -1,8 +1,5 @@
 #include "interfaces/COMPort.h"
 
-#include <SetupAPI.h>
-#include <devguid.h>
-
 namespace LRI::RCI {
     COMPort::COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode) :
         portname(portname), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
@@ -103,41 +100,6 @@ namespace LRI::RCI {
 
     void COMPort::ioDeinit() {
         CloseHandle(port);
-    }
-
-    // Honestly I dont know what this does its some Windows spaghetti I stole from SO but it works so yay
-    // https://stackoverflow.com/a/77752863
-    bool COMPort::enumSerialDevs(std::vector<std::pair<std::string, std::string>>& portlist) {
-        portlist.clear();
-        HANDLE devs = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, nullptr, nullptr, DIGCF_PRESENT);
-        if(devs == INVALID_HANDLE_VALUE) return false;
-
-        SP_DEVINFO_DATA data;
-        data.cbSize = sizeof(SP_DEVINFO_DATA);
-        char s[80];
-
-        for(DWORD i = 0; SetupDiEnumDeviceInfo(devs, i, &data); i++) {
-            HKEY hkey = SetupDiOpenDevRegKey(devs, &data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
-            if(hkey == INVALID_HANDLE_VALUE) {
-                return false;
-            }
-
-            char comname[16];
-            DWORD len = 16;
-
-            RegQueryValueEx(hkey, "PortName", nullptr, nullptr, (LPBYTE) comname, &len);
-            RegCloseKey(hkey);
-            if(comname[0] != 'C') continue;
-
-            SetupDiGetDeviceRegistryProperty(devs, &data, SPDRP_FRIENDLYNAME, nullptr, (PBYTE) s, sizeof(s), nullptr);
-
-            // Somehow we end up with the name we need to open the port, and a more user friendly display string.
-            // These get appended to this vector for later
-            portlist.push_back(std::make_pair(std::string(comname), std::string(comname) + " : " + std::string(s)));
-        }
-
-        SetupDiDestroyDeviceInfoList(devs);
-        return true;
     }
 
 } // namespace LRI::RCI

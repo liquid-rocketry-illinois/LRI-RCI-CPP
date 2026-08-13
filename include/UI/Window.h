@@ -10,8 +10,11 @@
 #include "glfw/glfw3.h"
 
 #include "UI/Windowlet.h"
+#include "UI/TargetChooser.h"
 
 namespace LRI::RCI {
+    class TargetChooser;
+
     class Window {
         static constexpr float CAPTION_SIZE = 40;
         static LRESULT borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -21,6 +24,8 @@ namespace LRI::RCI {
 
         std::set<Windowlet*> windowlets;
         std::vector<std::function<void()>> preframes;
+
+        TargetChooser chooser;
 
         void renderTitlebar();
         void renderBackground();

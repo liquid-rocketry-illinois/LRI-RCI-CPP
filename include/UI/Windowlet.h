@@ -58,12 +58,14 @@ namespace LRI::RCI {
         const std::string title;
         const std::vector<WModule*> modules;
 
+    protected:
+        // The individual windowlets renderer
+        virtual void render(bool* closed, ImGuiWindowFlags flags);
     public:
         // Windowlet constructor. Takes the windowlet title and its modules
         explicit Windowlet(std::string title, std::vector<WModule*>&& modules);
         virtual ~Windowlet();
 
-        // The individual windowlets renderer
         virtual void render();
     };
 

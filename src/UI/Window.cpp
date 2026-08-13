@@ -14,8 +14,10 @@
 #include "UI/gutils.h"
 #include "UI/vscode_icons.h"
 
+#include "hardware/HardwareControl.h"
+
 namespace LRI::RCI {
-    Window::Window() : window(nullptr), oldProc(nullptr) {
+    Window::Window() : window(nullptr), oldProc(nullptr), chooser(this) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -66,12 +68,12 @@ namespace LRI::RCI {
         ImGui_ImplOpenGL3_Init();
 
         glfwGetWindowContentScale(window, &style::scaling_factor, nullptr);
-        glfwSetWindowSizeLimits(window, static_cast<int>(400_sc), static_cast<int>(300_sc), GLFW_DONT_CARE,
+        glfwSetWindowSizeLimits(window, static_cast<int>(900_sc), static_cast<int>(300_sc), GLFW_DONT_CARE,
                                 GLFW_DONT_CARE);
         style::setWindowIcon(window);
 
         // // Start the TargetChooser window
-        // ControlWindowlet::getInstance();
+        registerWindowlet(&chooser);
     }
 
     Window::~Window() {
@@ -164,6 +166,7 @@ namespace LRI::RCI {
         const float capheight = scale(CAPTION_SIZE);
         const ImVec2 capsize = ImVec2{vSize.x, capheight};
         const ImVec2 maxSquare = ImVec2{capheight, capheight};
+        const float textY = (capheight - scale(16)) / 2;
 
         ImGui::SetNextWindowPos(vPos);
         ImGui::SetNextWindowSize(capsize);
@@ -180,6 +183,42 @@ namespace LRI::RCI {
 
         ImGui::SetCursorPos(V0);
         ImGui::Image(style::birdIcon(), maxSquare);
+
+        ImGui::SameLine(0, scale(10));
+        ImGui::SetCursorPosY(textY);
+
+        if(HWCTRL::targetOpen()) {
+            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", "PLACEHOLDER", "PLACEHOLDER", 0);
+            ImGui::SameLine(0, 5);
+            ImGui::SetNextItemWidth(40_sc);
+            ImGui::SetCursorPosY(textY);
+            ImGui::InputInt("##pollrate", &HWCTRL::POLLS_PER_UPDATE, 0);
+            if(HWCTRL::POLLS_PER_UPDATE < 1) HWCTRL::POLLS_PER_UPDATE = 1;
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(textY);
+
+            ImGui::Text(" | ");
+
+            ImGui::SameLine();
+            ImGui::SetCursorPosY(textY);
+
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::BUTTON_CLOSE_HOVERED);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
+
+            if(ImGui::Button("CLOSE")) {
+                preframe([&] {
+                    registerWindowlet(&chooser);
+                    HWCTRL::end();
+                });
+            }
+
+            ImGui::PopStyleColor(2);
+        }
+
+        else {
+            ImGui::Text("No Open Target " ICON_VS_ROCKET);
+        }
 
         ImGui::PushStyleColor(ImGuiCol_Button, colors::CTRANSPARENT);
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::LOW_SEMITRANSPARENT);
@@ -210,9 +249,7 @@ namespace LRI::RCI {
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
-    void Window::registerWindowlet(Windowlet* w) {
-        preframe([&] { windowlets.emplace(w); });
-    }
+    void Window::registerWindowlet(Windowlet* w) { windowlets.emplace(w); }
 
     void Window::unregisterWindowlets() {
         preframe([&] {

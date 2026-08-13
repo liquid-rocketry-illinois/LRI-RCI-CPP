@@ -82,7 +82,10 @@ namespace LRI::RCI {
     void Splash::show() {
         glfwShowWindow(window);
 
-        auto fut = std::async(std::launch::async, [] { detectRoamingFolder(); });
+        auto fut = std::async(std::launch::async, [] {
+            detectRoamingFolder();
+            enumSerialDevs();
+        });
         timer.reset();
 
         while(!glfwWindowShouldClose(window)) {
