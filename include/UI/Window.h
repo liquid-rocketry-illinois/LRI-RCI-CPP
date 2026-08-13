@@ -22,7 +22,8 @@ namespace LRI::RCI {
         std::set<Windowlet*> windowlets;
         std::vector<std::function<void()>> preframes;
 
-        int classid;
+        void renderTitlebar();
+        void renderBackground();
 
     public:
         Window();
@@ -31,9 +32,7 @@ namespace LRI::RCI {
         void preframe(std::function<void()> func);
 
         void registerWindowlet(Windowlet* w);
-        void unregisterWindowlet(Windowlet* w);
-
-        int getClassid();
+        void unregisterWindowlets();
     };
 }
 

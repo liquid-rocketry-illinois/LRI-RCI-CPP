@@ -5,6 +5,7 @@
 #include "stb_image.h"
 
 #include "EmbeddedResource.h"
+#include "UI/vscode_icons.h"
 #include "VERSION.h"
 
 namespace {
@@ -50,20 +51,34 @@ namespace LRI::RCI::style {
         sharedFonts = IM_NEW(ImFontAtlas)();
 
         {
+            constexpr float fontSize = 16;
             ImFontConfig fontConfig;
             fontConfig.FontDataOwnedByAtlas = false;
 
+            ImFontConfig iconConfig;
+            iconConfig.FontDataOwnedByAtlas = false;
+            iconConfig.PixelSnapH = true;
+            iconConfig.GlyphMinAdvanceX = fontSize;
+            iconConfig.MergeMode = true;
+            iconConfig.GlyphOffset = {0, 3};
+
             // Load the fonts and add them to imgui. Ubuntu mono my beloved
             EmbeddedResource fonts("font_regular.ttf");
-            normal = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
-                                                       &fontConfig);
+            normal = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                       fontSize, &fontConfig);
+
+            fonts = EmbeddedResource("codicon.ttf");
+            constexpr ImWchar VSC_CODEPOINTS[] = {ICON_MIN_VS, ICON_MAX_VS, 0};
+            sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), fontSize,
+                                              &iconConfig, VSC_CODEPOINTS);
+
             fonts = EmbeddedResource("font_bold.ttf");
-            bold = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
-                                                     &fontConfig);
+            bold = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                     fontSize, &fontConfig);
 
             fonts = EmbeddedResource("font_italic.ttf");
-            italic = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
-                                                       &fontConfig);
+            italic = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()),
+                                                       fontSize, &fontConfig);
         }
 
         VERSION_STRING = std::string("RCI ") + std::string(RCI_VERSION, RCI_VERSION_END) + std::string("\nRCP ") +
@@ -98,6 +113,15 @@ namespace LRI::RCI::style {
 
     const std::string& versionString() { return VERSION_STRING; }
     const ImVec2& verStringSize() { return VERSION_SIZE; }
+
+    void setColors() {
+        ImGui::StyleColorsDark();
+        ImGuiStyle& style = ImGui::GetStyle();
+        auto& colors = style.Colors;
+
+        colors[ImGuiCol_WindowBg] = colors::WINDOW_BG;
+        colors[ImGuiCol_Text] = colors::TEXT;
+    }
 } // namespace LRI::RCI::style
 
 namespace LRI::RCI {

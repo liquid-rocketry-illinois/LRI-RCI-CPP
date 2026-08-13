@@ -12,9 +12,10 @@
 
 #include "UI/Windowlet.h"
 #include "UI/gutils.h"
+#include "UI/vscode_icons.h"
 
 namespace LRI::RCI {
-    Window::Window() : window(nullptr), oldProc(nullptr), classid(0) {
+    Window::Window() : window(nullptr), oldProc(nullptr) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -59,7 +60,7 @@ namespace LRI::RCI {
         io.ConfigDpiScaleViewports = true;
         io.IniFilename = nullptr;
 
-        ImGui::StyleColorsDark();
+        style::setColors();
 
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init();
@@ -104,45 +105,17 @@ namespace LRI::RCI {
             ImGui::NewFrame();
             pingFonts();
 
+            renderBackground();
+            renderTitlebar();
+
             for(const auto& w : windowlets) w->render();
 
             int display_w, display_h;
             glfwGetFramebufferSize(window, &display_w, &display_h);
-
-            // Draw version string on bottom left of window
-            ImGui::GetBackgroundDrawList()->AddText(
-                ImGui::GetMainViewport()->Pos +
-                    ImVec2(10_sc, ImGui::GetMainViewport()->Size.y - scale(style::verStringSize().y) - 10_sc),
-                0x33FFFFFF, style::versionString().c_str());
-
-            ImGui::GetBackgroundDrawList()->AddRectFilled(
-                ImGui::GetMainViewport()->Pos, ImGui::GetMainViewport()->Pos + ImVec2(ImGui::GetMainViewport()->Size.x, scale(40)),
-                0xFFFFFFFF);
-
             ImGui::Render();
             glViewport(0, 0, display_w, display_h);
-            glClearColor(0, 0, 0, 0);
+            glClearColor(0, 0, 0, 1);
             glClear(GL_COLOR_BUFFER_BIT);
-
-            float largestSquare = static_cast<float>(std::min(display_w, display_h));
-            float coordX = largestSquare / display_w / 1.0f;
-            float coordY = largestSquare / display_h / 1.0f;
-
-            glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, style::birdIcon());
-
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex2f(-coordX, coordY);
-            glTexCoord2f(1, 0);
-            glVertex2f(coordX, coordY);
-            glTexCoord2f(1, 1);
-            glVertex2f(coordX, -coordY);
-            glTexCoord2f(0, 1);
-            glVertex2f(-coordX, -coordY);
-            glEnd();
-
-            glDisable(GL_TEXTURE_2D);
 
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -155,16 +128,98 @@ namespace LRI::RCI {
         }
     }
 
+    void Window::renderBackground() {
+        const ImVec2 wPos = ImGui::GetMainViewport()->Pos;
+        const ImVec2 wSize = ImGui::GetMainViewport()->Size;
+        const ImVec2 blankSpace = wSize - ImVec2{0, scale(CAPTION_SIZE)};
+
+        // Draw version string on bottom left of window
+        ImGui::GetBackgroundDrawList()->AddText(ImGui::GetMainViewport()->Pos +
+                                                    ImVec2(10_sc, wSize.y - scale(style::verStringSize().y) - 10_sc),
+                                                0x33FFFFFF, style::versionString().c_str());
+
+        ImVec2 impos;
+        ImVec2 imsize;
+
+        if(blankSpace.y < blankSpace.x) {
+            float leftoverX = blankSpace.x - blankSpace.y;
+            impos = {leftoverX / 2, scale(CAPTION_SIZE)};
+            imsize = {blankSpace.y, blankSpace.y};
+        }
+
+        else {
+            float leftoverY = blankSpace.y - blankSpace.x;
+            impos = {0, scale(CAPTION_SIZE) + (leftoverY / 2)};
+            imsize = {blankSpace.x, blankSpace.x};
+        }
+
+        ImGui::GetBackgroundDrawList()->AddImage(style::birdIcon(), wPos + impos, wPos + impos + imsize);
+    }
+
+    void Window::renderTitlebar() {
+        constexpr ImGuiWindowFlags CAPTION_FLAGS =
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
+        const ImVec2 vPos = ImGui::GetMainViewport()->Pos;
+        const ImVec2 vSize = ImGui::GetMainViewport()->Size;
+        const float capheight = scale(CAPTION_SIZE);
+        const ImVec2 capsize = ImVec2{vSize.x, capheight};
+        const ImVec2 maxSquare = ImVec2{capheight, capheight};
+
+        ImGui::SetNextWindowPos(vPos);
+        ImGui::SetNextWindowSize(capsize);
+        ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0);
+
+        SCOPE_EXIT {
+            ImGui::End();
+            ImGui::PopStyleVar();
+        };
+
+        if(!ImGui::Begin("##windowcaption", nullptr, CAPTION_FLAGS)) return;
+
+        ImGui::SetCursorPos(V0);
+        ImGui::Image(style::birdIcon(), maxSquare);
+
+        ImGui::PushStyleColor(ImGuiCol_Button, colors::CTRANSPARENT);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::LOW_SEMITRANSPARENT);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::HIGH_SEMITRANSPARENT);
+
+        // We have 3 buttons to render aligned to right edge of screen, no spacing between them
+        ImGui::SetCursorPos({capsize.x - 3 * maxSquare.x, 0});
+        if(ImGui::Button(ICON_VS_CHROME_MINIMIZE "##minimize", maxSquare)) glfwIconifyWindow(window);
+
+        // cursor.x += maxSquare.x;
+        ImGui::SameLine(0, 0);
+        if(glfwGetWindowAttrib(window, GLFW_MAXIMIZED)) {
+            if(ImGui::Button(ICON_VS_CHROME_RESTORE "###restore", maxSquare)) glfwRestoreWindow(window);
+        }
+
+        else {
+            if(ImGui::Button(ICON_VS_CHROME_MAXIMIZE "###restore", maxSquare)) glfwMaximizeWindow(window);
+        }
+
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::BUTTON_CLOSE_HOVERED);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
+
+        ImGui::SameLine(0, 0);
+        if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", maxSquare)) glfwSetWindowShouldClose(window, GLFW_TRUE);
+
+        ImGui::PopStyleColor(5);
+    }
+
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
     void Window::registerWindowlet(Windowlet* w) {
         preframe([&] { windowlets.emplace(w); });
     }
-    void Window::unregisterWindowlet(Windowlet* w) {
-        preframe([&] { windowlets.erase(w); });
-    }
 
-    int Window::getClassid() { return classid++; }
+    void Window::unregisterWindowlets() {
+        preframe([&] {
+            for(auto& w : windowlets) delete w;
+            windowlets.clear();
+        });
+    }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         Window* w = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
