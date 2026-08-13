@@ -1,6 +1,7 @@
 #ifndef LRI_CONTROL_PANEL_GUTILS_H
 #define LRI_CONTROL_PANEL_GUTILS_H
 
+#include <string>
 #include <Windows.h>
 
 #include "imgui.h"
@@ -22,6 +23,9 @@ namespace LRI::RCI {
 
         void setWindowIcon(GLFWwindow* window);
         void resetFontFrameCount();
+
+        const std::string& versionString();
+        const ImVec2& verStringSize();
     }
 
     inline float scale(int val) { return val * style::scaling_factor; }

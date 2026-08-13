@@ -9,7 +9,6 @@
 #include "implot.h"
 
 #include "EmbeddedResource.h"
-#include "VERSION.h"
 
 #include "UI/Windowlet.h"
 #include "UI/gutils.h"
@@ -18,14 +17,8 @@
 #include "GLFW/glfw3native.h"
 
 namespace LRI::RCI {
-    static std::string VERSION_STRING;
-
     // Function that initializes the rest of glfw, imgui, implot, and the fonts
     void imgui_init(GLFWwindow* window) {
-        VERSION_STRING = "RCI ";
-        VERSION_STRING += std::string(RCI_VERSION, RCI_VERSION_END) +=
-            "\nRCP " + std::string(RCP_VERSION, RCP_VERSION_END);
-
         // Set window as current context, enable vsync, give it a title.
         glfwMakeContextCurrent(window);
         glfwSwapInterval(1);
@@ -107,8 +100,8 @@ namespace LRI::RCI {
 
         // Draw version string on bottom left of window
         ImGui::GetBackgroundDrawList()->AddText(
-            ImGui::GetMainViewport()->Pos + ImVec2(5_sc, ImGui::GetMainViewport()->Size.y - 40_sc), 0x33FFFFFF,
-            VERSION_STRING.c_str(), VERSION_STRING.c_str() + VERSION_STRING.length());
+            ImGui::GetMainViewport()->Pos + ImVec2(10_sc, ImGui::GetMainViewport()->Size.y - scale(style::verStringSize().y) - 10_sc), 0x33FFFFFF,
+            style::versionString().c_str());
 
         ImGui::Render();
         glViewport(0, 0, display_w, display_h);

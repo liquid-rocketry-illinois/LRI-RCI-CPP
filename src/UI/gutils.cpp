@@ -1,11 +1,14 @@
 #include "UI/gutils.h"
 
+#include "RCP_Host/RCP_Host.h"
 #include "imgui_internal.h"
 #include "stb_image.h"
 
 #include "EmbeddedResource.h"
+#include "VERSION.h"
 
 namespace {
+    using namespace LRI::RCI;
     GLFWwindow* shared = nullptr;
 
     GLuint birdTex = 0;
@@ -14,6 +17,10 @@ namespace {
     ImFont* normal = nullptr;
     ImFont* bold = nullptr;
     ImFont* italic = nullptr;
+
+    const std::string VERSION_STRING =
+        "RCI " + std::string(RCI_VERSION, RCI_VERSION_END) + "\nRCP " + std::string(RCP_VERSION, RCP_VERSION_END);
+    ImVec2 VERSION_SIZE;
 } // namespace
 
 namespace LRI::RCI::style {
@@ -59,6 +66,9 @@ namespace LRI::RCI::style {
             italic = sharedFonts->AddFontFromMemoryTTF((void*) fonts.getData(), static_cast<int>(fonts.getLength()), 16,
                                                        &fontConfig);
         }
+
+        VERSION_SIZE = normal->CalcTextSizeA(16, FLT_MAX, -1, VERSION_STRING.c_str());
+        VERSION_SIZE.x = ImCeilFast(VERSION_SIZE.x);
     }
 
     void cleanup() {
@@ -83,11 +93,12 @@ namespace LRI::RCI::style {
         stbi_image_free(image.pixels);
     }
 
-    void resetFontFrameCount() {
-        sharedFonts->Builder->FrameCount = 0;
-    }
+    void resetFontFrameCount() { sharedFonts->Builder->FrameCount = 0; }
+
+    const std::string& versionString() { return VERSION_STRING; }
+    const ImVec2& verStringSize() { return VERSION_SIZE; }
 } // namespace LRI::RCI::style
 
 namespace LRI::RCI {
     void pingFonts() { ImFontAtlasUpdateNewFrame(sharedFonts, ImGui::GetFrameCount(), true); }
-}
+} // namespace LRI::RCI
