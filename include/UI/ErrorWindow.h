@@ -1,7 +1,7 @@
 #ifndef LRI_CONTROL_PANEL_ERRORWINDOW_H
 #define LRI_CONTROL_PANEL_ERRORWINDOW_H
 
-#include "WModule.h"
+#include "Windowlet.h"
 
 namespace LRI::RCI {
     class ErrorWindow : public WModule {

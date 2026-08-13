@@ -1,39 +1,18 @@
 #include "UI/Windowlet.h"
 
-#include <iostream>
-#include <utility>
-
-#include "UI/ErrorWindow.h"
-#include "UI/TargetChooser.h"
+#include "UI/Window.h"
 #include "UI/gutils.h"
 
 namespace LRI::RCI {
-    // The global windowlet set
-    std::set<Windowlet*> Windowlet::windows;
-
-    // The anti-spam button timer
-    StopWatch WModule::buttonTimer = StopWatch();
     int WModule::CLASSID = 0;
+    StopWatch WModule::buttonTimer;
 
     WModule::WModule() : classid(CLASSID++) {}
 
-    void Windowlet::renderWindowlets() {
-        // Important that this line is first, since the Control Window can modify the list of
-        // windows between frames. Not good.
-        for(auto* w : windows) w->render();
-        ControlWindowlet::getInstance()->render();
-    }
-
-    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet) :
-        title(std::move(title)), modules(modules) {
-        if(addToSet) windows.insert(this);
-    }
-
-    Windowlet::Windowlet(std::string title, const std::vector<WModule*>& modules) :
-        Windowlet(std::move(title), modules, true) {}
+    Windowlet::Windowlet(std::string title, std::vector<WModule*>&& modules) :
+        title(std::move(title)), modules(modules) {}
 
     Windowlet::~Windowlet() {
-        windows.erase(this);
         for(const auto* mod : modules) delete mod;
     }
 
@@ -52,26 +31,21 @@ namespace LRI::RCI {
     }
 
     // TODO: target chooser module here
-    ControlWindowlet::ControlWindowlet() :
-        Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this)), static_cast<WModule*>(new ErrorWindow())}, false) {}
-
-    void ControlWindowlet::cleanup() {
-        ImGui::SaveIniSettingsToDisk(inipath.c_str());
-        std::set w(windows);
-        for(const auto* win : w) delete win;
-    }
-
-    ControlWindowlet* ControlWindowlet::getInstance() {
-        static ControlWindowlet* instance = nullptr;
-        if(instance == nullptr) instance = new ControlWindowlet();
-        return instance;
-    }
-
-    void ControlWindowlet::render() {
-        ImGui::SetNextWindowPos(ImVec2(37.5_sc, 50_sc), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(550_sc, 225_sc), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-
-        Windowlet::render();
-    }
+    // ControlWindowlet::ControlWindowlet() :
+    //     Windowlet("Target Selector", std::vector{static_cast<WModule*>(new TargetChooser(this)),
+    //     static_cast<WModule*>(new ErrorWindow())}, false) {}
+    //
+    // ControlWindowlet::~ControlWindowlet() {
+    //     ImGui::SaveIniSettingsToDisk(inipath.c_str());
+    //     std::set w(windows);
+    //     for(const auto* win : w) delete win;
+    // }
+    //
+    // void ControlWindowlet::render() {
+    //     ImGui::SetNextWindowPos(ImVec2(37.5_sc, 50_sc), ImGuiCond_FirstUseEver);
+    //     ImGui::SetNextWindowSize(ImVec2(550_sc, 225_sc), ImGuiCond_FirstUseEver);
+    //     ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+    //
+    //     Windowlet::render();
+    // }
 } // namespace LRI::RCI

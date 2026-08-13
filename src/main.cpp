@@ -13,11 +13,9 @@
 
 #include "GLFW/glfw3.h"
 
-#include "UI/Windowlet.h"
-#include "hardware/HardwareControl.h"
-#include "rendering.h"
-#include "UI/gutils.h"
 #include "UI/Splash.h"
+#include "UI/Window.h"
+#include "UI/gutils.h"
 
 /*
  * This is the main file for RCI. See Windowlet.h for more information on program structure
@@ -25,40 +23,27 @@
 
 // A very small main function :)
 int main() {
-    // Initialize glfw and create the window
+    // Initialize glfw
     if(!glfwInit()) {
         return -1;
     }
 
+    // Set up shared GPU resources like fonts and the bird logo
     LRI::RCI::style::setup();
 
+    // Show the splash screen for style points and to load a few other things
     {
         LRI::RCI::Splash s;
         s.show();
     }
 
-    glfwDefaultWindowHints();
-    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "LRI RCI", nullptr, LRI::RCI::style::getSharedResources());
-    if(!window) {
-        return -1;
+    // Main application loop
+    {
+        LRI::RCI::Window w;
+        w.show();
     }
 
-    // LRI::RCI::detectRoamingFolder();
-
-    // Run the init function in utils.cpp
-    LRI::RCI::imgui_init(window);
-
-    // A very simple loop :)
-    // While the window should not close, render stuff
-    while(!glfwWindowShouldClose(window)) {
-        LRI::RCI::HWCTRL::update();
-
-        LRI::RCI::render(window);
-    }
-
-    // Once the window should close, then terminate libraries
-    LRI::RCI::imgui_shutdown(window);
+    // Clean up GPU resources
     LRI::RCI::style::cleanup();
 
     glfwTerminate();

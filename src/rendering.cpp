@@ -65,7 +65,7 @@ namespace LRI::RCI {
         style::setWindowIcon(window);
 
         // Start the TargetChooser window
-        ControlWindowlet::getInstance();
+        // ControlWindowlet::getInstance();
     }
 
     static std::string iniFilePath;
@@ -140,7 +140,7 @@ namespace LRI::RCI {
 
     // All shutdown functions for imgui, implot, and glfw
     void imgui_shutdown(GLFWwindow* window) {
-        ControlWindowlet::getInstance()->cleanup();
+        // ControlWindowlet::getInstance()->cleanup();
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImPlot::DestroyContext();
@@ -151,7 +151,7 @@ namespace LRI::RCI {
 
     void render(GLFWwindow* window) {
         imgui_prerender();
-        Windowlet::renderWindowlets();
+        // Windowlet::renderWindowlets();
         imgui_postrender(window);
     }
 } // namespace LRI::RCI

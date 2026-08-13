@@ -1,6 +1,5 @@
 #include "interfaces/COMPort.h"
 
-#include "UI/WModule.h"
 #include "improgress.h"
 #include "UI/gutils.h"
 

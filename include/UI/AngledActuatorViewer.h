@@ -5,7 +5,7 @@
 #include <set>
 #include <vector>
 
-#include "UI/WModule.h"
+#include "UI/Windowlet.h"
 
 #include "hardware/AngledActuator.h"
 #include "hardware/HardwareQualifier.h"

@@ -2,11 +2,11 @@
 #define TARGETCHOOSER_H
 
 #include <string>
+#include <set>
 #include <vector>
 
 #include "nlohmann/json.hpp"
 
-#include "WModule.h"
 #include "Windowlet.h"
 #include "hardware/HardwareQualifier.h"
 #include "interfaces/RCP_Interface.h"

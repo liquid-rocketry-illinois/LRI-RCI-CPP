@@ -1,15 +1,46 @@
 #ifndef WINDOWLET_H
 #define WINDOWLET_H
 
-#include <set>
 #include <string>
+#include <vector>
 
-#include "WModule.h"
-#include "interfaces/RCP_Interface.h"
+#include "imgui.h"
+#include "utils.h"
 
 namespace LRI::RCI {
-    // Manual forward declaration needed to avoid circular header dependency with TargetChooser.h
-    class TargetChooser;
+    // Manual forward declaration needed to avoid circular header dependency
+    class Window;
+
+    // The abstract class for an individual module. These are what contain the actual rendering code.
+    // One thing to note is that each module has its own static variable CLASSID, which is then
+    // incremented and assigned to each instantiated class in the const int classid. This is used to track
+    // individual instances of modules so that that can uniquely identify themselves to imgui.
+    class WModule {
+        static int CLASSID;
+
+    protected:
+        static StopWatch buttonTimer;
+
+        const int classid;
+
+    public:
+        // Delay after actions in the UI to prevent spam
+        static constexpr float BUTTON_DELAY = 0.125; // Seconds
+        static constexpr float CONFIRM_HOLD_TIME = 3;
+
+        static constexpr ImVec2 STATUS_SQUARE_SIZE = {15, 15};
+
+        // Common colors
+        static constexpr ImU32 ENABLED_COLOR = 0xFF00FF00; // Colors are stored as ABGR
+        static constexpr ImU32 STALE_COLOR = 0xF000CDDB;
+        static constexpr ImU32 DISABLED_COLOR = 0xFF0000FF;
+        static constexpr ImU32 REBECCA_PURPLE = 0xFF993366;
+        static constexpr ImU32 WHITE_COLOR = 0xFFFFFFFF;
+
+        explicit WModule();
+        virtual ~WModule() = default;
+        virtual void render() = 0;
+    };
 
     /*
      * Windowlets are the basis of the whole program. These are the individual little windows that appear
@@ -21,57 +52,21 @@ namespace LRI::RCI {
      */
 
     class Windowlet {
-    protected:
-        // The set of all windowlets, besides the control windowlet
-        static std::set<Windowlet*> windows;
-
         // An individual windowlets title, and the vector of its modules. This has to be a vector, since
         // the order of the modules matters. If you use a set, the modules will get ordered by the value
         // of their pointer, which means the exact order of modules is indeterminate.
         const std::string title;
         const std::vector<WModule*> modules;
 
-        // This constructor is protected since a regular user shouldn't be able to control the value of addToSet,
-        // this parameter is present purely for the control window
-        explicit Windowlet(std::string title, const std::vector<WModule*>& modules, bool addToSet);
-
     public:
         // Windowlet constructor. Takes the windowlet title and its modules
-        explicit Windowlet(std::string title, const std::vector<WModule*>& modules);
+        explicit Windowlet(std::string title, std::vector<WModule*>&& modules);
         virtual ~Windowlet();
-
-        // The global windowlets renderer
-        static void renderWindowlets();
 
         // The individual windowlets renderer
         virtual void render();
     };
 
-    /*
-     * The control windowlet is the windowlet which actually contains the TargetChooser module. This windowlet
-     * is special because it always needs to be visible and active, it cant be merged with other windowlets, and
-     * it controls the entire rest of the program.
-     */
-
-    class ControlWindowlet final : public Windowlet {
-        friend class TargetChooser;
-
-        ControlWindowlet();
-        ~ControlWindowlet() override = default;
-
-        std::string inipath;
-
-    public:
-        static ControlWindowlet* getInstance();
-
-        void render() override;
-
-        // As opposed to a normal windowlet, the control windowlet needs a few extra special functions.
-        // First of all, it needs to be able to clean up the rest of the program, and close all the windowlets
-        // that were open due to the active configuration. It also needs to be able to provide a pointer to the
-        // interface RCP should use to communicate with the target.
-        void cleanup();
-    };
 } // namespace LRI::RCI
 
 #endif // WINDOWLET_H
