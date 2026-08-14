@@ -188,7 +188,7 @@ namespace LRI::RCI {
         ImGui::SetCursorPosY(textY);
 
         if(HWCTRL::targetOpen()) {
-            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", "PLACEHOLDER", "PLACEHOLDER", 0);
+            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", openTarget.c_str(), openInterf.c_str(), 0);
             ImGui::SameLine(0, 5);
             ImGui::SetNextItemWidth(40_sc);
             ImGui::SetCursorPosY(textY);
@@ -256,6 +256,10 @@ namespace LRI::RCI {
             for(auto& w : windowlets) delete w;
             windowlets.clear();
         });
+    }
+
+    void Window::startTarget(RCP_Interface* interf, const std::filesystem::path& config) {
+        openInterf = interf->interfaceType();
     }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {

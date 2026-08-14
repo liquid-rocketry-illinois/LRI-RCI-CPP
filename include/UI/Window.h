@@ -1,6 +1,7 @@
 #ifndef LRI_CONTROL_PANEL_WINDOW_H
 #define LRI_CONTROL_PANEL_WINDOW_H
 
+#include <filesystem>
 #include <functional>
 #include <set>
 #include <vector>
@@ -11,6 +12,8 @@
 
 #include "UI/Windowlet.h"
 #include "UI/TargetChooser.h"
+
+#include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
     class TargetChooser;
@@ -27,6 +30,9 @@ namespace LRI::RCI {
 
         TargetChooser chooser;
 
+        std::string openTarget;
+        std::string openInterf;
+
         void renderTitlebar();
         void renderBackground();
 
@@ -38,6 +44,7 @@ namespace LRI::RCI {
 
         void registerWindowlet(Windowlet* w);
         void unregisterWindowlets();
+        void startTarget(RCP_Interface* interf, const std::filesystem::path& config);
     };
 }
 

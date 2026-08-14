@@ -1,5 +1,8 @@
 #include "UI/TargetChooser.h"
 
+#include <filesystem>
+#include <ranges>
+
 #include "improgress.h"
 
 #include "interfaces/COMPort.h"
@@ -7,9 +10,11 @@
 #include "interfaces/TCPSocket.h"
 #include "interfaces/VirtualPort.h"
 
+#include "UI/Window.h"
 #include "UI/gutils.h"
 #include "UI/vscode_icons.h"
 
+// Interface Choosing
 namespace {
     using namespace LRI::RCI;
 
@@ -18,12 +23,16 @@ namespace {
 
     protected:
         const int classid;
+        bool lockDropdown;
 
     public:
-        InterfaceChooser() : classid(CLASSID++) {}
+        InterfaceChooser() : classid(CLASSID++), lockDropdown(false) {}
         virtual ~InterfaceChooser() = default;
 
         virtual RCP_Interface* render() = 0;
+        virtual bool shouldLockDropdown() {
+            return lockDropdown;
+        }
     };
 
     int InterfaceChooser::CLASSID = 0;
@@ -89,6 +98,7 @@ namespace {
             if(serialDevs.empty()) ImGui::BeginDisabled();
             if(ImGui::Button("Connect")) {
                 // If connect, then create the COMPort
+                lockDropdown = true;
                 port = new COMPort(std::move(R"(\\.\)" + serialDevs[selectedPort].first), baud, arduinoMode);
             }
 
@@ -106,6 +116,7 @@ namespace {
 
                 ImGui::SameLine();
                 if(ImGui::Button("OK##comportchoosererror")) {
+                    lockDropdown = false;
                     delete port;
                     port = nullptr;
                 }
@@ -118,6 +129,7 @@ namespace {
             }
 
             else {
+                lockDropdown = false;
                 auto* temp = port;
                 port = nullptr;
                 return temp; // Return port but clear internal state so the class instance can be reused
@@ -185,6 +197,7 @@ namespace {
 
             // Once confirm is pushed, create the interface and begin waiting for a connection
             if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
+                lockDropdown = true;
                 interf = new TCPSocket(
                     port, tempserver ? sf::IpAddress(0, 0, 0, 0) : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
             }
@@ -202,6 +215,7 @@ namespace {
 
                 ImGui::SameLine();
                 if(ImGui::Button("OK")) {
+                    lockDropdown = false;
                     delete interf;
                     interf = nullptr;
                 }
@@ -217,6 +231,7 @@ namespace {
                 ImGui::Spinner("##tcpwaitspinner", 8, 1, colors::REBECCAi);
 
                 if(ImGui::Button("Cancel")) {
+                    lockDropdown = false;
                     delete interf;
                     interf = nullptr;
                 }
@@ -225,6 +240,7 @@ namespace {
             }
 
             // Once the interface is ready to go, return it to the TargetChooser
+            lockDropdown = false;
             auto* temp = interf;
             interf = nullptr; // Return port but clear internal state so the class instance can be reused
             return temp;
@@ -249,11 +265,29 @@ namespace {
     class TargetChooserWM : public WModule {
         Window* const owner;
 
-        VirtualPortChooser c;
+        std::vector<std::pair<std::string, InterfaceChooser*>> choosers;
+        std::vector<std::pair<std::filesystem::path, std::string>> targetPaths;
+
+        size_t chosenChooser;
+
+        size_t chosenTarget;
 
     public:
-        TargetChooserWM(Window* owner) : owner(owner) {}
-        ~TargetChooserWM() override = default;
+        explicit TargetChooserWM(Window* owner) : owner(owner), chosenChooser(0), chosenTarget(0) {
+            for(const auto& file : std::filesystem::directory_iterator("targets/")) {
+                if(file.is_directory() || !file.path().string().ends_with(".json")) continue;
+                std::filesystem::path path = file.path();
+                targetPaths.emplace_back(path, path.filename().string());
+            }
+
+            choosers.emplace_back("Serial Port", new COMPortChooser());
+            choosers.emplace_back("TCP Socket", new TCPInterfaceChooser());
+            choosers.emplace_back("Virtual Port", new VirtualPortChooser());
+        }
+
+        ~TargetChooserWM() override {
+            for(const auto& ch : choosers | std::views::values) delete ch;
+        }
 
         void render() override {
             ImGui::PushID("TargetChooser");
@@ -263,8 +297,51 @@ namespace {
                 ImGui::PopID();
             };
 
-            ImGui::Text("Hello!" ICON_VS_ROCKET);
-            c.render();
+            ImGui::Text("Choose Target Config: ");
+            ImGui::SameLine();
+            if(targetPaths.empty()) ImGui::Text("No Target Configs Available");
+            else if(ImGui::BeginCombo("##targetchooser", targetPaths[chosenTarget].second.c_str())) {
+                for(size_t i = 0; i < targetPaths.size(); i++) {
+                    bool selected = i == chosenTarget;
+                    if(ImGui::Selectable(targetPaths[i].second.c_str(), &selected)) chosenTarget = i;
+                    if(selected) ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            // Afterward a dropdown with the available interfaces is shown, and if a different interface chooser is
+            // selected it is created
+            ImGui::Text("Interface Type: ");
+            ImGui::SameLine();
+
+            const bool lockDropdown = !choosers.empty() && choosers[chosenChooser].second->shouldLockDropdown();
+            if(lockDropdown) ImGui::BeginDisabled();
+
+            bool availableInterfaces = !choosers.empty();
+            if(!availableInterfaces) ImGui::Text("No available interfaces");
+            else if(ImGui::BeginCombo("##interfacechooser", choosers[chosenChooser].first.c_str())) {
+                for(size_t i = 0; i < choosers.size(); i++) {
+                    bool selected = i == chosenChooser;
+                    if(ImGui::Selectable((choosers[i].first + "##interfacechooser").c_str(), &selected)) {
+                        chosenChooser = i;
+                    }
+
+                    if(selected) ImGui::SetItemDefaultFocus();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            if(lockDropdown) ImGui::EndDisabled();
+
+            ImGui::NewLine();
+            ImGui::Separator();
+
+            if(availableInterfaces) {
+                RCP_Interface* interf = choosers[chosenChooser].second->render();
+                if(interf != nullptr) owner->startTarget(interf, targetPaths[chosenTarget].first);
+            }
         }
     };
 } // namespace
@@ -274,7 +351,7 @@ namespace LRI::RCI {
         Windowlet("Target Chooser", {new TargetChooserWM(owner)}), firstUse(true) {}
 
     void TargetChooser::render() {
-        if(firstUse) {
+        if(firstUse) [[unlikely]] {
             firstUse = false;
             ImGui::SetNextWindowSize({550_sc, 225_sc});
             ImGui::SetNextWindowPos({50_sc, 90_sc});
