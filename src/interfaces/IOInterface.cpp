@@ -94,6 +94,12 @@ namespace LRI::RCI {
 
     bool IOInterface::isOpen() const { return isPortOpen.load(); }
 
+    size_t IOInterface::bytesWaiting() const {
+        // While this _should_ be mutex protected, since this value is used for display only its kinda fine if it gets
+        // corrupted due to concurrent access
+        return inbuffer->size();
+    }
+
     size_t IOInterface::sendData(const void* data, size_t length) const {
         // Lock the output buffer, and check if there is space to insert the data. If not, return
         outlock.lock();

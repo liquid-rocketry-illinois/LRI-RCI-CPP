@@ -4,8 +4,8 @@
 #include <string>
 
 #include "RCP_Interface.h"
-#include "UI/TargetChooser.h"
 #include "RingBuffer.h"
+#include "UI/TargetChooser.h"
 #include "utils.h"
 
 namespace LRI::RCI {

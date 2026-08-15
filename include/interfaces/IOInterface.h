@@ -56,6 +56,7 @@ namespace LRI::RCI {
         size_t readData(void* data, size_t bufferSize) const override;
 
         [[nodiscard]] bool pktAvailable() const override;
+        [[nodiscard]] size_t bytesWaiting() const override;
 
         IOInterface(std::string displayName);
         ~IOInterface() override;

@@ -24,6 +24,8 @@ namespace LRI::RCI {
         // Returns true if a full packet is ready to be read from the interface
         [[nodiscard]] virtual bool pktAvailable() const = 0;
 
+        [[nodiscard]] virtual size_t bytesWaiting() const { return 0; }
+
         // Returns a display string representing the interface
         [[nodiscard]] const std::string& interfaceType() const { return displayName; }
 
