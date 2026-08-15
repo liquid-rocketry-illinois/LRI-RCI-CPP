@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "interfaces/TCPSocket.h"
 
 namespace LRI::RCI {
@@ -10,7 +8,8 @@ namespace LRI::RCI {
 
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
-        IOInterface(std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
+        IOInterface(std::string("TCP ") +
+                    (serverAddress != DEFAULT_IP ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
                     std::to_string(port)),
         port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP) {
         ioUnlock();
