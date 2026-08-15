@@ -29,7 +29,7 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_STEPPER:
             return "Stepper Motor";
 
-        case RCP_DEVCLASS_CUSTOM:
+        case RCP_DEVCLASS_TARGET_LOG:
             return "Raw Data (Virtual Device)";
 
         case RCP_DEVCLASS_AM_PRESSURE:

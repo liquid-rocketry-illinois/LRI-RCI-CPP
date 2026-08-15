@@ -15,20 +15,20 @@
 namespace LRI::RCI::HWCTRL {
     size_t sendData(const void* data, size_t length);
     size_t readData(void* data, size_t bufferSize);
-    int processTwoFloat(RCP_TwoFloat data);
+    int processTwoFloat(RCP_2F data);
 
     static RCP_LibInitData callbacks = {
         .sendData = sendData,
         .readData = readData,
-        .processTestUpdate = TestState::receiveRCPUpdate,
-        .processBoolData = BoolSensors::receiveRCPUpdate,
-        .processSimpleActuatorData = SimpleActuators::receiveRCPUpdate,
-        .processPromptInput = Prompt::receiveRCPUpdate,
-        .processSerialData = RawData::receiveRCPUpdate,
-        .processOneFloat = Sensors::receiveRCPUpdate1,
-        .processTwoFloat = processTwoFloat,
-        .processThreeFloat = Sensors::receiveRCPUpdate3,
-        .processFourFloat = Sensors::receiveRCPUpdate4,
+        // .processTestUpdate = TestState::receiveRCPUpdate,
+        // .processBoolData = BoolSensors::receiveRCPUpdate,
+        // .processSimpleActuatorData = SimpleActuators::receiveRCPUpdate,
+        // .processPromptInput = Prompt::receiveRCPUpdate,
+        // .processSerialData = RawData::receiveRCPUpdate,
+        // .processOneFloat = Sensors::receiveRCPUpdate1,
+        // .processTwoFloat = processTwoFloat,
+        // .processThreeFloat = Sensors::receiveRCPUpdate3,
+        // .processFourFloat = Sensors::receiveRCPUpdate4,
     };
 
     static RCP_Interface* interf;
@@ -45,7 +45,7 @@ namespace LRI::RCI::HWCTRL {
         }
 
         interf = _interf;
-        RCP_init(callbacks);
+        // RCP_init(callbacks);
         RCP_setChannel(RCP_CH_ZERO);
         hasStarted = true;
         preventScreenTurnoff();
@@ -90,7 +90,7 @@ namespace LRI::RCI::HWCTRL {
     void end() {
         errors.clear();
         hasStarted = false;
-        RCP_shutdown();
+        // RCP_shutdown();
         delete interf;
         interf = nullptr;
         resetHardware();
@@ -172,7 +172,7 @@ namespace LRI::RCI::HWCTRL {
 
     size_t readData(void* data, size_t bufferSize) { return interf->readData(data, bufferSize); }
 
-    int processTwoFloat(RCP_TwoFloat data) {
+    int processTwoFloat(RCP_2F data) {
         if(data.devclass == RCP_DEVCLASS_STEPPER)
             return Steppers::receiveRCPUpdate({RCP_DEVCLASS_STEPPER, data.ID, ""}, data.data[0], data.data[1]);
         return Sensors::receiveRCPUpdate2(data);

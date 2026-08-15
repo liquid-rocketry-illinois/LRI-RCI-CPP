@@ -13,7 +13,7 @@ namespace LRI::RCI::BoolSensors {
     static StopWatch refreshTimer;
     static float refreshTime = 5.0f;
 
-    int receiveRCPUpdate(RCP_BoolData data) {
+    int receiveRCPUpdate(RCP_ByteData data) {
         HardwareQualifier qual{RCP_DEVCLASS_BOOL_SENSOR, data.ID};
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
