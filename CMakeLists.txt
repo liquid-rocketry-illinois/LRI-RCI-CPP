@@ -103,6 +103,7 @@ add_executable(LRI_control_panel
         src/hardware/SimpleActuators.cpp
         src/hardware/Steppers.cpp
         src/hardware/TestState.cpp
+        src/hardware/json.cpp
 
         # (technically) Platform specific
         src/WindowsEmbeddedResource.cpp
@@ -118,7 +119,7 @@ target_link_libraries(LRI_control_panel PRIVATE RCP-Host nlohmann_json SFML::Net
 target_include_directories(LRI_control_panel PRIVATE include)
 
 # Stop Windows.h from defining the MIN and MAX macros because they're annoying
-target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX)
+target_compile_definitions(LRI_control_panel PRIVATE -DNOMINMAX -DJSON_DIAGNOSTICS=1)
 
 # Enable warnings and warnings-as-errors
 target_compile_options(LRI_control_panel PRIVATE /W3 /WX)

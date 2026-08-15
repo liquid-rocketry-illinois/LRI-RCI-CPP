@@ -10,11 +10,14 @@
 #include "imgui_impl_opengl3.h"
 #include "implot.h"
 
+#include "nlohmann/json.hpp"
+
 #include "UI/Windowlet.h"
 #include "UI/gutils.h"
 #include "UI/vscode_icons.h"
 
 #include "hardware/HardwareControl.h"
+#include "hardware/json.h"
 
 namespace LRI::RCI {
     Window::Window() : window(nullptr), oldProc(nullptr), chooser(this) {
@@ -258,8 +261,9 @@ namespace LRI::RCI {
         });
     }
 
-    void Window::startTarget(RCP_Interface* interf, const std::filesystem::path& config) {
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& configPath) {
         openInterf = interf->interfaceType();
+
     }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {

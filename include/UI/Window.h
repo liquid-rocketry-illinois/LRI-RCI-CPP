@@ -13,6 +13,8 @@
 #include "UI/Windowlet.h"
 #include "UI/TargetChooser.h"
 
+#include "hardware/json.h"
+
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
@@ -44,7 +46,7 @@ namespace LRI::RCI {
 
         void registerWindowlet(Windowlet* w);
         void unregisterWindowlets();
-        void startTarget(RCP_Interface* interf, const std::filesystem::path& config);
+        void startTarget(RCP_Interface* interf, const TargetConfig& configPath);
     };
 }
 

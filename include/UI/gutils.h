@@ -55,6 +55,8 @@ namespace LRI::RCI {
 
         COLOR_CONSTANT(REBECCA, 0xFF993366);
 
+        COLOR_CONSTANT(CERROR, 0xFF0000FF);
+
 #undef COLOR_CONSTANT
     } // namespace colors
 

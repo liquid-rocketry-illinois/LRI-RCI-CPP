@@ -8,7 +8,7 @@ namespace LRI::RCI {
         bool firstUse;
 
     public:
-        TargetChooser(Window* owner);
+        explicit TargetChooser(Window* owner);
         ~TargetChooser() override = default;
         void render() override;
     };

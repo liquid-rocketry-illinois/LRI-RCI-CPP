@@ -1,9 +1,12 @@
 #include "UI/TargetChooser.h"
 
 #include <filesystem>
-#include <ranges>
+#include <optional>
 
 #include "improgress.h"
+#include "nlohmann/json.hpp"
+
+#include "hardware/json.h"
 
 #include "interfaces/COMPort.h"
 #include "interfaces/RCP_Interface.h"
@@ -29,10 +32,10 @@ namespace {
         InterfaceChooser() : classid(CLASSID++), lockDropdown(false) {}
         virtual ~InterfaceChooser() = default;
 
-        virtual RCP_Interface* render() = 0;
-        virtual bool shouldLockDropdown() {
-            return lockDropdown;
-        }
+        virtual void render() = 0;
+        virtual bool shouldLockDropdown() { return lockDropdown; }
+        virtual void startConnection() = 0;
+        virtual RCP_Interface* getInterfAndCleanup() = 0;
     };
 
     int InterfaceChooser::CLASSID = 0;
@@ -48,7 +51,7 @@ namespace {
         COMPortChooser() : selectedPort(0), error(false), baud(115200), arduinoMode(false), port(nullptr) {}
         ~COMPortChooser() override = default;
 
-        RCP_Interface* render() override {
+        void render() override {
             ImGui::PushID("COMPortChooser");
             ImGui::PushID(classid);
             SCOPE_EXIT {
@@ -95,17 +98,9 @@ namespace {
             ImGui::SameLine();
             ImGui::Checkbox("##arduinomode", &arduinoMode);
 
-            if(serialDevs.empty()) ImGui::BeginDisabled();
-            if(ImGui::Button("Connect")) {
-                // If connect, then create the COMPort
-                lockDropdown = true;
-                port = new COMPort(std::move(R"(\\.\)" + serialDevs[selectedPort].first), baud, arduinoMode);
-            }
-
-            if(serialDevs.empty()) ImGui::EndDisabled();
             if(disable) ImGui::EndDisabled();
 
-            if(port == nullptr) return nullptr;
+            if(port == nullptr) return;
 
             // If the port allocated but did not open then show an error
             if(port->didPortOpenFail()) {
@@ -125,14 +120,22 @@ namespace {
             // While the port is readying, don't return it just yet and display a loading spinner
             else if(!port->isOpen()) {
                 ImGui::SameLine();
-                ImGui::Spinner("##comportchooserspinner", 8, 1, colors::REBECCAi);
+                ImGui::Spinner("##comportchooserspinner", 8_sc, 1, colors::REBECCAi);
             }
+        }
 
-            else {
-                lockDropdown = false;
+        void startConnection() override {
+            // If connect, then create the COMPort
+            lockDropdown = true;
+            port = new COMPort(std::move(R"(\\.\)" + getSerialDevs()[selectedPort].first), baud, arduinoMode);
+        }
+
+        RCP_Interface* getInterfAndCleanup() override {
+            if(port != nullptr && port->isOpen()) {
                 auto* temp = port;
                 port = nullptr;
-                return temp; // Return port but clear internal state so the class instance can be reused
+                lockDropdown = false;
+                return temp;
             }
 
             return nullptr;
@@ -150,7 +153,7 @@ namespace {
         TCPInterfaceChooser() : port(5000), server(false), interf(nullptr) {}
         ~TCPInterfaceChooser() override = default;
 
-        RCP_Interface* render() override {
+        void render() override {
             ImGui::PushID("TCPSocketChooser");
             ImGui::PushID(classid);
             SCOPE_EXIT {
@@ -195,16 +198,8 @@ namespace {
             if(port < 0) port = 0;
             else if(port > 65535) port = 65535;
 
-            // Once confirm is pushed, create the interface and begin waiting for a connection
-            if(ImGui::Button(tempserver ? "Begin Hosting" : "Connect")) {
-                lockDropdown = true;
-                interf = new TCPSocket(
-                    port, tempserver ? sf::IpAddress(0, 0, 0, 0) : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
-            }
-            if(!isnull) ImGui::EndDisabled();
-
             // If the interface is null, keep rendering
-            if(interf == nullptr) return nullptr;
+            if(interf == nullptr) return;
 
             // If the interface has been created but did not open properly, display error and continue rendering
             if(interf->didPortOpenFail()) {
@@ -220,7 +215,7 @@ namespace {
                     interf = nullptr;
                 }
 
-                return nullptr;
+                return;
             }
 
             // While the interface is open but not ready, keep waiting for the connection to be established
@@ -235,25 +230,50 @@ namespace {
                     delete interf;
                     interf = nullptr;
                 }
+            }
+        }
 
-                return nullptr;
+        RCP_Interface* getInterfAndCleanup() override {
+            if(interf != nullptr && interf->isOpen()) {
+                // Once the interface is ready to go, return it to the TargetChooser
+                lockDropdown = false;
+                auto* temp = interf;
+                interf = nullptr; // Return port but clear internal state so the class instance can be reused
+                return temp;
             }
 
-            // Once the interface is ready to go, return it to the TargetChooser
-            lockDropdown = false;
-            auto* temp = interf;
-            interf = nullptr; // Return port but clear internal state so the class instance can be reused
-            return temp;
+            return nullptr;
+        }
+
+        void startConnection() override {
+            lockDropdown = true;
+            interf =
+                new TCPSocket(port, server ? sf::IpAddress(0, 0, 0, 0) : sf::IpAddress(ip[0], ip[1], ip[2], ip[3]));
         }
     };
 
     class VirtualPortChooser : public InterfaceChooser {
+        VirtualPort* port = nullptr;
+
     public:
         VirtualPortChooser() = default;
         ~VirtualPortChooser() override = default;
 
-        RCP_Interface* render() override {
-            if(ImGui::Button("Open Virtual Port")) return new VirtualPort();
+        void render() override {}
+
+        void startConnection() override {
+            port = new VirtualPort();
+            lockDropdown = true;
+        }
+
+        RCP_Interface* getInterfAndCleanup() override {
+            if(port != nullptr) {
+                lockDropdown = false;
+                auto* temp = port;
+                port = nullptr;
+                return temp;
+            }
+
             return nullptr;
         }
     };
@@ -269,8 +289,10 @@ namespace {
         std::vector<std::pair<std::filesystem::path, std::string>> targetPaths;
 
         size_t chosenChooser;
-
         size_t chosenTarget;
+
+        TargetConfig config;
+        std::optional<std::string> jsonError;
 
     public:
         explicit TargetChooserWM(Window* owner) : owner(owner), chosenChooser(0), chosenTarget(0) {
@@ -339,8 +361,38 @@ namespace {
             ImGui::Separator();
 
             if(availableInterfaces) {
-                RCP_Interface* interf = choosers[chosenChooser].second->render();
-                if(interf != nullptr) owner->startTarget(interf, targetPaths[chosenTarget].first);
+                choosers[chosenChooser].second->render();
+
+                if(lockDropdown) ImGui::BeginDisabled();
+                if(ImGui::Button("Connect")) {
+                    auto& path = targetPaths[chosenTarget].first;
+
+                    try {
+                        config = readConfig(path);
+                        choosers[chosenChooser].second->startConnection();
+                        jsonError = "yippee1";
+                    }
+
+                    catch(nlohmann::json::exception& e) {
+                        jsonError = e.what();
+                    }
+                }
+                if(lockDropdown) ImGui::EndDisabled();
+
+                if(jsonError.has_value()) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, colors::CERROR);
+                    ImGui::TextWrapped("Error parsing config: %s", jsonError->c_str());
+                    ImGui::PopStyleColor();
+
+                    if(ImGui::Button("OK")) jsonError = std::nullopt;
+                }
+
+                RCP_Interface* interf = choosers[chosenChooser].second->getInterfAndCleanup();
+                if(interf != nullptr) {
+                    jsonError.value() += " yippee 2";
+                    delete interf;
+                    // owner->startTarget()
+                }
             }
         }
     };
