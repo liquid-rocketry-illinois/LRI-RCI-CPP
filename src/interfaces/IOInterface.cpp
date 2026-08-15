@@ -5,9 +5,9 @@
 #include <iostream>
 #include "hardware/TestState.h"
 namespace LRI::RCI {
-    IOInterface::IOInterface() :
-        doComm(true), iothread(nullptr), inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)),
-        outbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)) {
+    IOInterface::IOInterface(std::string displayName) :
+        RCP_Interface(std::move(displayName)), doComm(true), iothread(nullptr),
+        inbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)), outbuffer(new RingBuffer<uint8_t>(BUFFER_SIZE)) {
         ioLockMux.lock();
         iothread = new std::thread(&IOInterface::threadIO, this);
     }

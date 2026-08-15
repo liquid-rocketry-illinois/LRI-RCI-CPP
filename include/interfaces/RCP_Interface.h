@@ -4,9 +4,16 @@
 #include <string>
 
 namespace LRI::RCI {
-    // An interface representing an interface RCP can use to communicate
+    // An interface representing an interface RCP can use to communicate. There are a few function implementations
+    // embedded in the class declaration, just because they are so short and it would be so awful to make a whole file
+    // for such a trivial constructor and getter
     class RCP_Interface {
+    protected:
+        const std::string displayName;
+
     public:
+        explicit RCP_Interface(std::string displayName) : displayName(std::move(displayName)) {}
+
         // Send and receive functions
         virtual size_t sendData(const void* data, size_t length) const = 0;
         virtual size_t readData(void* data, size_t bufferSize) const = 0;
@@ -18,7 +25,7 @@ namespace LRI::RCI {
         [[nodiscard]] virtual bool pktAvailable() const = 0;
 
         // Returns a display string representing the interface
-        [[nodiscard]] virtual std::string interfaceType() const = 0;
+        [[nodiscard]] const std::string& interfaceType() const { return displayName; }
 
         virtual ~RCP_Interface() = default;
     };

@@ -1,18 +1,13 @@
 #include "interfaces/COMPort.h"
 
 namespace LRI::RCI {
-    COMPort::COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode) :
-        portname(portname), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
+    COMPort::COMPort(std::string portname, unsigned long baudrate, bool arduinoMode) :
+        IOInterface("Serial Port(" + portname + " @ " + std::to_string(baudrate) + " baud)"),
+        portname(std::move(portname)), baudrate(baudrate), arduinoMode(arduinoMode), port(nullptr) {
         ioUnlock();
     }
 
-     COMPort::~COMPort() {
-        ioLock();
-    }
-
-    std::string COMPort::interfaceType() const {
-        return std::string("Serial Port (") + portname + " @ " + std::to_string(baudrate) + " baud)";
-    }
+    COMPort::~COMPort() { ioLock(); }
 
     void COMPort::ioInit() {
         port = CreateFile(portname.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
@@ -77,7 +72,8 @@ namespace LRI::RCI {
 
     bool COMPort::writeBytes(const uint8_t* bytes, size_t length) {
         DWORD _written = 0;
-        if(!WriteFile(port, bytes, static_cast<DWORD>(length), &_written, nullptr) || static_cast<size_t>(_written) != length) {
+        if(!WriteFile(port, bytes, static_cast<DWORD>(length), &_written, nullptr) ||
+           static_cast<size_t>(_written) != length) {
             lastErrorStage = 5;
             lastErrorCode = GetLastError();
             return false;
@@ -98,8 +94,6 @@ namespace LRI::RCI {
         return true;
     }
 
-    void COMPort::ioDeinit() {
-        CloseHandle(port);
-    }
+    void COMPort::ioDeinit() { CloseHandle(port); }
 
 } // namespace LRI::RCI

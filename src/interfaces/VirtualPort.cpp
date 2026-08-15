@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace LRI::RCI {
-    VirtualPort::VirtualPort() : initpacket(7) {
+    VirtualPort::VirtualPort() : RCP_Interface("Virtual Interface"), initpacket(7) {
         // Push the "target ready" packet so the UI can be interacted with
         initpacket.push(0x05);
         initpacket.push(RCP_DEVCLASS_TEST_STATE);
@@ -24,7 +24,9 @@ namespace LRI::RCI {
     size_t VirtualPort::sendData([[maybe_unused]] const void* data, size_t length) const {
         const auto* idata = static_cast<const uint8_t*>(data);
         std::cout << "Sent: " << std::hex;
-        for(size_t i = 0; i < length; i++) { std::cout << static_cast<int>(idata[i]) << "  "; }
+        for(size_t i = 0; i < length; i++) {
+            std::cout << static_cast<int>(idata[i]) << "  ";
+        }
         std::cout << std::endl;
         return length;
     }
@@ -38,6 +40,4 @@ namespace LRI::RCI {
 
         return written;
     }
-
-    std::string VirtualPort::interfaceType() const { return "Virtual Interface"; }
 } // namespace LRI::RCI

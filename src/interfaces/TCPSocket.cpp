@@ -10,19 +10,13 @@ namespace LRI::RCI {
 
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
+        IOInterface(std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
+                    std::to_string(port)),
         port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP) {
         ioUnlock();
     }
 
-     TCPSocket::~TCPSocket() {
-        ioLock();
-    }
-
-    // Return a human readable string describing the interface
-    std::string TCPSocket::interfaceType() const {
-        return std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
-            std::to_string(port);
-    }
+    TCPSocket::~TCPSocket() { ioLock(); }
 
     void TCPSocket::ioInit() {
         // If the interface is the server, it should start listening for connections

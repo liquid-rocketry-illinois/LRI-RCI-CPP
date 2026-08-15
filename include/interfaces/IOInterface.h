@@ -57,7 +57,7 @@ namespace LRI::RCI {
 
     [[nodiscard]] bool pktAvailable() const override;
 
-    IOInterface();
+    IOInterface(std::string displayName);
     ~IOInterface() override;
   };
 }

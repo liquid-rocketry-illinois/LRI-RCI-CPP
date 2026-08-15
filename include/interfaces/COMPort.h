@@ -26,18 +26,16 @@ namespace LRI::RCI {
 
         NativeHandle port;
 
-    public:
-        // COMPort needs the port name as a string (COMx) and the baud rate
-        explicit COMPort(const std::string&& portname, unsigned long baudrate, bool arduinoMode);
-        ~COMPort() override;
-
-        // A display string representing the port (COMx @ y baud)
-        std::string interfaceType() const override;
-
+    protected:
         void ioInit() override;
         bool writeBytes(const uint8_t* bytes, size_t length) override;
         bool readBytes(uint8_t* bytes, size_t bufLength, size_t& written) override;
         void ioDeinit() override;
+
+    public:
+        // COMPort needs the port name as a string (COMx) and the baud rate
+        explicit COMPort(std::string portname, unsigned long baudrate, bool arduinoMode);
+        ~COMPort() override;
     };
 } // namespace LRI::RCI
 #endif // COMPORT_H

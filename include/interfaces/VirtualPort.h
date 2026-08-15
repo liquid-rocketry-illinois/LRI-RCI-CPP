@@ -26,9 +26,6 @@ namespace LRI::RCI {
 
         // Read function does nothing but zero the inputted buffer and return bufferSize
         size_t readData(void* data, size_t bufferSize) const override;
-
-        // Returns "Virtual Interface"
-        [[nodiscard]] std::string interfaceType() const override;
     };
 } // namespace LRI::RCI
 

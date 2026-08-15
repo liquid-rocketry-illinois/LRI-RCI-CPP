@@ -22,19 +22,17 @@ namespace LRI::RCI {
         sf::SocketSelector listensel;
         sf::SocketSelector targetsel;
 
+    protected:
+        void ioInit() override;
+        bool writeBytes(const uint8_t* bytes, size_t length) override;
+        bool readBytes(uint8_t* bytes, size_t bufLength, size_t& written) override;
+        void ioDeinit() override;
+
     public:
         // Construct a new socket interface. A port is required regardless, but if the interface is a client
         // you must also provide the IP address of the server
         explicit TCPSocket(uint16_t port, const sf::IpAddress& serverAddress = {0, 0, 0, 0});
         ~TCPSocket() override;
-
-        // Returns a human significant string of the interface
-        [[nodiscard]] std::string interfaceType() const override;
-
-        void ioInit() override;
-        bool writeBytes(const uint8_t* bytes, size_t length) override;
-        bool readBytes(uint8_t* bytes, size_t bufLength, size_t& written) override;
-        void ioDeinit() override;
     };
 } // namespace LRI::RCI
 
