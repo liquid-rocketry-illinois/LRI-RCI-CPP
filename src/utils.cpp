@@ -23,8 +23,8 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_TEST_STATE:
             return "Test State (Virtual Device)";
 
-        case RCP_DEVCLASS_SIMPLE_ACTUATOR:
-            return "Simple Actuator";
+        case RCP_DEVCLASS_DISCRETE_ACTUATOR:
+            return "Discrete Actuator";
 
         case RCP_DEVCLASS_STEPPER:
             return "Stepper Motor";

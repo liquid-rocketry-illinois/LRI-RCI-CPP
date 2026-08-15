@@ -87,7 +87,6 @@ namespace LRI::RCI {
         HardwareChannel ch{qual, 0};
 
         switch(qual.devclass) {
-        case RCP_DEVCLASS_SIMPLE_ACTUATOR:
         case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
             // For data sent back
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
@@ -364,13 +363,6 @@ namespace LRI::RCI {
         host.act_uints[qual].emplace_back(mode);
     }
 
-    void EventLog::addSActWrite(uint8_t id, RCP_SimpleActuatorState val) {
-        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, id};
-        if(!host.act_uints.contains(qual)) return;
-        host.acttimestamps[qual].emplace_back();
-        host.act_uints[qual].emplace_back(val);
-    }
-
     void EventLog::addDActWrite(uint8_t id, uint8_t val) {
         HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, id};
         if(!host.act_uints.contains(qual)) return;
@@ -460,12 +452,6 @@ namespace LRI::RCI {
         HardwareQualifier qual{RCP_DEVCLASS_STEPPER, id};
         if(!host.act_uints.contains(qual)) return {};
         return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual), &host.act_floats.at(qual));
-    }
-
-    HostUint EventLog::getRequestedSActWrites(uint8_t id) const {
-        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, id};
-        if(!host.act_uints.contains(qual)) return {};
-        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual));
     }
 
     HostUint EventLog::getRequestedDActWrites(uint8_t id) const {

@@ -57,7 +57,7 @@ namespace LRI::RCI {
     }
 
     bool table6Data(uint8_t type) {
-        return type == RCP_DEVCLASS_SIMPLE_ACTUATOR || type == RCP_DEVCLASS_STEPPER ||
+        return type == RCP_DEVCLASS_DISCRETE_ACTUATOR || type == RCP_DEVCLASS_STEPPER ||
             type == RCP_DEVCLASS_ANGLED_ACTUATOR || type == RCP_DEVCLASS_MOTOR || type == RCP_DEVCLASS_BOOL_SENSOR;
     }
 

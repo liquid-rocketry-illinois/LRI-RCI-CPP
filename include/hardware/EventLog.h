@@ -28,7 +28,7 @@ namespace LRI::RCI {
             H_DEV_RESET = 6
         };
     }
-    
+
     using HostTime = std::chrono::system_clock::time_point;
     using TargetTime = uint32_t;
     constexpr auto& getHostTime = std::chrono::system_clock::now;
@@ -115,7 +115,6 @@ namespace LRI::RCI {
         void addAActWrite(uint8_t id, float val);
         void addMotorWrite(uint8_t id, float val);
         void addStepperWrite(uint8_t id, RCP_StepperControlMode mode, float val);
-        void addSActWrite(uint8_t id, RCP_SimpleActuatorState val);
         void addDActWrite(uint8_t id, uint8_t val);
 
         void addReadReq(const HardwareQualifier& qual);
@@ -146,7 +145,6 @@ namespace LRI::RCI {
         [[nodiscard]] HostFloat getRequestedAActWrites(uint8_t id) const;
         [[nodiscard]] HostFloat getRequestedMotorWrites(uint8_t id) const;
         [[nodiscard]] StepperWritesList getRequestedStepperWrites(uint8_t id) const;
-        [[nodiscard]] HostUint getRequestedSActWrites(uint8_t id) const;
         [[nodiscard]] HostUint getRequestedDActWrites(uint8_t id) const;
         [[nodiscard]] HostFloat getRequestedTares(const HardwareChannel& ch) const;
 

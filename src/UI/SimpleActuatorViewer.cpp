@@ -71,7 +71,7 @@ namespace LRI::RCI {
             if(evilMode) text = state->open ? "OFF (how evil)" : "ON (how evil)";
             else text = state->open ? "OFF": "ON";
             if(ImGui::Button(text)) {
-                SimpleActuators::setActuatorState(id, state->open ? RCP_SIMPLE_ACTUATOR_OFF : RCP_SIMPLE_ACTUATOR_ON);
+                SimpleActuators::setActuatorState(id, state->open ? 1 : 0);
                 buttonTimer.reset();
             }
             if(lockButtons || prevstale) ImGui::EndDisabled();

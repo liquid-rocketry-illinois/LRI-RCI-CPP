@@ -9,14 +9,14 @@ namespace LRI::RCI::SimpleActuators {
     static std::map<HardwareQualifier, ActuatorState> state;
 
     int receiveRCPUpdate(RCP_ByteData data) {
-        HardwareQualifier qual{RCP_DEVCLASS_SIMPLE_ACTUATOR, data.ID};
+        HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, data.ID};
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_TARGET, qual});
             return 1;
         }
 
         state[qual].stale = false;
-        state[qual].open = data.data == RCP_SIMPLE_ACTUATOR_ON;
+        state[qual].open = data.data > 0;
         return 0;
     }
 
@@ -43,18 +43,18 @@ namespace LRI::RCI::SimpleActuators {
 
     void refreshAll() {
         for(const auto& qual : state | std::views::keys) {
-            RCP_requestGeneralRead(RCP_DEVCLASS_SIMPLE_ACTUATOR, qual.id);
+            RCP_requestGeneralRead(RCP_DEVCLASS_DISCRETE_ACTUATOR, qual.id);
             state.at(qual).stale = true;
         }
     }
 
-    void setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState) {
+    void setActuatorState(const HardwareQualifier& qual, uint8_t newState) {
         if(!state.contains(qual)) {
             HWCTRL::addError({HWCTRL::ErrorType::HWNE_HOST, qual});
             return;
         }
 
         state[qual].stale = true;
-        RCP_sendSimpleActuatorWrite(qual.id, newState);
+        RCP_sendDiscreteActuatorWrite(qual.id, newState);
     }
 } // namespace LRI::RCI::SimpleActuators

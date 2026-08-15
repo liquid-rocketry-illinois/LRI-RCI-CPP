@@ -30,7 +30,7 @@ namespace LRI::RCI::SimpleActuators {
     void refreshAll();
 
     // Request a write to an actuator
-    void setActuatorState(const HardwareQualifier& qual, RCP_SimpleActuatorState newState);
+    void setActuatorState(const HardwareQualifier& qual, uint8_t newState);
 } // namespace LRI::RCI::SimpleActuators
 
 

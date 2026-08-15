@@ -132,7 +132,7 @@ namespace LRI::RCI::HWCTRL {
             if(SENSOR_CLASSES.contains(qual.devclass)) Sensors::setHardwareConfig(asSet);
 
             else switch(qual.devclass) {
-                case RCP_DEVCLASS_SIMPLE_ACTUATOR:
+                case RCP_DEVCLASS_DISCRETE_ACTUATOR:
                     SimpleActuators::setHardwareConfig(asSet);
                     break;
 
