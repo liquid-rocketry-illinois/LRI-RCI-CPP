@@ -393,86 +393,83 @@ namespace LRI::RCI {
     }
 
     // Getters
-    TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
+    EventLog::TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
         HardwareChannel channel{TEST_STATE, ch};
         if(!target.uints.contains(channel)) return {};
-        return std::make_tuple(&target.timestamps.at(TEST_STATE), &target.uints.at(channel));
+        return {&target.timestamps.at(TEST_STATE), &target.uints.at(channel)};
     }
 
-    HostString EventLog::getPromptRequests() const {
-        return std::make_tuple(&host.acttimestamps.at(PROMPT), &host.strings.at(PROMPT));
+    EventLog::HostString EventLog::getPromptRequests() const {
+        return {&host.acttimestamps.at(PROMPT), &host.strings.at(PROMPT)};
     }
 
-    PromptResponse EventLog::getPromptResponses() const {
-        return std::make_tuple(&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT),
-                               &host.act_uints.at(PROMPT));
+    EventLog::PromptResponse EventLog::getPromptResponses() const {
+        return {&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT), &host.act_uints.at(PROMPT)};
     }
 
-    HostString EventLog::getLogs() const {
-        return std::make_tuple(&host.acttimestamps.at(TARGET_LOG), &host.strings.at(TARGET_LOG));
-    }
+    EventLog::HostString EventLog::getLogs() const { return {&host.acttimestamps.at(TARGET_LOG), &host.strings.at(TARGET_LOG)}; }
 
-    TargetUint EventLog::getChannelUintData(const HardwareChannel& ch) const {
+    EventLog::TargetUint EventLog::getChannelUintData(const HardwareChannel& ch) const {
         if(!target.uints.contains(ch)) return {};
-        return std::make_tuple(&target.timestamps.at(ch), &target.uints.at(ch));
+        return {&target.timestamps.at(ch), &target.uints.at(ch)};
     }
 
-    TargetFloat EventLog::getChannelFloatData(const HardwareChannel& ch) const {
+    EventLog::TargetFloat EventLog::getChannelFloatData(const HardwareChannel& ch) const {
         if(!target.floats.contains(ch)) return {};
-        return std::make_tuple(&target.timestamps.at(ch), &target.floats.at(ch));
+        return {&target.timestamps.at(ch), &target.floats.at(ch)};
     }
 
-    HostUint EventLog::getRequestedRunningStates() const {
-        return std::make_tuple(&host.ctrltimestamps.at(TEST_STATE), &host.ctrl_uints.at(TEST_STATE));
+    EventLog::HostUint EventLog::getRequestedRunningStates() const {
+        return {&host.ctrltimestamps.at(TEST_STATE), &host.ctrl_uints.at(TEST_STATE)};
     }
 
-    const UintList* EventLog::getRequestedTestStartIDs() const { return &host.ctrl_uints.at(TESTID); }
+    const EventLog::UintList* EventLog::getRequestedTestStartIDs() const { return &host.ctrl_uints.at(TESTID); }
 
-    HostUint EventLog::getRequestedHeartbeatTimeSet() const {
-        return std::make_tuple(&host.ctrltimestamps.at(HBTIME), &host.ctrl_uints.at(HBTIME));
+    EventLog::HostUint EventLog::getRequestedHeartbeatTimeSet() const {
+        return {&host.ctrltimestamps.at(HBTIME), &host.ctrl_uints.at(HBTIME)};
     }
 
-    const TimePointList* EventLog::getHeartbeats() const { return &host.ctrltimestamps.at(HEARTBEAT); }
+    const EventLog::TimePointList* EventLog::getHeartbeats() const { return &host.ctrltimestamps.at(HEARTBEAT); }
 
-    HostUint EventLog::getRequestedDStreams() const {
-        return std::make_tuple(&host.ctrltimestamps.at(DSTREAM), &host.ctrl_uints.at(DSTREAM));
+    EventLog::HostUint EventLog::getRequestedDStreams() const {
+        return {&host.ctrltimestamps.at(DSTREAM), &host.ctrl_uints.at(DSTREAM)};
     }
 
-    const TimePointList* EventLog::getRequestedHWResets() const { return &host.ctrltimestamps.at(DEVRST); }
-    const TimePointList* EventLog::getRequestedTimeResets() const { return &host.ctrltimestamps.at(TIMERST); }
+    const EventLog::TimePointList* EventLog::getRequestedHWResets() const { return &host.ctrltimestamps.at(DEVRST); }
+    const EventLog::TimePointList* EventLog::getRequestedTimeResets() const { return &host.ctrltimestamps.at(TIMERST); }
 
-    HostFloat EventLog::getRequestedAActWrites(uint8_t id) const {
+    EventLog::HostFloat EventLog::getRequestedAActWrites(uint8_t id) const {
         HardwareQualifier qual{RCP_DEVCLASS_ANGLED_ACTUATOR, id};
         if(!host.act_floats.contains(qual)) return {};
-        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_floats.at(qual));
+        return {&host.acttimestamps.at(qual), &host.act_floats.at(qual)};
     }
 
-    HostFloat EventLog::getRequestedMotorWrites(uint8_t id) const {
+    EventLog::HostFloat EventLog::getRequestedMotorWrites(uint8_t id) const {
         HardwareQualifier qual{RCP_DEVCLASS_MOTOR, id};
         if(!host.act_floats.contains(qual)) return {};
-        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_floats.at(qual));
+        return {&host.acttimestamps.at(qual), &host.act_floats.at(qual)};
     }
 
-    StepperWritesList EventLog::getRequestedStepperWrites(uint8_t id) const {
+    EventLog::StepperWritesList EventLog::getRequestedStepperWrites(uint8_t id) const {
         HardwareQualifier qual{RCP_DEVCLASS_STEPPER, id};
         if(!host.act_uints.contains(qual)) return {};
-        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual), &host.act_floats.at(qual));
+        return {&host.acttimestamps.at(qual), &host.act_uints.at(qual), &host.act_floats.at(qual)};
     }
 
-    HostUint EventLog::getRequestedDActWrites(uint8_t id) const {
+    EventLog::HostUint EventLog::getRequestedDActWrites(uint8_t id) const {
         HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, id};
         if(!host.act_uints.contains(qual)) return {};
-        return std::make_tuple(&host.acttimestamps.at(qual), &host.act_uints.at(qual));
+        return {&host.acttimestamps.at(qual), &host.act_uints.at(qual)};
     }
 
-    HostFloat EventLog::getRequestedTares(const HardwareChannel& ch) const {
+    EventLog::HostFloat EventLog::getRequestedTares(const HardwareChannel& ch) const {
         if(!host.tares.contains(ch)) return {};
-        return std::make_tuple(&host.ctrltimestamps.at(ch), &host.tares.at(ch));
+        return {&host.ctrltimestamps.at(ch), &host.tares.at(ch)};
     }
 
-    const ReadRequestsList* EventLog::getReadRequests() const { return &host.readReqs; }
+    const EventLog::ReadRequestsList* EventLog::getReadRequests() const { return &host.readReqs; }
 
-    const UintList* EventLog::getRXBytes() const { return &rxbytes; }
-    const UintList* EventLog::getTXBytes() const { return &txbytes; }
-    const ErrorList* EventLog::getErrors() const { return &errors; }
+    const EventLog::UintList* EventLog::getRXBytes() const { return &rxbytes; }
+    const EventLog::UintList* EventLog::getTXBytes() const { return &txbytes; }
+    const EventLog::ErrorList* EventLog::getErrors() const { return &errors; }
 } // namespace LRI::RCI

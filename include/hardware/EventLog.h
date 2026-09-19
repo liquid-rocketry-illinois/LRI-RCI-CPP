@@ -42,11 +42,11 @@ namespace LRI::RCI {
         } level;
 
         Error(Level level, std::string error, HostTime htime = getHostTime()) :
-        htime(htime), error(std::move(error)), level(level) {}
+            htime(htime), error(std::move(error)), level(level) {}
 
         template<typename... Args>
         Error(Level level, std::format_string<Args...> fmt, Args&&... args) :
-        htime(getHostTime()), error(std::format(fmt, std::forward<Args>(args)...)), level(level) {}
+            htime(getHostTime()), error(std::format(fmt, std::forward<Args>(args)...)), level(level) {}
     };
 
     struct CombinedTime {
@@ -55,22 +55,38 @@ namespace LRI::RCI {
         explicit CombinedTime(TargetTime ttime, const HostTime& htime = getHostTime()) : ttime(ttime), htime(htime) {}
     };
 
-    using TargetFloat = std::tuple<const std::vector<CombinedTime>*, const std::vector<float>*>;
-    using TargetUint = std::tuple<const std::vector<CombinedTime>*, const std::vector<uint8_t>*>;
-
-    using HostString = std::tuple<const std::vector<HostTime>*, const std::vector<std::string>*>;
-    using HostUint = std::tuple<const std::vector<HostTime>*, const std::vector<uint8_t>*>;
-    using HostFloat = std::tuple<const std::vector<HostTime>*, const std::vector<float>*>;
-    using PromptResponse =
-        std::tuple<const std::vector<HostTime>*, const std::vector<float>*, const std::vector<uint8_t>*>;
-    using TimePointList = std::vector<HostTime>;
-    using StepperWritesList =
-        std::tuple<const std::vector<HostTime>*, const std::vector<uint8_t>*, const std::vector<float>*>;
-    using ReadRequestsList = std::vector<std::pair<HostTime, HardwareQualifier>>;
-    using UintList = std::vector<uint8_t>;
-    using ErrorList = std::vector<Error>;
-
     class EventLog {
+    public:
+#define RETTYPE(name, timetype, valtype)                                                                               \
+    struct name {                                                                                                      \
+        const std::vector<timetype>* times;                                                                            \
+        const std::vector<valtype>* values;                                                                            \
+    };
+
+        RETTYPE(TargetFloat, CombinedTime, float);
+        RETTYPE(TargetUint, CombinedTime, uint8_t);
+        RETTYPE(HostString, HostTime, std::string);
+        RETTYPE(HostFloat, HostTime, float);
+        RETTYPE(HostUint, HostTime, uint8_t);
+
+#undef RETTYPE
+
+        struct PromptResponse {
+            const std::vector<HostTime>* times;
+            const std::vector<float>* floatResp;
+            const std::vector<uint8_t>* boolResp;
+        };
+        using TimePointList = std::vector<HostTime>;
+        struct StepperWritesList {
+            const std::vector<HostTime>* times;
+            const std::vector<uint8_t>* modes;
+            const std::vector<float>* values;
+        };
+        using ReadRequestsList = std::vector<std::pair<HostTime, HardwareQualifier>>;
+        using UintList = std::vector<uint8_t>;
+        using ErrorList = std::vector<Error>;
+
+    private:
         struct {
             // Timestamps are stored separately from the data channel data, since for up to 4 channels in one single
             // device, we would be storing the time information 4 separate times. Timepoints are associated to
