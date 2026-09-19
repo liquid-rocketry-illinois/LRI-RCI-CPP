@@ -39,7 +39,7 @@ namespace LRI::RCI {
 
         // Helper for packing data as a string. Not for display, use the name field instead
         [[nodiscard]] virtual std::string asString() const {
-            return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name);
+            return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name.empty() ? "<none>" : name);
         }
     };
 
@@ -66,15 +66,16 @@ namespace LRI::RCI {
 template<>
 struct std::formatter<LRI::RCI::HardwareQualifier> : std::formatter<std::string> {
     auto format(LRI::RCI::HardwareQualifier qual, format_context& ctx) const {
-        return format_to(ctx.out(), "0x{:2X}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id, qual.name);
+        return format_to(ctx.out(), "0x{:2X}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id,
+                         qual.name.empty() ? "<none>" : qual.name);
     }
 };
 
 template<>
 struct std::formatter<LRI::RCI::HardwareChannel> : std::formatter<std::string> {
     auto format(LRI::RCI::HardwareChannel qual, format_context& ctx) const {
-        return format_to(ctx.out(), "0x{:2X}-{}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id, qual.name,
-                         qual.channel);
+        return format_to(ctx.out(), "0x{:2X}-{}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id,
+                         qual.name.empty() ? "<none>" : qual.name, qual.channel);
     }
 };
 
