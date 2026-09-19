@@ -1,6 +1,7 @@
 #include "UI/Window.h"
 
 #include <dwmapi.h>
+#include <ranges>
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "glfw/glfw3native.h"
@@ -18,6 +19,133 @@
 
 #include "hardware/hwctrl.h"
 #include "hardware/json.h"
+
+#include "UI/AbridgedSensorViewer.h"
+#include "UI/AngledActuatorViewer.h"
+#include "UI/BoolSensorViewer.h"
+#include "UI/EStopViewer.h"
+#include "UI/ErrorWindow.h"
+#include "UI/MotorViewer.h"
+#include "UI/MultiSensorViewer.h"
+#include "UI/PromptViewer.h"
+#include "UI/RawViewer.h"
+#include "UI/SensorViewer.h"
+#include "UI/SimpleActuatorViewer.h"
+#include "UI/StepperViewer.h"
+#include "UI/TestStateViewer.h"
+
+// Some helpers for setting up WModules
+namespace {
+    using namespace LRI::RCI;
+
+    WModule* setupT6Window(const std::set<HardwareQualifier>& quals, const std::string wtitle, int wmtype,
+                                  const TargetTable6& t6) {
+        auto devclass = static_cast<RCP_DeviceClass>(wmtype);
+        std::set<uint8_t> validIds;
+        for(const auto& id : t6.ids) {
+            HardwareQualifier temp = {devclass, id};
+            if(quals.contains(temp)) validIds.insert(id);
+            else {
+                hwctrl::addError(Error::LWARNING,
+                                 "Tried to query for nonexistent hardware device {} in window {}, module type {}", temp,
+                                 wtitle, wmtype);
+            }
+        }
+
+        const auto qualSet = quals | std::views::filter([&validIds, devclass](const HardwareQualifier& q) {
+                           return q.devclass == devclass && validIds.contains(q.id);
+                       }) | // holy ugly
+            std::ranges::to<std::set>();
+
+        switch(wmtype) {
+        case RCP_DEVCLASS_MOTOR:
+            return new MotorViewer(qualSet, t6.refresh);
+
+        case RCP_DEVCLASS_DISCRETE_ACTUATOR:
+            return new SimpleActuatorViewer(qualSet, t6.refresh);
+
+        case RCP_DEVCLASS_BOOL_SENSOR:
+            return new BoolSensorViewer(qualSet, t6.refresh);
+
+        case RCP_DEVCLASS_STEPPER:
+            return new StepperViewer(qualSet, t6.refresh);
+
+        case RCP_DEVCLASS_ANGLED_ACTUATOR:
+            return new AngledActuatorViewer(qualSet, t6.refresh);
+
+        default:
+            return nullptr;
+        }
+    }
+
+    WModule* setupClassicSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle, int wmtype,
+                                        const TargetTable7& t7) {
+        std::vector<HardwareQualifier> qualSet;
+
+        for(const auto& qgroup : t7.ids) {
+            for(const auto& id : qgroup.ids) {
+                HardwareQualifier temp = {qgroup.devclass, id};
+                auto ret = quals.find(temp);
+                if(ret == quals.end())
+                    hwctrl::addError(Error::LWARNING,
+                                     "Tried to query for nonexistent hardware device {} in window {}, "
+                                     "module type {}",
+                                     temp, wtitle, wmtype);
+                else qualSet.push_back(*ret);
+            }
+        }
+
+        return new SensorViewer(qualSet, t7.classicShowControls);
+    }
+
+    WModule* setupAbridgedSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle,
+                                         int wmtype, const TargetTable7& t7) {
+        std::vector<std::vector<HardwareChannel>> channels;
+        for(const auto& qgroup : t7.ids) {
+            std::vector<HardwareChannel> channelLine;
+            for(size_t i = 0; i < qgroup.ids.size(); i++) {
+                HardwareChannel temp = {qgroup.devclass, qgroup.ids[i], qgroup.channels[i]};
+                auto ret = quals.find(temp);
+                if(ret == quals.end()) {
+                    hwctrl::addError(Error::LWARNING,
+                                     "Tried to query for nonexistent hardware device {} in window {}, module type {}",
+                                     temp, wtitle, wmtype);
+                }
+                else channelLine.emplace_back(*ret, temp.channel);
+            }
+
+            channels.emplace_back(std::move(channelLine));
+        }
+
+        return new AbridgedSensorViewer(channels);
+    }
+
+    WModule* setupMultiSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle, int wmtype,
+                                      const TargetTable7& t7) {
+        std::vector<MultiSensorViewer::GraphData> gd;
+
+        for(const auto& qgroup : t7.ids) {
+            MultiSensorViewer::GraphData graph;
+            graph.title = qgroup.multiTitle;
+            uint8_t channel = qgroup.channels[0];
+
+            for(const auto& id : qgroup.ids) {
+                HardwareQualifier temp = {qgroup.devclass, id};
+                auto ret = quals.find(temp);
+                if(ret == quals.end()) {
+                    hwctrl::addError(Error::LWARNING,
+                                     "Tried to query for nonexistent hardware device {} in window {}, module type {}",
+                                     temp, wtitle, wmtype);
+                }
+                else graph.channels.emplace_back(*ret, channel);
+            }
+
+            gd.emplace_back(std::move(graph));
+        }
+
+        return new MultiSensorViewer(gd);
+    }
+}
 
 namespace LRI::RCI {
     Window::Window() : window(nullptr), oldProc(nullptr), chooser(this), open(false) {
@@ -263,10 +391,79 @@ namespace LRI::RCI {
         });
     }
 
-    void Window::startTarget(RCP_Interface* interf, const TargetConfig& configPath) {
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config) {
         openInterf = interf->interfaceType();
-        hwctrl::start(interf, configPath);
+        hwctrl::start(interf, config);
 
+        const std::set<HardwareQualifier>& quals = hwctrl::getQuals();
+        std::vector<Windowlet*> wls;
+
+        for(const auto& [title, modules] : config.windows) {
+            std::vector<WModule*> wms;
+
+            for(const auto& [type, t6, t7] : modules) {
+                switch(type) {
+                case -1:
+                    wms.push_back(new EStopViewer());
+                    break;
+
+                case RCP_DEVCLASS_TEST_STATE:
+                    wms.push_back(new TestStateViewer());
+                    break;
+
+                case RCP_DEVCLASS_MOTOR:
+                case RCP_DEVCLASS_DISCRETE_ACTUATOR:
+                case RCP_DEVCLASS_BOOL_SENSOR:
+                case RCP_DEVCLASS_STEPPER:
+                case RCP_DEVCLASS_ANGLED_ACTUATOR: {
+                    auto* wm = setupT6Window(quals, title, type, t6);
+                    if(wm != nullptr) wms.push_back(wm);
+                    break;
+                }
+
+                case RCP_DEVCLASS_PROMPT:
+                    wms.push_back(new PromptViewer());
+                    break;
+
+                case RCP_DEVCLASS_TARGET_LOG:
+                    wms.push_back(new RawViewer());
+                    break;
+
+                case RCP_DEVCLASS_AM_PRESSURE:
+                case RCP_DEVCLASS_TEMPERATURE:
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                case RCP_DEVCLASS_LOAD_CELL:
+                case RCP_DEVCLASS_FLOW_METER:
+                case RCP_DEVCLASS_ALTITUDE:
+                case RCP_DEVCLASS_RADIO_STRENGTH:
+                case RCP_DEVCLASS_POWERMON:
+                case RCP_DEVCLASS_ACCELEROMETER:
+                case RCP_DEVCLASS_GYROSCOPE:
+                case RCP_DEVCLASS_MAGNETOMETER:
+                case RCP_DEVCLASS_RPY:
+                case RCP_DEVCLASS_GPS:
+                case RCP_DEVCLASS_QUATERNION: {
+                    WModule* wm = nullptr;
+
+                    if(t7.mode == SensorViewerMode::CLASSIC) wm = setupClassicSensors(quals, title, type, t7);
+                    else if(t7.mode == SensorViewerMode::ABRIDGED) wm = setupAbridgedSensors(quals, title, type, t7);
+                    else if(t7.mode == SensorViewerMode::MULTI) wm = setupMultiSensors(quals, title, type, t7);
+
+                    if(wm != nullptr) wms.push_back(wm);
+                    break;
+                }
+
+                default:
+                    hwctrl::addError(Error::LWARNING, "Unknown WModule type {} in window {}", type, title);
+                    break;
+                }
+            }
+
+            wls.push_back(new Windowlet(title, std::move(wms)));
+        }
+
+        preframe([this, wls] { windowlets.insert(wls.cbegin(), wls.cend()); });
     }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {

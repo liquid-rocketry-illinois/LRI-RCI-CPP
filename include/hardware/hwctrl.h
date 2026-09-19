@@ -1,10 +1,13 @@
 #ifndef LRI_CONTROL_PANEL_HWCTRL_H
 #define LRI_CONTROL_PANEL_HWCTRL_H
 
+#include <set>
+#include <vector>
+
 #include "interfaces/RCP_Interface.h"
 
-#include "hardware/json.h"
 #include "hardware/EventLog.h"
+#include "hardware/json.h"
 
 namespace LRI::RCI::hwctrl {
     extern int POLLS_PER_UPDATE;
@@ -15,7 +18,17 @@ namespace LRI::RCI::hwctrl {
 
     size_t interfBytesWaiting();
     bool isOpen();
+    bool isTargetReady();
     const EventLog* getELog();
+
+    void addError(Error&& e);
+    template<typename... Args>
+    void addError(Error::Level level, std::format_string<Args...> fmt, Args&&... args) {
+        addError(Error(level, fmt, std::forward<Args>(args)...));
+    }
+
+    const std::set<HardwareQualifier>& getQuals();
+    const std::vector<TargetTest>& getTests();
 
     void refresh(const HardwareQualifier& qual);
     void requestTare(const HardwareChannel& qual, float value);
@@ -40,6 +53,6 @@ namespace LRI::RCI::hwctrl {
 
     void writeAA(uint8_t id, float degrees);
     void writeMotor(uint8_t id, float value);
-}
+} // namespace LRI::RCI::hwctrl
 
 #endif // LRI_CONTROL_PANEL_HWCTRL_H

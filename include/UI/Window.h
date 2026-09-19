@@ -47,7 +47,7 @@ namespace LRI::RCI {
 
         void registerWindowlet(Windowlet* w);
         void unregisterWindowlets();
-        void startTarget(RCP_Interface* interf, const TargetConfig& configPath);
+        void startTarget(RCP_Interface* interf, const TargetConfig& config);
     };
 }
 

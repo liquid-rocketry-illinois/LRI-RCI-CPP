@@ -34,6 +34,8 @@ namespace {
 
     std::set<HardwareQualifier> quals;
     std::vector<TargetTest> tests;
+
+    bool targetReady = false;
 } // namespace
 
 // RCP callbacks
@@ -54,6 +56,7 @@ namespace {
 
     RCP_Error testData(RCP_TestData data) {
         elog->addTestState(data);
+        if(data.isInited) targetReady = true;
         return RCP_ERR_SUCCESS;
     }
 
@@ -112,6 +115,7 @@ namespace LRI::RCI::hwctrl {
 
         lastHeartbeat = std::chrono::system_clock::now();
         heartbeatTime = 0;
+        targetReady = false;
         rctx = RCP_createContext(rcpInit);
         RCP_setContext(rctx);
         RCP_setChannel(RCP_CH_ZERO);
@@ -192,7 +196,11 @@ namespace LRI::RCI::hwctrl {
     }
 
     bool isOpen() { return interf != nullptr; }
+    bool isTargetReady() { return targetReady; }
     const EventLog* getELog() { return elog; }
+    void addError(Error&& e) { elog->addError(std::move(e)); }
+    const std::set<HardwareQualifier>& getQuals() { return quals; }
+    const std::vector<TargetTest>& getTests() { return tests; }
 
     void refresh(const HardwareQualifier& qual) {
         elog->addReadReq(qual);

@@ -3,7 +3,8 @@
 #include <chrono>
 
 #include <iostream>
-#include "hardware/TestState.h"
+#include "hardware/hwctrl.h"
+
 namespace LRI::RCI {
     IOInterface::IOInterface(std::string displayName) :
         RCP_Interface(std::move(displayName)), doComm(true), iothread(nullptr),
@@ -52,7 +53,7 @@ namespace LRI::RCI {
             else {
                 // Write cycle
                 r_nw = true;
-                if(!TestState::getInited()) continue;
+                if(!hwctrl::isTargetReady()) continue;
                 if(outbuffer->isEmpty()) continue;
 
                 uint8_t bytes[TEMP_BUFFER_SIZE];
