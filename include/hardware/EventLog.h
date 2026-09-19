@@ -33,6 +33,21 @@ namespace LRI::RCI {
     using TargetTime = uint32_t;
     constexpr auto& getHostTime = std::chrono::system_clock::now;
 
+    struct Error {
+        HostTime htime;
+        std::string error;
+        enum Level {
+            LWARNING,
+            LERROR,
+        } level;
+
+        Error(Level level, std::string error, HostTime htime = getHostTime()) :
+        htime(htime), error(std::move(error)), level(level) {}
+
+        template<typename... Args>
+        Error(Level level, std::format_string<Args...> fmt, Args&&... args) :
+        htime(getHostTime()), error(std::format(fmt, std::forward<Args>(args)...)), level(level) {}
+    };
 
     struct CombinedTime {
         TargetTime ttime;
@@ -53,6 +68,7 @@ namespace LRI::RCI {
         std::tuple<const std::vector<HostTime>*, const std::vector<uint8_t>*, const std::vector<float>*>;
     using ReadRequestsList = std::vector<std::pair<HostTime, HardwareQualifier>>;
     using UintList = std::vector<uint8_t>;
+    using ErrorList = std::vector<Error>;
 
     class EventLog {
         struct {
@@ -78,6 +94,7 @@ namespace LRI::RCI {
             ReadRequestsList readReqs;
         } host;
 
+        ErrorList errors;
         std::vector<uint8_t> rxbytes;
         std::vector<uint8_t> txbytes;
 
@@ -120,6 +137,9 @@ namespace LRI::RCI {
         void addReadReq(const HardwareQualifier& qual);
         void addTare(const HardwareChannel& ch, float off);
 
+        void addError(const Error& e);
+        void addError(Error&& e);
+
         // Logs all raw RCP data sent and received for later inspection
         void addReceived(const void* data, size_t length);
         void addSent(const void* data, size_t length);
@@ -152,6 +172,7 @@ namespace LRI::RCI {
 
         [[nodiscard]] const UintList* getRXBytes() const;
         [[nodiscard]] const UintList* getTXBytes() const;
+        [[nodiscard]] const ErrorList* getErrors() const;
     };
 } // namespace LRI::RCI
 

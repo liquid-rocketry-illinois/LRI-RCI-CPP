@@ -213,7 +213,8 @@ namespace LRI::RCI {
             break;
         }
 
-        default: {}
+        default: {
+        }
             // Amalgamate is not valid here
             // Test state, target log, and prompts are already handled
         }
@@ -378,6 +379,9 @@ namespace LRI::RCI {
         host.tares[ch].emplace_back(off);
     }
 
+    void EventLog::addError(const Error& e) { errors.push_back(e); }
+    void EventLog::addError(Error&& e) { errors.emplace_back(e); }
+
     void EventLog::addReceived(const void* data, size_t length) {
         const uint8_t* udata = static_cast<const uint8_t*>(data);
         rxbytes.insert(rxbytes.end(), udata, udata + length);
@@ -400,7 +404,8 @@ namespace LRI::RCI {
     }
 
     PromptResponse EventLog::getPromptResponses() const {
-        return std::make_tuple(&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT), &host.act_uints.at(PROMPT));
+        return std::make_tuple(&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT),
+                               &host.act_uints.at(PROMPT));
     }
 
     HostString EventLog::getLogs() const {
@@ -469,4 +474,5 @@ namespace LRI::RCI {
 
     const UintList* EventLog::getRXBytes() const { return &rxbytes; }
     const UintList* EventLog::getTXBytes() const { return &txbytes; }
+    const ErrorList* EventLog::getErrors() const { return &errors; }
 } // namespace LRI::RCI
