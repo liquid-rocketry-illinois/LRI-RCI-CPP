@@ -2,6 +2,7 @@
 #define LRI_CONTROL_PANEL_JSON_H
 
 #include <filesystem>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ namespace LRI::RCI {
 
     struct TargetTable6 {
         bool refresh;
-        std::vector<uint8_t> ids;
+        std::set<uint8_t> ids;
     };
 
     enum class SensorViewerMode {
