@@ -139,6 +139,10 @@ namespace LRI::RCI {
 
         void addError(const Error& e);
         void addError(Error&& e);
+        template<typename... Args>
+        void addError(Error::Level level, std::format_string<Args...> fmt, Args&&... args) {
+            addError(Error(level, fmt, std::forward<Args>(args)...));
+        }
 
         // Logs all raw RCP data sent and received for later inspection
         void addReceived(const void* data, size_t length);
