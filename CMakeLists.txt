@@ -93,17 +93,17 @@ add_executable(LRI_control_panel
         src/interfaces/VirtualPort.cpp
 
         # Hardware classes
-        src/hardware/AngledActuator.cpp
-        src/hardware/BoolSensor.cpp
+#        src/hardware/AngledActuator.cpp
+#        src/hardware/BoolSensor.cpp
         src/Hardware/EventLog.cpp
-        src/hardware/HardwareControl.cpp
-        src/hardware/Motors.cpp
-        src/hardware/Prompt.cpp
-        src/hardware/RawData.cpp
-        src/hardware/Sensors.cpp
-        src/hardware/SimpleActuators.cpp
-        src/hardware/Steppers.cpp
-        src/hardware/TestState.cpp
+#        src/hardware/HardwareControl.cpp
+#        src/hardware/Motors.cpp
+#        src/hardware/Prompt.cpp
+#        src/hardware/RawData.cpp
+#        src/hardware/Sensors.cpp
+#        src/hardware/SimpleActuators.cpp
+#        src/hardware/Steppers.cpp
+#        src/hardware/TestState.cpp
         src/hardware/hwctrl.cpp
         src/hardware/json.cpp
 

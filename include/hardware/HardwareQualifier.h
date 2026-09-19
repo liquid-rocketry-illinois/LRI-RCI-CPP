@@ -63,4 +63,20 @@ namespace LRI::RCI {
     };
 } // namespace LRI::RCI
 
+template<>
+struct std::formatter<LRI::RCI::HardwareQualifier> : std::formatter<std::string> {
+    auto format(LRI::RCI::HardwareQualifier qual, format_context& ctx) const {
+        return format_to(ctx.out(), "0x{:2X}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id, qual.name);
+    }
+};
+
+template<>
+struct std::formatter<LRI::RCI::HardwareChannel> : std::formatter<std::string> {
+    auto format(LRI::RCI::HardwareChannel qual, format_context& ctx) const {
+        return format_to(ctx.out(), "0x{:2X}-{}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id, qual.name,
+                         qual.channel);
+    }
+};
+
+
 #endif // HARDWAREQUALIFIER_H

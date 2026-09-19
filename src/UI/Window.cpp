@@ -16,11 +16,11 @@
 #include "UI/gutils.h"
 #include "UI/vscode_icons.h"
 
-#include "hardware/HardwareControl.h"
+#include "hardware/hwctrl.h"
 #include "hardware/json.h"
 
 namespace LRI::RCI {
-    Window::Window() : window(nullptr), oldProc(nullptr), chooser(this) {
+    Window::Window() : window(nullptr), oldProc(nullptr), chooser(this), open(false) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -190,13 +190,13 @@ namespace LRI::RCI {
         ImGui::SameLine(0, scale(10));
         ImGui::SetCursorPosY(textY);
 
-        if(HWCTRL::targetOpen()) {
+        if(hwctrl::isOpen()) {
             ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", openTarget.c_str(), openInterf.c_str(), 0);
             ImGui::SameLine(0, 5);
             ImGui::SetNextItemWidth(40_sc);
             ImGui::SetCursorPosY(textY);
-            ImGui::InputInt("##pollrate", &HWCTRL::POLLS_PER_UPDATE, 0);
-            if(HWCTRL::POLLS_PER_UPDATE < 1) HWCTRL::POLLS_PER_UPDATE = 1;
+            ImGui::InputInt("##pollrate", &hwctrl::POLLS_PER_UPDATE, 0);
+            if(hwctrl::POLLS_PER_UPDATE < 1) hwctrl::POLLS_PER_UPDATE = 1;
 
             ImGui::SameLine();
             ImGui::SetCursorPosY(textY);
@@ -212,11 +212,13 @@ namespace LRI::RCI {
             if(ImGui::Button("CLOSE")) {
                 preframe([&] {
                     registerWindowlet(&chooser);
-                    HWCTRL::end();
+                    hwctrl::end();
                 });
             }
 
             ImGui::PopStyleColor(2);
+
+            hwctrl::update();
         }
 
         else {
@@ -263,6 +265,7 @@ namespace LRI::RCI {
 
     void Window::startTarget(RCP_Interface* interf, const TargetConfig& configPath) {
         openInterf = interf->interfaceType();
+        hwctrl::start(interf, configPath);
 
     }
 

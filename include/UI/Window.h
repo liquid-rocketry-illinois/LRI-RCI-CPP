@@ -34,6 +34,7 @@ namespace LRI::RCI {
 
         std::string openTarget;
         std::string openInterf;
+        bool open;
 
         void renderTitlebar();
         void renderBackground();
