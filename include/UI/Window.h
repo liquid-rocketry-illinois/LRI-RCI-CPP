@@ -49,8 +49,6 @@ namespace LRI::RCI {
         void show();
         void preframe(std::function<void()> func);
 
-        void registerWindowlet(Windowlet* w);
-        void unregisterWindowlets();
         void startTarget(RCP_Interface* interf, const TargetConfig& config);
     };
 }

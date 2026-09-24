@@ -185,7 +185,10 @@ namespace LRI::RCI::hwctrl {
         rctx = nullptr;
 
         delete elog;
+        elog = nullptr;
+
         delete interf;
+        interf = nullptr;
 
         quals.clear();
         tests.clear();

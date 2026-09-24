@@ -209,7 +209,7 @@ namespace LRI::RCI {
         style::setWindowIcon(window);
 
         // // Start the TargetChooser window
-        registerWindowlet(&chooser);
+        windowlets.insert(&chooser);
     }
 
     Window::~Window() {
@@ -348,8 +348,10 @@ namespace LRI::RCI {
 
             if(ImGui::Button("CLOSE")) {
                 preframe([&] {
-                    registerWindowlet(&chooser);
                     hwctrl::end();
+                    for(auto* w : windowlets) delete w;
+                    windowlets.clear();
+                    windowlets.insert(&chooser);
                 });
             }
 
@@ -405,15 +407,6 @@ namespace LRI::RCI {
     }
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
-
-    void Window::registerWindowlet(Windowlet* w) { windowlets.emplace(w); }
-
-    void Window::unregisterWindowlets() {
-        preframe([&] {
-            for(auto& w : windowlets) delete w;
-            windowlets.clear();
-        });
-    }
 
     void Window::startTarget(RCP_Interface* interf, const TargetConfig& config) {
         openTarget = config.name;
@@ -488,7 +481,10 @@ namespace LRI::RCI {
             wls.push_back(new Windowlet(title, std::move(wms)));
         }
 
-        preframe([this, wls] { windowlets.insert(wls.cbegin(), wls.cend()); });
+        preframe([this, wls] {
+            windowlets.clear();
+            windowlets.insert(wls.cbegin(), wls.cend());
+        });
     }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
