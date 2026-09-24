@@ -10,6 +10,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "implot.h"
+#include "improgress.h"
 
 #include "nlohmann/json.hpp"
 
@@ -391,16 +392,23 @@ namespace LRI::RCI {
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::BUTTON_CLOSE_HOVERED);
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
 
-            if(ImGui::Button("CLOSE")) {
-                preframe([&] {
-                    auto ipath = getRoamingFolder() / "targets" / cfname;
-                    ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
+            if(ImGui::TimedButton("CLOSE", closeTimer)) {
+                ImGui::SameLine();
+                ImGui::SetCursorPosY(textY);
+                ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, colors::TEXTi,
+                                         closeTimer.timeSince() / WModule::CONFIRM_HOLD_TIME);
 
-                    hwctrl::end();
-                    for(auto* w : windowlets) delete w;
-                    windowlets.clear();
-                    windowlets.insert(&chooser);
-                });
+                if(closeTimer.timeSince() > WModule::CONFIRM_HOLD_TIME) {
+                    preframe([&] {
+                        auto ipath = getRoamingFolder() / "targets" / cfname;
+                        ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
+
+                        hwctrl::end();
+                        for(auto* w : windowlets) delete w;
+                        windowlets.clear();
+                        windowlets.insert(&chooser);
+                    });
+                }
             }
 
             ImGui::PopStyleColor(2);

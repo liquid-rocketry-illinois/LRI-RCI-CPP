@@ -35,6 +35,7 @@ namespace LRI::RCI {
         std::string openInterf;
         std::string cfname;
         bool open;
+        StopWatch closeTimer;
 
         bool debugChordPrev;
         bool showDebug;
