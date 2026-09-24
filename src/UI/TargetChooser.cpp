@@ -80,10 +80,14 @@ namespace {
             }
 
             ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Button, colors::CTRANSPARENT);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::LOW_SEMITRANSPARENT);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::HIGH_SEMITRANSPARENT);
             if(ImGui::Button(ICON_VS_REFRESH "##refreshserials")) {
                 selectedPort = 0;
                 enumSerialDevs();
             }
+            ImGui::PopStyleColor(3);
 
             // Input for baud rate
             ImGui::Text("Baud Rate: ");
