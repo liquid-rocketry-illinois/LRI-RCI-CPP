@@ -458,8 +458,8 @@ namespace LRI::RCI {
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
-    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& cfname) {
-        this->cfname = cfname + ".ini";
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& confName) {
+        cfname = confName + ".ini";
         openTarget = config.name;
         openInterf = interf->interfaceType();
         hwctrl::start(interf, config);
@@ -533,7 +533,7 @@ namespace LRI::RCI {
         }
 
         preframe([this, wls] {
-            auto ipath = getRoamingFolder() / "targets" / this->cfname;
+            auto ipath = getRoamingFolder() / "targets" / cfname;
             ImGui::LoadIniSettingsFromDisk(ipath.string().c_str());
             windowlets.clear();
             windowlets.insert(wls.cbegin(), wls.cend());
