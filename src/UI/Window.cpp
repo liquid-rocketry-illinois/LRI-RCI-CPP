@@ -316,7 +316,10 @@ namespace LRI::RCI {
                 ImGui::CloseCurrentPopup();
             }
 
+            ImGui::Separator();
+
             if(!hwctrl::isOpen()) ImGui::BeginDisabled();
+
             if(ImGui::Button("Reset Window Layout")) {
                 preframe([this] {
                     auto ipath = std::filesystem::path("targets") / cfname;
@@ -324,6 +327,29 @@ namespace LRI::RCI {
                 });
                 ImGui::CloseCurrentPopup();
             }
+
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::BUTTON_CLOSE_HOVERED);
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
+
+            if(ImGui::TimedButton("CLOSE", closeTimer)) {
+                ImGui::SameLine();
+                ImGui::CircleProgressBar("##clearallprogressspinner", 7_sc, 2_sc, colors::TEXTi,
+                                         closeTimer.timeSince() / WModule::CONFIRM_HOLD_TIME);
+
+                if(closeTimer.timeSince() > WModule::CONFIRM_HOLD_TIME) {
+                    preframe([&] {
+                        auto ipath = getRoamingFolder() / "targets" / cfname;
+                        ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
+
+                        hwctrl::end();
+                        for(auto* w : windowlets) delete w;
+                        windowlets.clear();
+                        windowlets.insert(&chooser);
+                    });
+                }
+            }
+
+            ImGui::PopStyleColor(2);
             if(!hwctrl::isOpen()) ImGui::EndDisabled();
 
             ImGui::EndPopup();
@@ -383,35 +409,6 @@ namespace LRI::RCI {
 
             ImGui::SameLine();
             ImGui::SetCursorPosY(textY);
-
-            ImGui::Text(" | ");
-
-            ImGui::SameLine();
-            ImGui::SetCursorPosY(textY);
-
-            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::BUTTON_CLOSE_HOVERED);
-            ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
-
-            if(ImGui::TimedButton("CLOSE", closeTimer)) {
-                ImGui::SameLine();
-                ImGui::SetCursorPosY(textY);
-                ImGui::CircleProgressBar("##clearallprogressspinner", 7_sc, 2_sc, colors::TEXTi,
-                                         closeTimer.timeSince() / WModule::CONFIRM_HOLD_TIME);
-
-                if(closeTimer.timeSince() > WModule::CONFIRM_HOLD_TIME) {
-                    preframe([&] {
-                        auto ipath = getRoamingFolder() / "targets" / cfname;
-                        ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
-
-                        hwctrl::end();
-                        for(auto* w : windowlets) delete w;
-                        windowlets.clear();
-                        windowlets.insert(&chooser);
-                    });
-                }
-            }
-
-            ImGui::PopStyleColor(2);
 
             hwctrl::update();
         }
