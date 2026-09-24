@@ -303,8 +303,8 @@ namespace {
             }
 
             choosers.emplace_back("Serial Port", new COMPortChooser());
-            choosers.emplace_back("TCP Socket", new TCPInterfaceChooser());
             choosers.emplace_back("Virtual Port", new VirtualPortChooser());
+            choosers.emplace_back("TCP Socket", new TCPInterfaceChooser());
         }
 
         ~TargetChooserWM() override {
