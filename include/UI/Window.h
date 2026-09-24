@@ -34,6 +34,7 @@ namespace LRI::RCI {
 
         std::string openTarget;
         std::string openInterf;
+        std::filesystem::path iniPath;
         bool open;
 
         bool debugChordPrev;
@@ -49,7 +50,7 @@ namespace LRI::RCI {
         void show();
         void preframe(std::function<void()> func);
 
-        void startTarget(RCP_Interface* interf, const TargetConfig& config);
+        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cpath);
     };
 }
 

@@ -388,7 +388,7 @@ namespace {
 
                 RCP_Interface* interf = choosers[chosenChooser].second->getInterfAndCleanup();
                 if(interf != nullptr) {
-                    owner->startTarget(interf, config);
+                    owner->startTarget(interf, config, targetPaths[chosenTarget].first);
                 }
             }
         }

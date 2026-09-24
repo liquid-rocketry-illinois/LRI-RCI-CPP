@@ -213,6 +213,13 @@ namespace LRI::RCI {
     }
 
     Window::~Window() {
+        if(hwctrl::isOpen()) {
+            hwctrl::end();
+            ImGui::SaveIniSettingsToDisk(iniPath.string().c_str());
+            for(auto* w : windowlets) delete w;
+            windowlets.clear();
+        }
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImPlot::DestroyContext();
@@ -348,6 +355,8 @@ namespace LRI::RCI {
 
             if(ImGui::Button("CLOSE")) {
                 preframe([&] {
+                    ImGui::SaveIniSettingsToDisk(iniPath.string().c_str());
+                    iniPath.clear();
                     hwctrl::end();
                     for(auto* w : windowlets) delete w;
                     windowlets.clear();
@@ -408,7 +417,8 @@ namespace LRI::RCI {
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
-    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config) {
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cpath) {
+        iniPath = getRoamingFolder() / "targets" / (cpath.filename().string() + ".ini");
         openTarget = config.name;
         openInterf = interf->interfaceType();
         hwctrl::start(interf, config);
@@ -482,6 +492,7 @@ namespace LRI::RCI {
         }
 
         preframe([this, wls] {
+            ImGui::LoadIniSettingsFromDisk(iniPath.string().c_str());
             windowlets.clear();
             windowlets.insert(wls.cbegin(), wls.cend());
         });
