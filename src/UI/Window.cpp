@@ -416,6 +416,7 @@ namespace LRI::RCI {
     }
 
     void Window::startTarget(RCP_Interface* interf, const TargetConfig& config) {
+        openTarget = config.name;
         openInterf = interf->interfaceType();
         hwctrl::start(interf, config);
 
