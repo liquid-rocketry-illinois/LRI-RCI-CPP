@@ -36,8 +36,12 @@ namespace LRI::RCI {
         std::string openInterf;
         bool open;
 
+        bool debugChordPrev;
+        bool showDebug;
+
         void renderTitlebar();
         void renderBackground();
+        void renderDebug();
 
     public:
         Window();

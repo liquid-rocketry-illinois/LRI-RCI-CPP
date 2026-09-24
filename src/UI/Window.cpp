@@ -152,7 +152,8 @@ namespace {
 } // namespace
 
 namespace LRI::RCI {
-    Window::Window() : window(nullptr), oldProc(nullptr), chooser(this), open(false) {
+    Window::Window() :
+        window(nullptr), oldProc(nullptr), chooser(this), open(false), debugChordPrev(false), showDebug(false) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -244,6 +245,10 @@ namespace LRI::RCI {
 
             renderBackground();
             renderTitlebar();
+
+#ifdef RCIDEBUG
+            renderDebug();
+#endif
 
             for(const auto& w : windowlets) w->render();
 
@@ -382,6 +387,21 @@ namespace LRI::RCI {
         if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", maxSquare)) glfwSetWindowShouldClose(window, GLFW_TRUE);
 
         ImGui::PopStyleColor(5);
+    }
+
+    void Window::renderDebug() {
+        bool chord = ImGui::GetIO().KeyCtrl && ImGui::GetIO().KeyAlt && ImGui::IsKeyDown(ImGuiKey_D);
+        if(debugChordPrev != chord) {
+            debugChordPrev = chord;
+            if(chord) {
+                showDebug = !showDebug;
+            }
+        }
+
+        if(showDebug) {
+            ImGui::ShowDemoWindow();
+            ImPlot::ShowDemoWindow();
+        }
     }
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
