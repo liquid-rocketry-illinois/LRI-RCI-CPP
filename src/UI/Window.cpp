@@ -472,6 +472,10 @@ namespace LRI::RCI {
 
             for(const auto& [type, t6, t7] : modules) {
                 switch(type) {
+                case -2:
+                    wms.push_back(new ErrorWindow());
+                    break;
+
                 case -1:
                     wms.push_back(new EStopViewer());
                     break;
