@@ -434,7 +434,9 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::BUTTON_CLOSE_ACTIVE);
 
         ImGui::SameLine(0, 0);
+        if(hwctrl::isOpen()) ImGui::BeginDisabled();
         if(ImGui::Button(ICON_VS_CHROME_CLOSE "##close", maxSquare)) glfwSetWindowShouldClose(window, GLFW_TRUE);
+        if(hwctrl::isOpen()) ImGui::EndDisabled();
 
         ImGui::PopStyleColor(5);
     }
