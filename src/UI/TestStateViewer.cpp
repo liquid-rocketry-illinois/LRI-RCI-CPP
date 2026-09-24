@@ -74,7 +74,7 @@ namespace LRI::RCI {
         // If the start button is being pushed, show the little circle thingy
         if(pushed) {
             ImGui::SameLine();
-            ImGui::CircleProgressBar("##startlabel", 10, 3, WHITE_COLOR, startTimer.timeSince() / CONFIRM_HOLD_TIME);
+            ImGui::CircleProgressBar("##startlabel", 7_sc, 2_sc, WHITE_COLOR, startTimer.timeSince() / CONFIRM_HOLD_TIME);
         }
 
         // Display the test number chooser. If there are tests defined in the target
@@ -190,7 +190,7 @@ namespace LRI::RCI {
 
         if(pushed) {
             ImGui::SameLine();
-            ImGui::CircleProgressBar("##dresetspinnny", 10, 3, WHITE_COLOR,
+            ImGui::CircleProgressBar("##dresetspinnny", 7_sc, 2_sc, WHITE_COLOR,
                                      dResetTimer.timeSince() / CONFIRM_HOLD_TIME);
         }
 

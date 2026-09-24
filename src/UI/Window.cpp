@@ -395,7 +395,7 @@ namespace LRI::RCI {
             if(ImGui::TimedButton("CLOSE", closeTimer)) {
                 ImGui::SameLine();
                 ImGui::SetCursorPosY(textY);
-                ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, colors::TEXTi,
+                ImGui::CircleProgressBar("##clearallprogressspinner", 7_sc, 2_sc, colors::TEXTi,
                                          closeTimer.timeSince() / WModule::CONFIRM_HOLD_TIME);
 
                 if(closeTimer.timeSince() > WModule::CONFIRM_HOLD_TIME) {

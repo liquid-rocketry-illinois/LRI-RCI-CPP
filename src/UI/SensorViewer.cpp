@@ -68,7 +68,7 @@ namespace LRI::RCI {
         if(showControls) {
             if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
                 ImGui::SameLine();
-                ImGui::CircleProgressBar("##clearallprogressspinner", 10, 3, WHITE_COLOR,
+                ImGui::CircleProgressBar("##clearallprogressspinner", 7_sc, 2_sc, WHITE_COLOR,
                                          clearAllTimer.timeSince() / CONFIRM_HOLD_TIME);
                 if(clearAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
                     // for(const auto& qual : sensors | std::views::keys) Sensors::clearGraph(qual); // Cant yet do this
@@ -78,7 +78,7 @@ namespace LRI::RCI {
 
             if(ImGui::TimedButton("Tare All Devices", tareAllTimer)) {
                 ImGui::SameLine();
-                ImGui::CircleProgressBar("##tareallprogressspinner", 10, 3, WHITE_COLOR,
+                ImGui::CircleProgressBar("##tareallprogressspinner", 7_sc, 2_sc, WHITE_COLOR,
                                          tareAllTimer.timeSince() / CONFIRM_HOLD_TIME);
                 if(tareAllTimer.timeSince() > CONFIRM_HOLD_TIME) {
                     for(const auto& [qual, channels] : fdata) {
@@ -155,7 +155,7 @@ namespace LRI::RCI {
                 }
 
                 ImGui::SameLine();
-                ImGui::CircleProgressBar("##tareprogressspinner", 10, 3, WHITE_COLOR, percent);
+                ImGui::CircleProgressBar("##tareprogressspinner", 7_sc, 2_sc, WHITE_COLOR, percent);
             }
 
             for(size_t i = 0; i < graphdata.axes.size(); i++) {
