@@ -370,7 +370,6 @@ namespace {
                     try {
                         config = readConfig(path);
                         choosers[chosenChooser].second->startConnection();
-                        jsonError = "yippee1";
                     }
 
                     catch(nlohmann::json::exception& e) {
@@ -389,9 +388,7 @@ namespace {
 
                 RCP_Interface* interf = choosers[chosenChooser].second->getInterfAndCleanup();
                 if(interf != nullptr) {
-                    jsonError.value() += " yippee 2";
-                    delete interf;
-                    // owner->startTarget()
+                    owner->startTarget(interf, config);
                 }
             }
         }
