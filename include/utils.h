@@ -58,6 +58,7 @@ namespace LRI::RCI {
     void detectRoamingFolder();
     void preventScreenTurnoff();
     void allowScreenTurnoff();
+    void openExportsFolder();
 
     void enumSerialDevs();
     const std::vector<std::pair<std::string, std::string>>& getSerialDevs();

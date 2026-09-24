@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <shlobj_core.h>
+#include <shellapi.h>
 #include <SetupAPI.h>
 #include <devguid.h>
 
@@ -124,6 +125,12 @@ namespace LRI::RCI {
 #else
 #error "Linux not yet supported"
 #endif
+    }
+
+    void openExportsFolder() {
+        std::filesystem::path exports = getRoamingFolder() / "exports";
+        if(!std::filesystem::exists(exports)) std::filesystem::create_directory(exports);
+        ShellExecute(nullptr, "open", exports.string().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
     }
 
     static std::vector<std::pair<std::string, std::string>> serialDevs;

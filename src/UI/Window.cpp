@@ -215,7 +215,9 @@ namespace LRI::RCI {
     Window::~Window() {
         if(hwctrl::isOpen()) {
             hwctrl::end();
-            ImGui::SaveIniSettingsToDisk(iniPath.string().c_str());
+            auto ipath = getRoamingFolder() / "targets" / cfname;
+            ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
+
             for(auto* w : windowlets) delete w;
             windowlets.clear();
         }
@@ -305,6 +307,28 @@ namespace LRI::RCI {
         ImGui::GetBackgroundDrawList()->AddImage(style::birdIcon(), wPos + impos, wPos + impos + imsize);
     }
 
+    void Window::renderMenuPopup(ImVec2 poppos) {
+        ImGui::SetNextWindowPos(poppos);
+        if(ImGui::BeginPopup("menupopup", ImGuiWindowFlags_NoMove)) {
+            if(ImGui::Button("Open Exports")) {
+                openExportsFolder();
+                ImGui::CloseCurrentPopup();
+            }
+
+            if(!hwctrl::isOpen()) ImGui::BeginDisabled();
+            if(ImGui::Button("Reset Window Layout")) {
+                preframe([this] {
+                    auto ipath = std::filesystem::path("targets") / cfname;
+                    ImGui::LoadIniSettingsFromDisk(ipath.string().c_str());
+                });
+                ImGui::CloseCurrentPopup();
+            }
+            if(!hwctrl::isOpen()) ImGui::EndDisabled();
+
+            ImGui::EndPopup();
+        }
+    }
+
     void Window::renderTitlebar() {
         constexpr ImGuiWindowFlags CAPTION_FLAGS =
             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
@@ -313,7 +337,9 @@ namespace LRI::RCI {
         const float capheight = scale(CAPTION_SIZE);
         const ImVec2 capsize = ImVec2{vSize.x, capheight};
         const ImVec2 maxSquare = ImVec2{capheight, capheight};
-        const float textY = (capheight - scale(16)) / 2;
+        const float textY = (capheight - 16_sc) / 2;
+        const ImVec2 smallButtonSize = maxSquare * 0.75;
+        const float buttonY = (capheight - smallButtonSize.x) / 2;
 
         ImGui::SetNextWindowPos(vPos);
         ImGui::SetNextWindowSize(capsize);
@@ -331,7 +357,19 @@ namespace LRI::RCI {
         ImGui::SetCursorPos(V0);
         ImGui::Image(style::birdIcon(), maxSquare);
 
-        ImGui::SameLine(0, scale(10));
+        ImGui::SameLine(0, 10_sc);
+        ImGui::SetCursorPosY(buttonY);
+        ImGui::PushStyleColor(ImGuiCol_Button, colors::CTRANSPARENT);
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, colors::LOW_SEMITRANSPARENT);
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, colors::HIGH_SEMITRANSPARENT);
+        ImGui::PushFont(nullptr, 20); // Little bigger font so the button text doesnt look goofy
+        float prevX = ImGui::GetCursorPosX();
+        if(ImGui::Button(ICON_VS_MENU "##menupop", smallButtonSize)) ImGui::OpenPopup("menupopup");
+        ImGui::PopFont();
+        renderMenuPopup({prevX, capheight});
+        ImGui::PopStyleColor(3); // Pop after the popup so the buttons inside are also semitransparent
+
+        ImGui::SameLine(0, 10_sc);
         ImGui::SetCursorPosY(textY);
 
         if(hwctrl::isOpen()) {
@@ -355,8 +393,9 @@ namespace LRI::RCI {
 
             if(ImGui::Button("CLOSE")) {
                 preframe([&] {
-                    ImGui::SaveIniSettingsToDisk(iniPath.string().c_str());
-                    iniPath.clear();
+                    auto ipath = getRoamingFolder() / "targets" / cfname;
+                    ImGui::SaveIniSettingsToDisk(ipath.string().c_str());
+
                     hwctrl::end();
                     for(auto* w : windowlets) delete w;
                     windowlets.clear();
@@ -417,8 +456,8 @@ namespace LRI::RCI {
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
-    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cpath) {
-        iniPath = getRoamingFolder() / "targets" / (cpath.filename().string() + ".ini");
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& cfname) {
+        this->cfname = cfname + ".ini";
         openTarget = config.name;
         openInterf = interf->interfaceType();
         hwctrl::start(interf, config);
@@ -492,7 +531,8 @@ namespace LRI::RCI {
         }
 
         preframe([this, wls] {
-            ImGui::LoadIniSettingsFromDisk(iniPath.string().c_str());
+            auto ipath = getRoamingFolder() / "targets" / this->cfname;
+            ImGui::LoadIniSettingsFromDisk(ipath.string().c_str());
             windowlets.clear();
             windowlets.insert(wls.cbegin(), wls.cend());
         });

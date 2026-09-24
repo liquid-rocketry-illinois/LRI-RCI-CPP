@@ -1,7 +1,6 @@
 #ifndef LRI_CONTROL_PANEL_WINDOW_H
 #define LRI_CONTROL_PANEL_WINDOW_H
 
-#include <filesystem>
 #include <functional>
 #include <set>
 #include <vector>
@@ -34,12 +33,13 @@ namespace LRI::RCI {
 
         std::string openTarget;
         std::string openInterf;
-        std::filesystem::path iniPath;
+        std::string cfname;
         bool open;
 
         bool debugChordPrev;
         bool showDebug;
 
+        void renderMenuPopup(ImVec2 poppos);
         void renderTitlebar();
         void renderBackground();
         void renderDebug();
@@ -50,7 +50,7 @@ namespace LRI::RCI {
         void show();
         void preframe(std::function<void()> func);
 
-        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cpath);
+        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& cfname);
     };
 }
 
