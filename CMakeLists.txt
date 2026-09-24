@@ -76,9 +76,9 @@ add_executable(LRI_control_panel
         src/UI/MotorViewer.cpp
         src/UI/MultiSensorViewer.cpp
         src/UI/PromptViewer.cpp
-        src/UI/RawViewer.cpp
+        src/UI/TargetLogViewer.cpp
         src/UI/SensorViewer.cpp
-        src/UI/SimpleActuatorViewer.cpp
+        src/UI/DiscreteActuatorViewer.cpp
         src/UI/Splash.cpp
         src/UI/StepperViewer.cpp
         src/UI/TargetChooser.cpp

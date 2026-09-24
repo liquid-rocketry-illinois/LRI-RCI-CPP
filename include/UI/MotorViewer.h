@@ -6,14 +6,18 @@
 
 #include "Windowlet.h"
 #include "hardware/HardwareQualifier.h"
-#include "hardware/Motors.h"
+#include "hardware/EventLog.h"
 
 namespace LRI::RCI {
     class MotorViewer : public WModule {
+        struct SData {
+            EventLog::TargetFloat data;
+            float input;
+        };
+
         const bool refreshButton;
 
-        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> states;
-        std::map<HardwareQualifier, float> inputs;
+        std::map<HardwareQualifier, SData> states;
 
     public:
         explicit MotorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton);

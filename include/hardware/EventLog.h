@@ -59,8 +59,8 @@ namespace LRI::RCI {
     public:
 #define RETTYPE(name, timetype, valtype)                                                                               \
     struct name {                                                                                                      \
-        const std::vector<timetype>* times;                                                                            \
-        const std::vector<valtype>* values;                                                                            \
+        const std::vector<timetype>* times = nullptr;                                                                  \
+        const std::vector<valtype>* values = nullptr;                                                                  \
     };
 
         RETTYPE(TargetFloat, CombinedTime, float);
@@ -174,6 +174,10 @@ namespace LRI::RCI {
 
         [[nodiscard]] TargetUint getChannelUintData(const HardwareChannel& ch) const;
         [[nodiscard]] TargetFloat getChannelFloatData(const HardwareChannel& ch) const;
+        [[nodiscard]] TargetFloat getActuatorFloatData(const HardwareQualifier& qual) const;
+        [[nodiscard]] TargetUint getActuatorUintData(const HardwareQualifier& qual) const;
+        [[nodiscard]] std::vector<TargetFloat> getAllChannels(const HardwareQualifier& qual) const;
+        [[nodiscard]] TargetUint getTestInformation(uint8_t channel) const;
 
         [[nodiscard]] HostUint getRequestedRunningStates() const;
         [[nodiscard]] const UintList* getRequestedTestStartIDs() const;

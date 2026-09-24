@@ -1,7 +1,7 @@
 #include "UI/StepperViewer.h"
 
-#include "hardware/TestState.h"
 #include "UI/gutils.h"
+#include "hardware/hwctrl.h"
 
 // Module for viewing steppers
 namespace LRI::RCI {
@@ -9,10 +9,7 @@ namespace LRI::RCI {
     StepperViewer::StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            const auto* stepper = Steppers::getState(qual);
-            if(stepper == nullptr) continue;
-            steppers[qual] = stepper;
-            inputs[qual] = Input();
+            steppers[qual] = {hwctrl::getELog()->getAllChannels(qual)};
         }
     }
 
@@ -21,48 +18,58 @@ namespace LRI::RCI {
         ImGui::PushID(classid);
 
         // If a test is running, lock controls
-        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
+        bool testLock = !hwctrl::isTargetReady() || hwctrl::getTestState() == RCP_TEST_RUNNING;
+        if(testLock) ImGui::BeginDisabled();
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
-        bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
+        bool timeLock = buttonTimer.timeSince() < BUTTON_DELAY;
 
         // Button for manually refreshing the states of all steppers
         if(refreshButton) {
-            if(lockButtons) ImGui::BeginDisabled();
+            if(timeLock) ImGui::BeginDisabled();
             if(ImGui::Button("Refresh All")) {
-                Steppers::refreshAll();
+                for(const auto& [qual, state] : steppers) hwctrl::refresh(qual);
                 buttonTimer.reset();
             }
-            if(lockButtons) ImGui::EndDisabled();
+            if(timeLock) ImGui::EndDisabled();
             ImGui::Separator();
         }
 
-        for(auto& [id, step] : steppers) {
-            ImGui::PushID(id.asString().c_str());
+        const auto now = std::chrono::system_clock::now();
+
+        for(auto& [qual, state] : steppers) {
+            ImGui::PushID(qual.asString().c_str());
 
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = step->stale ? STALE_COLOR : ENABLED_COLOR;
-            const char* tooltip = step->stale ? "Stale Data" : "Current Data";
+            ImU32 statusColor = state.data[0].times->empty() ? STALE_COLOR : ENABLED_COLOR;
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
-            if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
-            ImGui::SameLine();
+            if(ImGui::IsItemHovered()) {
+                if(statusColor == STALE_COLOR) ImGui::SetTooltip("No Data");
+                else {
+                    auto timePassed =
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - state.data[0].times->back().htime) /
+                        static_cast<float>(10e9);
+                    ImGui::SetTooltip("Updated %.3f seconds ago", timePassed.count());
+                }
+            }
 
-            ImGui::Text("Stepper Motor %s (%d)", id.name.c_str(), id.id);
+            ImGui::SameLine();
+            ImGui::Text("Stepper Motor %s (%d)", qual.name.c_str(), qual.id);
 
             // Button for toggling how the inputted value will be interpreted
             ImGui::Text("Control Mode: ");
             for(const auto& [controlMode, strings] : BTN_NAMES) {
-                bool activemode = inputs[id].mode == controlMode;
+                bool activemode = state.mode == controlMode;
                 if(activemode) {
                     ImGui::PushStyleColor(ImGuiCol_Button, REBECCA_PURPLE);
                     ImGui::PushStyleColor(ImGuiCol_ButtonActive, REBECCA_PURPLE);
                     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, REBECCA_PURPLE);
                 }
 
-                if(ImGui::Button(strings[0])) inputs[id].mode = controlMode;
+                if(ImGui::Button(strings[0])) state.mode = controlMode;
 
                 if(activemode) ImGui::PopStyleColor(3);
                 ImGui::SameLine();
@@ -73,29 +80,36 @@ namespace LRI::RCI {
             ImGui::Text("Value: ");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(75_sc);
-            ImGui::InputFloat(BTN_NAMES.at(inputs[id].mode)[1], &inputs[id].val);
+            ImGui::InputFloat(BTN_NAMES.at(state.mode)[1], &state.val);
 
             // The apply button actually sends the control value to the stepper motors
-            if(lockButtons || step->stale) ImGui::BeginDisabled();
+            if(timeLock || statusColor == STALE_COLOR) ImGui::BeginDisabled();
             ImGui::SameLine();
             if(ImGui::Button("Apply")) {
-                Steppers::setState(id, inputs[id].mode, inputs[id].val);
+                hwctrl::writeStepper(qual.id, state.mode, state.val);
                 buttonTimer.reset();
             }
 
-            if(lockButtons || step->stale) ImGui::EndDisabled();
+            if(timeLock || statusColor == STALE_COLOR) ImGui::EndDisabled();
 
             // Text for the current state of the stepper
             ImGui::Text("Current State: ");
-            ImGui::Text("   Position: %.3f degrees", step->position);
-            ImGui::Text("   Speed:    %.3f degrees/second", step->speed);
+            if(statusColor == STALE_COLOR) {
+                ImGui::Text("   Position: 0.000 degrees");
+                ImGui::Text("   Speed:    0.000 degrees/second");
+            }
+
+            else {
+                ImGui::Text("   Position: %.3f degrees", state.data[0].values->back());
+                ImGui::Text("   Speed:    %.3f degrees/second", state.data[1].values->back());
+            }
 
             ImGui::NewLine();
             ImGui::Separator();
             ImGui::PopID();
         }
 
-        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::EndDisabled();
+        if(testLock) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }

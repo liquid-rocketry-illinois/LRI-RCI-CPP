@@ -23,15 +23,15 @@
 #include "UI/AbridgedSensorViewer.h"
 #include "UI/AngledActuatorViewer.h"
 #include "UI/BoolSensorViewer.h"
+#include "UI/DiscreteActuatorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/ErrorWindow.h"
 #include "UI/MotorViewer.h"
 #include "UI/MultiSensorViewer.h"
 #include "UI/PromptViewer.h"
-#include "UI/RawViewer.h"
 #include "UI/SensorViewer.h"
-#include "UI/SimpleActuatorViewer.h"
 #include "UI/StepperViewer.h"
+#include "UI/TargetLogViewer.h"
 #include "UI/TestStateViewer.h"
 
 // Some helpers for setting up WModules
@@ -39,7 +39,7 @@ namespace {
     using namespace LRI::RCI;
 
     WModule* setupT6Window(const std::set<HardwareQualifier>& quals, const std::string wtitle, int wmtype,
-                                  const TargetTable6& t6) {
+                           const TargetTable6& t6) {
         auto devclass = static_cast<RCP_DeviceClass>(wmtype);
         std::set<uint8_t> validIds;
         for(const auto& id : t6.ids) {
@@ -53,19 +53,23 @@ namespace {
         }
 
         const auto qualSet = quals | std::views::filter([&validIds, devclass](const HardwareQualifier& q) {
-                           return q.devclass == devclass && validIds.contains(q.id);
-                       }) | // holy ugly
-            std::ranges::to<std::set>();
+                                 return q.devclass == devclass && validIds.contains(q.id);
+                             }) |
+            std::ranges::to<std::set>(); // All are an implicit hardware channel with channel 0
 
         switch(wmtype) {
         case RCP_DEVCLASS_MOTOR:
             return new MotorViewer(qualSet, t6.refresh);
 
         case RCP_DEVCLASS_DISCRETE_ACTUATOR:
-            return new SimpleActuatorViewer(qualSet, t6.refresh);
+            return new DiscreteActuatorViewer(qualSet, t6.refresh);
 
-        case RCP_DEVCLASS_BOOL_SENSOR:
-            return new BoolSensorViewer(qualSet, t6.refresh);
+        case RCP_DEVCLASS_BOOL_SENSOR: {
+            auto asChannels = qualSet |
+                std::views::transform([](const HardwareQualifier& qual) { return HardwareChannel{qual, 0}; }) |
+                std::ranges::to<std::set>();
+            return new BoolSensorViewer(asChannels, t6.refresh);
+        }
 
         case RCP_DEVCLASS_STEPPER:
             return new StepperViewer(qualSet, t6.refresh);
@@ -79,7 +83,7 @@ namespace {
     }
 
     WModule* setupClassicSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle, int wmtype,
-                                        const TargetTable7& t7) {
+                                 const TargetTable7& t7) {
         std::vector<HardwareQualifier> qualSet;
 
         for(const auto& qgroup : t7.ids) {
@@ -98,8 +102,8 @@ namespace {
         return new SensorViewer(qualSet, t7.classicShowControls);
     }
 
-    WModule* setupAbridgedSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle,
-                                         int wmtype, const TargetTable7& t7) {
+    WModule* setupAbridgedSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle, int wmtype,
+                                  const TargetTable7& t7) {
         std::vector<std::vector<HardwareChannel>> channels;
         for(const auto& qgroup : t7.ids) {
             std::vector<HardwareChannel> channelLine;
@@ -121,7 +125,7 @@ namespace {
     }
 
     WModule* setupMultiSensors(const std::set<HardwareQualifier>& quals, const std::string& wtitle, int wmtype,
-                                      const TargetTable7& t7) {
+                               const TargetTable7& t7) {
         std::vector<MultiSensorViewer::GraphData> gd;
 
         for(const auto& qgroup : t7.ids) {
@@ -145,7 +149,7 @@ namespace {
 
         return new MultiSensorViewer(gd);
     }
-}
+} // namespace
 
 namespace LRI::RCI {
     Window::Window() : window(nullptr), oldProc(nullptr), chooser(this), open(false) {
@@ -426,7 +430,7 @@ namespace LRI::RCI {
                     break;
 
                 case RCP_DEVCLASS_TARGET_LOG:
-                    wms.push_back(new RawViewer());
+                    wms.push_back(new TargetLogViewer());
                     break;
 
                 case RCP_DEVCLASS_AM_PRESSURE:

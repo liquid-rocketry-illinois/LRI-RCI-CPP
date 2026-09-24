@@ -2,16 +2,15 @@
 #define LRI_CONTROL_PANEL_ABRIDGEDSENSORVIEWER_H
 
 #include <map>
-#include <set>
 #include <vector>
 
 #include "Windowlet.h"
 #include "hardware/HardwareQualifier.h"
-#include "hardware/Sensors.h"
+#include "hardware/EventLog.h"
 
 namespace LRI::RCI {
     class AbridgedSensorViewer : public WModule {
-        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> data;
+        std::map<HardwareChannel, EventLog::TargetFloat> data;
         std::vector<std::vector<HardwareChannel>> sensors;
 
     public:

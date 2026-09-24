@@ -3,13 +3,11 @@
 
 #include <map>
 #include <set>
-#include <vector>
 
 #include "UI/Windowlet.h"
 
-#include "hardware/AngledActuator.h"
 #include "hardware/HardwareQualifier.h"
-#include "hardware/Sensors.h"
+#include "hardware/EventLog.h"
 
 namespace LRI::RCI {
 
@@ -19,16 +17,14 @@ namespace LRI::RCI {
         const bool refreshButton;
 
         // Pointers to latest actuator positions
-        std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> actuators;
+        std::map<HardwareQualifier, EventLog::TargetFloat> actuators;
 
         // Floats for inputs
         std::map<HardwareQualifier, float> setpoints;
 
     public:
         explicit AngledActuatorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton = false);
-
         void render() override;
-
         ~AngledActuatorViewer() override = default;
     };
 } // namespace LRI::RCI

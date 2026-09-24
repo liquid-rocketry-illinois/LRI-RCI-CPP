@@ -27,6 +27,7 @@ namespace {
     uint8_t originalHeartbeat;
     unsigned heartbeatTime;
     float heartbeatThreashold = 0.9f;
+    bool isDStream = false;
 
     RCP_Context rctx;
     RCP_Interface* interf = nullptr;
@@ -201,6 +202,16 @@ namespace LRI::RCI::hwctrl {
     void addError(Error&& e) { elog->addError(std::move(e)); }
     const std::set<HardwareQualifier>& getQuals() { return quals; }
     const std::vector<TargetTest>& getTests() { return tests; }
+    RCP_TestRunningState getTestState() {
+        auto vals = elog->getTestInformation(TestStateChannels::T_TEST_RUN_STATE).values;
+        if(vals->empty()) return RCP_TEST_STOPPED;
+        return static_cast<RCP_TestRunningState>(vals->back());
+    }
+    bool isDataStreaming() { return isDStream; }
+    uint8_t getHeartbeatTime() { return originalHeartbeat; }
+    float getHeartbeatThreashold() { return heartbeatThreashold; }
+
+    // float heartbeatThreashold() { return heart; }
 
     void refresh(const HardwareQualifier& qual) {
         elog->addReadReq(qual);
@@ -236,7 +247,7 @@ namespace LRI::RCI::hwctrl {
         CHECK(RCP_stopTest());
     }
 
-    void pause() {
+    void pauseTest() {
         elog->addTestPauseUnpause();
         CHECK(RCP_pauseUnpauseTest());
     }
@@ -258,6 +269,7 @@ namespace LRI::RCI::hwctrl {
     }
 
     void setDataStreaming(bool stream) {
+        isDStream = stream;
         elog->addDStreamChange(stream);
         CHECK(RCP_setDataStreaming(stream));
     }

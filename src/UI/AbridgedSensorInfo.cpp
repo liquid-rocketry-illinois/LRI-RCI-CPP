@@ -1,8 +1,7 @@
 #include "UI/AbridgedSensorViewer.h"
 
-#include <format>
-
-#include "hardware/HardwareControl.h"
+#include "hardware/hwctrl.h"
+#include "UI/gutils.h"
 
 namespace LRI::RCI {
     AbridgedSensorViewer::AbridgedSensorViewer(const std::vector<std::vector<HardwareChannel>>& sensors) :
@@ -10,14 +9,7 @@ namespace LRI::RCI {
         for(const auto& sensorset : sensors) {
             for(const auto& qual : sensorset) {
                 if(data.contains(qual)) continue;
-                const auto* sense = Sensors::getState(qual);
-                if(sense == nullptr) {
-                    HWCTRL::addError(
-                        {HWCTRL::ErrorType::HWNE_HOST, "Qualifier not found in sensors list: " + qual.asString()});
-                    continue;
-                }
-
-                data[qual] = sense;
+                data[qual] = hwctrl::getELog()->getChannelFloatData(qual);
             }
         }
     }
@@ -40,8 +32,7 @@ namespace LRI::RCI {
 
             for(const auto& qual : senselist) {
                 auto datavec = data[qual];
-                std::string str = Sensors::renderLatestReadingsString(
-                    qual, datavec->empty() ? Sensors::empty : datavec->at(datavec->size() - 1));
+                std::string str = renderLatestReadingsString(qual, datavec.values->empty() ? 0 : datavec.values->back());
                 float size = ImGui::CalcTextSize(str.c_str()).x * 1.075f;
 
                 if(currentLineWidth + size > width || currentLineWidth == 0) {

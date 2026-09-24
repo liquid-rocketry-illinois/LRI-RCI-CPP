@@ -8,6 +8,7 @@ namespace LRI::RCI {
     class TestStateViewer : public WModule {
         // The in-modification values for test state
         int inputHeartbeatRate;
+        float inputHeartbeatThresh;
         uint8_t activeTest;
         bool dstream;
         bool doHeartbeats;

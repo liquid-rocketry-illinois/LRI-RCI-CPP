@@ -30,12 +30,18 @@ namespace LRI::RCI::hwctrl {
     const std::set<HardwareQualifier>& getQuals();
     const std::vector<TargetTest>& getTests();
 
+    // Some helper getters
+    RCP_TestRunningState getTestState();
+    bool isDataStreaming();
+    uint8_t getHeartbeatTime();
+    float getHeartbeatThreashold();
+
     void refresh(const HardwareQualifier& qual);
     void requestTare(const HardwareChannel& qual, float value);
 
     void startTest(uint8_t number, bool resetTime = false);
     void stopTest();
-    void pause();
+    void pauseTest();
     void setHeartbeatTime(uint8_t time);
     void setHeartbeatThreshold(float threashold);
     void setDataStreaming(bool stream);

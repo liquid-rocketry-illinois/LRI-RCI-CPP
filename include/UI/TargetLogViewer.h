@@ -5,11 +5,12 @@
 
 namespace LRI::RCI {
     // Window module which shows the output to the custom device class from RCP
-    class RawViewer : public WModule {
+    class TargetLogViewer : public WModule {
+        bool autoscroll = true;
 
     public:
-        explicit RawViewer() = default;
-        ~RawViewer() override = default;
+        explicit TargetLogViewer() = default;
+        ~TargetLogViewer() override = default;
 
         // Overridden render function
         void render() override;

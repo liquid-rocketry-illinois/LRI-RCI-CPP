@@ -2,17 +2,14 @@
 
 #include "imgui.h"
 
-#include "hardware/TestState.h"
 #include "UI/gutils.h"
+#include "hardware/hwctrl.h"
 
 namespace LRI::RCI {
     MotorViewer::MotorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
         for(const auto& qual : quals) {
-            const auto* motor = Motors::getState(qual);
-            if(motor == nullptr) continue;
-            states[qual] = motor;
-            inputs[qual] = 0;
+            states[qual] = {hwctrl::getELog()->getActuatorFloatData(qual), 0};
         }
     }
 
@@ -22,12 +19,13 @@ namespace LRI::RCI {
 
         bool lockButtons = buttonTimer.timeSince() < BUTTON_DELAY;
 
-        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::BeginDisabled();
+        bool disable = !hwctrl::isTargetReady() || hwctrl::getTestState() == RCP_TEST_RUNNING;
+        if(disable) ImGui::BeginDisabled();
 
         if(refreshButton) {
             if(lockButtons) ImGui::BeginDisabled();
             if(ImGui::Button("Refresh All")) {
-                Motors::refreshAll();
+                for(const auto& [qual, d] : states) hwctrl::refresh(qual);
                 buttonTimer.reset();
             }
             if(lockButtons) ImGui::EndDisabled();
@@ -36,40 +34,41 @@ namespace LRI::RCI {
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
-        for(auto& [id, motor] : states) {
-            ImGui::PushID(id.asString().c_str());
+        for(auto& [qual, sdata] : states) {
+            auto& [data, input] = sdata; // waow i love structured bindings
+            ImGui::PushID(qual.asString().c_str());
 
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = motor->empty() ? STALE_COLOR : ENABLED_COLOR;
-            const char* tooltip = motor->empty() ? "Stale Data" : "Current Data";
+            ImU32 statusColor = data.values->empty() ? STALE_COLOR : ENABLED_COLOR;
+            const char* tooltip = data.values->empty() ? "Stale Data" : "Current Data";
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
-            if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
+            if(ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tooltip);
             ImGui::SameLine();
 
-            ImGui::Text("Motor %s (%d)", id.name.c_str(), id.id);
-            if(!motor->empty()) ImGui::Text("Current Reported Speed: %f", motor->at(motor->size() - 1));
-            else ImGui::Text("Current Reported Speed: % 6.1f", 0);
+            ImGui::Text("Motor %s (%d)", qual.name.c_str(), qual.id);
+            if(!data.values->empty()) ImGui::Text("Current Reported Speed: %f", data.values->back());
+            else ImGui::Text("Current Reported Speed: 0");
             ImGui::Text("Set value: ");
             ImGui::SameLine();
             ImGui::SetNextItemWidth(75_sc);
-            ImGui::InputFloat("##motorinput", &inputs[id]);
+            ImGui::InputFloat("##motorinput", &input);
             ImGui::SameLine();
 
-            if(lockButtons || motor->empty()) ImGui::BeginDisabled();
+            if(lockButtons || data.values->empty()) ImGui::BeginDisabled();
             if(ImGui::Button("Set")) {
-                Motors::setState(id, inputs[id]);
+                hwctrl::writeMotor(qual.id, input);
                 buttonTimer.reset();
             }
-            if(lockButtons || motor->empty()) ImGui::EndDisabled();
+            if(lockButtons || data.values->empty()) ImGui::EndDisabled();
 
             ImGui::NewLine();
             ImGui::Separator();
             ImGui::PopID();
         }
 
-        if(!TestState::getInited() || TestState::getState() == RCP_TEST_RUNNING) ImGui::EndDisabled();
+        if(disable) ImGui::EndDisabled();
 
         ImGui::PopID();
         ImGui::PopID();

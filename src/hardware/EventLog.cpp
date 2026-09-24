@@ -407,7 +407,9 @@ namespace LRI::RCI {
         return {&host.ctrltimestamps.at(PROMPT), &host.act_floats.at(PROMPT), &host.act_uints.at(PROMPT)};
     }
 
-    EventLog::HostString EventLog::getLogs() const { return {&host.acttimestamps.at(TARGET_LOG), &host.strings.at(TARGET_LOG)}; }
+    EventLog::HostString EventLog::getLogs() const {
+        return {&host.acttimestamps.at(TARGET_LOG), &host.strings.at(TARGET_LOG)};
+    }
 
     EventLog::TargetUint EventLog::getChannelUintData(const HardwareChannel& ch) const {
         if(!target.uints.contains(ch)) return {};
@@ -417,6 +419,35 @@ namespace LRI::RCI {
     EventLog::TargetFloat EventLog::getChannelFloatData(const HardwareChannel& ch) const {
         if(!target.floats.contains(ch)) return {};
         return {&target.timestamps.at(ch), &target.floats.at(ch)};
+    }
+
+    EventLog::TargetFloat EventLog::getActuatorFloatData(const HardwareQualifier& qual) const {
+        HardwareChannel temp = {qual, 0};
+        if(!target.floats.contains(temp)) return {};
+        return {&target.timestamps.at(temp), &target.floats.at(temp)};
+    }
+
+    EventLog::TargetUint EventLog::getActuatorUintData(const HardwareQualifier& qual) const {
+        HardwareChannel temp{qual, 0};
+        if(!target.uints.contains(temp)) return {};
+        return {&target.timestamps.at(temp), &target.uints.at(temp)};
+    }
+
+    std::vector<EventLog::TargetFloat> EventLog::getAllChannels(const HardwareQualifier& qual) const {
+        std::vector<TargetFloat> floats;
+        HardwareChannel ch = {qual, 0};
+        TargetFloat fl = getChannelFloatData(ch);
+        while(fl.times != nullptr) {
+            floats.push_back(fl);
+            ch.channel++;
+            fl = getChannelFloatData(ch);
+        }
+
+        return floats;
+    }
+
+    EventLog::TargetUint EventLog::getTestInformation(uint8_t channel) const {
+        return getChannelUintData({RCP_DEVCLASS_TEST_STATE, 0, channel});
     }
 
     EventLog::HostUint EventLog::getRequestedRunningStates() const {

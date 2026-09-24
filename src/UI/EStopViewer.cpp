@@ -1,8 +1,7 @@
 #include "UI/EStopViewer.h"
 
 #include "imgui.h"
-
-#include "hardware/TestState.h"
+#include "hardware/hwctrl.h"
 #include "UI/gutils.h"
 
 // Module for viewing ESTOP state
@@ -11,7 +10,7 @@ namespace LRI::RCI {
         ImGui::PushID("EStopViewer");
         ImGui::PushID(classid);
 
-        if(!TestState::getInited()) ImGui::BeginDisabled();
+        if(!hwctrl::isTargetReady()) ImGui::BeginDisabled();
 
         // Draw a big button that takes up all available room, and its red
         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1, 0, 0, 1));
@@ -21,12 +20,12 @@ namespace LRI::RCI {
         // If button pushed, send E-STOP packet
         if(ImGui::Button("EMERGENCY STOP",
                          {ImGui::GetWindowWidth() - 10_sc, ImGui::GetWindowHeight() - 30_sc})) {
-            TestState::ESTOP();
+            hwctrl::ESTOP();
         }
 
         ImGui::PopStyleColor(3);
 
-        if(!TestState::getInited()) ImGui::EndDisabled();
+        if(!hwctrl::isTargetReady()) ImGui::EndDisabled();
 
         ImGui::PopID();
         ImGui::PopID();

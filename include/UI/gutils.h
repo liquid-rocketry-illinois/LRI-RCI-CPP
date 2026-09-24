@@ -7,6 +7,10 @@
 
 #include "glfw/glfw3.h"
 #include "imgui.h"
+#include "implot.h"
+
+#include "hardware/EventLog.h"
+#include "hardware/HardwareQualifier.h"
 
 namespace LRI::RCI {
     namespace style {
@@ -89,6 +93,48 @@ namespace LRI::RCI {
 #define SCOPEGUARDCAT2(A, B) A##B
 #define SCOPEGUARDCAT(A, B) SCOPEGUARDCAT2(A, B)
 #define SCOPE_EXIT [[maybe_unused]] ScopeGuard SCOPEGUARDCAT(GUARD, __COUNTER__) = ScopeGuard::Ctor() + [&]()
+
+    std::string renderLatestReadingsString(const HardwareChannel& qual, float data);
+    ImPlotPoint implotTargetFloat(int index, void* data);
+
+    namespace GraphInfo {
+        /*
+         * These two structures are used for encoding the naming and rendering information for
+         * a particular device class. This data is stored in the GRAPHINFO map. For each
+         * device class, we maintain two lists:
+         *  - The first contains the axis data. This is a list of the different axes/units belonging to the particular
+         *    device class. This list also holds names for the seperate graphs that must be created in classic mode that
+         *    correspond to each unique unit of measurement.
+         *  - The second list contains data about each channel. It first identifies what unit/axis this channel may be
+         *    graphed on. This is an integer representing an index into the first list. The second value is part of the
+         *    string that may be used for the name of the line itself within the graph. In classic mode, this value is
+         *    used as-is for the name that will appear in the legend for this line. In multi mode, the device name is
+         *    prepended so each line can be matched to the device it belongs to.
+         *
+         * All this data is stored in the GRAPHINFO map, whose definition is present in the gutils.cpp
+         * file. It is truly a horrendous sight to behold, but its the best way I could think of to encode all
+         * this data in the program. It does allow for some very clean loops that actually render the graphs,
+         * though, as opposed to the previous system (in v1.0.x) which has a bunch of special cases for each
+         * device class, and the v1.3.x system which had *two* of these awful structures storing the data in slightly
+         * different ways for each the classic and multi modes.
+         */
+        struct Line {
+            size_t axis;
+            std::string legend;
+        };
+
+        struct Axis {
+            std::string name;
+            std::string independentGraphName;
+        };
+
+        struct GraphInfo {
+            std::vector<Axis> axes;
+            std::vector<Line> lines;
+        };
+
+        extern const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO;
+    } // namespace GraphInfo
 } // namespace LRI::RCI
 
 #endif // LRI_CONTROL_PANEL_GUTILS_H

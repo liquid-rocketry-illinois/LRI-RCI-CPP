@@ -6,6 +6,9 @@
 // Window module for showing prompts
 namespace LRI::RCI {
     class PromptViewer : public WModule {
+        bool bprompt = false;
+        float fprompt = 0;
+
     public:
         explicit PromptViewer() = default;
         ~PromptViewer() override = default;

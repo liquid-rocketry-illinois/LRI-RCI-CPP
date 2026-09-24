@@ -126,4 +126,107 @@ namespace LRI::RCI::style {
 
 namespace LRI::RCI {
     void pingFonts() { ImFontAtlasUpdateNewFrame(sharedFonts, ImGui::GetFrameCount(), true); }
+
+    std::string renderLatestReadingsString(const HardwareChannel& qual, float data) {
+        switch(qual.devclass) {
+        case RCP_DEVCLASS_ANGLED_ACTUATOR:
+            return std::format("{:4.1f} d", data);
+
+        case RCP_DEVCLASS_MOTOR:
+            return std::format("{:6.1f} rpm", data);
+
+        case RCP_DEVCLASS_AM_PRESSURE:
+            return std::format("{:.3f} mbar", data);
+
+        case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+            return std::format("{: 5.1f} psi", data);
+
+        case RCP_DEVCLASS_TEMPERATURE:
+            return std::format("{: 5.1f} C", data);
+
+        case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+            return std::format("{:.3f} %", data);
+
+        case RCP_DEVCLASS_LOAD_CELL:
+            return std::format("{: 5.1f} kg", data);
+
+        case RCP_DEVCLASS_FLOW_METER:
+            return std::format("{:.3f} GPM", data);
+
+        case RCP_DEVCLASS_ALTITUDE:
+            return std::format("{} m", data);
+
+        case RCP_DEVCLASS_RADIO_STRENGTH:
+            return std::format("{} dBm", data);
+
+        case RCP_DEVCLASS_POWERMON:
+            if(qual.channel == 0) return std::format("Voltage: {:.3f} V", data);
+            return std::format("Power: {:.3f} W", data);
+
+        case RCP_DEVCLASS_ACCELEROMETER: {
+            constexpr char AXIS[] = {'X', 'Y', 'Z'};
+            return std::format("{}: {:.3f} m/s/s", AXIS[qual.channel], data);
+        }
+
+        case RCP_DEVCLASS_GYROSCOPE: {
+            constexpr char AXIS[] = {'X', 'Y', 'Z'};
+            return std::format("{}: {:.3f} d/s", AXIS[qual.channel], data);
+        }
+
+        case RCP_DEVCLASS_MAGNETOMETER: {
+            constexpr char AXIS[] = {'X', 'Y', 'Z'};
+            return std::format("{}: {:.3f} G", AXIS[qual.channel], data);
+        }
+
+        case RCP_DEVCLASS_RPY: {
+            constexpr const char* AXIS[] = {"Roll", "Pitch", "Yaw"};
+            return std::format("{}: {:.3f} d", AXIS[qual.channel], data);
+        }
+
+        case RCP_DEVCLASS_GPS: {
+            constexpr const char* AXIS[] = {"Latitude", "Longitude", "Altitude", "Ground Speed"};
+            constexpr const char* UNIT[] = {"d", "d", "m", "m/s"};
+            return std::format("{}: {:.3f} {}", AXIS[qual.channel], data, UNIT[qual.channel]);
+        }
+
+        case RCP_DEVCLASS_QUATERNION: {
+            constexpr char AXIS[] = {'W', 'X', 'Y', 'Z'};
+            return std::format("{}: {:.3f}", AXIS[qual.channel], data);
+        }
+        default:
+            return "unknown";
+        }
+    }
+
+    ImPlotPoint implotTargetFloat(int index, void* data) {
+        auto* tdata = static_cast<EventLog::TargetFloat*>(data);
+        return ImPlotPoint{static_cast<double>(tdata->times->at(index).ttime),
+                           static_cast<double>(tdata->values->at(index))};
+    }
+
+    namespace GraphInfo {
+
+
+        // This structure is an abomination to all good code style. I apologize for my crimes.
+        // clang-format off
+        const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO {
+            {RCP_DEVCLASS_MOTOR,               {{{"Speed (rpm)", "Motor"}},                                                                                                                                            {{0, ""}}}},
+            {RCP_DEVCLASS_AM_PRESSURE,         {{{"Pressure (mbars)", "Pressure"}},                                                                                                                                    {{0, ""}}}},
+            {RCP_DEVCLASS_TEMPERATURE,         {{{"Temperature (Celsius)", "Temperature"}},                                                                                                                            {{0, ""}}}},
+            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{{"Pressure (psi)", "Pressure"}},                                                                                                                                      {{0, ""}}}},
+            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{{"Humidity (Relative %)", "Humidity"}},                                                                                                                               {{0, ""}}}},
+            {RCP_DEVCLASS_FLOW_METER,          {{{"Flow Rate (GPM)", "Flow Rate"}},                                                                                                                                    {{0, ""}}}},
+            {RCP_DEVCLASS_LOAD_CELL,           {{{"Mass (kg)", "Mass"}},                                                                                                                                               {{0, ""}}}},
+            {RCP_DEVCLASS_ALTITUDE,            {{{"Altitude (m)", "Altitude"}},                                                                                                                                        {{0, ""}}}},
+            {RCP_DEVCLASS_RADIO_STRENGTH,      {{{"RSSI (dBm)", "Signal Strength"}},                                                                                                                                   {{0, ""}}}},
+            {RCP_DEVCLASS_POWERMON,            {{{"Voltage", "Voltage"}, {"Power (W)", "Power"}},                                                                                   {{0, "Voltage"},  {1, "Power"}}}},
+            {RCP_DEVCLASS_ACCELEROMETER,       {{{"Acceleration (m/s/s)", "Acceleration"}},                                                                                                                            {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
+            {RCP_DEVCLASS_GYROSCOPE,           {{{"Rotation (deg/s)", "Rotation"}},                                                                                                                                    {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
+            {RCP_DEVCLASS_MAGNETOMETER,        {{{"Magnetic Field (Gauss)", "Magnetic Field"}},                                                                                                                        {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
+            {RCP_DEVCLASS_RPY,                 {{{"Orientation (degrees)", "Orientation"}},                                                                                                                            {{0, "Roll"},     {0, "Pitch"},     {0, "Yaw"}}}},
+            {RCP_DEVCLASS_GPS,                 {{{"Lat/Lon", "Position"}, {"Altitude (m)", "Altitude"}, {"Ground Speed (m/s)", "Ground Speed"}}, {{0, "Latitude"}, {0, "Longitude"}, {2, "Altitude"}, {3, "Ground Speed"}}}},
+            {RCP_DEVCLASS_QUATERNION,          {{{"Q", "Quaternion"}},                                                                                                                                                 {{0, "W"},        {0, "X"},         {0, "Y"},        {0, "Z"}}}},
+        };
+        // clang-format on
+    } // namespace
 } // namespace LRI::RCI

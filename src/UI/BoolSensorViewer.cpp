@@ -1,19 +1,15 @@
 #include "UI/BoolSensorViewer.h"
 
-#include "hardware/BoolSensor.h"
+#include "hardware/hwctrl.h"
 
 #include "UI/gutils.h"
 
 // Module for viewing the BoolSensor states
 namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
-    BoolSensorViewer::BoolSensorViewer(const std::set<HardwareQualifier>& quals, bool refreshButton) :
+    BoolSensorViewer::BoolSensorViewer(const std::set<HardwareChannel>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
-        for(const auto& qual : quals) {
-            const auto* sense = BoolSensors::getState(qual);
-            if(sense == nullptr) continue;
-            sensors[qual] = sense;
-        }
+        for(const auto& qual : quals) sensors[qual] = {hwctrl::getELog()->getChannelUintData(qual), true};
     }
 
     void BoolSensorViewer::render() {
@@ -27,7 +23,7 @@ namespace LRI::RCI {
         // Request refresh of all sensors
         if(refreshButton) {
             if(ImGui::Button("Refresh")) {
-                BoolSensors::refreshAll();
+                for(const auto& [qual, state] : sensors) hwctrl::refresh(qual);
                 buttonTimer.reset();
             }
             ImGui::Separator();
@@ -43,17 +39,23 @@ namespace LRI::RCI {
 
             // Draw the little status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = !state->stale ? (state->open ? ENABLED_COLOR : DISABLED_COLOR) : STALE_COLOR;
-            const char* tooltip = !state->stale ? (state->open ? "TRUE" : "FALSE") : "Stale Data";
+
+            ImU32 statusColor = state.stale || state.data.values->empty()
+                ? STALE_COLOR
+                : (state.data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
+
+            // Comparisons with statusColor are made since its just an integer so comparisons are fast
+            const char* tooltip =
+                statusColor == STALE_COLOR ? "Stale Data" : (statusColor == ENABLED_COLOR ? "TRUE" : "FALSE");
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
-            if(ImGui::IsItemHovered()) ImGui::SetTooltip(tooltip);
+            if(ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tooltip);
 
             // Display the name of the sensor and its value
             ImGui::SameLine();
             ImGui::Text("%s (%d):", qual.name.c_str(), qual.id);
             ImGui::SameLine();
-            if(state->open) {
+            if(statusColor == ENABLED_COLOR) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ENABLED_COLOR);
                 ImGui::Text("TRUE");
             }

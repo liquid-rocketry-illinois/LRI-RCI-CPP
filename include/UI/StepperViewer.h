@@ -8,7 +8,7 @@
 #include "RCP_Host/RCP_Host.h"
 #include "Windowlet.h"
 #include "hardware/HardwareQualifier.h"
-#include "hardware/Steppers.h"
+#include "hardware/EventLog.h"
 
 namespace LRI::RCI {
     // A window module for showing and controlling states of stepper motors
@@ -16,19 +16,17 @@ namespace LRI::RCI {
         // Maps control modes to UI button names
         static const std::map<RCP_StepperControlMode, std::vector<const char*>> BTN_NAMES;
 
-        struct Input {
-            float val;
-            RCP_StepperControlMode mode;
+        struct SData {
+            std::vector<EventLog::TargetFloat> data;
+            float val = 0;
+            RCP_StepperControlMode mode = RCP_STEPPER_ABSOLUTE_POS_CONTROL;
         };
 
         // If a refresh button should be shown at the top
         const bool refreshButton;
 
         // Maps stepper IDs to structure pointers which are updated by Steppers
-        std::map<HardwareQualifier, const Steppers::Stepper*> steppers;
-
-        // For storing which input mode each stepper is in
-        std::map<HardwareQualifier, Input> inputs;
+        std::map<HardwareQualifier, SData> steppers;
 
     public:
         explicit StepperViewer(const std::set<HardwareQualifier>& quals, bool refreshButton = false);

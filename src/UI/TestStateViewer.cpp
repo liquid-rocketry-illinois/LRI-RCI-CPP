@@ -2,9 +2,9 @@
 
 #include <ranges>
 
-#include "hardware/TestState.h"
-#include "improgress.h"
 #include "UI/gutils.h"
+#include "hardware/hwctrl.h"
+#include "improgress.h"
 
 // Module for viewing and controlling test state
 namespace LRI::RCI {
@@ -14,7 +14,7 @@ namespace LRI::RCI {
     void TestStateViewer::render() {
         ImGui::PushID("TestStateViewer");
         ImGui::PushID(classid);
-        if(!TestState::getInited()) ImGui::BeginDisabled();
+        if(!hwctrl::isTargetReady()) ImGui::BeginDisabled();
 
         ImGui::Text("Test Control");
 
@@ -22,7 +22,7 @@ namespace LRI::RCI {
         if(lockButtons) ImGui::BeginDisabled();
 
         // Display controls for starting, stopping, pausing, estopping, and selecting a test
-        RCP_TestRunningState state = TestState::getState();
+        RCP_TestRunningState state = hwctrl::getTestState();
 
         // For each type of button, they can only be pushed in certain states. The lock variable is reused
         bool lock = state != RCP_TEST_STOPPED;
@@ -34,7 +34,7 @@ namespace LRI::RCI {
         if(ImGui::TimedButton("Start", startTimer)) {
             pushed = true;
             if(startTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                TestState::startTest(activeTest);
+                hwctrl::startTest(activeTest, resetTimeOnTestStart);
                 buttonTimer.reset();
             }
         }
@@ -46,7 +46,7 @@ namespace LRI::RCI {
         if(lock) ImGui::BeginDisabled();
         ImGui::SameLine();
         if(ImGui::Button("End")) {
-            TestState::stopTest();
+            hwctrl::stopTest();
             buttonTimer.reset();
         }
         if(lock) ImGui::EndDisabled();
@@ -55,7 +55,7 @@ namespace LRI::RCI {
         if(lock) ImGui::BeginDisabled();
         ImGui::SameLine();
         if(ImGui::Button(state == RCP_TEST_PAUSED ? "Resume" : "Pause")) {
-            TestState::pause();
+            hwctrl::pauseTest();
             buttonTimer.reset();
         }
         if(lock) ImGui::EndDisabled();
@@ -67,7 +67,7 @@ namespace LRI::RCI {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0, 0, 1));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0, 0, 1));
 
-        if(ImGui::Button("E-STOP")) TestState::ESTOP();
+        if(ImGui::Button("E-STOP")) hwctrl::ESTOP();
 
         ImGui::PopStyleColor(3);
 
@@ -79,21 +79,21 @@ namespace LRI::RCI {
 
         // Display the test number chooser. If there are tests defined in the target
         // json, display a dropdown chooser, otherwise display text saying no tests available
-        const std::map<uint8_t, std::string>* tests = TestState::getTestOptions();
+        const auto& tests = hwctrl::getTests();
         ImGui::Text("Select Test: ");
         ImGui::PushID("testselectcombo");
-        if(tests->empty()) {
+        if(tests.empty()) {
             ImGui::SameLine();
             ImGui::PushFont(font_italic, 0);
             ImGui::Text("No Available Tests");
             ImGui::PopFont();
         }
         else if(ImGui::SetNextItemWidth(ImGui::GetWindowWidth() * 0.95f),
-                ImGui::BeginCombo("##testselect", tests->at(activeTest).c_str())) {
-            for(const auto& tn : *tests | std::views::keys) {
-                bool selected = tn == activeTest;
-                ImGui::PushID(tn);
-                if(ImGui::Selectable(tests->at(tn).c_str(), &selected)) activeTest = tn;
+                ImGui::BeginCombo("##testselect", tests[activeTest].name.c_str())) {
+            for(const auto& test : tests) {
+                bool selected = test.id == activeTest;
+                ImGui::PushID(test.id);
+                if(ImGui::Selectable(test.name.c_str(), &selected)) activeTest = test.id;
                 ImGui::PopID();
                 if(selected) ImGui::SetItemDefaultFocus();
             }
@@ -106,9 +106,9 @@ namespace LRI::RCI {
         ImGui::Text("Enable Data Streaming: ");
         ImGui::SameLine();
         if(lockButtons) ImGui::BeginDisabled();
-        dstream = TestState::getDataStreaming();
+        dstream = hwctrl::isDataStreaming();
         if(ImGui::Checkbox("##datastreamingcheckbox", &dstream)) {
-            TestState::setDataStreaming(dstream);
+            hwctrl::setDataStreaming(dstream);
             buttonTimer.reset();
         }
         if(lockButtons) ImGui::EndDisabled();
@@ -118,7 +118,7 @@ namespace LRI::RCI {
         if(ImGui::Checkbox("##doheartbeats", &doHeartbeats)) {
             if(doHeartbeats) inputHeartbeatRate = 0;
             else {
-                TestState::setHeartbeatTime(0);
+                hwctrl::setHeartbeatTime(0);
                 buttonTimer.reset();
             }
         }
@@ -134,28 +134,39 @@ namespace LRI::RCI {
 
             if(lockButtons) ImGui::BeginDisabled();
 
-            int curHeart = TestState::getHeartbeatTime();
-            bool restyle = inputHeartbeatRate != curHeart;
-            if(restyle) {
+            int curHeart = hwctrl::getHeartbeatTime();
+            bool changed = inputHeartbeatRate != curHeart;
+            if(changed) {
                 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 1, 0, 1));
                 ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0, 0.9f, 0, 1));
                 ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0, 0.7f, 0, 1));
             }
 
+            ImGui::Text("Heartbeat Threshold: ");
+            ImGui::SameLine();
+            ImGui::SetNextItemWidth(75_sc);
+            ImGui::InputFloat("##hbthresh", &inputHeartbeatThresh);
+            ImGui::SetItemTooltip("Percentage of heartbeat time to actually wait between heartbeats");
+            // Clamp to 0-1
+            if(inputHeartbeatThresh < 0) inputHeartbeatThresh = 0;
+            else if(inputHeartbeatThresh > 1) inputHeartbeatThresh = 1;
+
             if(ImGui::Button("Confirm##heartbeatconfirm")) {
-                TestState::setHeartbeatTime(inputHeartbeatRate);
-                buttonTimer.reset();
+                if(changed) {
+                    hwctrl::setHeartbeatTime(inputHeartbeatRate);
+                    buttonTimer.reset();
+                }
+                hwctrl::setHeartbeatThreshold(inputHeartbeatThresh);
             }
 
-            if(restyle) ImGui::PopStyleColor(3);
+            if(changed) ImGui::PopStyleColor(3);
 
             if(lockButtons) ImGui::EndDisabled();
         }
 
         ImGui::Text("Reset sensor time base on start: ");
         ImGui::SameLine();
-        if(ImGui::Checkbox("##resettimebox", &resetTimeOnTestStart))
-            TestState::setResetTimeOnTestStart(resetTimeOnTestStart);
+        ImGui::Checkbox("##resettimebox", &resetTimeOnTestStart);
 
         if(lockButtons) ImGui::BeginDisabled();
 
@@ -167,7 +178,7 @@ namespace LRI::RCI {
         if(ImGui::TimedButton("Hardware Reset", dResetTimer)) {
             pushed = true;
             if(dResetTimer.timeSince() > CONFIRM_HOLD_TIME) {
-                TestState::deviceReset();
+                hwctrl::deviceReset();
                 buttonTimer.reset();
             }
         }
@@ -183,7 +194,7 @@ namespace LRI::RCI {
                                      dResetTimer.timeSince() / CONFIRM_HOLD_TIME);
         }
 
-        if(!TestState::getInited()) ImGui::EndDisabled();
+        if(!hwctrl::isTargetReady()) ImGui::EndDisabled();
         ImGui::PopID();
         ImGui::PopID();
     }
