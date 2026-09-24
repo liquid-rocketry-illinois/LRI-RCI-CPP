@@ -134,6 +134,7 @@ namespace LRI::RCI {
         };
 
         extern const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO;
+        ImVec2 calcPlotSize();
     } // namespace GraphInfo
 } // namespace LRI::RCI
 

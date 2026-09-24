@@ -13,6 +13,7 @@ namespace LRI::RCI {
     // sensor output which is just the sensor values as text
     class SensorViewer : public WModule {
         const bool showControls;
+        const bool useTreenodes;
 
         static std::map<HardwareQualifier, std::vector<EventLog::TargetFloat>>
         getELogData(const std::vector<HardwareQualifier>& quals);

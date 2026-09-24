@@ -10,11 +10,6 @@
 
 // Module for displaying sensor values. Most complicated viewer class
 namespace LRI::RCI {
-
-
-    // Helper
-    static float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
-
     std::vector<MultiSensorViewer::GraphMeta> MultiSensorViewer::makeGraphMeta(const std::vector<GraphData>& graphs) {
         std::vector<GraphMeta> gms;
         for(const auto& graph : graphs) {
@@ -30,6 +25,7 @@ namespace LRI::RCI {
 
             const size_t axis = GraphInfo::GRAPHINFO.at(ch.devclass).lines.at(ch.channel).axis;
             gm.axis = GraphInfo::GRAPHINFO.at(ch.devclass).axes.at(axis).name;
+            gms.emplace_back(std::move(gm));
         }
 
         return gms;
@@ -59,9 +55,9 @@ namespace LRI::RCI {
         ImGui::PushID("SensorViewer");
         ImGui::PushID(classid);
 
-        // Get the drawlist, and calculate the size of the plots
-        const float xsize = ImGui::GetWindowWidth() - 27_sc;
-        const auto plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), 500_sc, ImGui::GetWindowHeight() - 25_sc));
+        const ImVec2 plotsize = GraphInfo::calcPlotSize();
+
+        if(graphs.empty()) ImGui::Text("No graphs!");
 
         for(size_t i = 0; i < graphs.size(); i++) {
             ImGui::PushID(static_cast<int>(i));

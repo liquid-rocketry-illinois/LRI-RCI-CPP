@@ -49,7 +49,7 @@ namespace LRI::RCI {
     }
 
     SensorViewer::SensorViewer(const std::vector<HardwareQualifier>& quals, bool showControls) :
-        showControls(showControls), quals(quals), fdata(getELogData(quals)) {
+        showControls(showControls), useTreenodes(quals.size() > 1), quals(quals), fdata(getELogData(quals)) {
         // Here we iterate over the keys of fdata instead of the vector quals, since the keys of fdata are all
         // guarenteed to be unique
         for(const auto& qual : fdata | std::views::keys) {
@@ -63,8 +63,7 @@ namespace LRI::RCI {
 
         // Get the drawlist, and calculate the size of the plots
         ImDrawList* draw = ImGui::GetWindowDrawList();
-        const float xsize = ImGui::GetWindowWidth() - 27_sc;
-        const auto plotsize = ImVec2(xsize, min3(xsize * (9.0f / 16.0f), 500_sc, ImGui::GetWindowHeight() - 25_sc));
+        ImVec2 plotsize = GraphInfo::calcPlotSize();
 
         if(showControls) {
             if(ImGui::TimedButton("Clear All Graphs", clearAllTimer)) {
@@ -98,14 +97,12 @@ namespace LRI::RCI {
             // }
         }
 
-        bool inTreenodes = quals.size() > 1;
-
         int id = 0;
         // Iterate through each qualifier and render its data
         for(const auto& qual : quals) {
             ImGui::PushID(id++);
 
-            if(inTreenodes) {
+            if(useTreenodes) {
                 if(!ImGui::TreeNode(qual.name.c_str())) {
                     ImGui::PopID();
                     continue;
@@ -174,10 +171,12 @@ namespace LRI::RCI {
                                       const_cast<EventLog::TargetFloat*>(&channels[j]),
                                       static_cast<int>(channels[j].times->size()));
                 }
+
+                ImPlot::EndPlot();
             }
 
 
-            if(inTreenodes) {
+            if(useTreenodes) {
                 ImGui::Separator();
                 ImGui::TreePop();
             }

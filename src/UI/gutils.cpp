@@ -205,20 +205,20 @@ namespace LRI::RCI {
     }
 
     namespace GraphInfo {
-
+        static float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
 
         // This structure is an abomination to all good code style. I apologize for my crimes.
         // clang-format off
         const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO {
-            {RCP_DEVCLASS_MOTOR,               {{{"Speed (rpm)", "Motor"}},                                                                                                                                            {{0, ""}}}},
-            {RCP_DEVCLASS_AM_PRESSURE,         {{{"Pressure (mbars)", "Pressure"}},                                                                                                                                    {{0, ""}}}},
-            {RCP_DEVCLASS_TEMPERATURE,         {{{"Temperature (Celsius)", "Temperature"}},                                                                                                                            {{0, ""}}}},
-            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{{"Pressure (psi)", "Pressure"}},                                                                                                                                      {{0, ""}}}},
-            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{{"Humidity (Relative %)", "Humidity"}},                                                                                                                               {{0, ""}}}},
-            {RCP_DEVCLASS_FLOW_METER,          {{{"Flow Rate (GPM)", "Flow Rate"}},                                                                                                                                    {{0, ""}}}},
-            {RCP_DEVCLASS_LOAD_CELL,           {{{"Mass (kg)", "Mass"}},                                                                                                                                               {{0, ""}}}},
-            {RCP_DEVCLASS_ALTITUDE,            {{{"Altitude (m)", "Altitude"}},                                                                                                                                        {{0, ""}}}},
-            {RCP_DEVCLASS_RADIO_STRENGTH,      {{{"RSSI (dBm)", "Signal Strength"}},                                                                                                                                   {{0, ""}}}},
+            {RCP_DEVCLASS_MOTOR,               {{{"Speed (rpm)", "Motor"}},                                                                                                                                            {{0, "RPM"}}}},
+            {RCP_DEVCLASS_AM_PRESSURE,         {{{"Pressure (mbars)", "Pressure"}},                                                                                                                                    {{0, "MBar"}}}},
+            {RCP_DEVCLASS_TEMPERATURE,         {{{"Temperature (Celsius)", "Temperature"}},                                                                                                                            {{0, "C"}}}},
+            {RCP_DEVCLASS_PRESSURE_TRANSDUCER, {{{"Pressure (psi)", "Pressure"}},                                                                                                                                      {{0, "PSI"}}}},
+            {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{{"Humidity (Relative %)", "Humidity"}},                                                                                                                               {{0, "%"}}}},
+            {RCP_DEVCLASS_FLOW_METER,          {{{"Flow Rate (GPM)", "Flow Rate"}},                                                                                                                                    {{0, "GPM"}}}},
+            {RCP_DEVCLASS_LOAD_CELL,           {{{"Mass (kg)", "Mass"}},                                                                                                                                               {{0, "kg"}}}},
+            {RCP_DEVCLASS_ALTITUDE,            {{{"Altitude (m)", "Altitude"}},                                                                                                                                        {{0, "m"}}}},
+            {RCP_DEVCLASS_RADIO_STRENGTH,      {{{"RSSI (dBm)", "Signal Strength"}},                                                                                                                                   {{0, "dBm"}}}},
             {RCP_DEVCLASS_POWERMON,            {{{"Voltage", "Voltage"}, {"Power (W)", "Power"}},                                                                                   {{0, "Voltage"},  {1, "Power"}}}},
             {RCP_DEVCLASS_ACCELEROMETER,       {{{"Acceleration (m/s/s)", "Acceleration"}},                                                                                                                            {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
             {RCP_DEVCLASS_GYROSCOPE,           {{{"Rotation (deg/s)", "Rotation"}},                                                                                                                                    {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
@@ -228,5 +228,10 @@ namespace LRI::RCI {
             {RCP_DEVCLASS_QUATERNION,          {{{"Q", "Quaternion"}},                                                                                                                                                 {{0, "W"},        {0, "X"},         {0, "Y"},        {0, "Z"}}}},
         };
         // clang-format on
+
+        ImVec2 calcPlotSize() {
+            const float xsize = ImGui::GetWindowWidth() - 27_sc;
+            return {xsize, min3(xsize * (9.0f / 16.0f), 500_sc, ImGui::GetWindowHeight() - 27_sc)};
+        }
     } // namespace
 } // namespace LRI::RCI
