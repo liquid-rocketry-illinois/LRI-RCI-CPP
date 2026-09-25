@@ -213,6 +213,7 @@ namespace LRI::RCI::hwctrl {
     bool isDataStreaming() { return isDStream; }
     uint8_t getHeartbeatTime() { return originalHeartbeat; }
     float getHeartbeatThreashold() { return heartbeatThreashold; }
+    size_t bytesWaiting() { return interf != nullptr ? interf->bytesWaiting() : 0; }
 
     // float heartbeatThreashold() { return heart; }
 

@@ -400,7 +400,8 @@ namespace LRI::RCI {
         ImGui::SetCursorPosY(textY);
 
         if(hwctrl::isOpen()) {
-            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", openTarget.c_str(), openInterf.c_str(), 0);
+            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", openTarget.c_str(), openInterf.c_str(),
+                        hwctrl::bytesWaiting());
             ImGui::SameLine(0, 5);
             ImGui::SetNextItemWidth(40_sc);
             ImGui::SetCursorPosY(textY);

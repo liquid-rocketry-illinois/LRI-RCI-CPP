@@ -41,13 +41,16 @@ namespace LRI::RCI {
                 if(written == 0) continue;
 
                 inlock.lock();
-                std::cout << std::hex << "rcv: ";
                 for(size_t i = 0; i < written; i++) {
                     inbuffer->push(bytes[i]);
-                    std::cout << (int) bytes[i] << "  ";
                 }
                 inlock.unlock();
+
+#ifdef RCIDEBUG
+                std::cout << std::hex << "rcv: ";
+                for(size_t i = 0; i < written; i++) std::cout << (int) bytes[i] << " ";
                 std::cout << std::endl;
+#endif
             }
 
             else {
@@ -59,13 +62,20 @@ namespace LRI::RCI {
                 uint8_t bytes[TEMP_BUFFER_SIZE];
                 size_t written = 0;
                 outlock.lock();
+
+#ifdef RCIDEBUG
                 std::cout << std::hex << "snd: ";
+#endif
                 for(size_t i = 0; i < TEMP_BUFFER_SIZE && !outbuffer->isEmpty(); i++, written++) {
                     bytes[i] = outbuffer->pop();
+#ifdef RCIDEBUG
                     std::cout << (int) bytes[i] << "  ";
+#endif
                 }
 
+#ifdef RCIDEBUG
                 std::cout << std::endl;
+#endif
 
                 outlock.unlock();
 

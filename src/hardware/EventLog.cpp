@@ -246,13 +246,13 @@ namespace LRI::RCI {
     }
 
     void EventLog::addPromptRequest(const RCP_PromptInputRequest& preq) {
-        host.acttimestamps[PROMPT].emplace_back();
+        host.acttimestamps[PROMPT].emplace_back(getHostTime());
         if(preq.type == RCP_PromptDataType_RESET) host.strings[PROMPT].emplace_back("RESET");
         else host.strings[PROMPT].emplace_back(preq.prompt, preq.length);
     }
 
     void EventLog::addTargetLog(const RCP_TargetLogData& log) {
-        host.acttimestamps[TARGET_LOG].emplace_back();
+        host.acttimestamps[TARGET_LOG].emplace_back(getHostTime());
         host.strings[TARGET_LOG].emplace_back(log.data, log.length);
     }
 
@@ -345,21 +345,21 @@ namespace LRI::RCI {
     void EventLog::addAActWrite(uint8_t id, float val) {
         HardwareQualifier qual{RCP_DEVCLASS_ANGLED_ACTUATOR, id};
         if(!host.act_floats.contains(qual)) return;
-        host.acttimestamps[qual].emplace_back();
+        host.acttimestamps[qual].emplace_back(getHostTime());
         host.act_floats[qual].emplace_back(val);
     }
 
     void EventLog::addMotorWrite(uint8_t id, float val) {
         HardwareQualifier qual{RCP_DEVCLASS_MOTOR, id};
         if(!host.act_floats.contains(qual)) return;
-        host.acttimestamps[qual].emplace_back();
+        host.acttimestamps[qual].emplace_back(getHostTime());
         host.act_floats[qual].emplace_back(val);
     }
 
     void EventLog::addStepperWrite(uint8_t id, RCP_StepperControlMode mode, float val) {
         HardwareQualifier qual{RCP_DEVCLASS_STEPPER, id};
         if(!host.act_floats.contains(qual)) return;
-        host.acttimestamps[qual].emplace_back();
+        host.acttimestamps[qual].emplace_back(getHostTime());
         host.act_floats[qual].emplace_back(val);
         host.act_uints[qual].emplace_back(mode);
     }
@@ -367,7 +367,7 @@ namespace LRI::RCI {
     void EventLog::addDActWrite(uint8_t id, uint8_t val) {
         HardwareQualifier qual{RCP_DEVCLASS_DISCRETE_ACTUATOR, id};
         if(!host.act_uints.contains(qual)) return;
-        host.acttimestamps[qual].emplace_back();
+        host.acttimestamps[qual].emplace_back(getHostTime());
         host.act_uints[qual].emplace_back(val);
     }
 

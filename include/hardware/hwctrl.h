@@ -35,6 +35,7 @@ namespace LRI::RCI::hwctrl {
     bool isDataStreaming();
     uint8_t getHeartbeatTime();
     float getHeartbeatThreashold();
+    size_t bytesWaiting();
 
     void refresh(const HardwareQualifier& qual);
     void requestTare(const HardwareChannel& qual, float value);
