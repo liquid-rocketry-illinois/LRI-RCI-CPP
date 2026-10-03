@@ -1,7 +1,7 @@
 #include "UI/AbridgedSensorViewer.h"
 
-#include "hardware/hwctrl.h"
 #include "UI/gutils.h"
+#include "hardware/hwctrl.h"
 
 namespace LRI::RCI {
     AbridgedSensorViewer::AbridgedSensorViewer(const std::vector<std::vector<HardwareChannel>>& sensors) :
@@ -32,7 +32,9 @@ namespace LRI::RCI {
 
             for(const auto& qual : senselist) {
                 auto datavec = data[qual];
-                std::string str = renderLatestReadingsString(qual, datavec.values->empty() ? 0 : datavec.values->back());
+                std::string str =
+                    std::format("{}: {}", qual.name,
+                                renderLatestReadingsString(qual, datavec.values->empty() ? 0 : datavec.values->back()));
                 float size = ImGui::CalcTextSize(str.c_str()).x * 1.075f;
 
                 if(currentLineWidth + size > width || currentLineWidth == 0) {

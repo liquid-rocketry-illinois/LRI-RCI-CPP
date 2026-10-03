@@ -127,6 +127,7 @@ namespace LRI::RCI {
                 ImGui::Text(" | Data Points: %lld", meta->size());
                 {
                     std::stringstream ss;
+                    ss << qual.name << ": ";
                     HardwareChannel ch = {qual, 0};
                     for(size_t i = 0; i < channels.size(); i++, ch.channel++) {
                         float latestVal = channels[i].values->empty() ? 0 : channels[i].values->back();

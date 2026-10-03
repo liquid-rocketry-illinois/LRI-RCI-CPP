@@ -11,6 +11,7 @@ namespace LRI::RCI {
         refreshButton(refreshButton), evilMode(false), prevChordState(false) {
         for(const auto& qual : quals) {
             acts[qual] = hwctrl::getELog()->getActuatorUintData(qual);
+            hwctrl::refresh(qual);
         }
     }
 
@@ -52,7 +53,7 @@ namespace LRI::RCI {
 
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = data.times->empty() ? STALE_COLOR : ENABLED_COLOR;
+            ImU32 statusColor = data.times->empty() ? STALE_COLOR : (data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) {

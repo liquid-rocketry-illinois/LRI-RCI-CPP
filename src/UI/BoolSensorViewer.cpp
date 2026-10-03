@@ -9,7 +9,7 @@ namespace LRI::RCI {
     // Add the qualifiers to track and their associated state pointer to the map
     BoolSensorViewer::BoolSensorViewer(const std::set<HardwareChannel>& quals, bool refreshButton) :
         refreshButton(refreshButton) {
-        for(const auto& qual : quals) sensors[qual] = {hwctrl::getELog()->getChannelUintData(qual), true};
+        for(const auto& qual : quals) sensors[qual] = hwctrl::getELog()->getChannelUintData(qual);
     }
 
     void BoolSensorViewer::render() {
@@ -23,7 +23,7 @@ namespace LRI::RCI {
         // Request refresh of all sensors
         if(refreshButton) {
             if(ImGui::Button("Refresh")) {
-                for(const auto& [qual, state] : sensors) hwctrl::refresh(qual);
+                for(const auto& [qual, data] : sensors) hwctrl::refresh(qual);
                 buttonTimer.reset();
             }
             ImGui::Separator();
@@ -33,23 +33,30 @@ namespace LRI::RCI {
 
         ImDrawList* draw = ImGui::GetWindowDrawList();
 
+        const auto now = std::chrono::system_clock::now();
+
         // For each sensor, draw its little display thing
-        for(const auto& [qual, state] : sensors) {
+        for(const auto& [qual, data] : sensors) {
             ImGui::PushID(qual.asString().c_str());
 
             // Draw the little status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
 
-            ImU32 statusColor = state.stale || state.data.values->empty()
-                ? STALE_COLOR
-                : (state.data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
+            ImU32 statusColor =
+                data.values->empty() ? STALE_COLOR : (data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
 
             // Comparisons with statusColor are made since its just an integer so comparisons are fast
-            const char* tooltip =
-                statusColor == STALE_COLOR ? "Stale Data" : (statusColor == ENABLED_COLOR ? "TRUE" : "FALSE");
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
-            if(ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tooltip);
+            if(ImGui::IsItemHovered()) {
+                if(statusColor == STALE_COLOR) ImGui::SetTooltip("No Data");
+                else {
+                    auto timePassed =
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - data.times->back().htime) /
+                        static_cast<float>(10e9);
+                    ImGui::SetTooltip("Updated %.3f seconds ago", timePassed.count());
+                }
+            }
 
             // Display the name of the sensor and its value
             ImGui::SameLine();
