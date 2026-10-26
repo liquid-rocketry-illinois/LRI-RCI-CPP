@@ -95,6 +95,20 @@ namespace LRI::RCI {
 #define SCOPE_EXIT [[maybe_unused]] ScopeGuard SCOPEGUARDCAT(GUARD, __COUNTER__) = ScopeGuard::Ctor() + [&]()
 
     std::string renderLatestReadingsString(const HardwareChannel& qual, float data);
+
+    constexpr size_t NUM_GRAPH_POINTS = 500;
+
+    struct TargetFloatPlotData {
+        const EventLog::TargetFloat* tf;
+        size_t startPos;
+        size_t stride;
+        int numPoints;
+
+        TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints,
+                            uint32_t tmin = 0, uint32_t tmax = UINT32_MAX);
+        TargetFloatPlotData();
+    };
+
     ImPlotPoint implotTargetFloat(int index, void* data);
 
     namespace GraphInfo {

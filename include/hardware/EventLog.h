@@ -53,6 +53,8 @@ namespace LRI::RCI {
         TargetTime ttime;
         HostTime htime;
         explicit CombinedTime(TargetTime ttime, const HostTime& htime = getHostTime()) : ttime(ttime), htime(htime) {}
+        CombinedTime() : CombinedTime(0) {}
+        auto operator<=>(const CombinedTime& other) const = default;
     };
 
     class EventLog {

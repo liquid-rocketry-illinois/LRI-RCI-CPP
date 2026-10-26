@@ -12,6 +12,12 @@ namespace LRI::RCI {
     // A window module which shows graphs logging received sensor datapoints, or an abridged
     // sensor output which is just the sensor values as text
     class SensorViewer : public WModule {
+        struct HWQData {
+            std::vector<StopWatch> tareStates;
+            StopWatch clearState;
+            // std::vector<bool> autoFits;
+        };
+
         const bool showControls;
         const bool useTreenodes;
 
@@ -21,16 +27,8 @@ namespace LRI::RCI {
         const std::vector<HardwareQualifier> quals;
         const std::map<HardwareQualifier, std::vector<EventLog::TargetFloat>> fdata;
 
-        // Holds the data vector pointers mapped to their qualifiers. This pointer is updated by the Sensors class
-        // std::vector<std::pair<HardwareQualifier, const std::vector<Sensors::DataPoint>*>> sensors;
-
-        // Render all the graphs for a particular qualifier
-        // static void renderGraphs(const HardwareQualifier& qual, const std::vector<Sensors::DataPoint>* data,
-        //                          const ImVec2& plotsize);
-
         // The tare and clear states for each sensor
-        std::map<HardwareQualifier, std::vector<StopWatch>> tarestate;
-        std::map<HardwareQualifier, StopWatch> clearState;
+        std::map<HardwareQualifier, HWQData> hwqData;
         StopWatch tareAllTimer;
         StopWatch clearAllTimer;
 

@@ -6,6 +6,7 @@
 #include "UI/gutils.h"
 #include "hardware/hwctrl.h"
 #include "implot.h"
+#include "implot_internal.h"
 #include "improgress.h"
 
 // Module for displaying sensor values. Most complicated viewer class
@@ -70,11 +71,22 @@ namespace LRI::RCI {
             }
 
             ImPlot::SetupAxes("Time (s)", graph.axis.c_str(), ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+
+            bool autofit = ImPlot::GetCurrentContext()->CurrentPlot->Axes[ImAxis_X1].Flags & ImPlotAxisFlags_AutoFit;
+
             for(const auto& channel : graph.channels) {
                 const auto& line = channelData.at(channel);
-                ImPlot::PlotLineG(line.lineName.c_str(), implotTargetFloat,
-                                  const_cast<EventLog::TargetFloat*>(&line.data),
-                                  static_cast<int>(line.data.times->size()));
+
+                TargetFloatPlotData pd;
+                if(autofit) pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS);
+                else {
+                    auto plotDims = ImPlot::GetPlotLimits();
+                    auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min));
+                    auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max));
+                    pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS, min, max);
+                }
+
+                ImPlot::PlotLineG(line.lineName.c_str(), implotTargetFloat, &pd, pd.numPoints);
             }
 
             ImPlot::EndPlot();

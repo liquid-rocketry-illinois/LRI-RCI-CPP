@@ -29,24 +29,11 @@ namespace LRI::RCI {
             std::vector<HardwareChannel> channels;
         };
 
-        // static std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*>
-        // extractSensors(const std::vector<GraphData>& graphs);
-        // static std::map<HardwareChannel, std::string> extractLineNames(const std::vector<GraphData>& graphs);
-        // static std::vector<std::string> extractTitles(const std::vector<GraphData>& graphs);
-        // static std::vector<std::string> extractAxistList(const std::vector<GraphData>& graphs);
-        // static std::vector<std::vector<HardwareChannel>> extractChannels(const std::vector<GraphData>& graphs);
-
         static std::vector<GraphMeta> makeGraphMeta(const std::vector<GraphData>& graphs);
         static std::map<HardwareChannel, ChannelData> makeChannelData(const std::vector<GraphData>& graphs);
 
         const std::vector<GraphMeta> graphs;
         const std::map<HardwareChannel, ChannelData> channelData;
-
-        // const std::map<HardwareQualifier, const std::vector<Sensors::DataPoint>*> data;
-        // const std::map<HardwareChannel, std::string> lineNames;
-        // const std::vector<std::string> titles;
-        // const std::vector<std::string> axislist;
-        // const std::vector<std::vector<HardwareChannel>> channels;
 
     public:
         explicit MultiSensorViewer(const std::vector<GraphData>& graphs);

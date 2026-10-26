@@ -1,5 +1,7 @@
 #include "UI/gutils.h"
 
+#include <ranges>
+
 #include "RCP_Host/RCP_Host.h"
 #include "imgui_internal.h"
 #include "stb_image.h"
@@ -199,10 +201,38 @@ namespace LRI::RCI {
     }
 
     ImPlotPoint implotTargetFloat(int index, void* data) {
-        auto* tdata = static_cast<EventLog::TargetFloat*>(data);
-        return ImPlotPoint{static_cast<double>(tdata->times->at(index).ttime),
-                           static_cast<double>(tdata->values->at(index))};
+        const auto* pd = static_cast<TargetFloatPlotData*>(data);
+        size_t sindex = pd->startPos + (index * pd->stride);
+        auto* tdata = pd->tf;
+
+        return ImPlotPoint{static_cast<double>(tdata->times->at(sindex).ttime),
+                           static_cast<double>(tdata->values->at(sindex))};
     }
+
+    TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints,
+                                             uint32_t tmin, uint32_t tmax) :
+        tf(tf), startPos(0), stride(1), numPoints(0) {
+        startPos = 0;
+        size_t endPos = 0;
+
+        for(size_t i = 0; i < tf->times->size(); i++) {
+            if(tf->times->at(i).ttime < tmin) startPos++;
+            if(tf->times->at(i).ttime < tmax) endPos++;
+        }
+
+        size_t size = endPos - startPos;
+
+        if(size < 2 * targetPoints) {
+            stride = 1;
+            numPoints = static_cast<int>(size);
+            return;
+        }
+
+        stride = size / targetPoints;
+        numPoints = static_cast<int>(size / stride);
+    }
+
+    TargetFloatPlotData::TargetFloatPlotData() : tf(nullptr), startPos(0), stride(0), numPoints(0) {  }
 
     namespace GraphInfo {
         static float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
@@ -224,7 +254,7 @@ namespace LRI::RCI {
             {RCP_DEVCLASS_GYROSCOPE,           {{{"Rotation (deg/s)", "Rotation"}},                                                                                                                                    {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
             {RCP_DEVCLASS_MAGNETOMETER,        {{{"Magnetic Field (Gauss)", "Magnetic Field"}},                                                                                                                        {{0, "X"},        {0, "Y"},         {0, "Z"}}}},
             {RCP_DEVCLASS_RPY,                 {{{"Orientation (degrees)", "Orientation"}},                                                                                                                            {{0, "Roll"},     {0, "Pitch"},     {0, "Yaw"}}}},
-            {RCP_DEVCLASS_GPS,                 {{{"Lat/Lon", "Position"}, {"Altitude (m)", "Altitude"}, {"Ground Speed (m/s)", "Ground Speed"}}, {{0, "Latitude"}, {0, "Longitude"}, {2, "Altitude"}, {3, "Ground Speed"}}}},
+            {RCP_DEVCLASS_GPS,                 {{{"Lat/Lon", "Position"}, {"Altitude (m)", "Altitude"}, {"Ground Speed (m/s)", "Ground Speed"}}, {{0, "Latitude"}, {0, "Longitude"}, {1, "Altitude"}, {2, "Ground Speed"}}}},
             {RCP_DEVCLASS_QUATERNION,          {{{"Q", "Quaternion"}},                                                                                                                                                 {{0, "W"},        {0, "X"},         {0, "Y"},        {0, "Z"}}}},
         };
         // clang-format on
@@ -233,5 +263,5 @@ namespace LRI::RCI {
             const float xsize = ImGui::GetWindowWidth() - 27_sc;
             return {xsize, min3(xsize * (9.0f / 16.0f), 500_sc, ImGui::GetWindowHeight() - 27_sc)};
         }
-    } // namespace
+    } // namespace GraphInfo
 } // namespace LRI::RCI

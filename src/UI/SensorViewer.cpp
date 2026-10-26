@@ -2,10 +2,13 @@
 #include <ranges>
 
 #include "UI/SensorViewer.h"
+
 #include "UI/gutils.h"
 #include "hardware/EventLog.h"
 #include "hardware/hwctrl.h"
+#include "imgui_internal.h"
 #include "implot.h"
+#include "implot_internal.h"
 #include "improgress.h"
 
 // Module for displaying sensor values. Most complicated viewer class
@@ -53,7 +56,7 @@ namespace LRI::RCI {
         // Here we iterate over the keys of fdata instead of the vector quals, since the keys of fdata are all
         // guarenteed to be unique
         for(const auto& qual : fdata | std::views::keys) {
-            tarestate[qual] = std::vector<StopWatch>(fdata.at(qual).size());
+            hwqData[qual] = {.tareStates = std::vector<StopWatch>(fdata.at(qual).size()), .clearState = StopWatch{}};
         }
     }
 
@@ -144,12 +147,13 @@ namespace LRI::RCI {
                     ImGui::SameLine();
                     bool lockTare = channels[i].times->empty();
                     if(lockTare) ImGui::BeginDisabled();
-                    if(ImGui::TimedButton(graphdata.lines[i].legend.c_str(), tarestate[qual][i])) {
-                        percent = tarestate[qual][i].timeSince() / CONFIRM_HOLD_TIME;
+                    auto& timer = hwqData[qual].tareStates[i];
+                    if(ImGui::TimedButton(graphdata.lines[i].legend.c_str(), timer)) {
+                        percent = timer.timeSince() / CONFIRM_HOLD_TIME;
                         if(percent >= 1.0f) {
                             HardwareChannel temp = {qual, static_cast<uint8_t>(i)};
                             hwctrl::requestTare(temp, calculateTare(channels[i]));
-                            tarestate[qual][i].reset();
+                            timer.reset();
                         }
                     }
                     if(lockTare) ImGui::EndDisabled();
@@ -157,6 +161,8 @@ namespace LRI::RCI {
 
                 ImGui::SameLine();
                 ImGui::CircleProgressBar("##tareprogressspinner", 7_sc, 2_sc, WHITE_COLOR, percent);
+
+                // TODO: Add back ability to clear graph
             }
 
             for(size_t i = 0; i < graphdata.axes.size(); i++) {
@@ -164,18 +170,32 @@ namespace LRI::RCI {
                 ImPlot::SetupAxes("Time (s)", graphdata.axes[i].name.c_str(), ImPlotAxisFlags_AutoFit,
                                   ImPlotAxisFlags_AutoFit);
 
+                bool autofit =
+                    ImPlot::GetCurrentContext()->CurrentPlot->Axes[ImAxis_X1].Flags & ImPlotAxisFlags_AutoFit;
+
                 for(size_t j = 0; j < graphdata.lines.size(); j++) {
                     // This nested loop wont actually be that bad since the lines array will (at the time of writing)
                     // usually have only 1 thing, and a max of 4 items
                     if(graphdata.lines[j].axis != i) continue;
-                    ImPlot::PlotLineG(graphdata.lines[j].legend.c_str(), implotTargetFloat,
-                                      const_cast<EventLog::TargetFloat*>(&channels[j]),
-                                      static_cast<int>(channels[j].times->size()));
+
+                    TargetFloatPlotData pd;
+                    if(autofit) pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS);
+                    else {
+                        auto plotDims = ImPlot::GetPlotLimits();
+                        auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min));
+                        auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max));
+                        pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS, min, max);
+                    }
+
+                    ImPlot::PlotLineG(graphdata.lines[j].legend.c_str(), implotTargetFloat, &pd, pd.numPoints);
+                    if(ImPlot::BeginLegendPopup(graphdata.lines[j].legend.c_str())) {
+                        ImGui::Text("Hello!");
+                        ImPlot::EndLegendPopup();
+                    }
                 }
 
                 ImPlot::EndPlot();
             }
-
 
             if(useTreenodes) {
                 ImGui::Separator();
