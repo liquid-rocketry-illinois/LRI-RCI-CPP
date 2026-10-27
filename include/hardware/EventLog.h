@@ -29,9 +29,17 @@ namespace LRI::RCI {
         };
     }
 
-    using HostTime = std::chrono::system_clock::time_point;
+    using HostTime = uint64_t;
     using TargetTime = uint32_t;
-    constexpr auto& getHostTime = std::chrono::system_clock::now;
+
+    inline uint64_t getHostTime() {
+        using namespace std::chrono_literals;
+        return std::chrono::system_clock::now().time_since_epoch() / 1us;
+    }
+
+    inline std::chrono::system_clock::time_point tpFromHt(const HostTime& ht) {
+        return std::chrono::system_clock::time_point(std::chrono::microseconds(ht));
+    }
 
     struct Error {
         HostTime htime;

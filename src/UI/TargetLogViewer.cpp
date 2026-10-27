@@ -16,7 +16,7 @@ namespace LRI::RCI {
             if(autoscroll) ImGui::SetScrollY(ImGui::GetScrollMaxY());
             const auto& [times, logs] = hwctrl::getELog()->getLogs();
             for(size_t i = 0; i < times->size(); i++) {
-                std::string line = std::format("[{:%H-%M-%OS}] {}", times->at(i), logs->at(i));
+                std::string line = std::format("[{:%H-%M-%OS}] {}", tpFromHt(times->at(i)), logs->at(i));
                 ImGui::TextWrapped("%s", line.c_str());
             }
         }

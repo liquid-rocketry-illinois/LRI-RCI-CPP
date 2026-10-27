@@ -50,7 +50,7 @@ namespace LRI::RCI {
                 if(statusColor == STALE_COLOR) ImGui::SetTooltip("No Data");
                 else {
                     auto timePassed =
-                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - state.data[0].times->back().htime) /
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - tpFromHt(state.data[0].times->back().htime)) /
                         static_cast<float>(10e9);
                     ImGui::SetTooltip("Updated %.3f seconds ago", timePassed.count());
                 }

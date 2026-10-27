@@ -53,14 +53,15 @@ namespace LRI::RCI {
 
             // Status square
             ImVec2 pos = ImGui::GetCursorScreenPos();
-            ImU32 statusColor = data.times->empty() ? STALE_COLOR : (data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
+            ImU32 statusColor =
+                data.times->empty() ? STALE_COLOR : (data.values->back() ? ENABLED_COLOR : DISABLED_COLOR);
             draw->AddRectFilled(pos, pos + scale(STATUS_SQUARE_SIZE), statusColor);
             ImGui::Dummy(scale(STATUS_SQUARE_SIZE));
             if(ImGui::IsItemHovered()) {
                 if(statusColor == STALE_COLOR) ImGui::SetTooltip("No Data");
                 else {
                     auto timePassed =
-                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - data.times->back().htime) /
+                        std::chrono::duration_cast<std::chrono::nanoseconds>(now - tpFromHt(data.times->back().htime)) /
                         static_cast<float>(10e9);
                     ImGui::SetTooltip("Updated %.3f seconds ago", timePassed.count());
                 }

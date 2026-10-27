@@ -18,7 +18,7 @@ namespace LRI::RCI {
         }
 
         for(const auto& error : *hwctrl::getELog()->getErrors()) {
-            std::string errstr = std::format("[{:%H-%M-%OS}] [{}] {}", error.htime,
+            std::string errstr = std::format("[{:%H-%M-%OS}] [{}] {}", tpFromHt(error.htime),
                                              error.level == Error::LWARNING ? "WARNING" : "ERROR", error.error);
 
             if(error.level == Error::LWARNING) ImGui::PushStyleColor(ImGuiCol_Text, STALE_COLOR);
