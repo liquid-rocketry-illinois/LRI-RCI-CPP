@@ -60,7 +60,7 @@ namespace LRI::RCI {
 
             // Display the name of the sensor and its value
             ImGui::SameLine();
-            ImGui::Text("%s (%d):", qual.name, qual.id);
+            ImGui::Text("%s (%d):", qual.name.c_str(), qual.id);
             ImGui::SameLine();
             if(statusColor == ENABLED_COLOR) {
                 ImGui::PushStyleColor(ImGuiCol_Text, ENABLED_COLOR);

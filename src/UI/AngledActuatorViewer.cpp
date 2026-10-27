@@ -31,7 +31,7 @@ namespace LRI::RCI {
         // Iterate over each item being tracked
         for(const auto& [qual, data] : actuators) {
             // Display the name, current angle
-            ImGui::Text("Actuator %s", qual.name);
+            ImGui::Text("Actuator %s", qual.name.c_str());
             if(!data.values->empty())
                 ImGui::Text("Current angle: %.03f", data.values->back());
             else ImGui::Text("Current angle: data not available");

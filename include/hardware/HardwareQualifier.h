@@ -21,40 +21,16 @@ HardwareChannel can still be passed as a parameter to these
 operations. The channel is ignored.
 */
 namespace LRI::RCI {
-    inline const char* deepCopyString(const char* src) {
-        size_t slen = strlen(src);
-        char* buf = new char[slen + 1];
-        memcpy(buf, src, slen);
-        buf[slen] = 0;
-        return buf;
-    }
-
     struct HardwareQualifier {
+        virtual ~HardwareQualifier() = default;
 
         RCP_DeviceClass devclass;
         uint8_t id = 0;
-        const char* name;
+        std::string name;
 
-        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, const std::string& name) :
-            devclass(devclass), id(id), name(deepCopyString(name.c_str())) {}
-
+        HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, std::string name) :
+            devclass(devclass), id(id), name(std::move(name)) {}
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
-
-        HardwareQualifier(const HardwareQualifier& oq) :
-            devclass(oq.devclass), id(oq.id), name(deepCopyString(oq.name)) {}
-
-        HardwareQualifier& operator=(const HardwareQualifier& oq) {
-            if(&oq == this) return *this;
-            delete[] name;
-
-            devclass = oq.devclass;
-            id = oq.id;
-            name = deepCopyString(oq.name);
-
-            return *this;
-        }
-
-        virtual ~HardwareQualifier() { delete[] name; }
 
         // Used for ordering
         auto operator<=>(const HardwareQualifier& rhf) const {
@@ -63,7 +39,7 @@ namespace LRI::RCI {
 
         // Helper for packing data as a string. Not for display, use the name field instead
         [[nodiscard]] virtual std::string asString() const {
-            return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name[0] == 0 ? "<none>" : name);
+            return std::format("0x{:2X}-{}-{}", static_cast<uint8_t>(devclass), id, name.empty() ? "<none>" : name);
         }
     };
 
@@ -91,7 +67,7 @@ template<>
 struct std::formatter<LRI::RCI::HardwareQualifier> : std::formatter<std::string> {
     auto format(LRI::RCI::HardwareQualifier qual, format_context& ctx) const {
         return format_to(ctx.out(), "0x{:2X}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id,
-                         qual.name[0] == 0 ? "<none>" : qual.name);
+                         qual.name.empty() ? "<none>" : qual.name);
     }
 };
 
@@ -99,7 +75,7 @@ template<>
 struct std::formatter<LRI::RCI::HardwareChannel> : std::formatter<std::string> {
     auto format(LRI::RCI::HardwareChannel qual, format_context& ctx) const {
         return format_to(ctx.out(), "0x{:2X}-{}-{}-{}", static_cast<uint8_t>(qual.devclass), qual.id,
-                         qual.name[0] == 0 ? "<none>" : qual.name, qual.channel);
+                         qual.name.empty() ? "<none>" : qual.name, qual.channel);
     }
 };
 

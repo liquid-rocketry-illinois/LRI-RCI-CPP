@@ -69,7 +69,7 @@ namespace LRI::RCI {
 
             // Solenoid name and ID
             ImGui::SameLine();
-            ImGui::Text("%s (%d)", qual.name, qual.id);
+            ImGui::Text("%s (%d)", qual.name.c_str(), qual.id);
 
             ImGui::SameLine();
 
