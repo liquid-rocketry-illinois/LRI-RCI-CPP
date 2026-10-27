@@ -47,7 +47,7 @@ namespace LRI::RCI {
             if(ImGui::IsItemHovered()) ImGui::SetTooltip("%s", tooltip);
             ImGui::SameLine();
 
-            ImGui::Text("Motor %s (%d)", qual.name.c_str(), qual.id);
+            ImGui::Text("Motor %s (%d)", qual.name, qual.id);
             if(!data.values->empty()) ImGui::Text("Current Reported Speed: %f", data.values->back());
             else ImGui::Text("Current Reported Speed: 0");
             ImGui::Text("Set value: ");

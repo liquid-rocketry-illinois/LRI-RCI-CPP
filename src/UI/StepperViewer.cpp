@@ -57,7 +57,7 @@ namespace LRI::RCI {
             }
 
             ImGui::SameLine();
-            ImGui::Text("Stepper Motor %s (%d)", qual.name.c_str(), qual.id);
+            ImGui::Text("Stepper Motor %s (%d)", qual.name, qual.id);
 
             // Button for toggling how the inputted value will be interpreted
             ImGui::Text("Control Mode: ");

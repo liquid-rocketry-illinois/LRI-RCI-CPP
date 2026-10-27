@@ -110,7 +110,7 @@ namespace LRI::RCI {
             ImGui::PushID(id++);
 
             if(useTreenodes) {
-                if(!ImGui::TreeNode(qual.name.c_str())) {
+                if(!ImGui::TreeNode(qual.name)) {
                     ImGui::PopID();
                     continue;
                 }
