@@ -188,10 +188,6 @@ namespace LRI::RCI {
                     }
 
                     ImPlot::PlotLineG(graphdata.lines[j].legend.c_str(), implotTargetFloat, &pd, pd.numPoints);
-                    if(ImPlot::BeginLegendPopup(graphdata.lines[j].legend.c_str())) {
-                        ImGui::Text("Hello!");
-                        ImPlot::EndLegendPopup();
-                    }
                 }
 
                 ImPlot::EndPlot();
