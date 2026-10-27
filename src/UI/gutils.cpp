@@ -205,7 +205,7 @@ namespace LRI::RCI {
         size_t sindex = pd->startPos + (index * pd->stride);
         auto* tdata = pd->tf;
 
-        return ImPlotPoint{static_cast<double>(tdata->times->at(sindex).ttime),
+        return ImPlotPoint{static_cast<double>(tdata->times->at(sindex).ttime) / 1000.,
                            static_cast<double>(tdata->values->at(sindex))};
     }
 
