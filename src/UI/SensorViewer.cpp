@@ -56,7 +56,11 @@ namespace LRI::RCI {
         // Here we iterate over the keys of fdata instead of the vector quals, since the keys of fdata are all
         // guarenteed to be unique
         for(const auto& qual : fdata | std::views::keys) {
-            hwqData[qual] = {.tareStates = std::vector<StopWatch>(fdata.at(qual).size()), .clearState = StopWatch{}};
+            auto size = fdata.at(qual).size();
+            auto size2 = GraphInfo::GRAPHINFO.at(qual.devclass).axes.size();
+            hwqData[qual] = {.tareStates = std::vector(size, StopWatch{}),
+                             .clearState = StopWatch{},
+                             .autofitTimes = std::vector(size2, 120.f)};
         }
     }
 
@@ -177,9 +181,24 @@ namespace LRI::RCI {
                     // This nested loop wont actually be that bad since the lines array will (at the time of writing)
                     // usually have only 1 thing, and a max of 4 items
                     if(graphdata.lines[j].axis != i) continue;
+                    ImGui::PushID(static_cast<int>(j));
 
                     TargetFloatPlotData pd;
-                    if(autofit) pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS);
+                    if(autofit) {
+                        float aft = hwqData[qual].autofitTimes[i];
+                        if(aft == 0) pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS);
+                        else {
+                            auto millisFollowDistance = static_cast<uint32_t>(aft * 1000);
+                            uint32_t displayStart = 0;
+                            if(!channels[j].times->empty()) {
+                                uint32_t lastAvailableTime = channels[j].times->back().ttime;
+                                if(lastAvailableTime > millisFollowDistance)
+                                    displayStart = lastAvailableTime - millisFollowDistance;
+                            }
+                            pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS, displayStart, UINT32_MAX);
+                        }
+                    }
+
                     else {
                         auto plotDims = ImPlot::GetPlotLimits();
                         auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min));
@@ -188,6 +207,17 @@ namespace LRI::RCI {
                     }
 
                     ImPlot::PlotLineG(graphdata.lines[j].legend.c_str(), implotTargetFloat, &pd, pd.numPoints);
+
+                    // For some reason the legend popup only works on the first line /shrug
+                    if(j == 0 && ImPlot::BeginLegendPopup(graphdata.lines[j].legend.c_str())) {
+                        ImGui::Text("Autofit Follow Distance");
+                        float& aft = hwqData[qual].autofitTimes[i];
+                        ImGui::DragFloat("##autofitfollow", &aft, 0.2f, 0, 1000, aft == 0 ? "All" : "%.1f seconds",
+                                         ImGuiSliderFlags_AlwaysClamp);
+                        ImPlot::EndLegendPopup();
+                    }
+
+                    ImGui::PopID();
                 }
 
                 ImPlot::EndPlot();

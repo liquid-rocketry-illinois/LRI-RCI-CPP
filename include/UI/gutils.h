@@ -96,7 +96,7 @@ namespace LRI::RCI {
 
     std::string renderLatestReadingsString(const HardwareChannel& qual, float data);
 
-    constexpr size_t NUM_GRAPH_POINTS = 500;
+    constexpr size_t NUM_GRAPH_POINTS = 2000;
 
     struct TargetFloatPlotData {
         const EventLog::TargetFloat* tf;

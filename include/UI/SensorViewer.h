@@ -15,7 +15,7 @@ namespace LRI::RCI {
         struct HWQData {
             std::vector<StopWatch> tareStates;
             StopWatch clearState;
-            // std::vector<bool> autoFits;
+            std::vector<float> autofitTimes;
         };
 
         const bool showControls;
