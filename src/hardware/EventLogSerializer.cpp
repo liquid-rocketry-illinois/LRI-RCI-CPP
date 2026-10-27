@@ -2,6 +2,8 @@
 
 // These functions are placed into their own file to concentrate all the HDF shenanigans in one place
 
+#include "hdf5.h"
+
 namespace LRI::RCI {
     EventLog::EventLog(const std::filesystem::path& hdf) {
 

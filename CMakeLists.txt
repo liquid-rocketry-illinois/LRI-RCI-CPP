@@ -37,6 +37,18 @@ set(BUILD_SHARED_LIBS OFF)
 set(SFML_INSTALL_PKGCONFIG_FILES OFF)
 add_subdirectory(libs/sfml)
 
+set(BUILD_STATIC_LIBS ON)
+set(BUILD_SHARED_LIBS OFF)
+set(HDF5_BUILD_TOOLS OFF)
+set(HDF5_BUILD_HL_LIB OFF)
+set(BUILD_TESTING OFF)
+# This is included here because sometimes its nice to have the examples available with hints in the IDE
+set(HDF5_BUILD_EXAMPLES OFF)
+set(HDF5_ENABLE_PLUGIN_SUPPORT OFF)
+set(HDF5_ENABLE_ALL_WARNINGS OFF)
+set(HDF5_DISABLE_COMPILER_WARNINGS ON)
+add_subdirectory(libs/hdf5)
+
 # Set up a dedicated ImGui library so it doesn't have to be in the main executables file list
 # Also include ImPlot since its related
 add_library(imgui OBJECT
@@ -106,7 +118,7 @@ add_executable(LRI_control_panel
 
 # Add needed libraries
 target_link_libraries(LRI_control_panel PRIVATE RCP-Host nlohmann_json SFML::Network imgui
-        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi)
+        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi hdf5-static)
 
 # Add includes folder
 target_include_directories(LRI_control_panel PRIVATE include)

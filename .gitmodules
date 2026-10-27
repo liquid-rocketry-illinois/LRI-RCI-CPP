@@ -16,3 +16,6 @@
 [submodule "libs/sfml"]
 	path = libs/sfml
 	url = https://github.com/sfml/sfml
+[submodule "libs/hdf5"]
+	path = libs/hdf5
+	url = https://github.com/HDFGroup/hdf5
