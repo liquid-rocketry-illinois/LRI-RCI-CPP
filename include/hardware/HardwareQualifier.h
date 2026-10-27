@@ -21,20 +21,38 @@ HardwareChannel can still be passed as a parameter to these
 operations. The channel is ignored.
 */
 namespace LRI::RCI {
+    inline const char* deepCopyString(const char* src) {
+        size_t slen = strlen(src);
+        char* buf = new char[slen + 1];
+        memcpy(buf, src, slen);
+        buf[slen] = 0;
+        return buf;
+    }
+
     struct HardwareQualifier {
 
         RCP_DeviceClass devclass;
         uint8_t id = 0;
-        const char* const name;
+        const char* name;
 
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id, const std::string& name) :
-            devclass(devclass), id(id), name([](const std::string& name) {
-                char* buf = new char[name.length() + 1];
-                memcpy(buf, name.c_str(), name.length());
-                buf[name.length()] = 0;
-                return buf;
-            }(name)) {}
+            devclass(devclass), id(id), name(deepCopyString(name.c_str())) {}
+
         HardwareQualifier(RCP_DeviceClass devclass, uint8_t id) : HardwareQualifier(devclass, id, "") {}
+
+        HardwareQualifier(const HardwareQualifier& oq) :
+            devclass(oq.devclass), id(oq.id), name(deepCopyString(oq.name)) {}
+
+        HardwareQualifier& operator=(const HardwareQualifier& oq) {
+            if(&oq == this) return *this;
+            delete[] name;
+
+            devclass = oq.devclass;
+            id = oq.id;
+            name = deepCopyString(oq.name);
+
+            return *this;
+        }
 
         virtual ~HardwareQualifier() { delete[] name; }
 
