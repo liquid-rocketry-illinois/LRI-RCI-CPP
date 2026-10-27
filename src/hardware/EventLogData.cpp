@@ -84,6 +84,13 @@ namespace LRI::RCI {
     }
 
     void EventLog::createDevice(const HardwareQualifier& qual) {
+        if(registeredQuals.contains(qual)) {
+            addError(Error::LWARNING, "Repeated hardware qualifier: {}", qual);
+            return;
+        }
+
+        registeredQuals.emplace(qual);
+
         HardwareChannel ch{qual, 0};
 
         switch(qual.devclass) {
@@ -393,6 +400,8 @@ namespace LRI::RCI {
     }
 
     // Getters
+    const std::set<HardwareQualifier>& EventLog::getRegisteredQuals() { return registeredQuals; }
+
     EventLog::TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
         HardwareChannel channel{TEST_STATE, ch};
         if(!target.uints.contains(channel)) return {};

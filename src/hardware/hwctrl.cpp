@@ -33,7 +33,6 @@ namespace {
     RCP_Interface* interf = nullptr;
     EventLog* elog = nullptr;
 
-    std::set<HardwareQualifier> quals;
     std::vector<TargetTest> tests;
 
     bool targetReady = false;
@@ -128,16 +127,9 @@ namespace LRI::RCI::hwctrl {
 
             for(size_t i = 0; i < devset.ids.size(); i++) {
                 HardwareQualifier qual = {devclass, devset.ids[i], devset.names[i]};
-                if(quals.contains(qual)) {
-                    elog->addError(Error::LWARNING, "Repeated hardware qualifier: {}", qual);
-                    continue;
-                }
-
-                quals.emplace(qual);
+                elog->createDevice(qual);
             }
         }
-
-        for(const auto& qual : quals) elog->createDevice(qual);
 
         tests = config.tests;
     }
@@ -190,7 +182,6 @@ namespace LRI::RCI::hwctrl {
         delete interf;
         interf = nullptr;
 
-        quals.clear();
         tests.clear();
     }
 
@@ -203,7 +194,7 @@ namespace LRI::RCI::hwctrl {
     bool isTargetReady() { return targetReady; }
     const EventLog* getELog() { return elog; }
     void addError(Error&& e) { elog->addError(std::move(e)); }
-    const std::set<HardwareQualifier>& getQuals() { return quals; }
+    const std::set<HardwareQualifier>& getQuals() { return elog->getRegisteredQuals(); }
     const std::vector<TargetTest>& getTests() { return tests; }
     RCP_TestRunningState getTestState() {
         auto vals = elog->getTestInformation(TestStateChannels::T_TEST_RUN_STATE).values;

@@ -4,6 +4,7 @@
 #include <chrono>
 #include <map>
 #include <string>
+#include <set>
 #include <vector>
 #include <filesystem>
 
@@ -124,6 +125,7 @@ namespace LRI::RCI {
         ErrorList errors;
         std::vector<uint8_t> rxbytes;
         std::vector<uint8_t> txbytes;
+        std::set<HardwareQualifier> registeredQuals;
 
     public:
         EventLog();
@@ -178,6 +180,7 @@ namespace LRI::RCI {
         void addSent(const void* data, size_t length);
 
         // Getters
+        [[nodiscard]] const std::set<HardwareQualifier>& getRegisteredQuals();
         [[nodiscard]] TargetUint getReportedTestStateChannel(TestStateChannels::Channels ch);
 
         [[nodiscard]] HostString getPromptRequests() const;
