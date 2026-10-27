@@ -93,7 +93,8 @@ add_executable(LRI_control_panel
         src/interfaces/VirtualPort.cpp
 
         # Hardware classes
-        src/Hardware/EventLog.cpp
+        src/hardware/EventLogData.cpp
+        src/hardware/EventLogSerializer.cpp
         src/hardware/hwctrl.cpp
         src/hardware/json.cpp
 

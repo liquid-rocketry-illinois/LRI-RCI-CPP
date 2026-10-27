@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
@@ -126,10 +127,12 @@ namespace LRI::RCI {
 
     public:
         EventLog();
+        EventLog(const std::filesystem::path& hdf);
         ~EventLog() = default;
 
         void createDevice(const HardwareQualifier& qual);
         void clear();
+        void serialize(const std::filesystem::path& hdf);
 
         // Received from target
         void addTestState(const RCP_TestData& td);
