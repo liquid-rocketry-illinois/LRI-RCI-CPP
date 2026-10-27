@@ -240,6 +240,9 @@ namespace LRI::RCI {
         // This structure is an abomination to all good code style. I apologize for my crimes.
         // clang-format off
         const std::map<const RCP_DeviceClass, const GraphInfo> GRAPHINFO {
+            {RCP_DEVCLASS_DISCRETE_ACTUATOR,   {{{"State", "State"}},                                                                                                                                                  {{0, "State"}}}},
+            {RCP_DEVCLASS_STEPPER,             {{{"Angle (Degrees)", "Angle"}},                                                                                                                                        {{0, "Degrees"}}}},
+            {RCP_DEVCLASS_ANGLED_ACTUATOR,     {{{"Angle (Degrees)", "Angle"}},                                                                                                                                        {{0, "Degrees"}}}},
             {RCP_DEVCLASS_MOTOR,               {{{"Speed (rpm)", "Motor"}},                                                                                                                                            {{0, "RPM"}}}},
             {RCP_DEVCLASS_AM_PRESSURE,         {{{"Pressure (mbars)", "Pressure"}},                                                                                                                                    {{0, "MBar"}}}},
             {RCP_DEVCLASS_TEMPERATURE,         {{{"Temperature (Celsius)", "Temperature"}},                                                                                                                            {{0, "C"}}}},
@@ -247,6 +250,7 @@ namespace LRI::RCI {
             {RCP_DEVCLASS_RELATIVE_HYGROMETER, {{{"Humidity (Relative %)", "Humidity"}},                                                                                                                               {{0, "%"}}}},
             {RCP_DEVCLASS_FLOW_METER,          {{{"Flow Rate (GPM)", "Flow Rate"}},                                                                                                                                    {{0, "GPM"}}}},
             {RCP_DEVCLASS_LOAD_CELL,           {{{"Mass (kg)", "Mass"}},                                                                                                                                               {{0, "kg"}}}},
+            {RCP_DEVCLASS_BOOL_SENSOR,         {{{"State", "State"}},                                                                                                                                                  {{0, "State"}}}},
             {RCP_DEVCLASS_ALTITUDE,            {{{"Altitude (m)", "Altitude"}},                                                                                                                                        {{0, "m"}}}},
             {RCP_DEVCLASS_RADIO_STRENGTH,      {{{"RSSI (dBm)", "Signal Strength"}},                                                                                                                                   {{0, "dBm"}}}},
             {RCP_DEVCLASS_POWERMON,            {{{"Voltage", "Voltage"}, {"Power (W)", "Power"}},                                                                                   {{0, "Voltage"},  {1, "Power"}}}},
