@@ -109,6 +109,15 @@ namespace LRI::RCI {
                       "reference, the versions actually used are in the executable's folder"
                    << std::endl;
         }
+
+        auto exportsFolder = roamingFolder / "exports";
+        if(std::filesystem::exists(exportsFolder)) {
+            if(!std::filesystem::is_directory(exportsFolder)) std::exit(-1);
+        }
+
+        else {
+            std::filesystem::create_directories(exportsFolder);
+        }
     }
 
     void preventScreenTurnoff() {
