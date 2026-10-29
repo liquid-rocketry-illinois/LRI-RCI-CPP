@@ -6,7 +6,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <filesystem>
 
 #include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
@@ -29,6 +28,19 @@ namespace LRI::RCI {
             H_TIME_RESET = 5,
             H_DEV_RESET = 6
         };
+
+        // Oh man if only there was some kind of reflective introspection system...
+        constexpr Channels ALL_TCH[] = {
+            T_INITED, T_DSTREAM, T_HEARTBEAT_TIME, T_TEST_RUN_STATE, T_RUNNING_TEST, T_TEST_PROGRESS,
+        };
+
+        constexpr Channels ALL_HCH[] = {
+            H_HEARTBEAT, H_DSTREAM, H_HEARTBEAT_TIME, H_TEST_RUN_STATE, H_TEST_ID, H_TIME_RESET, H_DEV_RESET,
+        };
+
+        constexpr bool hostChannelHasMeta(Channels c) {
+            return !(c == H_HEARTBEAT || c == H_DEV_RESET || c == H_TIME_RESET);
+        }
     }
 
     using HostTime = uint64_t;
@@ -129,12 +141,12 @@ namespace LRI::RCI {
 
     public:
         EventLog();
-        EventLog(const std::filesystem::path& hdf);
+        EventLog(const std::string& hdf);
         ~EventLog() = default;
 
         void createDevice(const HardwareQualifier& qual);
         void clear();
-        void serialize(const std::filesystem::path& hdf);
+        void serialize(const std::string& hdf) const;
 
         // Received from target
         void addTestState(const RCP_TestData& td);
@@ -202,6 +214,7 @@ namespace LRI::RCI {
         [[nodiscard]] HostUint getRequestedDStreams() const;
         [[nodiscard]] const TimePointList* getRequestedHWResets() const;
         [[nodiscard]] const TimePointList* getRequestedTimeResets() const;
+        [[nodiscard]] HostUint getHostTestStateChannel(uint8_t channel) const;
         [[nodiscard]] HostFloat getRequestedAActWrites(uint8_t id) const;
         [[nodiscard]] HostFloat getRequestedMotorWrites(uint8_t id) const;
         [[nodiscard]] StepperWritesList getRequestedStepperWrites(uint8_t id) const;

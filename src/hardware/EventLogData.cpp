@@ -15,15 +15,6 @@ namespace LRI::RCI {
     } // namespace
 
     namespace TestStateChannels {
-        // Oh man if only there was some kind of reflective introspection system...
-        constexpr Channels ALL_TCH[] = {
-            T_INITED, T_DSTREAM, T_HEARTBEAT_TIME, T_TEST_RUN_STATE, T_RUNNING_TEST, T_TEST_PROGRESS,
-        };
-
-        constexpr Channels ALL_HCH[] = {
-            H_HEARTBEAT, H_DSTREAM, H_HEARTBEAT_TIME, H_TEST_RUN_STATE, H_TEST_ID, H_TIME_RESET, H_DEV_RESET,
-        };
-
         const HardwareChannel HEARTBEAT{TEST_STATE, H_HEARTBEAT};
         const HardwareChannel DSTREAM{TEST_STATE, H_DSTREAM};
         const HardwareChannel HBTIME{TEST_STATE, H_HEARTBEAT_TIME};
@@ -33,8 +24,8 @@ namespace LRI::RCI {
         const HardwareChannel DEVRST{TEST_STATE, H_DEV_RESET};
 
         const std::map<Channels, uint8_t (*)(const RCP_TestData&)> CHANNEL_GETTERS = {
-            {T_INITED, [](const RCP_TestData& d) -> uint8_t { return d.isInited; }},
-            {T_DSTREAM, [](const RCP_TestData& d) -> uint8_t { return d.dataStreaming; }},
+            {T_INITED, [](const RCP_TestData& d) -> uint8_t { return d.isInited > 0; }},
+            {T_DSTREAM, [](const RCP_TestData& d) -> uint8_t { return d.dataStreaming > 0; }},
             {T_HEARTBEAT_TIME, [](const RCP_TestData& d) -> uint8_t { return d.heartbeatTime; }},
             {T_TEST_RUN_STATE, [](const RCP_TestData& d) -> uint8_t { return d.state; }},
             {T_RUNNING_TEST, [](const RCP_TestData& d) -> uint8_t { return d.runningTest; }},
@@ -60,9 +51,7 @@ namespace LRI::RCI {
             if(c != TestStateChannels::H_TEST_ID) host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
 
             // None of these have associated metadata
-            if(c == TestStateChannels::H_HEARTBEAT || c == TestStateChannels::H_DEV_RESET ||
-               c == TestStateChannels::H_TIME_RESET)
-                continue;
+            if(!hostChannelHasMeta(c)) continue;
             host.ctrl_uints[ch].reserve(ACT_VEC_INIT_SIZE);
         }
 
@@ -477,6 +466,15 @@ namespace LRI::RCI {
 
     const EventLog::TimePointList* EventLog::getRequestedHWResets() const { return &host.ctrltimestamps.at(DEVRST); }
     const EventLog::TimePointList* EventLog::getRequestedTimeResets() const { return &host.ctrltimestamps.at(TIMERST); }
+
+    EventLog::HostUint EventLog::getHostTestStateChannel(uint8_t channel) const {
+        HardwareChannel ch{RCP_DEVCLASS_TEST_STATE, 0, channel};
+        HostUint ret;
+        ret.times = &host.ctrltimestamps.at(ch);
+        if(host.ctrl_uints.contains(ch)) ret.values = &host.ctrl_uints.at(ch);
+        else ret.times = nullptr;
+        return ret;
+    }
 
     EventLog::HostFloat EventLog::getRequestedAActWrites(uint8_t id) const {
         HardwareQualifier qual{RCP_DEVCLASS_ANGLED_ACTUATOR, id};

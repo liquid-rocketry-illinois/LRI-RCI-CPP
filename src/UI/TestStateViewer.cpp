@@ -2,6 +2,7 @@
 
 #include <ranges>
 
+#include <iostream>
 #include "UI/gutils.h"
 #include "hardware/hwctrl.h"
 #include "improgress.h"
@@ -74,7 +75,8 @@ namespace LRI::RCI {
         // If the start button is being pushed, show the little circle thingy
         if(pushed) {
             ImGui::SameLine();
-            ImGui::CircleProgressBar("##startlabel", 7_sc, 2_sc, WHITE_COLOR, startTimer.timeSince() / CONFIRM_HOLD_TIME);
+            ImGui::CircleProgressBar("##startlabel", 7_sc, 2_sc, WHITE_COLOR,
+                                     startTimer.timeSince() / CONFIRM_HOLD_TIME);
         }
 
         // Display the test number chooser. If there are tests defined in the target
@@ -192,6 +194,11 @@ namespace LRI::RCI {
             ImGui::SameLine();
             ImGui::CircleProgressBar("##dresetspinnny", 7_sc, 2_sc, WHITE_COLOR,
                                      dResetTimer.timeSince() / CONFIRM_HOLD_TIME);
+        }
+
+        if(ImGui::Button("Write Data To File")) {
+            auto now = std::chrono::system_clock::now();
+            hwctrl::getELog()->serialize(std::format("{:%d-%m-%Y-%H-%M-%OS}.rci", now));
         }
 
         if(!hwctrl::isTargetReady()) ImGui::EndDisabled();

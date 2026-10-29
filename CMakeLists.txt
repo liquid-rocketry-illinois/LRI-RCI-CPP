@@ -43,7 +43,7 @@ set(HDF5_BUILD_TOOLS OFF)
 set(HDF5_BUILD_HL_LIB OFF)
 set(BUILD_TESTING OFF)
 # This is included here because sometimes its nice to have the examples available with hints in the IDE
-set(HDF5_BUILD_EXAMPLES OFF)
+set(HDF5_BUILD_EXAMPLES ON)
 set(HDF5_ENABLE_PLUGIN_SUPPORT OFF)
 set(HDF5_ENABLE_ALL_WARNINGS OFF)
 set(HDF5_DISABLE_COMPILER_WARNINGS ON)
