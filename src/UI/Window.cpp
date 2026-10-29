@@ -205,7 +205,7 @@ namespace LRI::RCI {
         ImGui_ImplOpenGL3_Init();
 
         glfwGetWindowContentScale(window, &style::scaling_factor, nullptr);
-        glfwSetWindowSizeLimits(window, static_cast<int>(900_sc), static_cast<int>(300_sc), GLFW_DONT_CARE,
+        glfwSetWindowSizeLimits(window, static_cast<int>(1050_sc), static_cast<int>(300_sc), GLFW_DONT_CARE,
                                 GLFW_DONT_CARE);
         style::setWindowIcon(window);
 
@@ -400,8 +400,8 @@ namespace LRI::RCI {
         ImGui::SetCursorPosY(textY);
 
         if(hwctrl::isOpen()) {
-            ImGui::Text("%s | %s | Packet Buffer Size: %d | Polling Rate: ", openTarget.c_str(), openInterf.c_str(),
-                        hwctrl::bytesWaiting());
+            ImGui::Text("%s | %s | Packet Buffer Size: %llu | Frame Time: %f | Polling Rate: ", openTarget.c_str(), openInterf.c_str(),
+                        hwctrl::bytesWaiting(), ImGui::GetIO().DeltaTime);
             ImGui::SameLine(0, 5);
             ImGui::SetNextItemWidth(40_sc);
             ImGui::SetCursorPosY(textY);
