@@ -79,6 +79,12 @@ namespace LRI::RCI {
         auto operator<=>(const CombinedTime& other) const = default;
     };
 
+    struct TareReq {
+        HostTime htime;
+        HardwareChannel ch;
+        float offset;
+    };
+
     class EventLog {
     public:
 #define RETTYPE(name, timetype, valtype)                                                                               \
@@ -109,6 +115,7 @@ namespace LRI::RCI {
         using ReadRequestsList = std::vector<std::pair<HostTime, HardwareQualifier>>;
         using UintList = std::vector<uint8_t>;
         using ErrorList = std::vector<Error>;
+        using TareList = std::vector<TareReq>;
 
     private:
         struct {
@@ -128,9 +135,9 @@ namespace LRI::RCI {
             std::map<HardwareQualifier, std::vector<float>> act_floats;
 
             std::map<HardwareChannel, std::vector<HostTime>> ctrltimestamps;
-            std::map<HardwareChannel, std::vector<float>> tares;
             std::map<HardwareChannel, std::vector<uint8_t>> ctrl_uints;
 
+            TareList tares;
             ReadRequestsList readReqs;
         } host;
 
@@ -219,7 +226,7 @@ namespace LRI::RCI {
         [[nodiscard]] HostFloat getRequestedMotorWrites(uint8_t id) const;
         [[nodiscard]] StepperWritesList getRequestedStepperWrites(uint8_t id) const;
         [[nodiscard]] HostUint getRequestedDActWrites(uint8_t id) const;
-        [[nodiscard]] HostFloat getRequestedTares(const HardwareChannel& ch) const;
+        [[nodiscard]] const TareList* getRequestedTares() const;
 
         [[nodiscard]] const ReadRequestsList* getReadRequests() const;
 

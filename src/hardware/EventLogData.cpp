@@ -131,17 +131,11 @@ namespace LRI::RCI {
             // For data sent back
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
         }
 
         case RCP_DEVCLASS_BOOL_SENSOR: {
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
             target.uints[ch].reserve(DATA_VEC_INIT_SIZE);
-
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
             break;
         }
 
@@ -149,13 +143,9 @@ namespace LRI::RCI {
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
 
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 1;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             break;
         }
@@ -167,18 +157,12 @@ namespace LRI::RCI {
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
 
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 1;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 2;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             break;
         }
@@ -188,23 +172,15 @@ namespace LRI::RCI {
             target.timestamps[qual].reserve(DATA_VEC_INIT_SIZE);
 
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 1;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 2;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             ch.channel = 3;
             target.floats[ch].reserve(DATA_VEC_INIT_SIZE);
-            host.ctrltimestamps[ch].reserve(ACT_VEC_INIT_SIZE);
-            host.tares[ch].reserve(ACT_VEC_INIT_SIZE);
 
             break;
         }
@@ -290,50 +266,50 @@ namespace LRI::RCI {
     using namespace TestStateChannels;
 
     void EventLog::addTestStart(uint8_t testnum) {
-        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrltimestamps[RUNSTATE].emplace_back(getHostTime());
         host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_START);
         host.ctrl_uints[TESTID].emplace_back(testnum);
     }
 
     void EventLog::addTestStop() {
-        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrltimestamps[RUNSTATE].emplace_back(getHostTime());
         host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_STOP);
     }
 
     void EventLog::addTestPauseUnpause() {
-        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrltimestamps[RUNSTATE].emplace_back(getHostTime());
         host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_PAUSE);
     }
 
     void EventLog::addHeartbeatSet(uint8_t time) {
-        host.ctrltimestamps[HBTIME].emplace_back();
+        host.ctrltimestamps[HBTIME].emplace_back(getHostTime());
         host.ctrl_uints[HBTIME].emplace_back(time);
     }
 
-    void EventLog::addHeartbeat() { host.ctrltimestamps[HEARTBEAT].emplace_back(); }
+    void EventLog::addHeartbeat() { host.ctrltimestamps[HEARTBEAT].emplace_back(getHostTime()); }
 
     void EventLog::addDStreamChange(bool streaming) {
-        host.ctrltimestamps[DSTREAM].emplace_back();
+        host.ctrltimestamps[DSTREAM].emplace_back(getHostTime());
         host.ctrl_uints[DSTREAM].emplace_back(streaming ? 1 : 0);
     }
 
     void EventLog::addESTOP() {
-        host.ctrltimestamps[RUNSTATE].emplace_back();
+        host.ctrltimestamps[RUNSTATE].emplace_back(getHostTime());
         host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_ESTOP);
     }
 
-    void EventLog::addHWRST() { host.ctrltimestamps[DEVRST].emplace_back(); }
+    void EventLog::addHWRST() { host.ctrltimestamps[DEVRST].emplace_back(getHostTime()); }
 
-    void EventLog::addTMRST() { host.ctrltimestamps[TIMERST].emplace_back(); }
+    void EventLog::addTMRST() { host.ctrltimestamps[TIMERST].emplace_back(getHostTime()); }
 
     void EventLog::addPromptResponse(float val) {
-        host.ctrltimestamps[PROMPT].emplace_back();
+        host.ctrltimestamps[PROMPT].emplace_back(getHostTime());
         host.act_uints[PROMPT].emplace_back(0);
         host.act_floats[PROMPT].emplace_back(val);
     }
 
     void EventLog::addPromptResponse(bool val) {
-        host.ctrltimestamps[PROMPT].emplace_back();
+        host.ctrltimestamps[PROMPT].emplace_back(getHostTime());
         host.act_uints[PROMPT].emplace_back(val);
         host.act_floats[PROMPT].emplace_back(0.0f);
     }
@@ -370,9 +346,7 @@ namespace LRI::RCI {
     void EventLog::addReadReq(const HardwareQualifier& qual) { host.readReqs.emplace_back(getHostTime(), qual); }
 
     void EventLog::addTare(const HardwareChannel& ch, float off) {
-        if(!host.tares.contains(ch)) return;
-        host.ctrltimestamps[ch].emplace_back();
-        host.tares[ch].emplace_back(off);
+        host.tares.emplace_back(getHostTime(), ch, off);
     }
 
     void EventLog::addError(const Error& e) { errors.push_back(e); }
@@ -472,7 +446,7 @@ namespace LRI::RCI {
         HostUint ret;
         ret.times = &host.ctrltimestamps.at(ch);
         if(host.ctrl_uints.contains(ch)) ret.values = &host.ctrl_uints.at(ch);
-        else ret.times = nullptr;
+        else ret.values = nullptr;
         return ret;
     }
 
@@ -500,9 +474,8 @@ namespace LRI::RCI {
         return {&host.acttimestamps.at(qual), &host.act_uints.at(qual)};
     }
 
-    EventLog::HostFloat EventLog::getRequestedTares(const HardwareChannel& ch) const {
-        if(!host.tares.contains(ch)) return {};
-        return {&host.ctrltimestamps.at(ch), &host.tares.at(ch)};
+    const EventLog::TareList* EventLog::getRequestedTares() const {
+        return &host.tares;
     }
 
     const EventLog::ReadRequestsList* EventLog::getReadRequests() const { return &host.readReqs; }
