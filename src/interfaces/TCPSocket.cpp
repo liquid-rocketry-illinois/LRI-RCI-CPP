@@ -12,7 +12,7 @@ namespace LRI::RCI {
 
     // Initialize all the stuff
     TCPSocket::TCPSocket(uint16_t port, const sf::IpAddress& serverAddress) :
-        port(port), serverAddress(serverAddress), isServer(serverAddress != DEFAULT_IP) {
+        port(port), serverAddress(serverAddress), isServer(serverAddress == DEFAULT_IP) {
         ioUnlock();
     }
 
@@ -22,7 +22,7 @@ namespace LRI::RCI {
 
     // Return a human readable string describing the interface
     std::string TCPSocket::interfaceType() const {
-        return std::string("TCP ") + (isServer ? "Client: " + serverAddress.toString() + ": " : "Server: ") +
+        return std::string("TCP ") + (isServer ? "Server: " : "Client: " + serverAddress.toString() + ": ") +
             std::to_string(port);
     }
 
@@ -40,11 +40,11 @@ namespace LRI::RCI {
             listensel.add(listensock);
         }
 
-        targetsock.setBlocking(false);
-
         while(!isPortOpen && getDoComm()) {
             // If the interface is a server, wait for a connection request
-            if(isServer && listensel.wait(sf::seconds(0.25f))) {
+            if(isServer) {
+                if(!listensel.wait(sf::seconds(0.25f))) continue;
+
                 // If a connection request has been received, accept the socket and move on to data transfer
                 if(listensock.accept(targetsock) != sf::Socket::Status::Done) {
                     lastErrorStage = 3;
@@ -61,32 +61,11 @@ namespace LRI::RCI {
 
             // If the interface is not a server, connect to a server
             else {
-                auto stat = targetsock.connect(serverAddress, port);
-
-                if(stat == sf::Socket::Status::NotReady) continue;
-
-                if(stat != sf::Socket::Status::Done) {
-                    lastErrorStage = 3;
-                    lastErrorCode = -1;
-                    portOpenFail = true;
-                    return;
-                }
+                // You have to make this blocking for it to properly connect, you cannot connect otherwise it will be stuck in forever loop
+                if(targetsock.connect(serverAddress, port, sf::seconds(1)) != sf::Socket::Status::Done) continue;
 
                 using namespace std::chrono_literals;
                 std::this_thread::sleep_for(3000ms); // Seems to help with stuff
-
-                uint8_t tempdata[33];
-                size_t temp;
-                stat = targetsock.receive(tempdata, 33, temp);
-                // For some reason ser2net sends 33 junk bytes when connected
-
-                if(stat != sf::Socket::Status::Done) {
-                    lastErrorStage = 3;
-                    lastErrorCode = -2;
-                    portOpenFail = true;
-                    targetsock.disconnect();
-                    return;
-                }
 
                 isPortOpen = true;
                 lastErrorStage = 0;
@@ -94,8 +73,6 @@ namespace LRI::RCI {
                 targetsel.add(targetsock);
             }
         }
-
-        targetsock.setBlocking(true);
     }
 
     bool TCPSocket::writeBytes(const uint8_t* bytes, size_t length) {
@@ -110,6 +87,7 @@ namespace LRI::RCI {
     }
 
     bool TCPSocket::readBytes(uint8_t* bytes, size_t bufLength, size_t& written) {
+        written = 0; // No data if the wait times out
         if(targetsel.wait(sf::milliseconds(100))) {
             sf::Socket::Status stat = targetsock.receive(bytes, bufLength, written);
             if(stat != sf::Socket::Status::Done) {
