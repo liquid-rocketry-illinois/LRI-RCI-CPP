@@ -209,15 +209,15 @@ namespace LRI::RCI {
                            static_cast<double>(tdata->values->at(sindex))};
     }
 
-    TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints,
-                                             uint32_t tmin, uint32_t tmax) :
+    TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints, uint32_t tmin,
+                                             uint32_t tmax, bool lockedPoints) :
         tf(tf), startPos(0), stride(1), numPoints(0) {
-        startPos = 0;
         size_t endPos = 0;
 
         for(size_t i = 0; i < tf->times->size(); i++) {
             if(tf->times->at(i).ttime < tmin) startPos++;
             if(tf->times->at(i).ttime < tmax) endPos++;
+            else break;
         }
 
         size_t size = endPos - startPos;
@@ -229,10 +229,15 @@ namespace LRI::RCI {
         }
 
         stride = size / targetPoints;
+        if(lockedPoints) {
+            size_t neededOff = startPos % stride;
+            startPos -= neededOff;
+            endPos -= neededOff;
+        }
         numPoints = static_cast<int>(size / stride);
     }
 
-    TargetFloatPlotData::TargetFloatPlotData() : tf(nullptr), startPos(0), stride(0), numPoints(0) {  }
+    TargetFloatPlotData::TargetFloatPlotData() : tf(nullptr), startPos(0), stride(0), numPoints(0) {}
 
     namespace GraphInfo {
         static float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }

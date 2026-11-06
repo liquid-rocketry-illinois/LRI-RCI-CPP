@@ -105,7 +105,7 @@ namespace LRI::RCI {
         int numPoints;
 
         TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints,
-                            uint32_t tmin = 0, uint32_t tmax = UINT32_MAX);
+                            uint32_t tmin = 0, uint32_t tmax = UINT32_MAX, bool lockedPoints = false);
         TargetFloatPlotData();
     };
 
