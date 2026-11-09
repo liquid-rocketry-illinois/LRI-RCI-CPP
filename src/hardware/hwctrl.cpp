@@ -32,6 +32,8 @@ namespace {
     RCP_Context rctx;
     RCP_Interface* interf = nullptr;
     EventLog* elog = nullptr;
+    std::chrono::system_clock::time_point lastAutoSave;
+    unsigned autosaveNumber = 0;
 
     std::vector<TargetTest> tests;
 
@@ -112,6 +114,7 @@ namespace LRI::RCI::hwctrl {
 
     void start(RCP_Interface* interf, const TargetConfig& config) {
         ::interf = interf;
+        lastAutoSave = std::chrono::system_clock::now();
 
         lastHeartbeat = std::chrono::system_clock::now();
         heartbeatTime = 0;
@@ -169,6 +172,12 @@ namespace LRI::RCI::hwctrl {
 
             default:
             }
+        }
+
+        auto now = std::chrono::system_clock::now();
+        if(now - lastAutoSave > std::chrono::seconds(60)) {
+            lastAutoSave = now;
+            elog->serialize(std::format("autosave-{}.rci", (autosaveNumber++) % 5));
         }
     }
 
