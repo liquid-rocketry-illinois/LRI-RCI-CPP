@@ -212,12 +212,21 @@ namespace LRI::RCI {
     TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints, uint32_t tmin,
                                              uint32_t tmax, bool lockedPoints) :
         tf(tf), startPos(0), stride(1), numPoints(0) {
-        size_t endPos = 0;
+        if(tf->times->size() == 0) return;
 
-        for(size_t i = 0; i < tf->times->size(); i++) {
-            if(tf->times->at(i).ttime < tmin) startPos++;
-            if(tf->times->at(i).ttime < tmax) endPos++;
-            else break;
+        startPos = tf->times->size() / 2;
+        size_t endPos = startPos;
+        {
+            size_t bsearchStride = startPos / 2;
+            while(bsearchStride > 0) {
+                if(tf->times->at(startPos).ttime < tmin) startPos += bsearchStride;
+                else if(tf->times->at(startPos).ttime > tmin) startPos -= bsearchStride;
+
+                if(tf->times->at(endPos).ttime < tmax) endPos += bsearchStride;
+                else if(tf->times->at(endPos).ttime > tmax) endPos -= bsearchStride;
+
+                bsearchStride >>= 1;
+            }
         }
 
         size_t size = endPos - startPos;
