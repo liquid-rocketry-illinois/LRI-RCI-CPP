@@ -345,6 +345,7 @@ namespace LRI::RCI {
                         for(auto* w : windowlets) delete w;
                         windowlets.clear();
                         windowlets.insert(&chooser);
+                        allowScreenTurnoff();
                     });
                 }
             }
@@ -400,8 +401,8 @@ namespace LRI::RCI {
         ImGui::SetCursorPosY(textY);
 
         if(hwctrl::isOpen()) {
-            ImGui::Text("%s | %s | Packet Buffer Size: %llu | Frame Time: %f | Polling Rate: ", openTarget.c_str(), openInterf.c_str(),
-                        hwctrl::bytesWaiting(), ImGui::GetIO().DeltaTime);
+            ImGui::Text("%s | %s | Packet Buffer Size: %llu | Frame Time: %f | Polling Rate: ", openTarget.c_str(),
+                        openInterf.c_str(), hwctrl::bytesWaiting(), ImGui::GetIO().DeltaTime);
             ImGui::SameLine(0, 5);
             ImGui::SetNextItemWidth(40_sc);
             ImGui::SetCursorPosY(textY);
@@ -547,6 +548,7 @@ namespace LRI::RCI {
             ImGui::LoadIniSettingsFromDisk(ipath.string().c_str());
             windowlets.clear();
             windowlets.insert(wls.cbegin(), wls.cend());
+            preventScreenTurnoff();
         });
     }
 
