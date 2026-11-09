@@ -171,11 +171,10 @@ namespace LRI::RCI {
 
             for(size_t i = 0; i < graphdata.axes.size(); i++) {
                 if(!ImPlot::BeginPlot(graphdata.axes[i].independentGraphName.c_str(), plotsize)) continue;
-                ImPlot::SetupAxes("Time (s)", graphdata.axes[i].name.c_str(), ImPlotAxisFlags_AutoFit,
-                                  ImPlotAxisFlags_AutoFit);
+                ImPlot::SetupAxes("Time (s)", graphdata.axes[i].name.c_str(),
+                                  ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_AutoFollowSlider, ImPlotAxisFlags_AutoFit);
 
-                bool autofit =
-                    ImPlot::GetCurrentContext()->CurrentPlot->Axes[ImAxis_X1].Flags & ImPlotAxisFlags_AutoFit;
+                bool autofit = ImPlot::GetAxisAutofit();
 
                 for(size_t j = 0; j < graphdata.lines.size(); j++) {
                     // This nested loop wont actually be that bad since the lines array will (at the time of writing)
@@ -185,7 +184,7 @@ namespace LRI::RCI {
 
                     TargetFloatPlotData pd;
                     if(autofit) {
-                        float aft = hwqData[qual].autofitTimes[i];
+                        float aft = ImPlot::GetAxisFollowDistance();
                         if(aft == 0) pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS);
                         else {
                             auto millisFollowDistance = static_cast<uint32_t>(aft * 1000);
@@ -201,8 +200,9 @@ namespace LRI::RCI {
 
                     else {
                         auto plotDims = ImPlot::GetPlotLimits();
-                        auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min));
-                        auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max));
+                        // Need to *1000 to undo the /1000 in implotTargetFloat
+                        auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min * 1000));
+                        auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max * 1000));
                         pd = TargetFloatPlotData(&channels[j], NUM_GRAPH_POINTS, min, max);
                     }
 
