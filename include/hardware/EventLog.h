@@ -42,6 +42,18 @@ namespace LRI::RCI {
         constexpr bool hostChannelHasMeta(Channels c) {
             return !(c == H_HEARTBEAT || c == H_DEV_RESET || c == H_TIME_RESET);
         }
+
+        extern const HardwareChannel TEST_STATE;
+        extern const HardwareQualifier TARGET_LOG;
+        extern const HardwareChannel PROMPT;
+
+        extern const HardwareChannel HEARTBEAT;
+        extern const HardwareChannel DSTREAM;
+        extern const HardwareChannel HBTIME;
+        extern const HardwareChannel RUNSTATE;
+        extern const HardwareChannel TESTID;
+        extern const HardwareChannel TIMERST;
+        extern const HardwareChannel DEVRST;
     }
 
     using HostTime = uint64_t;

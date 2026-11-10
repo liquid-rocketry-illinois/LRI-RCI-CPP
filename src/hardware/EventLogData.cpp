@@ -5,16 +5,15 @@
 #include "utils.h"
 
 namespace LRI::RCI {
-    namespace {
-        constexpr size_t DATA_VEC_INIT_SIZE = 5000;
-        constexpr size_t ACT_VEC_INIT_SIZE = 25;
+    constexpr size_t DATA_VEC_INIT_SIZE = 5000;
+    constexpr size_t ACT_VEC_INIT_SIZE = 25;
 
+
+    namespace TestStateChannels {
         const HardwareChannel TEST_STATE{RCP_DEVCLASS_TEST_STATE, 0, 0};
         const HardwareQualifier TARGET_LOG{RCP_DEVCLASS_TARGET_LOG, 0};
         const HardwareChannel PROMPT{RCP_DEVCLASS_PROMPT, 0, 0};
-    } // namespace
 
-    namespace TestStateChannels {
         const HardwareChannel HEARTBEAT{TEST_STATE, H_HEARTBEAT};
         const HardwareChannel DSTREAM{TEST_STATE, H_DSTREAM};
         const HardwareChannel HBTIME{TEST_STATE, H_HEARTBEAT_TIME};
@@ -32,6 +31,7 @@ namespace LRI::RCI {
             {T_TEST_PROGRESS, [](const RCP_TestData& d) -> uint8_t { return d.testProgress; }},
         };
     } // namespace TestStateChannels
+    using namespace TestStateChannels;
 
     EventLog::EventLog() {
         HardwareChannel ch{TEST_STATE};
@@ -265,8 +265,6 @@ namespace LRI::RCI {
         for(; ch.channel < 4; ch.channel++) target.floats[ch].emplace_back(f4.data[ch.channel]);
     }
 
-    using namespace TestStateChannels;
-
     void EventLog::addTestStart(uint8_t testnum) {
         host.ctrltimestamps[RUNSTATE].emplace_back(getHostTime());
         host.ctrl_uints[RUNSTATE].emplace_back(RCP_TEST_START);
@@ -347,9 +345,7 @@ namespace LRI::RCI {
 
     void EventLog::addReadReq(const HardwareQualifier& qual) { host.readReqs.emplace_back(getHostTime(), qual); }
 
-    void EventLog::addTare(const HardwareChannel& ch, float off) {
-        host.tares.emplace_back(getHostTime(), ch, off);
-    }
+    void EventLog::addTare(const HardwareChannel& ch, float off) { host.tares.emplace_back(getHostTime(), ch, off); }
 
     void EventLog::addError(const Error& e) { errors.push_back(e); }
     void EventLog::addError(Error&& e) { errors.emplace_back(e); }
@@ -477,9 +473,7 @@ namespace LRI::RCI {
         return {&host.acttimestamps.at(qual), &host.act_uints.at(qual)};
     }
 
-    const EventLog::TareList* EventLog::getRequestedTares() const {
-        return &host.tares;
-    }
+    const EventLog::TareList* EventLog::getRequestedTares() const { return &host.tares; }
 
     const EventLog::ReadRequestsList* EventLog::getReadRequests() const { return &host.readReqs; }
 

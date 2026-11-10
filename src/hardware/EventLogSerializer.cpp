@@ -13,6 +13,9 @@
 
 #define QUALS_DSET_NAME "registeredQuals"
 #define TCONF_DSET_NAME "tconfig"
+#define error(msg) throw std::runtime_error(std::format("\"{}\" at {}", msg, __LINE__))
+
+using namespace LRI::RCI::TestStateChannels;
 
 namespace {
     using namespace LRI::RCI;
@@ -22,12 +25,21 @@ namespace {
     hid_t ttimeType;
     hid_t ctimeType;
 
+    void checkTypes(hid_t dset, hid_t type, int location) {
+        hid_t dtype = H5Dget_type(dset);
+        if(!H5Tequal(dtype, type)) throw std::runtime_error(std::format("Type mismatch at: {}", location));
+    }
+
+#define TYPECHECK(dset, type) checkTypes(dset, type, __LINE__)
+
     struct SerializableQual {
         uint8_t devclass;
         uint8_t id;
         const char* name;
 
         SerializableQual(const HardwareQualifier& q) : devclass(q.devclass), id(q.id), name(q.name.c_str()) {}
+        SerializableQual() : devclass(0), id(0), name(nullptr) {}
+        [[nodiscard]] HardwareQualifier toQual() const { return {static_cast<RCP_DeviceClass>(devclass), id, name}; }
 
         auto operator<=>(const SerializableQual& rhs) const {
             return std::tie(devclass, id) <=> std::tie(rhs.devclass, rhs.id);
@@ -41,10 +53,12 @@ namespace {
     struct SerializableError {
         HostTime htime;
         int level;
-        const char* const str;
+        const char* str;
         static hid_t htype;
 
         SerializableError(const Error& e) : htime(e.htime), level(e.level), str(e.error.c_str()) {}
+        SerializableError() : htime(0), level(0), str(nullptr) {}
+        [[nodiscard]] Error toError() const { return {static_cast<Error::Level>(level), str, htime}; }
     };
 
     hid_t SerializableError::htype;
@@ -55,6 +69,10 @@ namespace {
         uint8_t id;
         SerializableReadReq(const std::pair<HostTime, HardwareQualifier>& rr) :
             htime(rr.first), devclass(rr.second.devclass), id(rr.second.id) {}
+        SerializableReadReq() : htime(0), devclass(0), id(0) {}
+        [[nodiscard]] std::pair<HostTime, HardwareQualifier> toReadReq() const {
+            return {htime, {static_cast<RCP_DeviceClass>(devclass), id}};
+        }
         static hid_t htype;
     };
 
@@ -68,11 +86,16 @@ namespace {
         float off;
         SerializableTare(const TareReq& t) :
             htime(t.htime), devclass(t.ch.devclass), id(t.ch.id), channel(t.ch.channel), off(t.offset) {}
+        SerializableTare() : htime(0), devclass(0), id(0), channel(0), off(0) {}
+        [[nodiscard]] TareReq toTareReq() const {
+            return {htime, {static_cast<RCP_DeviceClass>(devclass), id, channel}, off};
+        }
         static hid_t htype;
     };
 
     hid_t SerializableTare::htype;
 
+    // Wrapped hid_t struct to automatically close stuff
     using HidCloseFunction = herr_t (*)(hid_t);
     template<HidCloseFunction cfunc>
     struct Whid_t {
@@ -116,6 +139,48 @@ namespace {
         vectorIntoH5(destination, name, data, type, space());
     }
 
+    template<typename T>
+    void vectorFromH5(hid_t dset, std::vector<T>& data, hid_t type) {
+        TYPECHECK(dset, type);
+
+        Space space = H5Dget_space(dset);
+        hsize_t dim = H5Sget_simple_extent_ndims(space());
+        if(dim != 1) error("Rank is not 1");
+        H5Sget_simple_extent_dims(space(), &dim, nullptr);
+
+        if(dim > 0) {
+            data.assign(dim, T{});
+            H5Dread(dset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data[0]);
+        }
+    }
+
+    template<typename T>
+    void vectorFromH5(hid_t location, const char* name, std::vector<T>& data, hid_t type) {
+        DSet dset = H5Dopen(location, name, H5P_DEFAULT);
+        if(dset() < 0) error(std::format("Cant open dset {}", name));
+        vectorFromH5(dset(), data, type);
+    }
+
+    // String vectors need a specialization
+    template<>
+    void vectorFromH5<std::string>(hid_t location, const char* name, std::vector<std::string>& data, hid_t type) {
+        DSet dset = H5Dopen(location, name, H5P_DEFAULT);
+        if(dset() < 0) error("Cant open dset 00");
+        TYPECHECK(dset(), vstr);
+        Space space = H5Dget_space(dset());
+        hsize_t dim = H5Sget_simple_extent_ndims(space());
+        if(dim != 1) error("Rank is not 1");
+        H5Sget_simple_extent_dims(space(), &dim, nullptr);
+        data.reserve(dim);
+        if(dim > 0) {
+            std::vector<const char*> cstrv;
+            cstrv.assign(dim, nullptr);
+            H5Dread(dset(), vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &cstrv[0]);
+            for(const auto & cs : cstrv) data.emplace_back(cs);
+            H5Treclaim(vstr, space(), H5P_DEFAULT, &cstrv[0]);
+        }
+    }
+
     std::vector<const char*> cstrVector(const std::vector<std::string>& v) {
         std::vector<const char*> csv;
         csv.reserve(v.size());
@@ -129,6 +194,23 @@ namespace {
         DSet dset = H5Dcreate(dest, name, vstr, space(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         const char* strptr = str.c_str();
         H5Dwrite(dset(), vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &strptr);
+    }
+
+    void strFromH5(hid_t dset, std::string& str) {
+        Space space = H5Dget_space(dset);
+        hsize_t dim = H5Sget_simple_extent_ndims(space());
+        if(dim != 1) error("Rank is not 1");
+        H5Sget_simple_extent_dims(space(), &dim, nullptr);
+        if(dim != 1) error("String dset size is not 1");
+        char* rstr;
+        H5Dread(dset, vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &rstr);
+        str = std::string(rstr, strlen(rstr));
+        H5Treclaim(vstr, space(), H5P_DEFAULT, &rstr);
+    }
+
+    void strFromH5(hid_t location, const char* name, std::string& str) {
+        DSet dset = H5Dopen(location, name, H5P_DEFAULT);
+        strFromH5(dset(), str);
     }
 
     void setupTypes() {
@@ -214,13 +296,6 @@ namespace {
             data = DevclassTypeInfo<T>::elogGetter(log, ch);
         }
     }
-
-    void checkTypes(hid_t dset, hid_t type, int location) {
-        hid_t dtype = H5Dget_type(dset);
-        if(!H5Tequal(dtype, type)) throw std::runtime_error(std::format("Types not equal: {}", location));
-    }
-
-#define TYPECHECK(dset, type) checkTypes(dset, type, __LINE__)
 } // namespace
 
 namespace {
@@ -248,16 +323,15 @@ namespace {
         vectorIntoH5(hostG(), "tares", treqs, SerializableTare::htype);
 
         Group group = H5Gcreate(hostG(), "00", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        for(const auto& c : TestStateChannels::ALL_HCH) {
-            if(c == TestStateChannels::H_TEST_ID) continue;
+        for(const auto& c : ALL_HCH) {
+            if(c == H_TEST_ID) continue;
             Group idg = H5Gcreate(group(), ToHex(c), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
             EventLog::HostUint hudata = log.getHostTestStateChannel(c);
             Space space = spaceFromVector(*hudata.times);
             vectorIntoH5(idg(), "times", *hudata.times, htimeType, space());
             if(hudata.values != nullptr) vectorIntoH5(idg(), "values", *hudata.values, H5T_NATIVE_UINT8, space());
 
-            if(c == TestStateChannels::H_TEST_RUN_STATE)
-                vectorIntoH5(idg(), "testID", *log.getRequestedTestStartIDs(), H5T_NATIVE_UINT8);
+            if(c == H_TEST_RUN_STATE) vectorIntoH5(idg(), "testID", *log.getRequestedTestStartIDs(), H5T_NATIVE_UINT8);
         }
 
         group = H5Gcreate(hostG(), "03", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
@@ -326,7 +400,7 @@ namespace {
         EventLog::TargetUint testData = log.getTestInformation(0);
         Space space = spaceFromVector(*testData.times);
         vectorIntoH5(group(), "times", *testData.times, ctimeType, space());
-        for(const auto& c : TestStateChannels::ALL_TCH) {
+        for(const auto& c : ALL_TCH) {
             testData = log.getTestInformation(c);
             vectorIntoH5(group(), ToHex(c), *testData.values, H5T_NATIVE_UINT8, space());
         }
@@ -392,34 +466,203 @@ namespace {
         }
     }
 } // namespace
-#include <print>
-using std::println;
-namespace {
-    void basicsDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
-        hid_t dset = H5Dopen(file, QUALS_DSET_NAME, H5P_DEFAULT);
-        hid_t rtype = H5Dget_type(dset);
-        if(H5Tequal(rtype, SerializableQual::htype)) println("equal");
-        else println("not");
-        H5Tclose(dset);
-    }
-
-    void hostHDFDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {}
-    void targetHDFDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {}
-} // namespace
 
 namespace LRI::RCI {
-    EventLog::EventLog(const std::filesystem::path& hdf) {
+    // Unfortunately it is very hard to distribute the deserializaer to static helpers, because friends are hard
+    EventLog::EventLog(const std::filesystem::path& hdf) : EventLog() {
         setupTypes();
 
-        hid_t file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-        if(file < 0) throw std::runtime_error("Failed to open file");
+        File file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+        if(file() < 0) error("Failed to open file");
 
         std::vector<SerializableQual> squals;
+        vectorFromH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
+        for(const auto& sq : squals) createDevice(sq.toQual());
 
-        basicsDeserialize(*this, file, squals);
-        // hostHDFDeserialize(*this, file, squals);
-        // targetHDFDeserialize(*this, file, squals);
-        H5Fclose(file);
+        strFromH5(file(), TCONF_DSET_NAME, jsonText);
+
+
+        // Host group data
+        {
+            Group hostG = H5Gopen(file(), "host", H5P_DEFAULT);
+            if(hostG() < 0) error("No host group");
+
+            vectorFromH5(hostG(), "txdata", txbytes, H5T_NATIVE_UINT8);
+
+            std::vector<SerializableError> serrs;
+            vectorFromH5(hostG(), "errors", serrs, SerializableError::htype);
+            errors.reserve(serrs.size());
+            for(const auto& se : serrs) errors.emplace_back(se.toError());
+
+            std::vector<SerializableReadReq> sreqs;
+            vectorFromH5(hostG(), "readRequests", sreqs, SerializableReadReq::htype);
+            host.readReqs.reserve(sreqs.size());
+            for(const auto& rr : sreqs) host.readReqs.emplace_back(rr.toReadReq());
+
+            std::vector<SerializableTare> stare;
+            vectorFromH5(hostG(), "tares", stare, SerializableTare::htype);
+            host.tares.reserve(stare.size());
+            for(const auto& st : stare) host.tares.emplace_back(st.toTareReq());
+
+            Group group = H5Gopen(hostG(), "00", H5P_DEFAULT);
+            if(group() < 0) error("No 00 group");
+            for(const auto& c : ALL_HCH) {
+                if(c == H_TEST_ID) continue;
+                Group idg = H5Gopen(group(), ToHex(c), H5P_DEFAULT);
+                if(idg() < 0) error(std::format("Could not open 00 group {}", ToHex(c)));
+
+                switch(c) {
+                case H_TEST_RUN_STATE:
+                    vectorFromH5(idg(), "testID", host.ctrl_uints[TESTID], H5T_NATIVE_UINT8);
+                    [[fallthrough]];
+
+                case H_DSTREAM:
+                case H_HEARTBEAT_TIME: {
+                    HardwareChannel ch = {TEST_STATE, c};
+                    vectorFromH5(idg(), "values", host.ctrl_uints[ch], H5T_NATIVE_UINT8);
+                    [[fallthrough]];
+                }
+
+                case H_HEARTBEAT:
+                case H_TIME_RESET:
+                case H_DEV_RESET: {
+                    HardwareChannel ch = {TEST_STATE, c};
+                    vectorFromH5(idg(), "times", host.ctrltimestamps[ch], htimeType);
+                    break;
+                }
+
+                default:
+                    break;
+                }
+            }
+
+            group = H5Gopen(hostG(), "03", H5P_DEFAULT);
+            if(group() < 0) error("No 03 group");
+            vectorFromH5(group(), "times", host.ctrltimestamps[PROMPT], htimeType);
+            vectorFromH5(group(), "00", host.act_floats[PROMPT], H5T_NATIVE_FLOAT);
+            vectorFromH5(group(), "01", host.act_uints[PROMPT], H5T_NATIVE_UINT8);
+
+            for(const auto& qual : registeredQuals) {
+                if(qual.devclass >= RCP_DEVCLASS_TARGET_LOG) continue;
+
+                group = H5Gopen(hostG(), ToHex(qual.devclass), H5P_DEFAULT);
+                if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
+
+                Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
+                if(idg() < 0) error(std::format("No host entry for {}", qual));
+
+                vectorFromH5(idg(), "times", host.acttimestamps[qual], htimeType);
+
+                switch(qual.devclass) {
+                case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
+                    vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
+                    break;
+                }
+
+                case RCP_DEVCLASS_STEPPER: {
+                    vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
+                    vectorFromH5(idg(), "01", host.act_floats[qual], H5T_NATIVE_FLOAT);
+                    break;
+                }
+
+                case RCP_DEVCLASS_ANGLED_ACTUATOR:
+                case RCP_DEVCLASS_MOTOR: {
+                    vectorFromH5(idg(), "00", host.act_floats[qual], H5T_NATIVE_FLOAT);
+                    break;
+                }
+
+                default:
+                    break;
+                }
+            }
+        }
+
+        // Target group data
+        {
+            Group targetG = H5Gopen(file(), "target", H5P_DEFAULT);
+            if(targetG() < 0) error("No target group");
+
+            vectorFromH5(targetG(), "rxdata", rxbytes, H5T_NATIVE_UINT8);
+
+            {
+                Group group = H5Gopen(targetG(), "00", H5P_DEFAULT);
+                if(group() < 0) error("No target group 00");
+
+                HardwareChannel ch = {TEST_STATE, 0};
+                vectorFromH5(group(), "times", target.timestamps[ch], ctimeType);
+
+                for(const auto& c : ALL_TCH) {
+                    ch.channel = c;
+                    vectorFromH5(group(), ToHex(c), target.uints[ch], H5T_NATIVE_UINT8);
+                }
+            }
+
+            {
+                Group group = H5Gopen(targetG(), "03", H5P_DEFAULT);
+                if(group() < 0) error("No target group 03");
+                vectorFromH5(group(), "times", host.acttimestamps[PROMPT], htimeType);
+                vectorFromH5(group(), "00", host.strings[PROMPT], vstr);
+            }
+
+            {
+                Group group = H5Gopen(targetG(), "80", H5P_DEFAULT);
+                if(group() < 0) error("No target group 80");
+                vectorFromH5(group(), "times", host.acttimestamps[TARGET_LOG], htimeType);
+                vectorFromH5(group(), "00", host.strings[TARGET_LOG], vstr);
+            }
+
+            for(const auto& qual : registeredQuals) {
+                Group group = H5Gopen(targetG(), ToHex(qual.devclass), H5P_DEFAULT);
+                if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
+
+                Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
+                if(idg() < 0) error(std::format("No target entry for {}", qual));
+
+                vectorFromH5(idg(), "times", target.timestamps[qual], ctimeType);
+
+                switch(qual.devclass) {
+                case RCP_DEVCLASS_DISCRETE_ACTUATOR:
+                case RCP_DEVCLASS_BOOL_SENSOR: {
+                    HardwareChannel ch = {qual, 0};
+                    while(target.uints.contains(ch)) {
+                        vectorFromH5(idg(), ToHex(ch.channel), target.uints[ch], H5T_NATIVE_UINT8);
+                        ch.channel++;
+                    }
+
+                    break;
+                }
+
+                case RCP_DEVCLASS_STEPPER:
+                case RCP_DEVCLASS_ANGLED_ACTUATOR:
+                case RCP_DEVCLASS_MOTOR:
+                case RCP_DEVCLASS_AM_PRESSURE:
+                case RCP_DEVCLASS_TEMPERATURE:
+                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                case RCP_DEVCLASS_LOAD_CELL:
+                case RCP_DEVCLASS_FLOW_METER:
+                case RCP_DEVCLASS_ALTITUDE:
+                case RCP_DEVCLASS_RADIO_STRENGTH:
+                case RCP_DEVCLASS_POWERMON:
+                case RCP_DEVCLASS_ACCELEROMETER:
+                case RCP_DEVCLASS_GYROSCOPE:
+                case RCP_DEVCLASS_MAGNETOMETER:
+                case RCP_DEVCLASS_RPY:
+                case RCP_DEVCLASS_GPS:
+                case RCP_DEVCLASS_QUATERNION: {
+                    HardwareChannel ch = {qual, 0};
+                    while(target.floats.contains(ch)) {
+                        vectorFromH5(idg(), ToHex(ch.channel), target.floats[ch], H5T_NATIVE_FLOAT);
+                        ch.channel++;
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+                }
+            }
+        }
         releaseTypes();
     }
 
