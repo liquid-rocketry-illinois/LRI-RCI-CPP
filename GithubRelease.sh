@@ -33,6 +33,7 @@ rm -f env.zip
 msiname=RCI-$tagname-win32-x64.msi
 
 cd $3
+# Must use WiX 5.0.2.0!!
 wix build -src $3/wix/RCI_installer.xml -o $1/$msiname -d VERSION="$tagname" -b $1
 cd $1
 
@@ -40,6 +41,7 @@ echo "Complete Release Notes"
 echo "# Release Notes" > releaseNotes/notes
 notepad releaseNotes/notes
 
+exit 0
 git tag $tagname -s -m "$tagname"
 git push --tags
 
