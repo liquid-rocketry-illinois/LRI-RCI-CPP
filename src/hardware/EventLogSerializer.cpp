@@ -11,6 +11,9 @@
 #define U8ToHex(num) std::format("{:02X}", num).c_str()
 #define ToHex(devclass) U8ToHex(static_cast<uint8_t>(devclass))
 
+#define QUALS_DSET_NAME "registeredQuals"
+#define TCONF_DSET_NAME "tconfig"
+
 namespace {
     using namespace LRI::RCI;
 
@@ -70,6 +73,31 @@ namespace {
 
     hid_t SerializableTare::htype;
 
+    using HidCloseFunction = herr_t (*)(hid_t);
+    template<HidCloseFunction cfunc>
+    struct Whid_t {
+        hid_t hid;
+        Whid_t(hid_t hid) : hid(hid) {}
+        ~Whid_t() {
+            if(hid >= 0) cfunc(hid);
+        }
+        Whid_t(const Whid_t& other) = delete;
+        Whid_t& operator=(const Whid_t& other) = delete;
+        Whid_t& operator=(hid_t newhid) {
+            if(hid >= 0) cfunc(hid);
+            hid = newhid;
+            return *this;
+        }
+
+        hid_t operator()() const { return hid; }
+    };
+
+    using DSet = Whid_t<H5Dclose>;
+    using Space = Whid_t<H5Sclose>;
+    using Type = Whid_t<H5Tclose>;
+    using Group = Whid_t<H5Gclose>;
+    using File = Whid_t<H5Fclose>;
+
     template<typename T>
     hid_t spaceFromVector(const std::vector<T>& data) {
         hsize_t dims[1] = {data.size()};
@@ -78,16 +106,14 @@ namespace {
 
     template<typename T>
     void vectorIntoH5(hid_t destination, const char* name, const std::vector<T>& data, hid_t type, hid_t space) {
-        hid_t dset = H5Dcreate(destination, name, type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        if(!data.empty()) H5Dwrite(dset, type, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data.at(0));
-        H5Dclose(dset);
+        DSet dset = H5Dcreate(destination, name, type, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        if(!data.empty()) H5Dwrite(dset(), type, H5S_ALL, H5S_ALL, H5P_DEFAULT, &data.at(0));
     }
 
     template<typename T>
     void vectorIntoH5(hid_t destination, const char* name, const std::vector<T>& data, hid_t type) {
-        hid_t space = spaceFromVector(data);
-        vectorIntoH5(destination, name, data, type, space);
-        H5Sclose(space);
+        Space space = spaceFromVector(data);
+        vectorIntoH5(destination, name, data, type, space());
     }
 
     std::vector<const char*> cstrVector(const std::vector<std::string>& v) {
@@ -99,12 +125,10 @@ namespace {
 
     void strIntoH5(hid_t dest, const char* name, const std::string& str) {
         hsize_t dims[1] = {1};
-        hid_t space = H5Screate_simple(1, dims, nullptr);
-        hid_t dset = H5Dcreate(dest, name, vstr, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        Space space = H5Screate_simple(1, dims, nullptr);
+        DSet dset = H5Dcreate(dest, name, vstr, space(), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         const char* strptr = str.c_str();
-        H5Dwrite(dset, vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &strptr);
-        H5Dclose(dset);
-        H5Sclose(space);
+        H5Dwrite(dset(), vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &strptr);
     }
 
     void setupTypes() {
@@ -156,116 +180,6 @@ namespace {
         H5Tclose(htimeType);
     }
 
-    void hostHDF(const EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
-        hid_t hostG = H5Gcreate(file, "host", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-        vectorIntoH5(hostG, "txdata", *log.getTXBytes(), H5T_NATIVE_UINT8);
-
-        std::vector<SerializableError> serrs;
-        const EventLog::ErrorList* el = log.getErrors();
-        serrs.reserve(el->size());
-        for(const auto& e : *el) serrs.emplace_back(e);
-        vectorIntoH5(hostG, "errors", serrs, SerializableError::htype);
-
-        std::vector<SerializableReadReq> reqs;
-        const EventLog::ReadRequestsList* rr = log.getReadRequests();
-        reqs.reserve(rr->size());
-        for(const auto& r : *rr) reqs.emplace_back(r);
-        vectorIntoH5(hostG, "readRequests", reqs, SerializableReadReq::htype);
-
-        std::vector<SerializableTare> treqs;
-        const EventLog::TareList* tl = log.getRequestedTares();
-        treqs.reserve(tl->size());
-        for(const auto& t : *tl) treqs.emplace_back(t);
-        vectorIntoH5(hostG, "tares", treqs, SerializableTare::htype);
-
-        hid_t group = H5Gcreate(hostG, "00", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        for(const auto& c : TestStateChannels::ALL_HCH) {
-            if(c == TestStateChannels::H_TEST_ID) continue;
-            hid_t idg = H5Gcreate(group, ToHex(c), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-            EventLog::HostUint hudata = log.getHostTestStateChannel(c);
-            hid_t space = spaceFromVector(*hudata.times);
-            vectorIntoH5(idg, "times", *hudata.times, htimeType, space);
-            if(hudata.values != nullptr) vectorIntoH5(idg, "values", *hudata.values, H5T_NATIVE_UINT8, space);
-            H5Sclose(space);
-
-            if(c == TestStateChannels::H_TEST_RUN_STATE)
-                vectorIntoH5(idg, "testID", *log.getRequestedTestStartIDs(), H5T_NATIVE_UINT8);
-            H5Gclose(idg);
-        }
-        H5Gclose(group);
-
-        group = H5Gcreate(hostG, "03", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        EventLog::PromptResponse prs = log.getPromptResponses();
-        hid_t space = spaceFromVector(*prs.times);
-        vectorIntoH5(group, "times", *prs.times, htimeType, space);
-        vectorIntoH5(group, "00", *prs.floatResp, H5T_NATIVE_FLOAT, space);
-        vectorIntoH5(group, "01", *prs.boolResp, H5T_NATIVE_UINT8, space);
-        H5Sclose(space);
-
-        // Ordinarily we would need to close the group, however the loop below will close the group on the first
-        // iteration
-        // H5Gclose(group);
-
-        uint8_t prevClass = RCP_DEVCLASS_AMALGAMATE;
-        for(size_t i = 0; i < quals.size(); i++) {
-            auto& qual = quals[i];
-
-            // For now, only devclasses with values < 0x80 are writable
-            if(qual.devclass >= RCP_DEVCLASS_TARGET_LOG) continue;
-
-            if(qual.devclass != prevClass) {
-                H5Gclose(group);
-                group = H5Gcreate(hostG, ToHex(qual.devclass), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-                prevClass = qual.devclass;
-            }
-
-            hid_t idg = H5Gcreate(group, ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-
-            switch(qual.devclass) {
-            case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
-                EventLog::HostUint hudata = log.getRequestedDActWrites(qual.id);
-                space = spaceFromVector(*hudata.times);
-                vectorIntoH5(idg, "times", *hudata.times, htimeType, space);
-                vectorIntoH5(idg, "00", *hudata.values, H5T_NATIVE_UINT8, space);
-                H5Sclose(space);
-                break;
-            }
-
-            case RCP_DEVCLASS_STEPPER: {
-                EventLog::StepperWritesList sdata = log.getRequestedStepperWrites(qual.id);
-                space = spaceFromVector(*sdata.times);
-                vectorIntoH5(idg, "times", *sdata.times, htimeType, space);
-                vectorIntoH5(idg, "00", *sdata.modes, H5T_NATIVE_UINT8, space);
-                vectorIntoH5(idg, "01", *sdata.values, H5T_NATIVE_FLOAT, space);
-                H5Sclose(space);
-                break;
-            }
-
-            case RCP_DEVCLASS_ANGLED_ACTUATOR:
-            case RCP_DEVCLASS_MOTOR: {
-                EventLog::HostFloat fdata =
-                    (qual.devclass == RCP_DEVCLASS_ANGLED_ACTUATOR ? log.getRequestedAActWrites(qual.id)
-                                                                   : log.getRequestedMotorWrites(qual.id));
-                space = spaceFromVector(*fdata.times);
-                vectorIntoH5(idg, "times", *fdata.times, htimeType, space);
-                vectorIntoH5(idg, "00", *fdata.values, H5T_NATIVE_FLOAT, space);
-                H5Sclose(space);
-                break;
-            }
-
-            default:
-                break;
-            }
-
-            H5Gclose(idg);
-        }
-
-        H5Gclose(group);
-
-        H5Gclose(hostG);
-    }
-
     template<typename U>
     struct DevclassTypeInfo {};
 
@@ -290,51 +204,144 @@ namespace {
         HardwareChannel ch = {static_cast<RCP_DeviceClass>(qual.devclass), qual.id, 0};
         auto data = DevclassTypeInfo<T>::elogGetter(log, ch);
 
-        hid_t idg = H5Gcreate(dcGroup, U8ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        hid_t space = spaceFromVector(*data.times);
-        vectorIntoH5(idg, "times", *data.times, ctimeType, space);
+        Group idg = H5Gcreate(dcGroup, U8ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        Space space = spaceFromVector(*data.times);
+        vectorIntoH5(idg(), "times", *data.times, ctimeType, space());
 
         while(data.times != nullptr) {
-            vectorIntoH5(idg, ToHex(ch.channel), *data.values, DevclassTypeInfo<T>::htype(), space);
+            vectorIntoH5(idg(), ToHex(ch.channel), *data.values, DevclassTypeInfo<T>::htype(), space());
             ch.channel++;
             data = DevclassTypeInfo<T>::elogGetter(log, ch);
         }
-
-        H5Sclose(space);
-        H5Gclose(idg);
     }
 
-    void targetHDF(const EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
-        hid_t targetG = H5Gcreate(file, "target", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+    void checkTypes(hid_t dset, hid_t type, int location) {
+        hid_t dtype = H5Dget_type(dset);
+        if(!H5Tequal(dtype, type)) throw std::runtime_error(std::format("Types not equal: {}", location));
+    }
 
-        vectorIntoH5(targetG, "rxdata", *log.getRXBytes(), H5T_NATIVE_UINT8);
+#define TYPECHECK(dset, type) checkTypes(dset, type, __LINE__)
+} // namespace
 
-        hid_t group = H5Gcreate(targetG, "00", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+namespace {
+    void hostHDFSerialize(const EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
+        Group hostG = H5Gcreate(file, "host", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+        vectorIntoH5(hostG(), "txdata", *log.getTXBytes(), H5T_NATIVE_UINT8);
+
+        std::vector<SerializableError> serrs;
+        const EventLog::ErrorList* el = log.getErrors();
+        serrs.reserve(el->size());
+        for(const auto& e : *el) serrs.emplace_back(e);
+        vectorIntoH5(hostG(), "errors", serrs, SerializableError::htype);
+
+        std::vector<SerializableReadReq> reqs;
+        const EventLog::ReadRequestsList* rr = log.getReadRequests();
+        reqs.reserve(rr->size());
+        for(const auto& r : *rr) reqs.emplace_back(r);
+        vectorIntoH5(hostG(), "readRequests", reqs, SerializableReadReq::htype);
+
+        std::vector<SerializableTare> treqs;
+        const EventLog::TareList* tl = log.getRequestedTares();
+        treqs.reserve(tl->size());
+        for(const auto& t : *tl) treqs.emplace_back(t);
+        vectorIntoH5(hostG(), "tares", treqs, SerializableTare::htype);
+
+        Group group = H5Gcreate(hostG(), "00", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        for(const auto& c : TestStateChannels::ALL_HCH) {
+            if(c == TestStateChannels::H_TEST_ID) continue;
+            Group idg = H5Gcreate(group(), ToHex(c), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            EventLog::HostUint hudata = log.getHostTestStateChannel(c);
+            Space space = spaceFromVector(*hudata.times);
+            vectorIntoH5(idg(), "times", *hudata.times, htimeType, space());
+            if(hudata.values != nullptr) vectorIntoH5(idg(), "values", *hudata.values, H5T_NATIVE_UINT8, space());
+
+            if(c == TestStateChannels::H_TEST_RUN_STATE)
+                vectorIntoH5(idg(), "testID", *log.getRequestedTestStartIDs(), H5T_NATIVE_UINT8);
+        }
+
+        group = H5Gcreate(hostG(), "03", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        EventLog::PromptResponse prs = log.getPromptResponses();
+        Space space = spaceFromVector(*prs.times);
+        vectorIntoH5(group(), "times", *prs.times, htimeType, space());
+        vectorIntoH5(group(), "00", *prs.floatResp, H5T_NATIVE_FLOAT, space());
+        vectorIntoH5(group(), "01", *prs.boolResp, H5T_NATIVE_UINT8, space());
+
+        uint8_t prevClass = RCP_DEVCLASS_AMALGAMATE;
+        for(size_t i = 0; i < quals.size(); i++) {
+            auto& qual = quals[i];
+
+            // For now, only devclasses with values < 0x80 are writable
+            if(qual.devclass >= RCP_DEVCLASS_TARGET_LOG) continue;
+
+            if(qual.devclass != prevClass) {
+                group = H5Gcreate(hostG(), ToHex(qual.devclass), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+                prevClass = qual.devclass;
+            }
+
+            Group idg = H5Gcreate(group(), ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+            switch(qual.devclass) {
+            case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
+                EventLog::HostUint hudata = log.getRequestedDActWrites(qual.id);
+                space = spaceFromVector(*hudata.times);
+                vectorIntoH5(idg(), "times", *hudata.times, htimeType, space());
+                vectorIntoH5(idg(), "00", *hudata.values, H5T_NATIVE_UINT8, space());
+                break;
+            }
+
+            case RCP_DEVCLASS_STEPPER: {
+                EventLog::StepperWritesList sdata = log.getRequestedStepperWrites(qual.id);
+                space = spaceFromVector(*sdata.times);
+                vectorIntoH5(idg(), "times", *sdata.times, htimeType, space());
+                vectorIntoH5(idg(), "00", *sdata.modes, H5T_NATIVE_UINT8, space());
+                vectorIntoH5(idg(), "01", *sdata.values, H5T_NATIVE_FLOAT, space());
+                break;
+            }
+
+            case RCP_DEVCLASS_ANGLED_ACTUATOR:
+            case RCP_DEVCLASS_MOTOR: {
+                EventLog::HostFloat fdata =
+                    (qual.devclass == RCP_DEVCLASS_ANGLED_ACTUATOR ? log.getRequestedAActWrites(qual.id)
+                                                                   : log.getRequestedMotorWrites(qual.id));
+                space = spaceFromVector(*fdata.times);
+                vectorIntoH5(idg(), "times", *fdata.times, htimeType, space());
+                vectorIntoH5(idg(), "00", *fdata.values, H5T_NATIVE_FLOAT, space());
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+    }
+
+    void targetHDFSerialize(const EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
+        Group targetG = H5Gcreate(file, "target", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+        vectorIntoH5(targetG(), "rxdata", *log.getRXBytes(), H5T_NATIVE_UINT8);
+
+        Group group = H5Gcreate(targetG(), "00", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         // Since all channels have the same number of elements, we can make a common space from the times array
         EventLog::TargetUint testData = log.getTestInformation(0);
-        hid_t space = spaceFromVector(*testData.times);
-        vectorIntoH5(group, "times", *testData.times, ctimeType, space);
+        Space space = spaceFromVector(*testData.times);
+        vectorIntoH5(group(), "times", *testData.times, ctimeType, space());
         for(const auto& c : TestStateChannels::ALL_TCH) {
             testData = log.getTestInformation(c);
-            vectorIntoH5(group, ToHex(c), *testData.values, H5T_NATIVE_UINT8, space);
+            vectorIntoH5(group(), ToHex(c), *testData.values, H5T_NATIVE_UINT8, space());
         }
-        H5Sclose(space);
-        H5Gclose(group);
 
-        group = H5Gcreate(targetG, "03", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        group = H5Gcreate(targetG(), "03", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         EventLog::HostString hsdata = log.getPromptRequests();
         space = spaceFromVector(*hsdata.times);
-        vectorIntoH5(group, "times", *hsdata.times, htimeType, space);
-        vectorIntoH5(group, "00", cstrVector(*hsdata.values), vstr, space);
-        H5Sclose(space);
-        H5Gclose(group);
+        vectorIntoH5(group(), "times", *hsdata.times, htimeType, space());
+        vectorIntoH5(group(), "00", cstrVector(*hsdata.values), vstr, space());
 
-        group = H5Gcreate(targetG, "80", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        group = H5Gcreate(targetG(), "80", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         hsdata = log.getLogs();
         space = spaceFromVector(*hsdata.times);
-        vectorIntoH5(group, "times", *hsdata.times, htimeType, space);
-        vectorIntoH5(group, "00", cstrVector(*hsdata.values), vstr, space);
-        H5Sclose(space);
+        vectorIntoH5(group(), "times", *hsdata.times, htimeType, space());
+        vectorIntoH5(group(), "00", cstrVector(*hsdata.values), vstr, space());
 
         // Ordinarily we would need to close the group, however the loop below will close the group on the first
         // iteration
@@ -347,8 +354,7 @@ namespace {
             // contiguous stream
 
             if(qual.devclass != prevclass) {
-                H5Gclose(group);
-                group = H5Gcreate(targetG, ToHex(qual.devclass), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+                group = H5Gcreate(targetG(), ToHex(qual.devclass), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
                 prevclass = qual.devclass;
             }
 
@@ -356,7 +362,7 @@ namespace {
             switch(qual.devclass) {
             case RCP_DEVCLASS_DISCRETE_ACTUATOR:
             case RCP_DEVCLASS_BOOL_SENSOR:
-                hdfDevclass<uint8_t>(log, group, qual);
+                hdfDevclass<uint8_t>(log, group(), qual);
                 break;
 
             case RCP_DEVCLASS_STEPPER:
@@ -377,29 +383,52 @@ namespace {
             case RCP_DEVCLASS_RPY:
             case RCP_DEVCLASS_GPS:
             case RCP_DEVCLASS_QUATERNION:
-                hdfDevclass<float>(log, group, qual);
+                hdfDevclass<float>(log, group(), qual);
                 break;
 
             default:
                 continue;
             }
         }
-
-        H5Gclose(group);
-
-        H5Gclose(targetG);
     }
+} // namespace
+#include <print>
+using std::println;
+namespace {
+    void basicsDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {
+        hid_t dset = H5Dopen(file, QUALS_DSET_NAME, H5P_DEFAULT);
+        hid_t rtype = H5Dget_type(dset);
+        if(H5Tequal(rtype, SerializableQual::htype)) println("equal");
+        else println("not");
+        H5Tclose(dset);
+    }
+
+    void hostHDFDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {}
+    void targetHDFDeserialize(EventLog& log, hid_t file, const std::vector<SerializableQual>& quals) {}
 } // namespace
 
 namespace LRI::RCI {
-    EventLog::EventLog(const std::string& hdf) { setupTypes(); }
+    EventLog::EventLog(const std::filesystem::path& hdf) {
+        setupTypes();
+
+        hid_t file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+        if(file < 0) throw std::runtime_error("Failed to open file");
+
+        std::vector<SerializableQual> squals;
+
+        basicsDeserialize(*this, file, squals);
+        // hostHDFDeserialize(*this, file, squals);
+        // targetHDFDeserialize(*this, file, squals);
+        H5Fclose(file);
+        releaseTypes();
+    }
 
     void EventLog::serialize(const std::string& hdf) const {
         std::filesystem::path hdfPath = getRoamingFolder() / "exports" / hdf;
 
         setupTypes();
 
-        hid_t file = H5Fcreate(hdfPath.string().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+        File file = H5Fcreate(hdfPath.string().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
         std::vector<SerializableQual> squals;
         squals.reserve(registeredQuals.size());
@@ -407,13 +436,11 @@ namespace LRI::RCI {
         std::sort(squals.begin(), squals.end());
 
         // Create /registeredQuals, which is an array storing all non-implicit qualifiers for reference
-        vectorIntoH5(file, "registeredQuals", squals, SerializableQual::htype);
-        strIntoH5(file, "tconfig", jsonText);
+        vectorIntoH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
+        strIntoH5(file(), TCONF_DSET_NAME, jsonText);
 
-        hostHDF(*this, file, squals);
-        targetHDF(*this, file, squals);
-
-        H5Fclose(file);
+        hostHDFSerialize(*this, file(), squals);
+        targetHDFSerialize(*this, file(), squals);
 
         releaseTypes();
     }

@@ -6,6 +6,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <filesystem>
 
 #include "HardwareQualifier.h"
 #include "RCP_Host/RCP_Host.h"
@@ -149,7 +150,7 @@ namespace LRI::RCI {
 
     public:
         EventLog();
-        EventLog(const std::string& hdf);
+        explicit EventLog(const std::filesystem::path& hdf);
         ~EventLog() = default;
 
         void createDevice(const HardwareQualifier& qual);
