@@ -51,7 +51,7 @@ namespace LRI::RCI {
         void show();
         void preframe(std::function<void()> func);
 
-        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& confName);
+        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& confFile);
     };
 }
 

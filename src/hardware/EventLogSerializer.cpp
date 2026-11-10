@@ -97,6 +97,16 @@ namespace {
         return csv;
     }
 
+    void strIntoH5(hid_t dest, const char* name, const std::string& str) {
+        hsize_t dims[1] = {1};
+        hid_t space = H5Screate_simple(1, dims, nullptr);
+        hid_t dset = H5Dcreate(dest, name, vstr, space, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+        const char* strptr = str.c_str();
+        H5Dwrite(dset, vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &strptr);
+        H5Dclose(dset);
+        H5Sclose(space);
+    }
+
     void setupTypes() {
         vstr = H5Tcopy(H5T_C_S1);
         H5Tset_size(vstr, H5T_VARIABLE);
@@ -398,6 +408,7 @@ namespace LRI::RCI {
 
         // Create /registeredQuals, which is an array storing all non-implicit qualifiers for reference
         vectorIntoH5(file, "registeredQuals", squals, SerializableQual::htype);
+        strIntoH5(file, "tconfig", jsonText);
 
         hostHDF(*this, file, squals);
         targetHDF(*this, file, squals);
@@ -412,6 +423,7 @@ namespace LRI::RCI {
 HDF Format:
 root/
  |- registeredQuals (qual type)
+ |- tconfig (string)
  |- host/
    |- txdata (uint8)
    |- errors

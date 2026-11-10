@@ -465,11 +465,11 @@ namespace LRI::RCI {
 
     void Window::preframe(std::function<void()> func) { preframes.emplace_back(std::move(func)); }
 
-    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::string& confName) {
-        cfname = confName + ".ini";
+    void Window::startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& confFile) {
+        cfname = confFile.filename().string() + ".ini";
         openTarget = config.name;
         openInterf = interf->interfaceType();
-        hwctrl::start(interf, config);
+        hwctrl::start(interf, config, confFile);
 
         const std::set<HardwareQualifier>& quals = hwctrl::getQuals();
         std::vector<Windowlet*> wls;

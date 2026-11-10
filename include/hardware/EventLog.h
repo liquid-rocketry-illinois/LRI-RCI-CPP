@@ -145,6 +145,7 @@ namespace LRI::RCI {
         std::vector<uint8_t> rxbytes;
         std::vector<uint8_t> txbytes;
         std::set<HardwareQualifier> registeredQuals;
+        std::string jsonText;
 
     public:
         EventLog();
@@ -152,6 +153,7 @@ namespace LRI::RCI {
         ~EventLog() = default;
 
         void createDevice(const HardwareQualifier& qual);
+        void setJSONText(const std::string&& text);
         void clear();
         void serialize(const std::string& hdf) const;
 
@@ -200,6 +202,7 @@ namespace LRI::RCI {
 
         // Getters
         [[nodiscard]] const std::set<HardwareQualifier>& getRegisteredQuals();
+        [[nodiscard]] const std::string& getJSONText();
         [[nodiscard]] TargetUint getReportedTestStateChannel(TestStateChannels::Channels ch);
 
         [[nodiscard]] HostString getPromptRequests() const;

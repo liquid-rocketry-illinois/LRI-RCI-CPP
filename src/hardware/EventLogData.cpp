@@ -192,6 +192,8 @@ namespace LRI::RCI {
         }
     }
 
+    void EventLog::setJSONText(const std::string&& text) { jsonText = text; }
+
     void EventLog::clear() {
         target.timestamps.clear();
         target.floats.clear();
@@ -364,6 +366,7 @@ namespace LRI::RCI {
 
     // Getters
     const std::set<HardwareQualifier>& EventLog::getRegisteredQuals() { return registeredQuals; }
+    const std::string& EventLog::getJSONText() { return jsonText; }
 
     EventLog::TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
         HardwareChannel channel{TEST_STATE, ch};

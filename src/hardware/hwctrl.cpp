@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <set>
+#include <fstream>
 #include <vector>
 
 #include "hardware/HardwareQualifier.h"
@@ -112,7 +113,7 @@ namespace {
 namespace LRI::RCI::hwctrl {
     int POLLS_PER_UPDATE = 25;
 
-    void start(RCP_Interface* interf, const TargetConfig& config) {
+    void start(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cfilePath) {
         ::interf = interf;
         lastAutoSave = std::chrono::system_clock::now();
 
@@ -135,6 +136,12 @@ namespace LRI::RCI::hwctrl {
         }
 
         tests = config.tests;
+
+        {
+            std::ifstream cfile(cfilePath);
+            std::string ftext((std::istreambuf_iterator<char>(cfile)), (std::istreambuf_iterator<char>()));
+            elog->setJSONText(std::move(ftext));
+        }
     }
 
     void update() {

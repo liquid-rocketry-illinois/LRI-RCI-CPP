@@ -12,7 +12,7 @@
 namespace LRI::RCI::hwctrl {
     extern int POLLS_PER_UPDATE;
 
-    void start(RCP_Interface* interf, const TargetConfig& config);
+    void start(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cfilePath);
     void update();
     void end();
 
