@@ -41,7 +41,6 @@ echo "Complete Release Notes"
 echo "# Release Notes" > releaseNotes/notes
 notepad releaseNotes/notes
 
-exit 0
 git tag $tagname -s -m "$tagname"
 git push --tags
 
