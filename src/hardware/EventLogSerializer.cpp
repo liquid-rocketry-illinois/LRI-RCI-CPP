@@ -176,7 +176,7 @@ namespace {
             std::vector<const char*> cstrv;
             cstrv.assign(dim, nullptr);
             H5Dread(dset(), vstr, H5S_ALL, H5S_ALL, H5P_DEFAULT, &cstrv[0]);
-            for(const auto & cs : cstrv) data.emplace_back(cs);
+            for(const auto& cs : cstrv) data.emplace_back(cs);
             H5Treclaim(vstr, space(), H5P_DEFAULT, &cstrv[0]);
         }
     }
@@ -260,41 +260,6 @@ namespace {
         H5Tclose(ctimeType);
         H5Tclose(ttimeType);
         H5Tclose(htimeType);
-    }
-
-    template<typename U>
-    struct DevclassTypeInfo {};
-
-    template<>
-    struct DevclassTypeInfo<uint8_t> {
-        static hid_t htype() { return H5T_NATIVE_UINT8; }
-        static EventLog::TargetUint elogGetter(const EventLog& log, const HardwareChannel& ch) {
-            return log.getChannelUintData(ch);
-        }
-    };
-
-    template<>
-    struct DevclassTypeInfo<float> {
-        static hid_t htype() { return H5T_NATIVE_FLOAT; }
-        static EventLog::TargetFloat elogGetter(const EventLog& log, const HardwareChannel& ch) {
-            return log.getChannelFloatData(ch);
-        }
-    };
-
-    template<typename T>
-    void hdfDevclass(const EventLog& log, hid_t dcGroup, const SerializableQual& qual) {
-        HardwareChannel ch = {static_cast<RCP_DeviceClass>(qual.devclass), qual.id, 0};
-        auto data = DevclassTypeInfo<T>::elogGetter(log, ch);
-
-        Group idg = H5Gcreate(dcGroup, U8ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-        Space space = spaceFromVector(*data.times);
-        vectorIntoH5(idg(), "times", *data.times, ctimeType, space());
-
-        while(data.times != nullptr) {
-            vectorIntoH5(idg(), ToHex(ch.channel), *data.values, DevclassTypeInfo<T>::htype(), space());
-            ch.channel++;
-            data = DevclassTypeInfo<T>::elogGetter(log, ch);
-        }
     }
 } // namespace
 
@@ -432,12 +397,25 @@ namespace {
                 prevclass = qual.devclass;
             }
 
+            Group idg = H5Gcreate(group(), U8ToHex(qual.id), H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
             // The worst switch youve ever seen, all to dispatch based on the underlying devclass type
             switch(qual.devclass) {
             case RCP_DEVCLASS_DISCRETE_ACTUATOR:
-            case RCP_DEVCLASS_BOOL_SENSOR:
-                hdfDevclass<uint8_t>(log, group(), qual);
+            case RCP_DEVCLASS_BOOL_SENSOR: {
+                HardwareChannel ch = {static_cast<RCP_DeviceClass>(qual.devclass), qual.id, 0};
+                EventLog::TargetUint data = log.getChannelUintData(ch);
+                space = spaceFromVector(*data.times);
+                vectorIntoH5(idg(), "times", *data.times, ctimeType, space());
+
+                while(data.times != nullptr) {
+                    vectorIntoH5(idg(), ToHex(ch.channel), *data.values, H5T_NATIVE_UINT8, space());
+                    ch.channel++;
+                    data = log.getChannelUintData(ch);
+                }
+
                 break;
+            }
 
             case RCP_DEVCLASS_STEPPER:
             case RCP_DEVCLASS_ANGLED_ACTUATOR:
@@ -456,9 +434,20 @@ namespace {
             case RCP_DEVCLASS_MAGNETOMETER:
             case RCP_DEVCLASS_RPY:
             case RCP_DEVCLASS_GPS:
-            case RCP_DEVCLASS_QUATERNION:
-                hdfDevclass<float>(log, group(), qual);
+            case RCP_DEVCLASS_QUATERNION: {
+                HardwareChannel ch = {static_cast<RCP_DeviceClass>(qual.devclass), qual.id, 0};
+                EventLog::TargetFloat data = log.getChannelFloatData(ch);
+                space = spaceFromVector(*data.times);
+                vectorIntoH5(idg(), "times", *data.times, ctimeType, space());
+
+                while(data.times != nullptr) {
+                    vectorIntoH5(idg(), ToHex(ch.channel), *data.values, H5T_NATIVE_UINT8, space());
+                    ch.channel++;
+                    data = log.getChannelFloatData(ch);
+                }
+
                 break;
+            }
 
             default:
                 continue;
