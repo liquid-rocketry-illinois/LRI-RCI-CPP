@@ -8,6 +8,11 @@
       "names": ["Pump Motor"]
     },
     {
+      "devclass": 160,
+      "ids": [0],
+      "names": ["Pump Motor (Power)"]
+    },
+    {
       "devclass": 145,
       "ids": [0, 1, 2],
       "names": ["TC1-PMP", "TC2-PMP", "TC3-MOT"]
@@ -24,8 +29,13 @@
     },
     {
       "devclass": 150,
-      "ids": [0],
-      "names": ["Flowmatic 3000"]
+      "ids": [0, 5],
+      "names": ["Flowmatic 3000", "(CURRENT) Pump Motor (A)"]
+    },
+    {
+      "devclass": 148,
+      "ids": [0, 1],
+      "names": ["Leakage Tank (1)", "Leakage Tank (2)"]
     }
   ],
   "windows": [
@@ -92,6 +102,11 @@
               "class": 150,
               "ids": [0],
               "channel": [0]
+            },
+            {
+              "class": 148,
+              "ids": [0, 1],
+              "channel": [0, 0]
             }
           ]
         },
@@ -110,11 +125,19 @@
             },
             {
               "class": 150,
-              "ids": [0]
+              "ids": [0, 5]
             },
             {
               "class": 5,
               "ids": [0]
+            },
+            {
+              "class": 160,
+              "ids": [0]
+            },
+            {
+              "class": 148,
+              "ids": [0, 1]
             }
           ]
         }
