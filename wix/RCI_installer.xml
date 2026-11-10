@@ -27,7 +27,7 @@
             <File Source="LRIRCI.exe" Id="MainExecutable"/>
         </ComponentGroup>
         <ComponentGroup Id="TARGETS" Directory="TARGETSFOLDER">
-            <Files Include="targets/**"/>
+            <Files Include="../targets/**"/>
         </ComponentGroup>
     </Fragment>
     <Fragment>
