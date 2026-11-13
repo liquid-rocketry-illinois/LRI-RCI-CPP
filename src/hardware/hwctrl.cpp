@@ -113,7 +113,7 @@ namespace {
 } // namespace
 
 namespace LRI::RCI::hwctrl {
-    int POLLS_PER_UPDATE = 25;
+    int POLLS_PER_UPDATE = 500;
 
     void start(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& cfilePath) {
         ::interf = interf;
