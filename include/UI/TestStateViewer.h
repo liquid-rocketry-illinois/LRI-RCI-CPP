@@ -13,6 +13,7 @@ namespace LRI::RCI {
         bool dstream;
         bool doHeartbeats;
         bool resetTimeOnTestStart;
+        bool superAutos;
 
         // Timer for start button
         StopWatch startTimer;

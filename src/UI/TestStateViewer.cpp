@@ -10,7 +10,8 @@
 // Module for viewing and controlling test state
 namespace LRI::RCI {
     TestStateViewer::TestStateViewer() :
-        inputHeartbeatRate(0), activeTest(0), dstream(false), doHeartbeats(false), resetTimeOnTestStart(false) {}
+        inputHeartbeatRate(0), activeTest(0), dstream(false), doHeartbeats(false), resetTimeOnTestStart(false),
+        superAutos(false) {}
 
     void TestStateViewer::render() {
         ImGui::PushID("TestStateViewer");
@@ -200,6 +201,8 @@ namespace LRI::RCI {
             auto now = std::chrono::system_clock::now();
             hwctrl::getELog()->serialize(std::format("{:%d-%m-%Y-%H-%M-%OS}.rci", now));
         }
+
+        if(ImGui::Checkbox("Supercharged Autosaves", &superAutos)) hwctrl::superchargeAutosaves(superAutos);
 
         if(!hwctrl::isTargetReady()) ImGui::EndDisabled();
         ImGui::PopID();

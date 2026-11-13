@@ -20,6 +20,7 @@ namespace LRI::RCI::hwctrl {
     bool isOpen();
     bool isTargetReady();
     const EventLog* getELog();
+    void superchargeAutosaves(bool super);
 
     void addError(Error&& e);
     template<typename... Args>

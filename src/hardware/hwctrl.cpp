@@ -1,8 +1,8 @@
 #include "hardware/hwctrl.h"
 
 #include <chrono>
-#include <set>
 #include <fstream>
+#include <set>
 #include <vector>
 
 #include "hardware/HardwareQualifier.h"
@@ -35,6 +35,8 @@ namespace {
     EventLog* elog = nullptr;
     std::chrono::system_clock::time_point lastAutoSave;
     unsigned autosaveNumber = 0;
+    bool superAutos;
+    unsigned superAutosCount = 0;
 
     std::vector<TargetTest> tests;
 
@@ -182,9 +184,18 @@ namespace LRI::RCI::hwctrl {
         }
 
         auto now = std::chrono::system_clock::now();
-        if(now - lastAutoSave > std::chrono::seconds(60)) {
-            lastAutoSave = now;
-            elog->serialize(std::format("autosave-{}.rci", (autosaveNumber++) % 5));
+        if(superAutos) {
+            if(now - lastAutoSave > std::chrono::seconds(1)) {
+                lastAutoSave = now;
+                elog->serialize(std::format("supercharged-autosave-{}.rci", superAutosCount++));
+            }
+        }
+
+        else {
+            if(now - lastAutoSave > std::chrono::seconds(60)) {
+                lastAutoSave = now;
+                elog->serialize(std::format("autosave-{}.rci", (autosaveNumber++) % 5));
+            }
         }
     }
 
@@ -209,6 +220,10 @@ namespace LRI::RCI::hwctrl {
     bool isOpen() { return interf != nullptr; }
     bool isTargetReady() { return targetReady; }
     const EventLog* getELog() { return elog; }
+    void superchargeAutosaves(bool super) {
+        superAutos = super;
+        if(super) superAutosCount = 0;
+    }
     void addError(Error&& e) { elog->addError(std::move(e)); }
     const std::set<HardwareQualifier>& getQuals() { return elog->getRegisteredQuals(); }
     const std::vector<TargetTest>& getTests() { return tests; }
