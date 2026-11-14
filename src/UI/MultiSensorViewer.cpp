@@ -70,7 +70,8 @@ namespace LRI::RCI {
                 continue;
             }
 
-            ImPlot::SetupAxes("Time (s)", graph.axis.c_str(), ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxes("Time (s)", graph.axis.c_str(),
+                              ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_AutoFollowSlider, ImPlotAxisFlags_AutoFit);
 
             bool autofit = ImPlot::GetCurrentContext()->CurrentPlot->Axes[ImAxis_X1].Flags & ImPlotAxisFlags_AutoFit;
 
@@ -78,11 +79,26 @@ namespace LRI::RCI {
                 const auto& line = channelData.at(channel);
 
                 TargetFloatPlotData pd;
-                if(autofit) pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS);
+                if(autofit) {
+                    float aft = ImPlot::GetAxisFollowDistance();
+                    if(aft == 0) pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS);
+                    else {
+                        auto millisFollowDistance = static_cast<uint32_t>(aft * 1000);
+                        uint32_t displayStart = 0;
+                        if(!line.data.times->empty()) {
+                            uint32_t lastAvailableTime = line.data.times->back().ttime;
+                            if(lastAvailableTime > millisFollowDistance)
+                                displayStart = lastAvailableTime - millisFollowDistance;
+                        }
+                        pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS, displayStart, UINT32_MAX);
+                    }
+                }
+
                 else {
                     auto plotDims = ImPlot::GetPlotLimits();
-                    auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min));
-                    auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max));
+                    // Need to *1000 to undo the /1000 in implotTargetFloat
+                    auto min = static_cast<uint32_t>(std::max(0., plotDims.X.Min * 1000));
+                    auto max = static_cast<uint32_t>(std::max(0., plotDims.X.Max * 1000));
                     pd = TargetFloatPlotData(&line.data, NUM_GRAPH_POINTS, min, max);
                 }
 
