@@ -441,7 +441,7 @@ namespace {
                 vectorIntoH5(idg(), "times", *data.times, ctimeType, space());
 
                 while(data.times != nullptr) {
-                    vectorIntoH5(idg(), ToHex(ch.channel), *data.values, H5T_NATIVE_UINT8, space());
+                    vectorIntoH5(idg(), ToHex(ch.channel), *data.values, H5T_NATIVE_FLOAT, space());
                     ch.channel++;
                     data = log.getChannelFloatData(ch);
                 }
