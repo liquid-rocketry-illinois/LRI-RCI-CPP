@@ -33,7 +33,7 @@ namespace LRI::RCI {
             // If the current state is GO:
             bool prev = bprompt;
             if(!prev) ImGui::BeginDisabled();
-            if(ImGui::Button("NO GO")) bprompt = true;
+            if(ImGui::Button("NO GO")) bprompt = RCP_GONOGO_NOGO;
             if(!prev) ImGui::EndDisabled();
 
             // If the current state is NO GO
