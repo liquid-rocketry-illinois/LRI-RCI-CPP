@@ -1,5 +1,10 @@
 #include "UI/HDFViewer.h"
+
 #include "UI/gutils.h"
+#include "nfd.h"
+
+#include "nfd_helper.h"
+#include <format>
 
 namespace {
     using namespace LRI::RCI;
@@ -7,8 +12,12 @@ namespace {
     class HDFPickerWM : public WModule {
         Window* const owner;
 
+        bool hasResults;
+        std::string err;
+        std::string path;
+
     public:
-        explicit HDFPickerWM(Window* owner) : owner(owner) {}
+        explicit HDFPickerWM(Window* owner) : owner(owner), hasResults(false) {}
         ~HDFPickerWM() override = default;
 
         void render() override {
@@ -21,7 +30,27 @@ namespace {
             };
 
             ImGui::Text("Examine saved RCI test logs");
-            if(ImGui::Button("Browse")) {}
+            if(ImGui::Button("Browse")) {
+                auto res = filePicker(owner);
+                hasResults = true;
+                if(res.state == FilePickResult::SUCCESS) {
+                    err = "success";
+                    path = res.outpath.string();
+                }
+
+                else if(res.state == FilePickResult::CANCELLED) {
+                    err = "cancelled";
+                    path = "";
+                }
+
+                else {
+                    err = std::format("error: {}", NFD_GetError());
+                    path = "";
+                }
+            }
+
+            ImGui::Text("state: %s", err.c_str());
+            ImGui::Text("path: %s", path.c_str());
         }
     };
 } // namespace

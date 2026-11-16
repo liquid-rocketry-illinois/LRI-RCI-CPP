@@ -27,6 +27,7 @@ add_custom_command(
 add_subdirectory(libs/glfw)
 add_subdirectory(libs/RCP-Host)
 add_subdirectory(libs/json)
+add_subdirectory(libs/nfd-extended)
 
 # Turn off a bunch of unneeded SFML stuff
 set(SFML_BUILD_GRAPHICS OFF)
@@ -77,6 +78,7 @@ add_executable(LRI_control_panel
         src/main.cpp
         src/utils.cpp
         src/improgress.cpp
+        src/nfd_helper.cpp
         src/rendering.cpp
 
         # UI Elements
@@ -119,7 +121,7 @@ add_executable(LRI_control_panel
 
 # Add needed libraries
 target_link_libraries(LRI_control_panel PRIVATE RCP-Host nlohmann_json SFML::Network imgui
-        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi hdf5-static)
+        opengl32 gdi32 imm32 user32 advapi32 Setupapi Dwmapi hdf5-static nfd)
 
 # Add includes folder
 target_include_directories(LRI_control_panel PRIVATE include)

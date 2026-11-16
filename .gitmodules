@@ -19,3 +19,6 @@
 [submodule "libs/hdf5"]
 	path = libs/hdf5
 	url = https://github.com/HDFGroup/hdf5
+[submodule "libs/nfd-extended"]
+	path = libs/nfd-extended
+	url = https://github.com/btzy/nativefiledialog-extended

@@ -154,8 +154,7 @@ namespace {
 } // namespace
 
 namespace LRI::RCI {
-    Window::Window() :
-        window(nullptr), oldProc(nullptr), open(false), debugChordPrev(false), showDebug(false) {
+    Window::Window() : window(nullptr), oldProc(nullptr), open(false), debugChordPrev(false), showDebug(false) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -557,6 +556,8 @@ namespace LRI::RCI {
             preventScreenTurnoff();
         });
     }
+
+    HWND Window::getHandle() const { return glfwGetWin32Window(window); }
 
     LRESULT Window::borderlessProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         Window* w = reinterpret_cast<Window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));

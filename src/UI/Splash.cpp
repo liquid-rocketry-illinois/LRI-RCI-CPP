@@ -2,6 +2,7 @@
 
 #include <future>
 #include <string>
+#include "nfd_helper.h"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "glfw/glfw3native.h"
@@ -83,6 +84,7 @@ namespace LRI::RCI {
         glfwShowWindow(window);
 
         auto fut = std::async(std::launch::async, [] {
+            nfdHelperInit();
             detectRoamingFolder();
             enumSerialDevs();
         });
