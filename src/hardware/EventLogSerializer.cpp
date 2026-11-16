@@ -461,197 +461,205 @@ namespace LRI::RCI {
     EventLog::EventLog(const std::filesystem::path& hdf) : EventLog() {
         setupTypes();
 
-        File file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-        if(file() < 0) error("Failed to open file");
+        try {
+            File file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+            if(file() < 0) error("Failed to open file");
 
-        std::vector<SerializableQual> squals;
-        vectorFromH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
-        for(const auto& sq : squals) createDevice(sq.toQual());
+            std::vector<SerializableQual> squals;
+            vectorFromH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
+            for(const auto& sq : squals) createDevice(sq.toQual());
 
-        strFromH5(file(), TCONF_DSET_NAME, jsonText);
+            strFromH5(file(), TCONF_DSET_NAME, jsonText);
 
 
-        // Host group data
-        {
-            Group hostG = H5Gopen(file(), "host", H5P_DEFAULT);
-            if(hostG() < 0) error("No host group");
+            // Host group data
+            {
+                Group hostG = H5Gopen(file(), "host", H5P_DEFAULT);
+                if(hostG() < 0) error("No host group");
 
-            vectorFromH5(hostG(), "txdata", txbytes, H5T_NATIVE_UINT8);
+                vectorFromH5(hostG(), "txdata", txbytes, H5T_NATIVE_UINT8);
 
-            std::vector<SerializableError> serrs;
-            vectorFromH5(hostG(), "errors", serrs, SerializableError::htype);
-            errors.reserve(serrs.size());
-            for(const auto& se : serrs) errors.emplace_back(se.toError());
+                std::vector<SerializableError> serrs;
+                vectorFromH5(hostG(), "errors", serrs, SerializableError::htype);
+                errors.reserve(serrs.size());
+                for(const auto& se : serrs) errors.emplace_back(se.toError());
 
-            std::vector<SerializableReadReq> sreqs;
-            vectorFromH5(hostG(), "readRequests", sreqs, SerializableReadReq::htype);
-            host.readReqs.reserve(sreqs.size());
-            for(const auto& rr : sreqs) host.readReqs.emplace_back(rr.toReadReq());
+                std::vector<SerializableReadReq> sreqs;
+                vectorFromH5(hostG(), "readRequests", sreqs, SerializableReadReq::htype);
+                host.readReqs.reserve(sreqs.size());
+                for(const auto& rr : sreqs) host.readReqs.emplace_back(rr.toReadReq());
 
-            std::vector<SerializableTare> stare;
-            vectorFromH5(hostG(), "tares", stare, SerializableTare::htype);
-            host.tares.reserve(stare.size());
-            for(const auto& st : stare) host.tares.emplace_back(st.toTareReq());
+                std::vector<SerializableTare> stare;
+                vectorFromH5(hostG(), "tares", stare, SerializableTare::htype);
+                host.tares.reserve(stare.size());
+                for(const auto& st : stare) host.tares.emplace_back(st.toTareReq());
 
-            Group group = H5Gopen(hostG(), "00", H5P_DEFAULT);
-            if(group() < 0) error("No 00 group");
-            for(const auto& c : ALL_HCH) {
-                if(c == H_TEST_ID) continue;
-                Group idg = H5Gopen(group(), ToHex(c), H5P_DEFAULT);
-                if(idg() < 0) error(std::format("Could not open 00 group {}", ToHex(c)));
+                Group group = H5Gopen(hostG(), "00", H5P_DEFAULT);
+                if(group() < 0) error("No 00 group");
+                for(const auto& c : ALL_HCH) {
+                    if(c == H_TEST_ID) continue;
+                    Group idg = H5Gopen(group(), ToHex(c), H5P_DEFAULT);
+                    if(idg() < 0) error(std::format("Could not open 00 group {}", ToHex(c)));
 
-                switch(c) {
-                case H_TEST_RUN_STATE:
-                    vectorFromH5(idg(), "testID", host.ctrl_uints[TESTID], H5T_NATIVE_UINT8);
-                    [[fallthrough]];
+                    switch(c) {
+                    case H_TEST_RUN_STATE:
+                        vectorFromH5(idg(), "testID", host.ctrl_uints[TESTID], H5T_NATIVE_UINT8);
+                        [[fallthrough]];
 
-                case H_DSTREAM:
-                case H_HEARTBEAT_TIME: {
-                    HardwareChannel ch = {TEST_STATE, c};
-                    vectorFromH5(idg(), "values", host.ctrl_uints[ch], H5T_NATIVE_UINT8);
-                    [[fallthrough]];
+                    case H_DSTREAM:
+                    case H_HEARTBEAT_TIME: {
+                        HardwareChannel ch = {TEST_STATE, c};
+                        vectorFromH5(idg(), "values", host.ctrl_uints[ch], H5T_NATIVE_UINT8);
+                        [[fallthrough]];
+                    }
+
+                    case H_HEARTBEAT:
+                    case H_TIME_RESET:
+                    case H_DEV_RESET: {
+                        HardwareChannel ch = {TEST_STATE, c};
+                        vectorFromH5(idg(), "times", host.ctrltimestamps[ch], htimeType);
+                        break;
+                    }
+
+                    default:
+                        break;
+                    }
                 }
 
-                case H_HEARTBEAT:
-                case H_TIME_RESET:
-                case H_DEV_RESET: {
-                    HardwareChannel ch = {TEST_STATE, c};
-                    vectorFromH5(idg(), "times", host.ctrltimestamps[ch], htimeType);
-                    break;
-                }
+                group = H5Gopen(hostG(), "03", H5P_DEFAULT);
+                if(group() < 0) error("No 03 group");
+                vectorFromH5(group(), "times", host.ctrltimestamps[PROMPT], htimeType);
+                vectorFromH5(group(), "00", host.act_floats[PROMPT], H5T_NATIVE_FLOAT);
+                vectorFromH5(group(), "01", host.act_uints[PROMPT], H5T_NATIVE_UINT8);
 
-                default:
-                    break;
+                for(const auto& qual : registeredQuals) {
+                    if(qual.devclass >= RCP_DEVCLASS_TARGET_LOG) continue;
+
+                    group = H5Gopen(hostG(), ToHex(qual.devclass), H5P_DEFAULT);
+                    if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
+
+                    Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
+                    if(idg() < 0) error(std::format("No host entry for {}", qual));
+
+                    vectorFromH5(idg(), "times", host.acttimestamps[qual], htimeType);
+
+                    switch(qual.devclass) {
+                    case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
+                        vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
+                        break;
+                    }
+
+                    case RCP_DEVCLASS_STEPPER: {
+                        vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
+                        vectorFromH5(idg(), "01", host.act_floats[qual], H5T_NATIVE_FLOAT);
+                        break;
+                    }
+
+                    case RCP_DEVCLASS_ANGLED_ACTUATOR:
+                    case RCP_DEVCLASS_MOTOR: {
+                        vectorFromH5(idg(), "00", host.act_floats[qual], H5T_NATIVE_FLOAT);
+                        break;
+                    }
+
+                    default:
+                        break;
+                    }
                 }
             }
 
-            group = H5Gopen(hostG(), "03", H5P_DEFAULT);
-            if(group() < 0) error("No 03 group");
-            vectorFromH5(group(), "times", host.ctrltimestamps[PROMPT], htimeType);
-            vectorFromH5(group(), "00", host.act_floats[PROMPT], H5T_NATIVE_FLOAT);
-            vectorFromH5(group(), "01", host.act_uints[PROMPT], H5T_NATIVE_UINT8);
+            // Target group data
+            {
+                Group targetG = H5Gopen(file(), "target", H5P_DEFAULT);
+                if(targetG() < 0) error("No target group");
 
-            for(const auto& qual : registeredQuals) {
-                if(qual.devclass >= RCP_DEVCLASS_TARGET_LOG) continue;
+                vectorFromH5(targetG(), "rxdata", rxbytes, H5T_NATIVE_UINT8);
 
-                group = H5Gopen(hostG(), ToHex(qual.devclass), H5P_DEFAULT);
-                if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
+                {
+                    Group group = H5Gopen(targetG(), "00", H5P_DEFAULT);
+                    if(group() < 0) error("No target group 00");
 
-                Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
-                if(idg() < 0) error(std::format("No host entry for {}", qual));
+                    HardwareChannel ch = {TEST_STATE, 0};
+                    vectorFromH5(group(), "times", target.timestamps[ch], ctimeType);
 
-                vectorFromH5(idg(), "times", host.acttimestamps[qual], htimeType);
-
-                switch(qual.devclass) {
-                case RCP_DEVCLASS_DISCRETE_ACTUATOR: {
-                    vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
-                    break;
+                    for(const auto& c : ALL_TCH) {
+                        ch.channel = c;
+                        vectorFromH5(group(), ToHex(c), target.uints[ch], H5T_NATIVE_UINT8);
+                    }
                 }
 
-                case RCP_DEVCLASS_STEPPER: {
-                    vectorFromH5(idg(), "00", host.act_uints[qual], H5T_NATIVE_UINT8);
-                    vectorFromH5(idg(), "01", host.act_floats[qual], H5T_NATIVE_FLOAT);
-                    break;
+                {
+                    Group group = H5Gopen(targetG(), "03", H5P_DEFAULT);
+                    if(group() < 0) error("No target group 03");
+                    vectorFromH5(group(), "times", host.acttimestamps[PROMPT], htimeType);
+                    vectorFromH5(group(), "00", host.strings[PROMPT], vstr);
                 }
 
-                case RCP_DEVCLASS_ANGLED_ACTUATOR:
-                case RCP_DEVCLASS_MOTOR: {
-                    vectorFromH5(idg(), "00", host.act_floats[qual], H5T_NATIVE_FLOAT);
-                    break;
+                {
+                    Group group = H5Gopen(targetG(), "80", H5P_DEFAULT);
+                    if(group() < 0) error("No target group 80");
+                    vectorFromH5(group(), "times", host.acttimestamps[TARGET_LOG], htimeType);
+                    vectorFromH5(group(), "00", host.strings[TARGET_LOG], vstr);
                 }
 
-                default:
-                    break;
+                for(const auto& qual : registeredQuals) {
+                    Group group = H5Gopen(targetG(), ToHex(qual.devclass), H5P_DEFAULT);
+                    if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
+
+                    Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
+                    if(idg() < 0) error(std::format("No target entry for {}", qual));
+
+                    vectorFromH5(idg(), "times", target.timestamps[qual], ctimeType);
+
+                    switch(qual.devclass) {
+                    case RCP_DEVCLASS_DISCRETE_ACTUATOR:
+                    case RCP_DEVCLASS_BOOL_SENSOR: {
+                        HardwareChannel ch = {qual, 0};
+                        while(target.uints.contains(ch)) {
+                            vectorFromH5(idg(), ToHex(ch.channel), target.uints[ch], H5T_NATIVE_UINT8);
+                            ch.channel++;
+                        }
+
+                        break;
+                    }
+
+                    case RCP_DEVCLASS_STEPPER:
+                    case RCP_DEVCLASS_ANGLED_ACTUATOR:
+                    case RCP_DEVCLASS_MOTOR:
+                    case RCP_DEVCLASS_AM_PRESSURE:
+                    case RCP_DEVCLASS_TEMPERATURE:
+                    case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
+                    case RCP_DEVCLASS_RELATIVE_HYGROMETER:
+                    case RCP_DEVCLASS_LOAD_CELL:
+                    case RCP_DEVCLASS_FLOW_METER:
+                    case RCP_DEVCLASS_ALTITUDE:
+                    case RCP_DEVCLASS_RADIO_STRENGTH:
+                    case RCP_DEVCLASS_POWERMON:
+                    case RCP_DEVCLASS_ACCELEROMETER:
+                    case RCP_DEVCLASS_GYROSCOPE:
+                    case RCP_DEVCLASS_MAGNETOMETER:
+                    case RCP_DEVCLASS_RPY:
+                    case RCP_DEVCLASS_GPS:
+                    case RCP_DEVCLASS_QUATERNION: {
+                        HardwareChannel ch = {qual, 0};
+                        while(target.floats.contains(ch)) {
+                            vectorFromH5(idg(), ToHex(ch.channel), target.floats[ch], H5T_NATIVE_FLOAT);
+                            ch.channel++;
+                        }
+                        break;
+                    }
+
+                    default:
+                        break;
+                    }
                 }
             }
         }
 
-        // Target group data
-        {
-            Group targetG = H5Gopen(file(), "target", H5P_DEFAULT);
-            if(targetG() < 0) error("No target group");
-
-            vectorFromH5(targetG(), "rxdata", rxbytes, H5T_NATIVE_UINT8);
-
-            {
-                Group group = H5Gopen(targetG(), "00", H5P_DEFAULT);
-                if(group() < 0) error("No target group 00");
-
-                HardwareChannel ch = {TEST_STATE, 0};
-                vectorFromH5(group(), "times", target.timestamps[ch], ctimeType);
-
-                for(const auto& c : ALL_TCH) {
-                    ch.channel = c;
-                    vectorFromH5(group(), ToHex(c), target.uints[ch], H5T_NATIVE_UINT8);
-                }
-            }
-
-            {
-                Group group = H5Gopen(targetG(), "03", H5P_DEFAULT);
-                if(group() < 0) error("No target group 03");
-                vectorFromH5(group(), "times", host.acttimestamps[PROMPT], htimeType);
-                vectorFromH5(group(), "00", host.strings[PROMPT], vstr);
-            }
-
-            {
-                Group group = H5Gopen(targetG(), "80", H5P_DEFAULT);
-                if(group() < 0) error("No target group 80");
-                vectorFromH5(group(), "times", host.acttimestamps[TARGET_LOG], htimeType);
-                vectorFromH5(group(), "00", host.strings[TARGET_LOG], vstr);
-            }
-
-            for(const auto& qual : registeredQuals) {
-                Group group = H5Gopen(targetG(), ToHex(qual.devclass), H5P_DEFAULT);
-                if(group() < 0) error(std::format("No {} group", ToHex(qual.devclass)));
-
-                Group idg = H5Gopen(group(), ToHex(qual.id), H5P_DEFAULT);
-                if(idg() < 0) error(std::format("No target entry for {}", qual));
-
-                vectorFromH5(idg(), "times", target.timestamps[qual], ctimeType);
-
-                switch(qual.devclass) {
-                case RCP_DEVCLASS_DISCRETE_ACTUATOR:
-                case RCP_DEVCLASS_BOOL_SENSOR: {
-                    HardwareChannel ch = {qual, 0};
-                    while(target.uints.contains(ch)) {
-                        vectorFromH5(idg(), ToHex(ch.channel), target.uints[ch], H5T_NATIVE_UINT8);
-                        ch.channel++;
-                    }
-
-                    break;
-                }
-
-                case RCP_DEVCLASS_STEPPER:
-                case RCP_DEVCLASS_ANGLED_ACTUATOR:
-                case RCP_DEVCLASS_MOTOR:
-                case RCP_DEVCLASS_AM_PRESSURE:
-                case RCP_DEVCLASS_TEMPERATURE:
-                case RCP_DEVCLASS_PRESSURE_TRANSDUCER:
-                case RCP_DEVCLASS_RELATIVE_HYGROMETER:
-                case RCP_DEVCLASS_LOAD_CELL:
-                case RCP_DEVCLASS_FLOW_METER:
-                case RCP_DEVCLASS_ALTITUDE:
-                case RCP_DEVCLASS_RADIO_STRENGTH:
-                case RCP_DEVCLASS_POWERMON:
-                case RCP_DEVCLASS_ACCELEROMETER:
-                case RCP_DEVCLASS_GYROSCOPE:
-                case RCP_DEVCLASS_MAGNETOMETER:
-                case RCP_DEVCLASS_RPY:
-                case RCP_DEVCLASS_GPS:
-                case RCP_DEVCLASS_QUATERNION: {
-                    HardwareChannel ch = {qual, 0};
-                    while(target.floats.contains(ch)) {
-                        vectorFromH5(idg(), ToHex(ch.channel), target.floats[ch], H5T_NATIVE_FLOAT);
-                        ch.channel++;
-                    }
-                    break;
-                }
-
-                default:
-                    break;
-                }
-            }
+        catch(const std::runtime_error&) {
+            releaseTypes();
+            throw;
         }
+
         releaseTypes();
     }
 
