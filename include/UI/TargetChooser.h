@@ -5,8 +5,6 @@
 
 namespace LRI::RCI {
     class TargetChooser : public Windowlet {
-        bool firstUse;
-
     public:
         explicit TargetChooser(Window* owner);
         ~TargetChooser() override = default;

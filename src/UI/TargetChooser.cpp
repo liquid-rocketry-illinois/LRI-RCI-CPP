@@ -401,14 +401,11 @@ namespace {
 
 namespace LRI::RCI {
     TargetChooser::TargetChooser(Window* owner) :
-        Windowlet("Target Chooser", {new TargetChooserWM(owner)}), firstUse(true) {}
+        Windowlet("Target Chooser", {new TargetChooserWM(owner)}) {}
 
     void TargetChooser::render() {
-        if(firstUse) [[unlikely]] {
-            firstUse = false;
-            ImGui::SetNextWindowSize({550_sc, 225_sc});
-            ImGui::SetNextWindowPos({50_sc, 90_sc});
-        }
+        ImGui::SetNextWindowSize({550_sc, 225_sc}, ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowPos({50_sc, 90_sc}, ImGuiCond_FirstUseEver);
 
         ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
         Windowlet::render();
