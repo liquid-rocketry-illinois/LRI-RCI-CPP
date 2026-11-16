@@ -85,6 +85,7 @@ add_executable(LRI_control_panel
         src/UI/BoolSensorViewer.cpp
         src/UI/EStopViewer.cpp
         src/UI/ErrorWindow.cpp
+        src/UI/HDFViewer.cpp
         src/UI/MotorViewer.cpp
         src/UI/MultiSensorViewer.cpp
         src/UI/PromptViewer.cpp

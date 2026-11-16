@@ -29,7 +29,7 @@ namespace LRI::RCI {
         std::set<Windowlet*> windowlets;
         std::vector<std::function<void()>> preframes;
 
-        TargetChooser chooser;
+        std::set<Windowlet*> setupWindowlets;
 
         std::string openTarget;
         std::string openInterf;

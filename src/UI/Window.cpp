@@ -27,6 +27,7 @@
 #include "UI/DiscreteActuatorViewer.h"
 #include "UI/EStopViewer.h"
 #include "UI/ErrorWindow.h"
+#include "UI/HDFViewer.h"
 #include "UI/MotorViewer.h"
 #include "UI/MultiSensorViewer.h"
 #include "UI/PromptViewer.h"
@@ -154,7 +155,7 @@ namespace {
 
 namespace LRI::RCI {
     Window::Window() :
-        window(nullptr), oldProc(nullptr), chooser(this), open(false), debugChordPrev(false), showDebug(false) {
+        window(nullptr), oldProc(nullptr), open(false), debugChordPrev(false), showDebug(false) {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
@@ -209,8 +210,10 @@ namespace LRI::RCI {
                                 GLFW_DONT_CARE);
         style::setWindowIcon(window);
 
-        // // Start the TargetChooser window
-        windowlets.insert(&chooser);
+        // Start the setup windowlets
+        setupWindowlets.insert(new TargetChooser(this));
+        setupWindowlets.insert(new HDFPicker(this));
+        windowlets.insert(setupWindowlets.cbegin(), setupWindowlets.cend());
     }
 
     Window::~Window() {
@@ -222,6 +225,9 @@ namespace LRI::RCI {
             for(auto* w : windowlets) delete w;
             windowlets.clear();
         }
+
+        for(auto* w : setupWindowlets) delete w;
+        setupWindowlets.clear();
 
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -344,7 +350,7 @@ namespace LRI::RCI {
                         hwctrl::end();
                         for(auto* w : windowlets) delete w;
                         windowlets.clear();
-                        windowlets.insert(&chooser);
+                        windowlets.insert(setupWindowlets.cbegin(), setupWindowlets.cend());
                         allowScreenTurnoff();
                     });
                 }
