@@ -31,7 +31,7 @@ namespace {
 
             ImGui::Text("Examine saved RCI test logs");
             if(ImGui::Button("Browse")) {
-                auto res = filePicker(owner);
+                auto res = pickRCIFile(owner);
                 hasResults = true;
                 if(res.state == FilePickResult::SUCCESS) {
                     err = "success";

@@ -10,6 +10,8 @@
 #include "UI/vscode_icons.h"
 #include "VERSION.h"
 
+#include "nfd_helper.h"
+
 namespace {
     using namespace LRI::RCI;
     GLFWwindow* shared = nullptr;
@@ -93,6 +95,7 @@ namespace LRI::RCI::style {
         IM_DELETE(sharedFonts);
         glDeleteTextures(1, &birdTex);
         glfwDestroyWindow(shared);
+        nfdHelperCleanup();
     }
 
     GLFWwindow* getSharedResources() { return shared; }

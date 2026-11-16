@@ -5,17 +5,22 @@
 #include "nfd.h"
 
 namespace LRI::RCI {
-    FilePickResult filePicker(Window* owner) {
+    FilePickResult pickRCIFile(Window* owner) {
 
+        auto defPath = getRoamingFolder() / "exports";
+        auto defPathStr = defPath.string();
 
         nfdu8char_t* out;
+        nfdu8filteritem_t filter;
+        filter.name = "RCI Test File";
+        filter.spec = "rci";
         nfdopendialogu8args_t args;
-        args.filterList = nullptr;
-        args.filterCount = 0;
-        args.defaultPath = nullptr;
+        args.filterList = &filter;
+        args.filterCount = 1;
+        args.defaultPath = defPathStr.c_str();
         args.parentWindow = {NFD_WINDOW_HANDLE_TYPE_WINDOWS, owner->getHandle()};
         args.acceptLabel = "Open";
-        args.title = "Open a thingy";
+        args.title = "Open a test log";
         args.cancelLabel = "Cancel";
         nfdresult_t res = NFD_OpenDialogU8_With(&out, &args);
 
@@ -34,4 +39,5 @@ namespace LRI::RCI {
     }
 
     void nfdHelperInit() { NFD_Init(); }
+    void nfdHelperCleanup() { NFD_Quit(); }
 } // namespace LRI::RCI

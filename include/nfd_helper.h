@@ -7,15 +7,16 @@
 namespace LRI::RCI {
     struct FilePickResult {
         enum {
-            WAITING, SUCCESS, CANCELLED, ERR
+            SUCCESS, CANCELLED, ERR
         } state;
 
         std::filesystem::path outpath;
     };
     // This function is implemented in utils.cpp
-    FilePickResult filePicker(Window* owner);
+    FilePickResult pickRCIFile(Window* owner);
 
     void nfdHelperInit();
+    void nfdHelperCleanup();
 }
 
 #endif // LRI_CONTROL_PANEL_NFD_HELPER_H
