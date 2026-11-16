@@ -1,10 +1,10 @@
 #include "UI/HDFViewer.h"
 
 #include "UI/gutils.h"
-#include "nfd.h"
 
-#include "nfd_helper.h"
 #include <format>
+#include "nfd_helper.h"
+#include "hardware/EventLog.h"
 
 namespace {
     using namespace LRI::RCI;
@@ -12,13 +12,11 @@ namespace {
     class HDFPickerWM : public WModule {
         Window* const owner;
 
-        bool hasResults;
-        std::string err;
-        std::string path;
-
     public:
-        explicit HDFPickerWM(Window* owner) : owner(owner), hasResults(false) {}
+        explicit HDFPickerWM(Window* owner) : owner(owner) {}
         ~HDFPickerWM() override = default;
+
+        std::string msg;
 
         void render() override {
             ImGui::PushID("HDFPicker");
@@ -31,26 +29,31 @@ namespace {
 
             ImGui::Text("Examine saved RCI test logs");
             if(ImGui::Button("Browse")) {
-                auto res = pickRCIFile(owner);
-                hasResults = true;
-                if(res.state == FilePickResult::SUCCESS) {
-                    err = "success";
-                    path = res.outpath.string();
+                FilePickResult fpr = pickRCIFile(owner);
+
+                if(fpr.state == FilePickResult::SUCCESS) {
+                    try {
+                        EventLog* elog = new EventLog(fpr.outpath);
+                        msg = "success!";
+                        delete elog;
+                    }
+
+                    catch(const std::runtime_error& e) {
+                        msg = std::string("Error opening RCI log: ") + e.what();
+                    }
+
                 }
 
-                else if(res.state == FilePickResult::CANCELLED) {
-                    err = "cancelled";
-                    path = "";
+                else if(fpr.state == FilePickResult::CANCELLED) {
+                    msg = "";
                 }
 
                 else {
-                    err = std::format("error: {}", NFD_GetError());
-                    path = "";
+                    msg = "Internal error. Retry.";
                 }
             }
 
-            ImGui::Text("state: %s", err.c_str());
-            ImGui::Text("path: %s", path.c_str());
+            ImGui::Text("%s", msg.c_str());
         }
     };
 } // namespace
