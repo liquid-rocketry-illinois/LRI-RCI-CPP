@@ -361,10 +361,10 @@ namespace LRI::RCI {
     }
 
     // Getters
-    const std::set<HardwareQualifier>& EventLog::getRegisteredQuals() { return registeredQuals; }
-    const std::string& EventLog::getJSONText() { return jsonText; }
+    const std::set<HardwareQualifier>& EventLog::getRegisteredQuals() const { return registeredQuals; }
+    const std::string& EventLog::getJSONText() const { return jsonText; }
 
-    EventLog::TargetUint EventLog::getReportedTestStateChannel(Channels ch) {
+    EventLog::TargetUint EventLog::getReportedTestStateChannel(Channels ch) const {
         HardwareChannel channel{TEST_STATE, ch};
         if(!target.uints.contains(channel)) return {};
         return {&target.timestamps.at(TEST_STATE), &target.uints.at(channel)};

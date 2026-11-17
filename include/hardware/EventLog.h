@@ -214,9 +214,9 @@ namespace LRI::RCI {
         void addSent(const void* data, size_t length);
 
         // Getters
-        [[nodiscard]] const std::set<HardwareQualifier>& getRegisteredQuals();
-        [[nodiscard]] const std::string& getJSONText();
-        [[nodiscard]] TargetUint getReportedTestStateChannel(TestStateChannels::Channels ch);
+        [[nodiscard]] const std::set<HardwareQualifier>& getRegisteredQuals() const;
+        [[nodiscard]] const std::string& getJSONText() const;
+        [[nodiscard]] TargetUint getReportedTestStateChannel(TestStateChannels::Channels ch) const;
 
         [[nodiscard]] HostString getPromptRequests() const;
         [[nodiscard]] PromptResponse getPromptResponses() const;
