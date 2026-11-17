@@ -10,14 +10,24 @@
 #include "glfw/glfw3.h"
 
 #include "UI/Windowlet.h"
-#include "UI/TargetChooser.h"
 
 #include "hardware/json.h"
 
 #include "interfaces/RCP_Interface.h"
 
 namespace LRI::RCI {
-    class TargetChooser;
+    class WindowTitlebarFunctions {
+    public:
+        virtual void extraTitlebarElements(float textY) = 0;
+        virtual void menuPopupElements() = 0;
+        virtual bool lockCloseButton() { return false; }
+
+        WindowTitlebarFunctions() = default;
+        virtual ~WindowTitlebarFunctions() = default;
+
+        WindowTitlebarFunctions(const WindowTitlebarFunctions&) = delete;
+        WindowTitlebarFunctions& operator=(const WindowTitlebarFunctions&) = delete;
+    };
 
     class Window {
         static constexpr float CAPTION_SIZE = 40;
@@ -27,20 +37,15 @@ namespace LRI::RCI {
         WNDPROC oldProc;
 
         std::set<Windowlet*> windowlets;
+        WindowTitlebarFunctions* wtf;
+        bool defaultWindowletsActive;
         std::vector<std::function<void()>> preframes;
 
         std::set<Windowlet*> setupWindowlets;
 
-        std::string openTarget;
-        std::string openInterf;
-        std::string cfname;
-        bool open;
-        StopWatch closeTimer;
-
         bool debugChordPrev;
         bool showDebug;
 
-        void renderMenuPopup(ImVec2 poppos);
         void renderTitlebar();
         void renderBackground();
         void renderDebug();
@@ -51,7 +56,9 @@ namespace LRI::RCI {
         void show();
         void preframe(std::function<void()> func);
 
-        void startTarget(RCP_Interface* interf, const TargetConfig& config, const std::filesystem::path& confFile);
+        void setWindowlets(WindowTitlebarFunctions* newWtf, std::set<Windowlet*>&& newWindowlets);
+        void resetWindowlets();
+
         HWND getHandle() const;
     };
 }
