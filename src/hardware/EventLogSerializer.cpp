@@ -13,6 +13,7 @@
 
 #define QUALS_DSET_NAME "registeredQuals"
 #define TCONF_DSET_NAME "tconfig"
+#define RCI_LOG_FORMAT_VERSION_FIELD_NAME "format"
 #define error(msg) throw std::runtime_error(std::format("\"{}\" at {}", msg, __LINE__))
 
 using namespace LRI::RCI::TestStateChannels;
@@ -465,6 +466,16 @@ namespace LRI::RCI {
             File file = H5Fopen(hdf.string().c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
             if(file() < 0) error("Failed to open file");
 
+            try {
+                std::string fver;
+                strFromH5(file(), RCI_LOG_FORMAT_VERSION_FIELD_NAME, fver);
+                if(fver != "0") throw std::runtime_error(std::format("Unknown format version: {}", fver));
+            }
+
+            catch(const std::runtime_error& e) {
+                throw std::runtime_error(std::format("Error parsing version format: {}", e.what()));
+            }
+
             std::vector<SerializableQual> squals;
             vectorFromH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
             for(const auto& sq : squals) createDevice(sq.toQual());
@@ -678,6 +689,7 @@ namespace LRI::RCI {
         // Create /registeredQuals, which is an array storing all non-implicit qualifiers for reference
         vectorIntoH5(file(), QUALS_DSET_NAME, squals, SerializableQual::htype);
         strIntoH5(file(), TCONF_DSET_NAME, jsonText);
+        strIntoH5(file(), RCI_LOG_FORMAT_VERSION_FIELD_NAME, "0");
 
         hostHDFSerialize(*this, file(), squals);
         targetHDFSerialize(*this, file(), squals);
