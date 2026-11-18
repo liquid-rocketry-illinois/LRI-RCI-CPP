@@ -100,12 +100,13 @@ namespace LRI::RCI {
 
     struct TargetFloatPlotData {
         const EventLog::TargetFloat* tf;
+        bool wallTime;
         size_t startPos;
         size_t stride;
         int numPoints;
 
         TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints,
-                            uint32_t tmin = 0, uint32_t tmax = UINT32_MAX, bool lockedPoints = false);
+                            size_t tmin = 0, size_t tmax = UINT64_MAX, bool lockedPoints = false, bool wallTime = false);
         TargetFloatPlotData();
     };
 

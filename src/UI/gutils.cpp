@@ -208,25 +208,29 @@ namespace LRI::RCI {
         size_t sindex = pd->startPos + (index * pd->stride);
         auto* tdata = pd->tf;
 
-        return ImPlotPoint{static_cast<double>(tdata->times->at(sindex).ttime) / 1000.,
+        double divisor = pd->wallTime ? 1000000. : 1000.;
+        size_t timeVal = pd->wallTime ? tdata->times->at(sindex).htime : tdata->times->at(sindex).ttime;
+        return ImPlotPoint{static_cast<double>(timeVal) / divisor,
                            static_cast<double>(tdata->values->at(sindex))};
     }
 
-    TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints, uint32_t tmin,
-                                             uint32_t tmax, bool lockedPoints) :
-        tf(tf), startPos(0), stride(1), numPoints(0) {
-        if(tf->times->size() == 0) return;
+    TargetFloatPlotData::TargetFloatPlotData(const EventLog::TargetFloat* tf, int targetPoints, size_t tmin,
+                                             size_t tmax, bool lockedPoints, bool wallTime) :
+        tf(tf), wallTime(wallTime), startPos(0), stride(1), numPoints(0) {
+        if(tf->times->empty()) return;
 
         startPos = tf->times->size() / 2;
         size_t endPos = startPos;
         {
             size_t bsearchStride = startPos / 2;
             while(bsearchStride > 0) {
-                if(tf->times->at(startPos).ttime < tmin) startPos += bsearchStride;
-                else if(tf->times->at(startPos).ttime > tmin) startPos -= bsearchStride;
+                size_t stime = wallTime ? tf->times->at(startPos).htime : tf->times->at(startPos).ttime;
+                if(stime < tmin) startPos += bsearchStride;
+                else if(stime > tmin) startPos -= bsearchStride;
 
-                if(tf->times->at(endPos).ttime < tmax) endPos += bsearchStride;
-                else if(tf->times->at(endPos).ttime > tmax) endPos -= bsearchStride;
+                size_t etime = wallTime ? tf->times->at(endPos).htime : tf->times->at(endPos).ttime;
+                if(etime < tmax) endPos += bsearchStride;
+                else if(etime > tmax) endPos -= bsearchStride;
 
                 bsearchStride >>= 1;
             }
@@ -249,7 +253,7 @@ namespace LRI::RCI {
         numPoints = static_cast<int>(size / stride);
     }
 
-    TargetFloatPlotData::TargetFloatPlotData() : tf(nullptr), startPos(0), stride(0), numPoints(0) {}
+    TargetFloatPlotData::TargetFloatPlotData() : tf(nullptr), wallTime(false), startPos(0), stride(0), numPoints(0) {}
 
     namespace GraphInfo {
         static float min3(float a, float b, float c) { return std::min(a, std::min(b, c)); }
