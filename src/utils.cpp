@@ -48,6 +48,9 @@ namespace LRI::RCI {
         case RCP_DEVCLASS_LOAD_CELL:
             return "Load Cell (weight)";
 
+        case RCP_DEVCLASS_BOOL_SENSOR:
+            return "Boolean Sensor";
+
         case RCP_DEVCLASS_POWERMON:
             return "Power Monitor";
 
