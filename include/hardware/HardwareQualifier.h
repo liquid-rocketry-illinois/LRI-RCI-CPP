@@ -37,6 +37,8 @@ namespace LRI::RCI {
             return std::tie(devclass, id) <=> std::tie(rhf.devclass, rhf.id);
         }
 
+        bool operator==(const HardwareQualifier& rhf) const { return devclass == rhf.devclass && id == rhf.id; }
+
         // Helper for packing data as a string. Not for display, use the name field instead
         [[nodiscard]] virtual std::string asString() const {
             return std::format("0x{:02X}-{}-{}", static_cast<uint8_t>(devclass), id, name.empty() ? "<none>" : name);
@@ -56,6 +58,12 @@ namespace LRI::RCI {
         auto operator<=>(const HardwareChannel& rhf) const {
             return std::tie(devclass, id, channel) <=> std::tie(rhf.devclass, rhf.id, rhf.channel);
         }
+
+        bool operator==(const HardwareChannel& rhf) const {
+            return devclass == rhf.devclass && id == rhf.id && channel == rhf.channel;
+        }
+
+        // bool operator==(const HardwareQualifier& rhf) const { return devclass == rhf.devclass && id == rhf.id; }
 
         [[nodiscard]] std::string asString() const override {
             return std::format("{}-{}", HardwareQualifier::asString(), channel);
